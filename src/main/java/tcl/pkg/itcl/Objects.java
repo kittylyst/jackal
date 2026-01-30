@@ -49,7 +49,7 @@ import tcl.lang.TclString;
 import tcl.lang.Var;
 import tcl.lang.WrappedCommand;
 
-class Objects {
+public class Objects {
   static HashMap dangleTable = new HashMap();
 
   /*
@@ -556,7 +556,7 @@ class Objects {
    * ------------------------------------------------------------------------
    */
 
-  static class HandleInstanceCmd implements CommandWithDispose {
+  public static final class HandleInstanceCmd implements CommandWithDispose {
     ItclObject contextObj;
     boolean deleteToken;
 

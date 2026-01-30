@@ -179,7 +179,7 @@ public class TJC {
 
   // Base class for TJC compiled commands
 
-  public abstract static class CompiledCommand implements Command {
+  public abstract static non-sealed class CompiledCommand implements Command {
     public WrappedCommand wcmd = null;
 
     // A CompiledCommand implementation must define cmdProc
@@ -724,7 +724,7 @@ public class TJC {
   // only active while a package init file is being sourced
   // inside sourceInitFile().
 
-  static class InitSourceCmd implements Command {
+  public static final class InitSourceCmd implements Command {
     String init_file;
     String[] files;
     String prefix;

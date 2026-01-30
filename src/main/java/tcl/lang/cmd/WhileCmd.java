@@ -22,7 +22,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "while" command in Tcl. */
-public class WhileCmd implements Command {
+public final class WhileCmd implements Command {
   /**
    * This procedure is invoked to process the "while" Tcl command. See the user documentation for
    * details on what it does.

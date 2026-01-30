@@ -21,7 +21,7 @@ import tcl.lang.TclObject;
 import tcl.lang.TclString;
 
 /** This class implements the built-in "lassign" command in Tcl. */
-public class LassignCmd implements Command {
+public final class LassignCmd implements Command {
   private TclObject empty;
 
   /**

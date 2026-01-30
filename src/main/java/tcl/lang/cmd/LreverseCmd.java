@@ -20,7 +20,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "lreverse" command in Tcl. */
-public class LreverseCmd implements Command {
+public final class LreverseCmd implements Command {
 
   public void cmdProc(Interp interp, TclObject argv[]) throws TclException {
     if (argv.length != 2) {

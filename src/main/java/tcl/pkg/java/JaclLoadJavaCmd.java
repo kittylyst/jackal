@@ -10,7 +10,7 @@ import tcl.lang.TclRuntimeError;
 /**
  * This class implements a small helper function that is used to load the Java package into Jacl.
  */
-public class JaclLoadJavaCmd implements Command {
+public final class JaclLoadJavaCmd implements Command {
 
   public void cmdProc(
       Interp interp, // Current interpreter.

@@ -40,7 +40,7 @@ import tcl.lang.VarTrace;
  * cmdProc implements the built-in Tcl command "trace" which is used to manupilate variable traces.
  * See user documentation for more details.
  */
-public class TraceCmd implements Command {
+public final class TraceCmd implements Command {
 
   // Valid sub-commands for the trace command.
 

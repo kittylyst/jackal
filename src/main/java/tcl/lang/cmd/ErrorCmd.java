@@ -24,7 +24,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "error" command in Tcl. */
-public class ErrorCmd implements Command {
+public final class ErrorCmd implements Command {
 
   /**
    * This procedure is invoked as part of the Command interface to process the "error" Tcl command.

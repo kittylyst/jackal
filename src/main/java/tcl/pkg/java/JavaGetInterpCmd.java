@@ -23,7 +23,7 @@ import tcl.lang.TclObject;
  * Implements the built-in "java::getinterp" command.
  */
 
-public class JavaGetInterpCmd implements Command {
+public final class JavaGetInterpCmd implements Command {
 
   /*----------------------------------------------------------------------
    *

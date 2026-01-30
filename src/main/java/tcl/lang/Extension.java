@@ -76,7 +76,7 @@ public abstract class Extension {
  * reduces Jacl start up time and, when running Jacl off a web page, reduces download time
  * significantly.
  */
-class AutoloadStub implements Command {
+final class AutoloadStub implements Command {
   String className;
 
   /**

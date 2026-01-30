@@ -22,7 +22,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "catch" command in Tcl. */
-public class CatchCmd implements Command {
+public final class CatchCmd implements Command {
   /**
    * This procedure is invoked to process the "catch" Tcl command. See the user documentation for
    * details on what it does.

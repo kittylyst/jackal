@@ -22,7 +22,7 @@ import tcl.lang.TclObject;
  * This class implements a small helper function that is used to load the TJC package into Jacl
  * without requiring that the Java package be loaded into Jacl.
  */
-public class JaclLoadTJCCmd implements Command {
+public final class JaclLoadTJCCmd implements Command {
 
   public void cmdProc(
       Interp interp, // Current interpreter.

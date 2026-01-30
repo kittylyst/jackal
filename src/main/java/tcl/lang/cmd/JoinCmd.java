@@ -22,7 +22,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "join" command in Tcl. */
-public class JoinCmd implements Command {
+public final class JoinCmd implements Command {
 
   /** See Tcl user documentation for details. */
   public void cmdProc(Interp interp, TclObject argv[]) throws TclException {

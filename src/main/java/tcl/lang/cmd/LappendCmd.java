@@ -26,7 +26,7 @@ import tcl.lang.TclObject;
 import tcl.lang.Var;
 
 /** This class implements the built-in "lappend" command in Tcl. */
-public class LappendCmd implements Command {
+public final class LappendCmd implements Command {
   /**
    * Tcl_LappendObjCmd -> LappendCmd.cmdProc
    *

@@ -29,7 +29,7 @@ import tcl.lang.Util;
 import tcl.lang.Var;
 
 /** This class implements the built-in "lset" command in Tcl 8.4.19 */
-public class LsetCmd implements Command {
+public final class LsetCmd implements Command {
 
   /**
    * This procedure is invoked to process the "lset" Tcl command. See the user documentation for

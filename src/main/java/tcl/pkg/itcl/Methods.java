@@ -70,7 +70,7 @@ public class Methods {
    * Returns if successful, raises TclException if something goes wrong.
    * ------------------------------------------------------------------------
    */
-  public static class BodyCmd implements Command {
+  public static final class BodyCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -144,7 +144,7 @@ public class Methods {
    * Returns if successful, raises TclException if something goes wrong.
    * ------------------------------------------------------------------------
    */
-  public static class ConfigBodyCmd implements Command {
+  public static final class ConfigBodyCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -839,11 +839,9 @@ public class Methods {
       String decl) // string representing argument list
       throws TclException {
     int argc = 0;
-    CompiledLocal local, last;
-    CompiledLocal retLocal;
+    CompiledLocal local;
+    CompiledLocal retLocal = null;
     TclObject[] argv, fargv;
-
-    retLocal = last = null;
 
     try {
 
@@ -851,9 +849,8 @@ public class Methods {
         argv = TclList.getElements(interp, TclString.newInstance(decl));
         argc = argv.length;
 
-        for (int i = 0; i < argv.length; i++) {
+        for (int i = argv.length - 1; i >= 0; i--) {
           fargv = TclList.getElements(interp, argv[i]);
-          local = null;
 
           if (fargv.length == 0 || fargv[0].toString().length() == 0) {
             throw new TclException(interp, "argument #" + i + " has no name");
@@ -862,21 +859,12 @@ public class Methods {
                 interp, "too many fields in argument specifier \"" + argv[i] + "\"");
           } else if (fargv[0].toString().indexOf("::") != -1) {
             throw new TclException(interp, "bad argument name \"" + fargv[0] + "\"");
-          } else if (fargv.length == 1) {
-            local = CreateArg(fargv[0].toString(), null);
           } else {
-            local = CreateArg(fargv[0].toString(), fargv[1].toString());
-          }
-
-          if (local != null) {
-            // local.frameIndex = i;
-
-            if (retLocal == null) {
-              retLocal = last = local;
-            } else {
-              last.next = local;
-              last = local;
-            }
+            local =
+                (fargv.length == 1)
+                    ? CreateArg(fargv[0].toString(), null)
+                    : CreateArg(fargv[0].toString(), fargv[1].toString());
+            retLocal = new CompiledLocal(retLocal, local.defValue(), local.name());
           }
           // ckfree(fargv);
         }
@@ -916,22 +904,12 @@ public class Methods {
       String name, // name of new argument
       String init) // initial value
       {
-    CompiledLocal local = null;
-
-    local = new CompiledLocal();
-
-    local.next = null;
-    // localPtr->flags = VAR_SCALAR | VAR_ARGUMENT;
-
+    TclObject defValue = null;
     if (init != null) {
-      local.defValue = TclString.newInstance(init);
-      local.defValue.preserve();
-    } else {
-      local.defValue = null;
+      defValue = TclString.newInstance(init);
+      defValue.preserve();
     }
-
-    local.name = name;
-    return local;
+    return new CompiledLocal(null, defValue, name);
   }
 
   /*
@@ -949,13 +927,10 @@ public class Methods {
     CompiledLocal local, next;
 
     for (local = arglist; local != null; local = next) {
-      if (local.defValue != null) {
-        local.defValue.release();
-        local.defValue = null;
+      if (local.defValue() != null) {
+        local.defValue().release();
       }
-      local.name = null;
-      next = local.next;
-      local.next = null;
+      next = local.next();
     }
   }
 
@@ -978,17 +953,17 @@ public class Methods {
     buffer = new StringBuffer(64);
 
     while (arglist != null && argc-- > 0) {
-      if (arglist.defValue != null) {
-        val = arglist.defValue.toString();
+      if (arglist.defValue() != null) {
+        val = arglist.defValue().toString();
 
         Util.StartSublist(buffer);
-        Util.AppendElement(buffer, arglist.name);
+        Util.AppendElement(buffer, arglist.name());
         Util.AppendElement(buffer, val);
         Util.EndSublist(buffer);
       } else {
-        Util.AppendElement(buffer, arglist.name);
+        Util.AppendElement(buffer, arglist.name());
       }
-      arglist = arglist.next;
+      arglist = arglist.next();
     }
 
     obj = TclString.newInstance(buffer.toString());
@@ -1022,33 +997,33 @@ public class Methods {
       // If the prototype argument list ends with the magic "args"
       // argument, then it matches everything in the other list.
 
-      if (arg1c == 1 && arg1.name.equals("args")) {
+      if (arg1c == 1 && arg1.name().equals("args")) {
         return true;
       }
 
       // If one has a default value, then the other must have the
       // same default value.
 
-      if (arg1.defValue != null) {
-        if (arg2.defValue == null) {
+      if (arg1.defValue() != null) {
+        if (arg2.defValue() == null) {
           return false;
         }
 
-        dval1 = arg1.defValue.toString();
-        dval2 = arg2.defValue.toString();
+        dval1 = arg1.defValue().toString();
+        dval2 = arg2.defValue().toString();
         if (!dval1.equals(dval2)) {
           return false;
         }
-      } else if (arg2.defValue != null) {
+      } else if (arg2.defValue() != null) {
         return false;
       }
 
-      arg1 = arg1.next;
+      arg1 = arg1.next();
       arg1c--;
-      arg2 = arg2.next;
+      arg2 = arg2.next();
       arg2c--;
     }
-    if (arg1c == 1 && arg1.name.equals("args")) {
+    if (arg1c == 1 && arg1 != null && arg1.name().equals("args")) {
       return true;
     }
     return (arg1c == 0 && arg2c == 0);
@@ -1134,17 +1109,17 @@ public class Methods {
     }
 
     if (arglist != null) {
-      for (arg = arglist; arg != null && argcount > 0; arg = arg.next, argcount--) {
+      for (arg = arglist; arg != null && argcount > 0; arg = arg.next(), argcount--) {
 
-        if (argcount == 1 && arg.name.equals("args")) {
+        if (argcount == 1 && arg.name().equals("args")) {
           buffer.append(" ?arg arg ...?");
-        } else if (arg.defValue != null) {
+        } else if (arg.defValue() != null) {
           buffer.append(" ?");
-          buffer.append(arg.name);
+          buffer.append(arg.name());
           buffer.append("?");
         } else {
           buffer.append(" ");
-          buffer.append(arg.name);
+          buffer.append(arg.name());
         }
       }
     }
@@ -1167,7 +1142,7 @@ public class Methods {
    * class scope.
    * ------------------------------------------------------------------------
    */
-  public static class ExecMethod implements CommandWithDispose {
+  public static final class ExecMethod implements CommandWithDispose {
     final ItclMemberFunc mfunc;
 
     ExecMethod(ItclMemberFunc mfunc) {
@@ -1267,7 +1242,7 @@ public class Methods {
    * class scope.
    * ------------------------------------------------------------------------
    */
-  public static class ExecProc implements CommandWithDispose {
+  public static final class ExecProc implements CommandWithDispose {
     ItclMemberFunc mfunc;
 
     ExecProc(ItclMemberFunc mfunc) {
@@ -1565,7 +1540,7 @@ public class Methods {
 
       for (argsLeft = mcode.argcount, arg = mcode.arglist, objvi = 1, objc = objv.length - 1;
           argsLeft > 0;
-          arg = arg.next, argsLeft--, /*
+          arg = arg.next(), argsLeft--, /*
 																																			 * varPtr++
 																																			 * ,
 																																			 */ objvi++, objc--) {
@@ -1583,7 +1558,7 @@ public class Methods {
         // When it occurs, assign it a list consisting of all the
         // remaining actual arguments.
 
-        if ((argsLeft == 1) && arg.name.equals("args")) {
+        if ((argsLeft == 1) && arg.name().equals("args")) {
           // listPtr = Tcl_NewListObj(objc, objv);
           // varPtr->value.objPtr = listPtr;
           // Tcl_IncrRefCount(listPtr); /* local var is a reference */
@@ -1606,7 +1581,7 @@ public class Methods {
         // variable assignments. Set the local "config" variable
         // to the list of public variables assigned.
 
-        else if ((argsLeft == 1) && arg.name.equals("config") && contextObj != null) {
+        else if ((argsLeft == 1) && arg.name().equals("config") && contextObj != null) {
           // If this is not an old-style method, discourage against
           // the use of the "config" argument.
 
@@ -1648,13 +1623,13 @@ public class Methods {
             // varPtr->flags &= ~VAR_UNDEFINED;
 
             // FIXME: is setting a local named "config" correct?
-            AssignLocal(interp, arg.name, list, frame);
+            AssignLocal(interp, arg.name(), list, frame);
             objc = 0; // all remaining args handled
-          } else if (arg.defValue != null) {
+          } else if (arg.defValue() != null) {
             // value = arg.defValue.toString();
             // defargv = null;
             // defargc = 0;
-            defobjv = TclList.getElements(interp, arg.defValue);
+            defobjv = TclList.getElements(interp, arg.defValue());
             defargc = defobjv.length;
 
             for (vi = 0; vi < defargc; vi++) {
@@ -1681,15 +1656,15 @@ public class Methods {
             // Tcl_IncrRefCount(listPtr); // local var is a
             // reference
             // varPtr->flags &= ~VAR_UNDEFINED;
-            AssignLocal(interp, arg.name, list, frame);
+            AssignLocal(interp, arg.name(), list, frame);
           } else {
             // objPtr = Tcl_NewStringObj("", 0);
             // varPtr->value.objPtr = objPtr;
             // Tcl_IncrRefCount(objPtr); /* local var is a reference
             // */
             // varPtr->flags &= ~VAR_UNDEFINED;
-            obj = TclString.newInstance("");
-            AssignLocal(interp, arg.name, obj, frame);
+          obj = TclString.newInstance("");
+          AssignLocal(interp, arg.name(), obj, frame);
           }
         }
 
@@ -1701,14 +1676,14 @@ public class Methods {
           // varPtr->flags &= ~VAR_UNDEFINED;
           // Tcl_IncrRefCount(objPtr); // local var is a reference
           obj = objv[objvi];
-          AssignLocal(interp, arg.name, obj, frame);
-        } else if (arg.defValue != null) { // ...or use default value
+          AssignLocal(interp, arg.name(), obj, frame);
+          } else if (arg.defValue() != null) { // ...or use default value
           // objPtr = argPtr->defValuePtr;
           // varPtr->value.objPtr = objPtr;
           // varPtr->flags &= ~VAR_UNDEFINED;
           // Tcl_IncrRefCount(objPtr); // local var is a reference
-          obj = arg.defValue;
-          AssignLocal(interp, arg.name, obj, frame);
+          obj = arg.defValue();
+          AssignLocal(interp, arg.name(), obj, frame);
         } else {
           if (mfunc != null) {
             StringBuffer buffer = new StringBuffer(64);
@@ -1717,7 +1692,7 @@ public class Methods {
             buffer.append("\"");
             throw new TclException(interp, buffer.toString());
           } else {
-            throw new TclException(interp, "no value given for parameter \"" + arg.name + "\"");
+            throw new TclException(interp, "no value given for parameter \"" + arg.name() + "\"");
           }
         }
       }
@@ -2171,22 +2146,3 @@ public class Methods {
     }
   }
 } // end class Methods
-
-// This class is like the CompiledLocal struct in the C version
-// of Tcl. It is not really "compiled" in Jacl, but the name
-// is the same.
-
-class CompiledLocal {
-  CompiledLocal next; // Next local var or null for last local.
-
-  /*
-   * int flags; // Flag bits for the local variable. Same as // the flags for
-   * the Var structure above, // although only VAR_SCALAR, VAR_ARRAY, //
-   * VAR_LINK, VAR_ARGUMENT, VAR_TEMPORARY, and // VAR_RESOLVED make sense.
-   */
-
-  TclObject defValue; // default argument value, null if not
-  // and argument or no default.
-
-  String name; // Name of local variable, can be null.
-}

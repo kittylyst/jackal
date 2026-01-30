@@ -24,7 +24,7 @@ import tcl.lang.TclObject;
 import tcl.lang.Var;
 
 /** This class implements the built-in "incr" command in Tcl. */
-public class IncrCmd implements Command {
+public final class IncrCmd implements Command {
   /**
    * This procedure is invoked to process the "incr" Tcl command. See the user documentation for
    * details on what it does.

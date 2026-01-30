@@ -19,7 +19,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.pkg.java.JavaInvoke;
 
-public class TJCPackageCmd implements Command {
+public final class TJCPackageCmd implements Command {
 
   // Implementation of TJC::package used to load
   // packages at runtime via a Java package name.

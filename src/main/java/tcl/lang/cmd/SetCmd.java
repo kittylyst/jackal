@@ -26,7 +26,7 @@ import tcl.lang.TclObject;
  * This class implements the built-in "set" command in Tcl.
  */
 
-public class SetCmd implements Command {
+public final class SetCmd implements Command {
 
   /*
    * ----------------------------------------------------------------------

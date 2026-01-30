@@ -23,7 +23,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "format" command in Tcl. */
-public class FormatCmd implements Command {
+public final class FormatCmd implements Command {
 
   private static final int LEFT_JUSTIFY = 1;
   private static final int SHOW_SIGN = 2;

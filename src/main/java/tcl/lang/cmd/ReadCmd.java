@@ -26,7 +26,7 @@ import tcl.lang.TclString;
 import tcl.lang.channel.Channel;
 
 /** This class implements the built-in "read" command in Tcl. */
-public class ReadCmd implements Command {
+public final class ReadCmd implements Command {
 
   /**
    * This procedure is invoked to process the "read" Tcl command. See the user documentation for

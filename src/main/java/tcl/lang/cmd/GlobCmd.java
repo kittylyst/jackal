@@ -36,7 +36,7 @@ import tcl.lang.Util;
  * This class implements the built-in "glob" command in Tcl.
  */
 
-public class GlobCmd implements Command {
+public final class GlobCmd implements Command {
 
   private static final int TYPE_BLOCKSPECIAL = 0x1;
   private static final int TYPE_CHARSPECIAL = 0x2;

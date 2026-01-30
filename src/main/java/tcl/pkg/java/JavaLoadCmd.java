@@ -23,7 +23,7 @@ import tcl.lang.TclIndex;
 import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
-public class JavaLoadCmd implements Command {
+public final class JavaLoadCmd implements Command {
 
   // Switches that are legal in this command.
 

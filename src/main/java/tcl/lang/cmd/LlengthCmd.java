@@ -22,7 +22,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "llength" command in Tcl. */
-public class LlengthCmd implements Command {
+public final class LlengthCmd implements Command {
   /**
    * See Tcl user documentation for details.
    *

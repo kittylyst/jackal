@@ -27,7 +27,7 @@ import tcl.lang.TclObject;
 import tcl.lang.TclRuntimeError;
 import tcl.lang.Util;
 
-public class PackageCmd implements Command {
+public final class PackageCmd implements Command {
 
   private static final String[] validCmds = {
     "forget",

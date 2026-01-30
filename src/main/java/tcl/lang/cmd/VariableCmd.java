@@ -23,7 +23,7 @@ import tcl.lang.TclObject;
 import tcl.lang.Var;
 
 /** This class implements the built-in "variable" command in Tcl. */
-public class VariableCmd implements Command {
+public final class VariableCmd implements Command {
 
   /*
    * ----------------------------------------------------------------------

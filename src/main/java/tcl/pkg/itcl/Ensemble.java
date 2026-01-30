@@ -49,15 +49,6 @@ import tcl.lang.WrappedCommand;
 
 //  Data used to represent an ensemble:
 
-class EnsemblePart {
-  String name; // name of this part
-  int minChars; // chars needed to uniquely identify part
-  Command cmd; // command handling this part
-  WrappedCommand wcmd; // wrapped for command
-  String usage; // usage string describing syntax
-  Ensemble ensemble; // ensemble containing this part
-}
-
 // Data shared by ensemble access commands and ensemble parser:
 
 class EnsembleParser implements AssocData {
@@ -111,7 +102,7 @@ class ItclEnsInvoc implements InternalRep /* , CommandWithDispose */ {
 
 // Data/Methods in Ensemble class
 
-class Ensemble {
+public class Ensemble {
   Interp interp; // interpreter containing this ensemble
   EnsemblePart[] parts; // list of parts in this ensemble
   int numParts; // number of parts in part list
@@ -486,7 +477,7 @@ class Ensemble {
     for (int i = 0; i < ensData.numParts; i++) {
       ensPart = ensData.parts[i];
 
-      if (ensPart.name.equals("@error")) {
+      if (ensPart.name().equals("@error")) {
         isOpenEnded = true;
       } else {
         buffer.append(spaces);
@@ -530,29 +521,29 @@ class Ensemble {
 
     trail = new Itcl_List();
     Util.InitList(trail);
-    for (part = ensPart; part != null; part = part.ensemble.parent) {
+    for (part = ensPart; part != null; part = part.ensemble().parent) {
       Util.InsertList(trail, part);
     }
 
-    wcmd = ensPart.ensemble.wcmd;
-    name = ensPart.ensemble.interp.getCommandName(wcmd);
+    wcmd = ensPart.ensemble().wcmd;
+    name = ensPart.ensemble().interp.getCommandName(wcmd);
     Util.AppendElement(buffer, name);
 
     for (elem = Util.FirstListElem(trail); elem != null; elem = Util.NextListElem(elem)) {
       part = (EnsemblePart) Util.GetListValue(elem);
-      Util.AppendElement(buffer, part.name);
+      Util.AppendElement(buffer, part.name());
     }
     Util.DeleteList(trail);
 
     // If the part has usage info, use it directly.
 
-    if (ensPart.usage != null && ensPart.usage.length() > 0) {
+    if (ensPart.usage() != null && ensPart.usage().length() > 0) {
       buffer.append(" ");
-      buffer.append(ensPart.usage);
+      buffer.append(ensPart.usage());
     }
 
     // If the part is itself an ensemble, summarize its usage.
-    else if (ensPart.cmd != null && (ensPart.cmd instanceof HandleEnsemble)) {
+    else if (ensPart.cmd() != null && (ensPart.cmd() instanceof HandleEnsemble)) {
       buffer.append(" option ?arg arg ...?");
     }
   }
@@ -618,14 +609,25 @@ class Ensemble {
     }
 
     ensData.wcmd = parentEnsData.wcmd;
-    ensData.parent = ensPart;
 
     // For an ensemble part that is itself an ensemble,
     // create an instance of HandleInstance and associate
     // it with the Ensemble instance. Note that the
     // Command instance is not installed into the interpreter.
 
-    ensPart.cmd = new HandleEnsemble(ensData);
+    EnsemblePart updatedPart =
+        new EnsemblePart(
+            ensPart.name(),
+            ensPart.minChars(),
+            new HandleEnsemble(ensData),
+            ensPart.wcmd(),
+            ensPart.usage(),
+            ensPart.ensemble());
+    FindEnsemblePartIndexResult partRes = FindEnsemblePartIndex(parentEnsData, ensName);
+    if (partRes.status) {
+      parentEnsData.parts[partRes.pos] = updatedPart;
+    }
+    ensData.parent = updatedPart;
   }
 
   /*
@@ -666,19 +668,26 @@ class Ensemble {
 
     ensPart = CreateEnsemblePart(interp, ensData, partName);
 
-    if (usageInfo != null) {
-      ensPart.usage = usageInfo;
-    }
-
     // Install the passed in Command in the ensemble part.
 
     wcmd = new WrappedCommand();
     wcmd.ns = ensData.wcmd.ns;
     wcmd.cmd = objProc;
-    ensPart.cmd = objProc;
-    ensPart.wcmd = wcmd;
 
-    return ensPart;
+    EnsemblePart updatedPart =
+        new EnsemblePart(
+            ensPart.name(),
+            ensPart.minChars(),
+            objProc,
+            wcmd,
+            usageInfo != null ? usageInfo : ensPart.usage(),
+            ensPart.ensemble());
+    FindEnsemblePartIndexResult partRes = FindEnsemblePartIndex(ensData, partName);
+    if (partRes.status) {
+      ensData.parts[partRes.pos] = updatedPart;
+    }
+
+    return updatedPart;
   }
 
   /*
@@ -757,7 +766,7 @@ class Ensemble {
         TclException ex = new TclException(interp, "invalid ensemble name \"" + pname + "\"");
       }
 
-      cmd = ensPart.cmd;
+      cmd = ensPart.cmd();
       if (cmd == null || !(cmd instanceof HandleEnsemble)) {
         throw new TclException(interp, "part \"" + nameArgv[i] + "\" is not an ensemble");
       }
@@ -820,11 +829,8 @@ class Ensemble {
     }
     ensData.numParts++;
 
-    part = new EnsemblePart();
-    part.name = partName;
-    part.cmd = null;
-    part.usage = null;
-    part.ensemble = ensData;
+    part =
+        new EnsemblePart(partName, 0, null, null, null, ensData);
 
     ensData.parts[pos] = part;
 
@@ -862,7 +868,7 @@ class Ensemble {
       {
     int i, pos;
     Ensemble ensData;
-    Command cmd = ensPart.cmd;
+    Command cmd = ensPart.cmd();
 
     // If this part has a delete proc, then call it to free
     // up the client data.
@@ -870,28 +876,21 @@ class Ensemble {
     if (cmd instanceof CommandWithDispose) {
       ((CommandWithDispose) cmd).disposeCmd();
     }
-    ensPart.cmd = null;
 
     // Find this part within its ensemble, and remove it from
     // the list of parts.
 
-    FindEnsemblePartIndexResult res = FindEnsemblePartIndex(ensPart.ensemble, ensPart.name);
+    FindEnsemblePartIndexResult res =
+        FindEnsemblePartIndex(ensPart.ensemble(), ensPart.name());
 
     if (res.status) {
       pos = res.pos;
-      ensData = ensPart.ensemble;
+      ensData = ensPart.ensemble();
       for (i = pos; i < ensData.numParts - 1; i++) {
         ensData.parts[i] = ensData.parts[i + 1];
       }
       ensData.numParts--;
     }
-
-    // Free the memory associated with the part.
-
-    if (ensPart.usage != null) {
-      ensPart.usage = null;
-    }
-    ensPart.name = null;
   }
 
   /*
@@ -935,12 +934,12 @@ class Ensemble {
 
     while (last >= first) {
       pos = (first + last) >>> 1;
-      if (partName.charAt(0) == ensData.parts[pos].name.charAt(0)) {
-        cmp = partName.substring(0, nlen).compareTo(ensData.parts[pos].name);
+      if (partName.charAt(0) == ensData.parts[pos].name().charAt(0)) {
+        cmp = partName.substring(0, nlen).compareTo(ensData.parts[pos].name());
         if (cmp == 0) {
           break; // found it!
         }
-      } else if (partName.charAt(0) < ensData.parts[pos].name.charAt(0)) {
+      } else if (partName.charAt(0) < ensData.parts[pos].name().charAt(0)) {
         cmp = -1;
       } else {
         cmp = 1;
@@ -965,22 +964,22 @@ class Ensemble {
     // enough characters. If there are two parts like "foo"
     // and "food", this allows us to match "foo" exactly.
 
-    if (nlen < ensData.parts[pos].minChars) {
+    if (nlen < ensData.parts[pos].minChars()) {
       while (pos > 0) {
         pos--;
-        if (partName.substring(0, nlen).compareTo(ensData.parts[pos].name) != 0) {
+        if (partName.substring(0, nlen).compareTo(ensData.parts[pos].name()) != 0) {
           pos++;
           break;
         }
       }
     }
-    if (nlen < ensData.parts[pos].minChars) {
+    if (nlen < ensData.parts[pos].minChars()) {
       StringBuffer buffer = new StringBuffer(64);
 
       buffer.append("ambiguous option \"" + partName + "\": should be one of...");
 
       for (i = pos; i < ensData.numParts; i++) {
-        if (partName.substring(0, nlen).compareTo(ensData.parts[i].name) != 0) {
+        if (partName.substring(0, nlen).compareTo(ensData.parts[i].name()) != 0) {
           break;
         }
         buffer.append("\n  ");
@@ -1034,12 +1033,12 @@ class Ensemble {
 
     while (last >= first) {
       pos = (first + last) >>> 1;
-      if (partName.charAt(0) == ensData.parts[pos].name.charAt(0)) {
-        cmp = partName.compareTo(ensData.parts[pos].name);
+      if (partName.charAt(0) == ensData.parts[pos].name().charAt(0)) {
+        cmp = partName.compareTo(ensData.parts[pos].name());
         if (cmp == 0) {
           break; // found it!
         }
-      } else if (partName.charAt(0) < ensData.parts[pos].name.charAt(0)) {
+      } else if (partName.charAt(0) < ensData.parts[pos].name().charAt(0)) {
         cmp = -1;
       } else {
         cmp = 1;
@@ -1106,12 +1105,12 @@ class Ensemble {
     // to uniquely identify this part. Then compare the name
     // against each neighboring part to determine the real minimum.
 
-    ensData.parts[pos].minChars = 1;
+    int currentMinChars = 1;
 
     if (pos - 1 >= 0) {
-      pstr = ensData.parts[pos].name;
+      pstr = ensData.parts[pos].name();
       p = 0;
-      qstr = ensData.parts[pos - 1].name;
+      qstr = ensData.parts[pos - 1].name();
       q = 0;
       final int plen = pstr.length();
       final int qlen = qstr.length();
@@ -1119,15 +1118,15 @@ class Ensemble {
         p++;
         q++;
       }
-      if (min > ensData.parts[pos].minChars) {
-        ensData.parts[pos].minChars = min;
+      if (min > currentMinChars) {
+        currentMinChars = min;
       }
     }
 
     if (pos + 1 < ensData.numParts) {
-      pstr = ensData.parts[pos].name;
+      pstr = ensData.parts[pos].name();
       p = 0;
-      qstr = ensData.parts[pos + 1].name;
+      qstr = ensData.parts[pos + 1].name();
       q = 0;
       final int plen = pstr.length();
       final int qlen = qstr.length();
@@ -1135,15 +1134,24 @@ class Ensemble {
         p++;
         q++;
       }
-      if (min > ensData.parts[pos].minChars) {
-        ensData.parts[pos].minChars = min;
+      if (min > currentMinChars) {
+        currentMinChars = min;
       }
     }
 
-    max = ensData.parts[pos].name.length();
-    if (ensData.parts[pos].minChars > max) {
-      ensData.parts[pos].minChars = max;
+    max = ensData.parts[pos].name().length();
+    if (currentMinChars > max) {
+      currentMinChars = max;
     }
+
+    ensData.parts[pos] =
+        new EnsemblePart(
+            ensData.parts[pos].name(),
+            currentMinChars,
+            ensData.parts[pos].cmd(),
+            ensData.parts[pos].wcmd(),
+            ensData.parts[pos].usage(),
+            ensData.parts[pos].ensemble());
   }
 
   /*
@@ -1166,7 +1174,7 @@ class Ensemble {
    * ----------------------------------------------------------------------
    */
 
-  static class HandleEnsemble implements CommandWithDispose {
+  public static final class HandleEnsemble implements CommandWithDispose {
     Ensemble ensData;
 
     HandleEnsemble(Ensemble ensData) {
@@ -1215,8 +1223,8 @@ class Ensemble {
       if (ensPart == null) {
         ensPart = FindEnsemblePart(interp, ensData, "@error");
         if (ensPart != null) {
-          cmd = ensPart.cmd;
-          if (ensPart.wcmd.mustCallInvoke(interp)) ensPart.wcmd.invoke(interp, objv);
+          cmd = ensPart.cmd();
+          if (ensPart.wcmd().mustCallInvoke(interp)) ensPart.wcmd().invoke(interp, objv);
           else cmd.cmdProc(interp, objv);
           return;
         }
@@ -1246,8 +1254,8 @@ class Ensemble {
       try {
         cmdlinev = TclList.getElements(interp, cmdline);
 
-        cmd = ensPart.cmd;
-        if (ensPart.wcmd.mustCallInvoke(interp)) ensPart.wcmd.invoke(interp, cmdlinev);
+        cmd = ensPart.cmd();
+        if (ensPart.wcmd().mustCallInvoke(interp)) ensPart.wcmd().invoke(interp, cmdlinev);
         else cmd.cmdProc(interp, cmdlinev);
       } finally {
         cmdline.release();
@@ -1276,7 +1284,7 @@ class Ensemble {
    * ----------------------------------------------------------------------
    */
 
-  static class EnsembleCmd implements Command {
+  public static final class EnsembleCmd implements Command {
     EnsembleParser ensParser;
 
     EnsembleCmd(EnsembleParser ensParser) {
@@ -1339,7 +1347,7 @@ class Ensemble {
           Util.Assert(ensPart != null, "Itcl_EnsembleCmd: can't create ensemble");
         }
 
-        cmd = ensPart.cmd;
+        cmd = ensPart.cmd();
         if (cmd == null || !(cmd instanceof HandleEnsemble)) {
           throw new TclException(interp, "part \"" + objv[1].toString() + "\" is not an ensemble");
         }
@@ -1546,7 +1554,7 @@ class Ensemble {
    * ----------------------------------------------------------------------
    */
 
-  static class EnsPartCmd implements Command {
+  public static final class EnsPartCmd implements Command {
     EnsembleParser ensParser;
 
     EnsPartCmd(EnsembleParser ensParser) {
@@ -1629,7 +1637,7 @@ class Ensemble {
 
       ensPart = AddEnsemblePart(interp, ensData, partName, usage, proc);
 
-      ItclAccess.setWrappedCommand(proc, ensPart.wcmd);
+      ItclAccess.setWrappedCommand(proc, ensPart.wcmd());
     }
   } // end class EnsPartCmd
 
@@ -1794,7 +1802,7 @@ class Ensemble {
     }
 
     if (ensPart != null) {
-      Util.AppendElement(buffer, ensPart.name);
+      Util.AppendElement(buffer, ensPart.name());
     }
 
     return buffer.toString();

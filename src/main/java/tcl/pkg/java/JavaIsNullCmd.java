@@ -19,7 +19,7 @@ import tcl.lang.TclException;
 import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
-public class JavaIsNullCmd implements Command {
+public final class JavaIsNullCmd implements Command {
 
   /*
    * ----------------------------------------------------------------------

@@ -15,7 +15,7 @@ import tcl.lang.TclObject;
  * using another thread so that the calling thread will not block. This command is unsupported and
  * undocumented so you should only need to use it if you run into this problem.
  */
-public class UnsupportedJDetachCallCmd implements Command, Runnable {
+public final class UnsupportedJDetachCallCmd implements Command, Runnable {
   private boolean inuse = false;
 
   private Thread t = null;

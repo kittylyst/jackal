@@ -21,7 +21,7 @@ import tcl.lang.TclException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "unset" command in Tcl. */
-public class UnsetCmd implements Command {
+public final class UnsetCmd implements Command {
   /**
    * Tcl_UnsetObjCmd -> UnsetCmd.cmdProc
    *

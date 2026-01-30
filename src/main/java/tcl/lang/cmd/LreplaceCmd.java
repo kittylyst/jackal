@@ -23,7 +23,7 @@ import tcl.lang.TclObject;
 import tcl.lang.Util;
 
 /** This class implements the built-in "lreplace" command in Tcl. */
-public class LreplaceCmd implements Command {
+public final class LreplaceCmd implements Command {
   /**
    * See Tcl user documentation for details.
    *

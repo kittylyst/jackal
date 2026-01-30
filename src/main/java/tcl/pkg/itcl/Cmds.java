@@ -51,7 +51,7 @@ import tcl.lang.TclString;
 import tcl.lang.Var;
 import tcl.lang.WrappedCommand;
 
-class Cmds {
+public class Cmds {
 
   // The following string is the startup script executed in new
   // interpreters. It locates the Tcl code in the [incr Tcl] library
@@ -334,7 +334,7 @@ class Cmds {
    * Will raise a TclException to indicate failure.
    * ------------------------------------------------------------------------
    */
-  public static class FindClassesCmd implements CommandWithDispose {
+  public static final class FindClassesCmd implements CommandWithDispose {
     ItclObjectInfo info;
 
     FindClassesCmd(ItclObjectInfo info) {
@@ -463,7 +463,7 @@ class Cmds {
    * Will raise a TclException to indicate failure.
    * ------------------------------------------------------------------------
    */
-  public static class FindObjectsCmd implements CommandWithDispose {
+  public static final class FindObjectsCmd implements CommandWithDispose {
     ItclObjectInfo info;
 
     FindObjectsCmd(ItclObjectInfo info) {
@@ -654,7 +654,7 @@ class Cmds {
    * Will raise a TclException to indicate failure.
    * ------------------------------------------------------------------------
    */
-  public static class ProtectionCmd implements Command {
+  public static final class ProtectionCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -678,7 +678,7 @@ class Cmds {
    * ------------------------------------------------------------------------
    */
 
-  static class DelClassCmd implements CommandWithDispose {
+  public static final class DelClassCmd implements CommandWithDispose {
     ItclObjectInfo info;
 
     DelClassCmd(ItclObjectInfo info) {
@@ -737,7 +737,7 @@ class Cmds {
    * ------------------------------------------------------------------------
    */
 
-  static class DelObjectCmd implements CommandWithDispose {
+  public static final class DelObjectCmd implements CommandWithDispose {
     ItclObjectInfo info;
 
     DelObjectCmd(ItclObjectInfo info) {
@@ -800,7 +800,7 @@ class Cmds {
    * Will raise a TclException to indicate failure.
    * ------------------------------------------------------------------------
    */
-  public static class ScopeCmd implements Command {
+  public static final class ScopeCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -969,7 +969,7 @@ class Cmds {
    * ------------------------------------------------------------------------
    */
 
-  static class CodeCmd implements Command {
+  public static final class CodeCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -1057,7 +1057,7 @@ class Cmds {
    * real command <name> to be autoloaded.
    * ------------------------------------------------------------------------
    */
-  public static class StubCreateCmd implements Command {
+  public static final class StubCreateCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -1095,7 +1095,7 @@ class Cmds {
    * autoloading stub. Will set a boolean result as the interp result.
    * ------------------------------------------------------------------------
    */
-  public static class StubExistsCmd implements Command {
+  public static final class StubExistsCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -1153,7 +1153,7 @@ class Cmds {
    * to indicate failure.
    * ------------------------------------------------------------------------
    */
-  public static class HandleStubCmd implements CommandWithDispose {
+  public static final class HandleStubCmd implements CommandWithDispose {
     WrappedCommand wcmd;
 
     public void cmdProc(
@@ -1226,7 +1226,7 @@ class Cmds {
    * Sets interpreter result to 1 if it is an object, 0 otherwise
    * ------------------------------------------------------------------------
    */
-  public static class IsObjectCmd implements CommandWithDispose {
+  public static final class IsObjectCmd implements CommandWithDispose {
     ItclObjectInfo info;
 
     IsObjectCmd(ItclObjectInfo info) {
@@ -1332,7 +1332,7 @@ class Cmds {
    * Sets interpreter result to 1 if it is a class, 0 otherwise
    * ------------------------------------------------------------------------
    */
-  public static class IsClassCmd implements CommandWithDispose {
+  public static final class IsClassCmd implements CommandWithDispose {
     ItclObjectInfo info;
 
     IsClassCmd(ItclObjectInfo info) {

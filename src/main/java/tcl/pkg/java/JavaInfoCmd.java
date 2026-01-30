@@ -35,7 +35,7 @@ import tcl.lang.TclString;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 /** This class implements the built-in "java::info" command in Tcl. */
-public class JavaInfoCmd implements Command {
+public final class JavaInfoCmd implements Command {
 
   private static final String validCmds[] = {
     "class",

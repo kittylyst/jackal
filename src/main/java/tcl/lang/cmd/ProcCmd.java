@@ -25,7 +25,7 @@ import tcl.lang.TclObject;
 import tcl.lang.WrappedCommand;
 
 /** This class implements the built-in "proc" command in Tcl. */
-public class ProcCmd implements Command {
+public final class ProcCmd implements Command {
   /**
    * Tcl_ProcObjCmd -> ProcCmd.cmdProc
    *

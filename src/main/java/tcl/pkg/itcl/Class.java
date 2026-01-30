@@ -52,7 +52,7 @@ import tcl.lang.WrappedCommand;
 // Note: ItclResolvedVarInfo structure not ported since it seems
 // to be used only in the bytecode compiler implementation.
 
-class Class {
+public class Class {
 
   static int itclCompatFlags = Cmds.itclCompatFlags;
 
@@ -746,7 +746,7 @@ class Class {
    * ------------------------------------------------------------------------
    */
 
-  static class HandleClassCmd implements CommandWithDispose {
+  public static final class HandleClassCmd implements CommandWithDispose {
     ItclClass cdefn;
     boolean release = false;
 

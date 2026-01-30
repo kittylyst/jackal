@@ -21,7 +21,7 @@ package tcl.lang;
  * class when a command is imported. From this ImportedCmdData reference, we can find the "real"
  * command from another namespace.
  */
-class ImportedCmdData implements Command, CommandWithDispose {
+final class ImportedCmdData implements Command, CommandWithDispose {
   /** "Real" command that this imported command refers to. */
   WrappedCommand realCmd;
 

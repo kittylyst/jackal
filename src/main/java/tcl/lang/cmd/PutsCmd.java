@@ -25,7 +25,7 @@ import tcl.lang.TclRuntimeError;
 import tcl.lang.channel.Channel;
 
 /** This class implements the built-in "puts" command in Tcl. */
-public class PutsCmd implements Command {
+public final class PutsCmd implements Command {
   /**
    * Prints the given string to a channel. See Tcl user documentation for details.
    *

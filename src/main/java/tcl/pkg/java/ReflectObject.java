@@ -35,7 +35,7 @@ import tcl.pkg.java.reflect.PkgInvoker;
  * scripts. The object is registered inside the interpreter and is given a string name. Tcl scripts
  * can manipulate this object as long as the the reference count of the object is greater than zero.
  */
-public class ReflectObject implements InternalRep, CommandWithDispose {
+public sealed class ReflectObject implements InternalRep, CommandWithDispose permits ArrayObject {
 
   // The java.lang.Object wrapped by the ReflectObject representation.
 

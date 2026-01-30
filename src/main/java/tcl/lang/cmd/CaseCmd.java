@@ -23,7 +23,7 @@ import tcl.lang.TclObject;
 import tcl.lang.Util;
 
 /** This class implements the built-in "case" command in Tcl. */
-public class CaseCmd implements Command {
+public final class CaseCmd implements Command {
   /**
    * Executes a "case" statement. See Tcl user documentation for details.
    *

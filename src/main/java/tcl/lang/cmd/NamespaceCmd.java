@@ -42,7 +42,7 @@ import tcl.lang.WrappedCommand;
  * This class implements the built-in "namespace" command in Tcl. See the user documentation for
  * details on what it does.
  */
-public class NamespaceCmd implements InternalRep, Command {
+public final class NamespaceCmd implements InternalRep, Command {
   // This value corresponds to the Tcl_Obj.otherValuePtr pointer used
   // in the C version of Tcl 8.1. Use it to keep track of a ResolvedNsName.
 

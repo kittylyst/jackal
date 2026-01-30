@@ -23,7 +23,7 @@ import tcl.lang.TclObject;
 import tcl.lang.Util;
 
 /** This class implements the built-in "eval" command in Tcl. */
-public class EvalCmd implements Command {
+public final class EvalCmd implements Command {
   /**
    * This procedure is invoked to process the "eval" Tcl command. See the user documentation for
    * details on what it does.

@@ -23,7 +23,7 @@ import tcl.lang.TclObject;
 import tcl.lang.TclString;
 
 /** This class implements the built-in "time" command in Tcl. */
-public class TimeCmd implements Command {
+public final class TimeCmd implements Command {
   /**
    * See Tcl user documentation for details.
    *

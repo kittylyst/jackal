@@ -22,7 +22,7 @@ import tcl.lang.TclObject;
 
 // This class implements the built-in "if" command in Tcl.
 
-public class IfCmd implements Command {
+public final class IfCmd implements Command {
 
   // See Tcl user documentation for details.
   // @exception TclException If incorrect number of arguments.

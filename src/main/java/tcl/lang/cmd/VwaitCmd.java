@@ -28,7 +28,7 @@ import tcl.lang.channel.FileEvent;
  * This class implements the built-in "vwait" command in Tcl.
  */
 
-public class VwaitCmd implements Command {
+public final class VwaitCmd implements Command {
 
   /*
    * ----------------------------------------------------------------------

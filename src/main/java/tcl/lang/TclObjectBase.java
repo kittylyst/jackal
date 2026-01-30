@@ -420,6 +420,7 @@ abstract class TclObjectBase {
    *     useless duplication of objects that could be modified directly. This method exists only for
    *     backwards compatibility and will be removed at some point.
    */
+  @Deprecated
   public final TclObject takeExclusive() throws TclRuntimeError {
     if (internalRep == null) {
       disposedError();

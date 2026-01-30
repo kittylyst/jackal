@@ -25,7 +25,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "subst" command in Tcl. */
-public class SubstCmd implements Command {
+public final class SubstCmd implements Command {
   private static final String validCmds[] = {"-nobackslashes", "-nocommands", "-novariables"};
 
   static final int OPT_NOBACKSLASHES = 0;

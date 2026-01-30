@@ -27,7 +27,7 @@ import tcl.lang.TclObject;
 import tcl.lang.TclString;
 
 /** This class implements the built-in "regsub" command in Tcl. */
-public class RegsubCmd implements Command {
+public final class RegsubCmd implements Command {
 
   private static final String validOpts[] = {
     "-all", "-nocase", "-expanded", "-line", "-linestop", "-lineanchor", "-start", "--"

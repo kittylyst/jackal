@@ -28,7 +28,7 @@ import tcl.lang.TclObject;
 import tcl.lang.TclString;
 
 /** This class implements the built-in "regexp" command in Tcl. */
-public class RegexpCmd implements Command {
+public final class RegexpCmd implements Command {
 
   // switches for regexp command
 

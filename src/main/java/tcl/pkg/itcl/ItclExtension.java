@@ -23,7 +23,7 @@ import tcl.lang.TclException;
 import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
-public class ItclExtension extends Extension implements Command {
+public final class ItclExtension extends Extension implements Command {
   /*
    * Called via [java::load itcl.lang.ItclExtension] or from the jaclloaditcl
    * command implemented below.

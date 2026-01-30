@@ -15,7 +15,7 @@ import tcl.lang.channel.FileEventScript;
  * This class implements Tcl's 'fileevent' command. Most of the work is done by FileEvent and
  * FileEventScript.
  */
-public class FileeventCmd implements Command {
+public final class FileeventCmd implements Command {
 
   String[] eventType = {"readable", "writable"};
   static final int READABLE_TYPE = 0;

@@ -27,7 +27,7 @@ import tcl.lang.TclObject;
  * This class implements the built-in "update" command in Tcl.
  */
 
-public class UpdateCmd implements Command {
+public final class UpdateCmd implements Command {
 
   /*
    * Valid command options.

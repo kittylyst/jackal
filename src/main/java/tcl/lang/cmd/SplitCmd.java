@@ -22,7 +22,7 @@ import tcl.lang.TclObject;
 import tcl.lang.TclString;
 
 /** This class implements the built-in "split" command in Tcl. */
-public class SplitCmd implements Command {
+public final class SplitCmd implements Command {
 
   // Default characters for splitting up strings.
 

@@ -21,7 +21,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "lrepeat" command in Tcl. */
-public class LrepeatCmd implements Command {
+public final class LrepeatCmd implements Command {
 
   public void cmdProc(Interp interp, TclObject argv[]) throws TclException {
     if (argv.length < 3) {

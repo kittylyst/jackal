@@ -31,7 +31,7 @@ import tcl.lang.Util;
 import tcl.lang.Var;
 
 /** This class implements the built-in "array" command in Tcl. */
-public class ArrayCmd implements Command {
+public final class ArrayCmd implements Command {
   static Class procClass = null;
 
   private static final String validCmds[] = {

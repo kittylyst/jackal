@@ -22,7 +22,7 @@ import tcl.lang.TclObject;
 import tcl.lang.channel.Channel;
 
 /** This class implements the built-in "eof" command in Tcl. */
-public class EofCmd implements Command {
+public final class EofCmd implements Command {
   /**
    * This procedure is invoked to process the "eof" Tcl command. See the user documentation for
    * details on what it does.

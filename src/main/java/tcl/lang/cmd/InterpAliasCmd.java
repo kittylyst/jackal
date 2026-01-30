@@ -30,7 +30,7 @@ import tcl.lang.WrappedCommand;
  * This class implements the alias commands, which are created in response to the built-in "interp
  * alias" command in Tcl.
  */
-public class InterpAliasCmd implements CommandWithDispose {
+public final class InterpAliasCmd implements CommandWithDispose {
 
   /** Name of alias command in slave interp. */
   public TclObject name;

@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import tcl.lang.*;
 
-public class FleetCmd implements Command {
+public final class FleetCmd implements Command {
 
   private static long fleetCount = 0;
   private long memberCount = 0;

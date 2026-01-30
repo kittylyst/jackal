@@ -27,7 +27,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "java::bind" command in Tcl. */
-public class JavaBindCmd implements Command {
+public final class JavaBindCmd implements Command {
 
   // The Bean Event Manager associated with the interp that owns this
   // BindCmd instance.

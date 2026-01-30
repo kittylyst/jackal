@@ -26,7 +26,7 @@ import tcl.lang.TclRuntimeError;
 import tcl.lang.channel.Channel;
 
 /** This class implements the built-in "seek" command in Tcl. */
-public class SeekCmd implements Command {
+public final class SeekCmd implements Command {
 
   private static final String validOrigins[] = {"start", "current", "end"};
 

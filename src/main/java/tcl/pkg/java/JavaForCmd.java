@@ -34,7 +34,7 @@ import tcl.lang.TclString;
  * to the enhanced Java for statement in JDK 1.5 and newer. It is used to iterate over Collections
  * and can also be used for arrays.
  */
-public class JavaForCmd implements Command {
+public final class JavaForCmd implements Command {
   public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
     if (objv.length != 4) {
       throw new TclNumArgsException(interp, 1, objv, "type_var collection script");

@@ -27,7 +27,7 @@ import tcl.lang.TclObject;
  * This class implements the built-in "java::event" command in Tcl.
  */
 
-public class JavaEventCmd implements Command {
+public final class JavaEventCmd implements Command {
 
   /*
    * The Bean Event Manager associated with the interp that owns this BindCmd

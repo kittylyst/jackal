@@ -28,7 +28,7 @@ import tcl.lang.TclObject;
 import tcl.lang.TclString;
 
 /** This class implements the built-in "interp" command in Tcl. */
-public class InterpCmd implements Command {
+public final class InterpCmd implements Command {
 
   private static final String options[] = {
     "alias",

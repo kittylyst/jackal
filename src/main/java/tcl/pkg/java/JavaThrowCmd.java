@@ -24,7 +24,7 @@ import tcl.lang.TclObject;
  * This class implements the built-in "java::throw" command in Tcl.
  */
 
-public class JavaThrowCmd implements Command {
+public final class JavaThrowCmd implements Command {
 
   /*
    * ----------------------------------------------------------------------

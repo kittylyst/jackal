@@ -42,7 +42,7 @@ import tcl.lang.Var;
 import tcl.lang.WrappedCommand;
 
 /** This class implements the built-in "info" command in Tcl. */
-public class InfoCmd implements Command {
+public final class InfoCmd implements Command {
   private static final String validCmds[] = {
     "args",
     "body",

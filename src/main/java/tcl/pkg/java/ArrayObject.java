@@ -30,7 +30,7 @@ import tcl.lang.TclObject;
  * an instance of any Java Array class) and expose it to Tcl scripts.
  */
 
-class ArrayObject extends ReflectObject {
+final class ArrayObject extends ReflectObject {
 
   private static final String validCmds[] = {"length", "get", "getrange", "set", "setrange"};
   private static final int OPT_LENGTH = 0;

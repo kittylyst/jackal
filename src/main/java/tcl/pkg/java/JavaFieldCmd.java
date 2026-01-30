@@ -24,7 +24,7 @@ import tcl.lang.TclObject;
  * This class implements the built-in "java::field" command.
  */
 
-public class JavaFieldCmd implements Command {
+public final class JavaFieldCmd implements Command {
 
   /*----------------------------------------------------------------------
    *

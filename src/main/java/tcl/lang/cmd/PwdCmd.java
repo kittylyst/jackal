@@ -28,7 +28,7 @@ import tcl.lang.TclObject;
  * This class implements the built-in "pwd" command in Tcl.
  */
 
-public class PwdCmd implements Command {
+public final class PwdCmd implements Command {
 
   /*
    * --------------------------------------------------------------------------

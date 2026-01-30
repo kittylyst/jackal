@@ -26,7 +26,7 @@ import tcl.lang.TclString;
 import tcl.lang.channel.Channel;
 
 /** This class implements the built-in "gets" command in Tcl. */
-public class GetsCmd implements Command {
+public final class GetsCmd implements Command {
 
   /**
    * This procedure is invoked to process the "gets" Tcl command. See the user documentation for

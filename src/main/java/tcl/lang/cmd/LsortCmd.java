@@ -30,7 +30,7 @@ import tcl.lang.Util;
  * which is used to sort Tcl lists.  See user documentation for more details.
  */
 
-public class LsortCmd implements Command {
+public final class LsortCmd implements Command {
 
   /*
    * List of switches that are legal in the lsort command.

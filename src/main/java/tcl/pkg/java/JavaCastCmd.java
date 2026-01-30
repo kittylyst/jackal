@@ -23,7 +23,7 @@ import tcl.lang.TclObject;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 /** Implements the built-in "java::cast" command. */
-public class JavaCastCmd implements Command {
+public final class JavaCastCmd implements Command {
 
   /*----------------------------------------------------------------------
    *

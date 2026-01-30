@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.UnknownServiceException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -2564,23 +2565,21 @@ public class Interp extends EventuallyFreed {
       // Because the class JarURLConnection does not exist in JDK1.1
 
       try {
-        Method m = jar_class.getMethod("openConnection", null);
-        content = m.invoke(jar, null);
+        Method m = jar_class.getMethod("openConnection");
+        content = m.invoke(jar);
       } catch (Exception e2) {
         return null;
       }
-    } catch (IOException e) {
-      return null;
-    } catch (SecurityException e) {
+    } catch (IOException | SecurityException e) {
       return null;
     }
 
-    if (content instanceof String) {
+    if (content instanceof String str) {
       // return up to ^Z for tcl8.4 compatibility
-      return trimToCtrlZ(convertStringCRLF((String) content));
-    } else if (content instanceof InputStream) {
+      return trimToCtrlZ(convertStringCRLF(str));
+    } else if (content instanceof InputStream is) {
       // return up to ^Z for tcl8.4 compatibility
-      return trimToCtrlZ(readScriptFromInputStream((InputStream) content, javaEncoding));
+      return trimToCtrlZ(readScriptFromInputStream(is, javaEncoding));
     } else {
       return null;
     }
@@ -2589,7 +2588,7 @@ public class Interp extends EventuallyFreed {
   /**
    * Convert CRLF sequences into LF sequences in a String.
    *
-   * @param inString string that may contain CRLF
+   * @param inStr string that may contain CRLF
    * @return A new string with LF instead of CRLF.
    */
   String convertStringCRLF(String inStr) {
@@ -2638,15 +2637,10 @@ public class Interp extends EventuallyFreed {
     } catch (TclException e) {
       resetResult();
       return null;
-    } catch (FileNotFoundException e) {
-      return null;
-    } catch (IOException e) {
-      return null;
-    } catch (SecurityException e) {
+    } catch (IOException | SecurityException e) {
       return null;
     } finally {
       closeChannel(rc);
-      // FIXME: Closing the channel should close the stream!
       closeInputStream(s);
     }
   }

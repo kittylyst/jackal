@@ -62,15 +62,7 @@ import tcl.lang.TclString;
 import tcl.lang.Var;
 import tcl.lang.WrappedCommand;
 
-//
-//  Info needed for public/protected/private commands:
-//
-class ProtectionCmdInfo {
-  int pLevel; // protection level
-  ItclObjectInfo info; // info regarding all known objects
-}
-
-class Parse {
+public class Parse {
 
   /*
    * ------------------------------------------------------------------------
@@ -117,22 +109,13 @@ class Parse {
 
     interp.createCommand("::itcl::parser::variable", new ClassVariableCmd());
 
-    pInfo = new ProtectionCmdInfo();
-    pInfo.pLevel = Itcl.PUBLIC;
-    pInfo.info = info;
-
+    pInfo = new ProtectionCmdInfo(Itcl.PUBLIC, info);
     interp.createCommand("::itcl::parser::public", new ClassProtectionCmd(pInfo));
 
-    pInfo = new ProtectionCmdInfo();
-    pInfo.pLevel = Itcl.PROTECTED;
-    pInfo.info = info;
-
+    pInfo = new ProtectionCmdInfo(Itcl.PROTECTED, info);
     interp.createCommand("::itcl::parser::protected", new ClassProtectionCmd(pInfo));
 
-    pInfo = new ProtectionCmdInfo();
-    pInfo.pLevel = Itcl.PRIVATE;
-    pInfo.info = info;
-
+    pInfo = new ProtectionCmdInfo(Itcl.PRIVATE, info);
     interp.createCommand("::itcl::parser::private", new ClassProtectionCmd(pInfo));
 
     // Set the runtime variable resolver for the parser namespace,
@@ -166,7 +149,7 @@ class Parse {
    *
    * ------------------------------------------------------------------------
    */
-  public static class ClassCmd implements CommandWithDispose {
+  public static final class ClassCmd implements CommandWithDispose {
     ItclObjectInfo info;
 
     ClassCmd(ItclObjectInfo info) {
@@ -285,7 +268,7 @@ class Parse {
    *
    * ------------------------------------------------------------------------
    */
-  public static class ClassInheritCmd implements Command {
+  public static final class ClassInheritCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -528,7 +511,7 @@ class Parse {
    * Will raise a TclException if anything goes wrong.
    * ------------------------------------------------------------------------
    */
-  public static class ClassProtectionCmd implements CommandWithDispose {
+  public static final class ClassProtectionCmd implements CommandWithDispose {
     ProtectionCmdInfo pInfo;
 
     public ClassProtectionCmd(ProtectionCmdInfo pInfo) {
@@ -546,7 +529,7 @@ class Parse {
         throw new TclNumArgsException(interp, 1, objv, "command ?arg arg...?");
       }
 
-      oldLevel = Util.Protection(interp, pInfo.pLevel);
+      oldLevel = Util.Protection(interp, pInfo.pLevel());
 
       try {
 
@@ -590,7 +573,7 @@ class Parse {
    *
    * ------------------------------------------------------------------------
    */
-  public static class ClassConstructorCmd implements Command {
+  public static final class ClassConstructorCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -638,7 +621,7 @@ class Parse {
    *
    * ------------------------------------------------------------------------
    */
-  public static class ClassDestructorCmd implements Command {
+  public static final class ClassDestructorCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -676,7 +659,7 @@ class Parse {
    *
    * ------------------------------------------------------------------------
    */
-  public static class ClassMethodCmd implements Command {
+  public static final class ClassMethodCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -718,7 +701,7 @@ class Parse {
    *
    * ------------------------------------------------------------------------
    */
-  public static class ClassProcCmd implements Command {
+  public static final class ClassProcCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -759,7 +742,7 @@ class Parse {
    *
    * ------------------------------------------------------------------------
    */
-  public static class ClassVariableCmd implements Command {
+  public static final class ClassVariableCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -814,7 +797,7 @@ class Parse {
    *
    * ------------------------------------------------------------------------
    */
-  public static class ClassCommonCmd implements Command {
+  public static final class ClassCommonCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.

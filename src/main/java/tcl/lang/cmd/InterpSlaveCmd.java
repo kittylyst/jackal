@@ -43,7 +43,7 @@ import tcl.lang.channel.StdChannel;
  * interpreters. Maps from a command name in the master to information about a slave interpreter,
  * e.g. what aliases are defined in it.
  */
-public class InterpSlaveCmd implements CommandWithDispose, AssocData {
+public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
 
   private static final String options[] = {
     "alias",

@@ -23,7 +23,7 @@ import tcl.lang.TclObject;
 import tcl.lang.Var;
 
 /** This class implements the built-in "global" command in Tcl. */
-public class GlobalCmd implements Command {
+public final class GlobalCmd implements Command {
   /** See Tcl user documentation for details. */
   public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
     if (objv.length < 2) {

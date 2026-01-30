@@ -19,7 +19,7 @@ import tcl.lang.*;
  * @author Neil Madden &lt;nem@cs.nott.ac.uk&gt;
  * @version $Revision$
  */
-public class ApplyCmd implements Command {
+public final class ApplyCmd implements Command {
 
   public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
     if (objv.length < 2) {

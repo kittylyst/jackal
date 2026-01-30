@@ -22,7 +22,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "for" command in Tcl. */
-public class ForCmd implements Command {
+public final class ForCmd implements Command {
   /*
    * This procedure is invoked to process the "for" Tcl command. See the user
    * documentation for details on what it does.

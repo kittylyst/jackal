@@ -38,7 +38,7 @@ import tcl.lang.Util;
  * This class implements the built-in "after" command in Tcl.
  */
 
-public class AfterCmd implements Command {
+public final class AfterCmd implements Command {
 
   /*
    * The list of handler are stored as AssocData in the interp.

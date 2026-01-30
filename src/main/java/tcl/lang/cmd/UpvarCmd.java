@@ -23,7 +23,7 @@ import tcl.lang.TclObject;
 import tcl.lang.Var;
 
 /** This class implements the built-in "upvar" command in Tcl. */
-public class UpvarCmd implements Command {
+public final class UpvarCmd implements Command {
   /**
    * Tcl_UpvarObjCmd -> UpvarCmd.cmdProc
    *

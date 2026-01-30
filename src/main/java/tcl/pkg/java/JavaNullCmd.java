@@ -21,7 +21,7 @@ import tcl.lang.TclException;
 import tcl.lang.TclObject;
 
 /** Implements the built-in "java::null" command. */
-public class JavaNullCmd implements Command {
+public final class JavaNullCmd implements Command {
 
   /*----------------------------------------------------------------------
    *

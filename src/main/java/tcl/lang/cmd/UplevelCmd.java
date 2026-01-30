@@ -29,7 +29,7 @@ import tcl.lang.Util;
  * This class implements the built-in "uplevel" command in Tcl.
  */
 
-public class UplevelCmd implements Command {
+public final class UplevelCmd implements Command {
 
   /*
    * ----------------------------------------------------------------------

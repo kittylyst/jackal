@@ -16,7 +16,7 @@ import tcl.lang.channel.Fcopy;
  *
  * @author Dan Bodoh
  */
-public class FcopyCmd implements Command {
+public final class FcopyCmd implements Command {
 
   private static final String[] validOpts = {"-size", "-command"};
   private static final int OPT_SIZE = 0;

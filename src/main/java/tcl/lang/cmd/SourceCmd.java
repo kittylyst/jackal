@@ -24,7 +24,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "source" command in Tcl. */
-public class SourceCmd implements Command {
+public final class SourceCmd implements Command {
 
   /**
    * cmdProc --

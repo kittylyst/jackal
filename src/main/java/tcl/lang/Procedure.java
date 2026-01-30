@@ -17,7 +17,7 @@
 package tcl.lang;
 
 /** This class implements the body of a Tcl procedure. */
-public class Procedure implements Command, CommandWithDispose {
+public final class Procedure implements Command, CommandWithDispose {
 
   // The formal parameters of the procedure and their default values.
   // argList[0][0] = name of the 1st formal param

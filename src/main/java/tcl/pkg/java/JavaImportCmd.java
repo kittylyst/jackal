@@ -34,7 +34,7 @@ import tcl.lang.TclRuntimeError;
 import tcl.lang.TclString;
 import tcl.pkg.java.reflect.PkgInvoker;
 
-public class JavaImportCmd implements Command {
+public final class JavaImportCmd implements Command {
 
   /**
    * This procedure is invoked to process the "java::import" Tcl comamnd. See the user documentation

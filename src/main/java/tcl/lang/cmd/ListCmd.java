@@ -21,7 +21,7 @@ import tcl.lang.TclList;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "list" command in Tcl. */
-public class ListCmd implements Command {
+public final class ListCmd implements Command {
 
   /** See Tcl user documentation for details. */
   public void cmdProc(Interp interp, TclObject[] objv) throws TclException {

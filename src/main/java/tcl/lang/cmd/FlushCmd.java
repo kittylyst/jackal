@@ -24,7 +24,7 @@ import tcl.lang.TclPosixException;
 import tcl.lang.channel.Channel;
 
 /** This class implements the built-in "flush" command in Tcl. */
-public class FlushCmd implements Command {
+public final class FlushCmd implements Command {
 
   /**
    * This procedure is invoked to process the "flush" Tcl command. See the user documentation for

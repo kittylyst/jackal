@@ -40,7 +40,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "clock" command in Tcl. */
-public class ClockCmd implements Command {
+public final class ClockCmd implements Command {
 
   private static final String[] validCmds = {"clicks", "format", "scan", "seconds"};
 

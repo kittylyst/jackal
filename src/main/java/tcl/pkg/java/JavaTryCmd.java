@@ -28,7 +28,7 @@ import tcl.lang.TclRuntimeError;
  * This class implements the built-in "java::try" command. The command provides access to the java's
  * try-catch-finally construct.
  */
-public class JavaTryCmd implements Command {
+public final class JavaTryCmd implements Command {
 
   /**
    * ----------------------------------------------------------------------

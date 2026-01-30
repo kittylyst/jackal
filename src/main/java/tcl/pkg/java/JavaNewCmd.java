@@ -28,7 +28,7 @@ import tcl.pkg.java.reflect.PkgInvoker;
  * This class implements the built-in "java::new" command.
  */
 
-public class JavaNewCmd implements Command {
+public final class JavaNewCmd implements Command {
 
   /*
    * ----------------------------------------------------------------------

@@ -28,7 +28,7 @@ import tcl.lang.channel.PipelineChannel;
 import tcl.lang.channel.ResourceChannel;
 
 /** This class implements the built-in "open" command in Tcl. */
-public class OpenCmd implements Command {
+public final class OpenCmd implements Command {
   /**
    * This procedure is invoked to process the "open" Tcl command. See the user documentation for
    * details on what it does.

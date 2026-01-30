@@ -21,7 +21,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "expr" command in Tcl. */
-public class ExprCmd implements Command {
+public final class ExprCmd implements Command {
   /**
    * Evaluates a Tcl expression. See Tcl user documentation for details.
    *

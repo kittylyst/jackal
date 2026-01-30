@@ -27,7 +27,7 @@ import tcl.lang.TclObject;
  * This class implements the built-in "return" command in Tcl.
  */
 
-public class ReturnCmd implements Command {
+public final class ReturnCmd implements Command {
 
   /*
    * ----------------------------------------------------------------------

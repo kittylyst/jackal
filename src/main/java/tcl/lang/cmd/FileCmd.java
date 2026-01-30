@@ -41,7 +41,7 @@ import tcl.lang.TclString;
 import tcl.lang.Util;
 
 /** This class implements the built-in "file" command in Tcl. */
-public class FileCmd implements Command {
+public final class FileCmd implements Command {
 
   private static final String validCmds[] = {
     "atime",

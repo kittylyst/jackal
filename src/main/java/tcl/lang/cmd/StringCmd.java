@@ -34,7 +34,7 @@ import tcl.lang.TclString;
 import tcl.lang.Util;
 
 /** This class implements the built-in "string" command in Tcl. */
-public class StringCmd implements Command {
+public final class StringCmd implements Command {
 
   private static final String options[] = {
     "bytelength",

@@ -25,7 +25,7 @@ import tcl.lang.TclRuntimeError;
 import tcl.lang.Util;
 
 /** This class implements the built-in "switch" command in Tcl. */
-public class SwitchCmd implements Command {
+public final class SwitchCmd implements Command {
 
   private static final String validCmds[] = {"-exact", "-glob", "-regexp", "--"};
   private static final int EXACT = 0;

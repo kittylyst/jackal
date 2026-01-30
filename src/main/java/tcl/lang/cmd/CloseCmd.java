@@ -25,7 +25,7 @@ import tcl.lang.channel.Channel;
 import tcl.lang.channel.PipelineChannel;
 
 /** This class implements the built-in "close" command in Tcl. */
-public class CloseCmd implements Command {
+public final class CloseCmd implements Command {
   /**
    * This procedure is invoked to process the "close" Tcl command. See the user documentation for
    * details on what it does.

@@ -24,7 +24,7 @@ import tcl.lang.TclObject;
  * This class implements the built-in "java::prop" command. The java::prop command is used to
  * manipulate Java Bean properties from Tcl.
  */
-public class JavaPropCmd implements Command {
+public final class JavaPropCmd implements Command {
 
   /*----------------------------------------------------------------------
    *

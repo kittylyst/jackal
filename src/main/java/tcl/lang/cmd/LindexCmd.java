@@ -29,7 +29,7 @@ import tcl.lang.Util;
  * This class implements the built-in "lindex" command in Tcl.
  */
 
-public class LindexCmd implements Command {
+public final class LindexCmd implements Command {
 
   /*
    * ----------------------------------------------------------------------

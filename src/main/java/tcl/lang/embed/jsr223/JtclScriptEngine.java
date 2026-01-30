@@ -121,7 +121,7 @@ public class JtclScriptEngine extends AbstractScriptEngine {
     }
   }
 
-  private static class ContextCommand implements Command {
+  public static final class ContextCommand implements Command {
     private void getVariable(Interp interp, ScriptContext ctx, String name) throws TclException {
       synchronized (ctx) {
         int scope = ctx.getAttributesScope(name);
@@ -191,7 +191,7 @@ public class JtclScriptEngine extends AbstractScriptEngine {
     }
   }
 
-  private static class EchoCommand implements Command {
+  public static final class EchoCommand implements Command {
     public void cmdProc(Interp interp, TclObject[] argv) throws TclException {
       AssocData data = interp.getAssocData(CONTEXT);
       Writer writer;

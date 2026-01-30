@@ -29,7 +29,7 @@ import tcl.lang.channel.TclByteArrayChannel;
 import tcl.lang.process.Redirect;
 
 /** This class implements the built-in "exec" command in Tcl. */
-public class ExecCmd implements Command {
+public final class ExecCmd implements Command {
 
   /**
    * Invoked to process the "exec" Tcl command. See the user documentation for details on what it

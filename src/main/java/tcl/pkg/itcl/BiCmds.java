@@ -48,24 +48,7 @@ import tcl.lang.TclRuntimeError;
 import tcl.lang.TclString;
 import tcl.lang.WrappedCommand;
 
-//
-//  Standard list of built-in methods for all objects.
-//
-class BiMethod {
-  String name; // method name
-  String usage; // string describing usage
-  String registration; // registration name for Java command
-  Command proc; // implementation Java command
-
-  BiMethod(String name, String usage, String registration, Command proc) {
-    this.name = name;
-    this.usage = usage;
-    this.registration = registration;
-    this.proc = proc;
-  }
-}
-
-class BiCmds {
+public class BiCmds {
 
   private static BiMethod[] BiMethodList = {
     new BiMethod("cget", "-option", "@itcl-builtin-cget", new BiCgetCmd()),
@@ -99,7 +82,7 @@ class BiCmds {
     // Declare all of the built-in methods as Java procedures.
 
     for (int i = 0; i < BiMethodListLen; i++) {
-      Linkage.RegisterObjC(interp, BiMethodList[i].registration.substring(1), BiMethodList[i].proc);
+      Linkage.RegisterObjC(interp, BiMethodList[i].registration().substring(1), BiMethodList[i].proc());
     }
 
     // Create the "::itcl::builtin" namespace for built-in class
@@ -189,7 +172,7 @@ class BiCmds {
       Class.InitHierIter(hier, cdefn);
       cd = Class.AdvanceHierIter(hier);
       while (cd != null) {
-        if (cd.functions.containsKey(BiMethodList[i].name)) {
+        if (cd.functions.containsKey(BiMethodList[i].name())) {
           foundMatch = true;
           break;
         }
@@ -201,9 +184,9 @@ class BiCmds {
         Methods.CreateMethod(
             interp,
             cdefn,
-            BiMethodList[i].name,
-            BiMethodList[i].usage,
-            BiMethodList[i].registration);
+            BiMethodList[i].name(),
+            BiMethodList[i].usage(),
+            BiMethodList[i].registration());
       }
     }
   }
@@ -222,7 +205,7 @@ class BiCmds {
    * ------------------------------------------------------------------------
    */
 
-  static class BiIsaCmd implements Command {
+  public static final class BiIsaCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -289,7 +272,7 @@ class BiCmds {
    * ------------------------------------------------------------------------
    */
 
-  static class BiConfigureCmd implements Command {
+  public static final class BiConfigureCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -479,7 +462,7 @@ class BiCmds {
    * ------------------------------------------------------------------------
    */
 
-  static class BiCgetCmd implements Command {
+  public static final class BiCgetCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -620,7 +603,7 @@ class BiCmds {
    * ------------------------------------------------------------------------
    */
 
-  static class BiChainCmd implements Command {
+  public static final class BiChainCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -730,7 +713,7 @@ class BiCmds {
    * ------------------------------------------------------------------------
    */
 
-  static class BiInfoClassCmd implements Command {
+  public static final class BiInfoClassCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -797,7 +780,7 @@ class BiCmds {
    * ------------------------------------------------------------------------
    */
 
-  static class BiInfoInheritCmd implements Command {
+  public static final class BiInfoInheritCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -866,7 +849,7 @@ class BiCmds {
    * ------------------------------------------------------------------------
    */
 
-  static class BiInfoHeritageCmd implements Command {
+  public static final class BiInfoHeritageCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -939,7 +922,7 @@ class BiCmds {
    * ------------------------------------------------------------------------
    */
 
-  static class BiInfoFunctionCmd implements Command {
+  public static final class BiInfoFunctionCmd implements Command {
     static String[] options = {
       "-args", "-body", "-name", "-protection", "-type",
     };
@@ -1126,7 +1109,7 @@ class BiCmds {
    * ------------------------------------------------------------------------
    */
 
-  static class BiInfoVariableCmd implements Command {
+  public static final class BiInfoVariableCmd implements Command {
     static String[] options = {"-config", "-init", "-name", "-protection", "-type", "-value"};
 
     private static final int BIvConfigIdx = 0;
@@ -1353,7 +1336,7 @@ class BiCmds {
    * ------------------------------------------------------------------------
    */
 
-  static class BiInfoBodyCmd implements Command {
+  public static final class BiInfoBodyCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -1426,7 +1409,7 @@ class BiCmds {
    * ------------------------------------------------------------------------
    */
 
-  static class BiInfoArgsCmd implements Command {
+  public static final class BiInfoArgsCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.
@@ -1504,7 +1487,7 @@ class BiCmds {
    * ------------------------------------------------------------------------
    */
 
-  static class DefaultInfoCmd implements Command {
+  public static final class DefaultInfoCmd implements Command {
     public void cmdProc(
         Interp interp, // Current interp.
         TclObject[] objv) // Args passed to the command.

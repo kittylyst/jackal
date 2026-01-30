@@ -30,7 +30,7 @@ import tcl.lang.TclObject;
 import tcl.lang.TclString;
 
 /** This class implements the built-in "binary" command in Tcl. */
-public class BinaryCmd implements Command {
+public final class BinaryCmd implements Command {
 
   private static final String validCmds[] = {
     "format", "scan",

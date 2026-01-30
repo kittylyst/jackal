@@ -15,7 +15,7 @@
 
 package tcl.lang;
 
-public class TclParserExtension extends Extension implements Command {
+public final class TclParserExtension extends Extension implements Command {
 
   // name and version of this package
 

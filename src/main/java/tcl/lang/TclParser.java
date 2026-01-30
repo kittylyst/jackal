@@ -17,7 +17,7 @@ package tcl.lang;
 
 import tcl.lang.cmd.StringCmd;
 
-public class TclParser implements Command {
+public final class TclParser implements Command {
 
   private static final String[] options = {
     "command",

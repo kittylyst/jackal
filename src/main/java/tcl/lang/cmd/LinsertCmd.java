@@ -23,7 +23,7 @@ import tcl.lang.TclObject;
 import tcl.lang.Util;
 
 /** This class implements the built-in "linsert" command in Tcl. */
-public class LinsertCmd implements Command {
+public final class LinsertCmd implements Command {
   /**
    * See Tcl user documentation for details.
    *

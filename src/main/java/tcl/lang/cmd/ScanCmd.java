@@ -27,7 +27,7 @@ import tcl.lang.TclString;
 import tcl.lang.Util;
 
 /** This class implements the built-in "scan" command in Tcl. */
-public class ScanCmd implements Command {
+public final class ScanCmd implements Command {
 
   /*
    * The code in this class is almost a literal translation 8.4 C Tcl's

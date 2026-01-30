@@ -23,7 +23,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "exit" command in Tcl. */
-public class ExitCmd implements Command {
+public final class ExitCmd implements Command {
 
   /** See Tcl user documentation for details. */
   public void cmdProc(Interp interp, TclObject argv[]) throws TclException {

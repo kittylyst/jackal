@@ -23,7 +23,7 @@ import tcl.lang.TclObject;
 import tcl.lang.channel.Channel;
 
 /** This class implements the built-in "tell" command in Tcl. */
-public class TellCmd implements Command {
+public final class TellCmd implements Command {
 
   /**
    * This procedure is invoked to process the "tell" Tcl command. See the user documentation for

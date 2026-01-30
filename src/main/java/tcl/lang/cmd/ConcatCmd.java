@@ -21,7 +21,7 @@ import tcl.lang.TclObject;
 import tcl.lang.Util;
 
 /** This class implements the built-in "concat" command in Tcl. */
-public class ConcatCmd implements Command {
+public final class ConcatCmd implements Command {
 
   /** See Tcl user documentation for details. */
   public void cmdProc(Interp interp, TclObject argv[]) throws TclException {

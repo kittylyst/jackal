@@ -22,7 +22,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
 /** This class implements the built-in "rename" command in Tcl. */
-public class RenameCmd implements Command {
+public final class RenameCmd implements Command {
   /**
    * ----------------------------------------------------------------------
    *

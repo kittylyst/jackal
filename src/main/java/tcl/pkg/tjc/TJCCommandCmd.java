@@ -18,7 +18,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.pkg.java.JavaInvoke;
 
-public class TJCCommandCmd implements Command {
+public final class TJCCommandCmd implements Command {
 
   // Implementation of TJC::command used to create
   // compiled command instances at runtime.

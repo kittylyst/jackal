@@ -20,7 +20,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.pkg.java.reflect.PkgInvoker;
 
-public class JavaInstanceofCmd implements Command {
+public final class JavaInstanceofCmd implements Command {
 
   /*
    * ----------------------------------------------------------------------

@@ -30,7 +30,7 @@ import tcl.lang.channel.AbstractSocketChannel;
 import tcl.lang.channel.Channel;
 
 /** This class implements the built-in "fconfigure" command in Tcl. */
-public class FconfigureCmd implements Command {
+public final class FconfigureCmd implements Command {
 
   private static final String commonValidCommands[] = {
     "-blocking", "-buffering", "-buffersize", "-encoding", "-eofchar", "-translation"

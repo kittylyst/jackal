@@ -17,7 +17,7 @@ import tcl.lang.channel.PipelineChannel;
  *
  * @author danb
  */
-public class PidCmd implements Command {
+public final class PidCmd implements Command {
 
   /**
    * @return PID of the TCL process

@@ -25,7 +25,7 @@ import tcl.lang.TclObject;
 
 // This class implements the built-in "cd" command in Tcl.
 
-public class CdCmd implements Command {
+public final class CdCmd implements Command {
 
   /*
    * --------------------------------------------------------------------------

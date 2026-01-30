@@ -20,7 +20,7 @@ import tcl.lang.TclException;
 import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
-public class JavaDefineClassCmd implements Command {
+public final class JavaDefineClassCmd implements Command {
 
   /*
    * ----------------------------------------------------------------------

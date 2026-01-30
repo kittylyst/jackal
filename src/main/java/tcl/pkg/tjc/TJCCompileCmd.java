@@ -27,7 +27,7 @@ import tcl.lang.TclRuntimeError;
 import tcl.lang.TclString;
 import tcl.lang.cmd.NamespaceCmd;
 
-public class TJCCompileCmd implements Command {
+public final class TJCCompileCmd implements Command {
 
   // Implementation of TJC::compile used to compile
   // Tcl commands into Java byte code and load them

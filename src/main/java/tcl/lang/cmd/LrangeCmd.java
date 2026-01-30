@@ -23,7 +23,7 @@ import tcl.lang.TclObject;
 import tcl.lang.Util;
 
 /** This class implements the built-in "lrange" command in Tcl. */
-public class LrangeCmd implements Command {
+public final class LrangeCmd implements Command {
   /**
    * See Tcl user documentation for details.
    *

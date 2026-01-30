@@ -33,7 +33,7 @@ import tcl.lang.Util;
  * This class implements the built-in "lsearch" command in Tcl.
  */
 
-public class LsearchCmd implements Command {
+public final class LsearchCmd implements Command {
 
   private static final String[] options = {
     "-all",

@@ -25,7 +25,7 @@ import tcl.lang.TclObject;
  * Implements the built-in "java::call" command.
  */
 
-public class JavaCallCmd implements Command {
+public final class JavaCallCmd implements Command {
 
   /*----------------------------------------------------------------------
    *

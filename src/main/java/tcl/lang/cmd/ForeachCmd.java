@@ -24,7 +24,7 @@ import tcl.lang.TclObject;
 import tcl.lang.TclString;
 
 /** This class implements the built-in "Foreach" command in Tcl. */
-public class ForeachCmd implements Command {
+public final class ForeachCmd implements Command {
   /**
    * Tcl_ForeachObjCmd -> ForeachCmd.cmdProc
    *

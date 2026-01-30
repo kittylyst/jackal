@@ -26,7 +26,7 @@ import tcl.lang.channel.ServerSocketChannel;
 import tcl.lang.channel.SocketChannel;
 
 /** This class implements the built-in "socket" command in Tcl. */
-public class SocketCmd implements Command {
+public final class SocketCmd implements Command {
 
   private static final String validCmds[] = {
     "-async", "-myaddr", "-myport", "-server",

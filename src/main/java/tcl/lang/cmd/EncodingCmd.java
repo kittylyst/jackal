@@ -41,7 +41,7 @@ import tcl.lang.channel.Channel;
  * This class implements the built-in "encoding" command in Tcl. It's also the home for the global
  * systemEncoding property, and translates between TCL encoding names and Java Encoding names.
  */
-public class EncodingCmd implements Command {
+public final class EncodingCmd implements Command {
 
   /** The encoding value set and returned by 'encoding system' */
   public static String systemTclEncoding = null;
