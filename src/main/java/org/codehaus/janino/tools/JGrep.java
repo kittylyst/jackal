@@ -494,16 +494,8 @@ public class JGrep {
 
         this.jGrep(DirectoryIterator.traverseDirectories(
             rootDirectories,              // rootDirectories
-            new FilenameFilter() {        // directoryNameFilter
-                public boolean accept(File dir, String name) {
-                    return StringPattern.matches(directoryNamePatterns, name);
-                }
-            },
-            new FilenameFilter() {        // fileNameFilter
-                public boolean accept(File dir, String name) {
-                    return StringPattern.matches(fileNamePatterns, name);
-                }
-            }
+            (dir, name) -> StringPattern.matches(directoryNamePatterns, name),   // directoryNameFilter
+            (dir, name) -> StringPattern.matches(fileNamePatterns, name)          // fileNameFilter
         ), methodInvocationTargets);
     }
 

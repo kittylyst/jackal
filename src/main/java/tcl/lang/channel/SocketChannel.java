@@ -106,11 +106,7 @@ public class SocketChannel extends AbstractSocketChannel {
 
 		// Create the Socket object
 		if (async) {
-			asyncConnectThread = new Thread(new Runnable() {
-				public void run() {
-					connectSocket(addr, port, localAddress, localPort);
-				}
-			});
+			asyncConnectThread = new Thread(() -> connectSocket(addr, port, localAddress, localPort));
 			asyncConnectThread.setDaemon(true);
 			asyncConnectThread.setName("SocketChannel (" + interp.toString() + "): " + address + ":" + port);
 			asyncConnectThread.start();

@@ -150,42 +150,40 @@ public class Fcopy {
 			}
 			return bytesWritten;
 		} else {
-			Runnable r = new Runnable() {
-				public void run() {
-					String errormsg = null;
-					try {
-						setup();
-						doCopy();
-					} catch (Exception e) {
-						errormsg = e.getMessage();
-					} finally {
-						tearDown();
-					}
-
-					if (source.isClosed() || destination.isClosed()) {
-						return; // don't call the callback if one of the
-								// channels was closed
-					}
-
-					/* Call the callback using the TclEvent queue */
-
-					final String callbackWithArgs = callback + " " + bytesWritten
-							+ (errormsg == null ? "" : (" {" + errormsg + "}"));
-
-					TclEvent event = new TclEvent() {
-						@Override
-						public int processEvent(int flags) {
-							try {
-								interp.eval(callbackWithArgs);
-							} catch (TclException e) {
-								interp.addErrorInfo("\n    (\"fcopy\" script)");
-								interp.backgroundError();
-							}
-							return 1;
-						}
-					};
-					interp.getNotifier().queueEvent(event, TCL.QUEUE_TAIL);
+			Runnable r = () -> {
+				String errormsg = null;
+				try {
+					setup();
+					doCopy();
+				} catch (Exception e) {
+					errormsg = e.getMessage();
+				} finally {
+					tearDown();
 				}
+
+				if (source.isClosed() || destination.isClosed()) {
+					return; // don't call the callback if one of the
+							// channels was closed
+				}
+
+				/* Call the callback using the TclEvent queue */
+
+				final String callbackWithArgs = callback + " " + bytesWritten
+						+ (errormsg == null ? "" : (" {" + errormsg + "}"));
+
+				TclEvent event = new TclEvent() {
+					@Override
+					public int processEvent(int flags) {
+						try {
+							interp.eval(callbackWithArgs);
+						} catch (TclException e) {
+							interp.addErrorInfo("\n    (\"fcopy\" script)");
+							interp.backgroundError();
+						}
+						return 1;
+					}
+				};
+				interp.getNotifier().queueEvent(event, TCL.QUEUE_TAIL);
 			};
 			backgroundCopy = new Thread(r);
 			getChannelOwnership(backgroundCopy.getId());

@@ -139,11 +139,7 @@ public class HprofScrubber {
     }
 
     private static void dumpSites(Site[] ss, Map traces) {
-        Arrays.sort(ss, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                return ((Site) o2).allocatedBytes - ((Site) o1).allocatedBytes;
-            }
-        });
+        Arrays.sort(ss, (s1, s2) -> s2.allocatedBytes - s1.allocatedBytes);
     
         int totalAllocatedBytes = 0, totalAllocatedObjects = 0;
         for (int i = 0; i < ss.length; ++i) {
