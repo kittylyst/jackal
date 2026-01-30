@@ -20,15 +20,10 @@ import tcl.lang.channel.PipelineChannel;
 public class PidCmd implements Command {
 
   /**
-   * @return PID of the TCL process, or -1 if it can't be determined
+   * @return PID of the TCL process
    */
   public static int getPid() {
-    // This will work in solaris and linux
-    try {
-      return Integer.parseInt(new File("/proc/self").getCanonicalFile().getName());
-    } catch (Exception e) {
-      return -1; // can't figure out PID
-    }
+      return (int) ProcessHandle.current().pid();
   }
 
   public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
