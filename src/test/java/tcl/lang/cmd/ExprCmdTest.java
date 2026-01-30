@@ -4,8 +4,10 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import tcl.lang.TclCmdTest;
+import org.junit.jupiter.api.Test;
 
 public class ExprCmdTest  extends TclCmdTest {
+	@Test
 	public void testCmd() throws Exception {
 		LinkedList<String> expectedFailureList = new LinkedList<String>(Arrays.asList( new String[] {
 	            "expr-13.9", // not possible to match error message without significant recoding

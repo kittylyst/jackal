@@ -3,9 +3,11 @@ package tcl.lang.cmd;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import org.junit.jupiter.api.Test;
 import tcl.lang.TclCmdTest;
 
 public class CmdAHTest extends TclCmdTest {
+	@Test
 	public void testCmd() throws Exception {
 		LinkedList<String> expectedFailureList = new LinkedList<String>(Arrays.asList(new String[] {
 			// these fail because 'file atime', 'file mtime', 'file stat' and 'file link' are incomplete

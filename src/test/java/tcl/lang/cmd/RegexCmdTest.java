@@ -1,11 +1,13 @@
 package tcl.lang.cmd;
 
 import tcl.lang.TclCmdTest;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 
 public class RegexCmdTest extends TclCmdTest {
+	@Test
 	public void testCmd() throws Exception {
 		LinkedList<String> expectedFailureList = new LinkedList<String>(Arrays.asList( new String[] {
           
@@ -14,6 +16,7 @@ public class RegexCmdTest extends TclCmdTest {
 		tclTestResource(TCLTEST_NAMEOFEXECUTABLE,resName,expectedFailureList);
 	}
 	
+	@Test
 	public void testRegexComp() throws Exception {
 		LinkedList<String> expectedFailureList = new LinkedList<String>(Arrays.asList( new String[] {
             
@@ -22,6 +25,7 @@ public class RegexCmdTest extends TclCmdTest {
 		tclTestResource(TCLTEST_NAMEOFEXECUTABLE, resName, expectedFailureList);
 	}
 
+    @Test
     public void testRegexSyntax() throws Exception {
         // These expected fails are due to the differences between Java's Matcher
         // and the C TCL regex engine.

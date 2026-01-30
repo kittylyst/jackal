@@ -5,8 +5,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 import tcl.lang.TclCmdTest;
+import org.junit.jupiter.api.Test;
 
 public class FileNameCmdTest extends TclCmdTest {
+	@Test
 	public void testCmd() throws Exception {
 		LinkedList<String> expectedFailureList = new LinkedList<String>(Arrays.asList( new String[] {
 				/*

@@ -11,9 +11,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class TclCmdTest extends TestCase {
+public class TclCmdTest {
 
 	public static final String EXEC_NAME = "jtcltest.bat";
 	public static final Class SHELL_CLASS = tcl.lang.NonInteractiveShell.class;
@@ -24,6 +27,7 @@ public class TclCmdTest extends TestCase {
 	private Interp interp;
 	private String tempDir;
 	
+	@BeforeEach
 	public void setUp() throws Exception {
 		tempDir = createTempdir();
 		createExecScript(new File(tempDir), EXEC_NAME);
@@ -42,6 +46,7 @@ public class TclCmdTest extends TestCase {
 		interp.setWorkingDir(tempDir);
 	}
 	
+	@AfterEach
 	public void tearDown() {
 		interp.dispose();
 		removeTempDir(new File(tempDir));
@@ -78,7 +83,7 @@ public class TclCmdTest extends TestCase {
 	 * @throws Exception
 	 */
 	public void tclTestResource(String resName) throws Exception {
-		tclTestResource(resName, Collections.EMPTY_LIST);
+		tclTestResource(resName, Collections.emptyList());
 	}
 	
 	/**
@@ -89,7 +94,7 @@ public class TclCmdTest extends TestCase {
 	 * @param expectedFailureCases The list of expected test case failures (List of String).
 	 * @throws Exception
 	 */
-	public void tclTestResource(String resName, List expectedFailureCases) throws Exception {
+	public void tclTestResource(String resName, List<String> expectedFailureCases) throws Exception {
 		tclTestResource(null, resName, expectedFailureCases);
 	}
 	
@@ -103,8 +108,8 @@ public class TclCmdTest extends TestCase {
 	 * @param expectedFailureCases The list of expected test case failures (List of String).
 	 * @throws Exception
 	 */
-	public void tclTestResource(String preTestCode, String resName, List expectedFailureCases) throws Exception {
-		List unexpectedFailures = new LinkedList();
+	public void tclTestResource(String preTestCode, String resName, List<String> expectedFailureCases) throws Exception {
+		List<String> unexpectedFailures = new LinkedList<>();
 		
 		// set up temporary file for tcltest output
 		File tmpFile = File.createTempFile("tclCmdTest", ".txt");
@@ -196,7 +201,7 @@ public class TclCmdTest extends TestCase {
 				"Expected-to-fail tcl test cases that were not reported as failed: " + expectedFailureCases.toString() + "\n";
 			String unExpectedFailed = unexpectedFailures.isEmpty() ? "" :
 				"Unexpected failed tcl test cases: " + unexpectedFailures.toString();
-			fail(unFailedExpected +  unExpectedFailed);
+			Assertions.fail(unFailedExpected +  unExpectedFailed);
 		}
 	}
 
@@ -222,6 +227,7 @@ public class TclCmdTest extends TestCase {
 	 * Dummy test method to keep JUnit happy.
 	 * @throws Exception
 	 */
+	@Test
 	public void test() throws Exception {
 		// nothing
 	}

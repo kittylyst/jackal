@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import tcl.lang.TclCmdTest;
+import org.junit.jupiter.api.Test;
 
 public class InterpCmdTest extends TclCmdTest {
 	LinkedList<String> expectedFailureList = new LinkedList<String>(Arrays.asList( new String[] {
@@ -17,6 +18,7 @@ public class InterpCmdTest extends TclCmdTest {
 			"interp-29.4.1",
 			"interp-29.4.2"
 		}));
+	@Test
 	public void testCmd() throws Exception {
 		String resName = "/tcl/lang/cmd/interp.test";
 		tclTestResource(resName, expectedFailureList);

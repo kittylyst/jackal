@@ -5,8 +5,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 import tcl.lang.TclCmdTest;
+import org.junit.jupiter.api.Test;
 
 public class EncodingCmdTest extends TclCmdTest {
+	@Test
 	public void testCmd() throws Exception {
 		LinkedList<String> expectedFailureList = new LinkedList<String>(Arrays.asList( new String[] {
 				// These fail because of the description at http://www8.plala.or.jp/tkubota1/unicode-symbols-map.html

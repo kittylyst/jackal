@@ -1,8 +1,10 @@
 package tcl.lang.cmd;
 
 import tcl.lang.TclCmdTest;
+import org.junit.jupiter.api.Test;
 
 public class RenameCmdTest extends TclCmdTest {
+	@Test
 	public void testCmd() throws Exception {
 		// FIXME: rename.test altered to run test "rename-6.1 {old code invalidated (epoch incremented) when cmd with compile proc is renamed } {"
 		// a difference between C/Tcl on-the-fly bytecode compiler and JTcl's pure interpreter??

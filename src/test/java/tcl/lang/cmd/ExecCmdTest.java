@@ -4,8 +4,10 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import tcl.lang.TclCmdTest;
+import org.junit.jupiter.api.Test;
 
 public class ExecCmdTest extends TclCmdTest {
+	@Test
 	public void testCmd() throws Exception {
 		LinkedList<String> expectedFailureList = new LinkedList<String>(Arrays.asList( new String[] {
 				// exec-1.3 and exec-63 fail because the JVM process model doesn't allow for proper STDIN 
