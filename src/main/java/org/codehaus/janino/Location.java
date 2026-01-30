@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -35,35 +34,45 @@
 package org.codehaus.janino;
 
 /**
- * Represents the location of a character in a file, as defined by
- * file name, line number and column number.
+ * Represents the location of a character in a file, as defined by file name, line number and column
+ * number.
  */
 public class Location {
-    public Location(String optionalFileName, short lineNumber, short columnNumber) {
-        this.optionalFileName = optionalFileName;
-        this.lineNumber       = lineNumber;
-        this.columnNumber     = columnNumber;
+  public Location(String optionalFileName, short lineNumber, short columnNumber) {
+    this.optionalFileName = optionalFileName;
+    this.lineNumber = lineNumber;
+    this.columnNumber = columnNumber;
+  }
+
+  public String getFileName() {
+    return this.optionalFileName;
+  }
+
+  public short getLineNumber() {
+    return this.lineNumber;
+  }
+
+  public short getColumnNumber() {
+    return this.columnNumber;
+  }
+
+  /**
+   * Converts this {@link Location} into an english text, like
+   *
+   * <pre>
+   * File Main.java, Line 23, Column 79</pre>
+   */
+  public String toString() {
+    StringBuffer sb = new StringBuffer();
+    if (this.optionalFileName != null) {
+      sb.append("File ").append(this.optionalFileName).append(", ");
     }
+    sb.append("Line ").append(this.lineNumber).append(", ");
+    sb.append("Column ").append(this.columnNumber);
+    return sb.toString();
+  }
 
-    public String getFileName()     { return this.optionalFileName; }
-    public short  getLineNumber()   { return this.lineNumber; }
-    public short  getColumnNumber() { return this.columnNumber; }
-
-    /**
-     * Converts this {@link Location} into an english text, like<pre>
-     * File Main.java, Line 23, Column 79</pre>
-     */
-    public String toString() {
-        StringBuffer sb = new StringBuffer();
-        if (this.optionalFileName != null) {
-            sb.append("File ").append(this.optionalFileName).append(", ");
-        }
-        sb.append("Line ").append(this.lineNumber).append(", ");
-        sb.append("Column ").append(this.columnNumber);
-        return sb.toString();
-    }
-
-    private /*final*/ String optionalFileName;
-    private /*final*/ short  lineNumber;
-    private /*final*/ short  columnNumber;
+  private /*final*/ String optionalFileName;
+  private /*final*/ short lineNumber;
+  private /*final*/ short columnNumber;
 }

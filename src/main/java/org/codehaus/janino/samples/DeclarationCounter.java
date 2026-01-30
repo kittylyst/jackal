@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -35,65 +34,69 @@
 package org.codehaus.janino.samples;
 
 import java.io.*;
-
 import org.codehaus.janino.*;
 import org.codehaus.janino.util.*;
 
 /**
- * An example application for the {@link org.codehaus.janino.util.Traverser}:
- * Reads, scans and parses the files named on the command line and counts
- * several kinds of declarations.
+ * An example application for the {@link org.codehaus.janino.util.Traverser}: Reads, scans and
+ * parses the files named on the command line and counts several kinds of declarations.
  */
 public class DeclarationCounter extends Traverser {
-    public static void main(String[] args) throws Scanner.ScanException, IOException, Parser.ParseException {
-        DeclarationCounter dc = new DeclarationCounter();
-        for (int i = 0; i < args.length; ++i) {
-            String fileName = args[i];
+  public static void main(String[] args)
+      throws Scanner.ScanException, IOException, Parser.ParseException {
+    DeclarationCounter dc = new DeclarationCounter();
+    for (int i = 0; i < args.length; ++i) {
+      String fileName = args[i];
 
-            // Parse each compilation unit.
-            FileReader r = new FileReader(fileName);
-            Java.CompilationUnit cu;
-            try {
-                cu = new Parser(new Scanner(fileName, r)).parseCompilationUnit();
-            } finally {
-                r.close();
-            }
+      // Parse each compilation unit.
+      FileReader r = new FileReader(fileName);
+      Java.CompilationUnit cu;
+      try {
+        cu = new Parser(new Scanner(fileName, r)).parseCompilationUnit();
+      } finally {
+        r.close();
+      }
 
-            // Traverse it and count declarations.
-            dc.traverseCompilationUnit(cu);
-        }
-
-        System.out.println("Class declarations:     " + dc.classDeclarationCount);
-        System.out.println("Interface declarations: " + dc.interfaceDeclarationCount);
-        System.out.println("Fields:                 " + dc.fieldCount);
-        System.out.println("Local variables:        " + dc.localVariableCount);
+      // Traverse it and count declarations.
+      dc.traverseCompilationUnit(cu);
     }
 
-    // Count class declarations.
-    public void traverseClassDeclaration(Java.ClassDeclaration cd) {
-        ++this.classDeclarationCount;
-        super.traverseClassDeclaration(cd);
-    }
-    private int classDeclarationCount = 0;
+    System.out.println("Class declarations:     " + dc.classDeclarationCount);
+    System.out.println("Interface declarations: " + dc.interfaceDeclarationCount);
+    System.out.println("Fields:                 " + dc.fieldCount);
+    System.out.println("Local variables:        " + dc.localVariableCount);
+  }
 
-    // Count interface declarations.
-    public void traverseInterfaceDeclaration(Java.InterfaceDeclaration id) {
-        ++this.interfaceDeclarationCount;
-        super.traverseInterfaceDeclaration(id);
-    }
-    private int interfaceDeclarationCount = 0;
+  // Count class declarations.
+  public void traverseClassDeclaration(Java.ClassDeclaration cd) {
+    ++this.classDeclarationCount;
+    super.traverseClassDeclaration(cd);
+  }
 
-    // Count fields.
-    public void traverseFieldDeclaration(Java.FieldDeclaration fd) {
-        this.fieldCount += fd.variableDeclarators.length;
-        super.traverseFieldDeclaration(fd);
-    }
-    private int fieldCount = 0;
+  private int classDeclarationCount = 0;
 
-    // Count local variables.
-    public void traverseLocalVariableDeclarationStatement(Java.LocalVariableDeclarationStatement lvds) {
-        this.localVariableCount += lvds.variableDeclarators.length;
-        super.traverseLocalVariableDeclarationStatement(lvds);
-    }
-    private int localVariableCount = 0;
+  // Count interface declarations.
+  public void traverseInterfaceDeclaration(Java.InterfaceDeclaration id) {
+    ++this.interfaceDeclarationCount;
+    super.traverseInterfaceDeclaration(id);
+  }
+
+  private int interfaceDeclarationCount = 0;
+
+  // Count fields.
+  public void traverseFieldDeclaration(Java.FieldDeclaration fd) {
+    this.fieldCount += fd.variableDeclarators.length;
+    super.traverseFieldDeclaration(fd);
+  }
+
+  private int fieldCount = 0;
+
+  // Count local variables.
+  public void traverseLocalVariableDeclarationStatement(
+      Java.LocalVariableDeclarationStatement lvds) {
+    this.localVariableCount += lvds.variableDeclarators.length;
+    super.traverseLocalVariableDeclarationStatement(lvds);
+  }
+
+  private int localVariableCount = 0;
 }

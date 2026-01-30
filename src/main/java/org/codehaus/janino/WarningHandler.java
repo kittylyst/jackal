@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -34,9 +33,7 @@
 
 package org.codehaus.janino;
 
-/**
- * Interface type for {@link UnitCompiler#setWarningHandler(WarningHandler)}.
- */
+/** Interface type for {@link UnitCompiler#setWarningHandler(WarningHandler)}. */
 public interface WarningHandler {
-    void handleWarning(String handle, String message, Location optionalLocation);
+  void handleWarning(String handle, String message, Location optionalLocation);
 }

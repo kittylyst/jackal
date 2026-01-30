@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -41,31 +40,38 @@ import java.util.zip.*;
  * A {@link org.codehaus.janino.util.resource.ResourceFinder} that finds resources in a ZIP file.
  */
 public class ZipFileResourceFinder extends ResourceFinder {
-    private final ZipFile zipFile;
+  private final ZipFile zipFile;
 
-    public ZipFileResourceFinder(ZipFile zipFile) {
-        this.zipFile = zipFile;
-    }
-    public String toString() { return "zip:" + this.zipFile.getName(); }
+  public ZipFileResourceFinder(ZipFile zipFile) {
+    this.zipFile = zipFile;
+  }
 
-    // Implement ResourceFinder.
+  public String toString() {
+    return "zip:" + this.zipFile.getName();
+  }
 
-    public Resource findResource(final String resourceName) {
-        final ZipEntry ze = this.zipFile.getEntry(resourceName);
-        if (ze == null) return null;
-        return new Resource() {
-            public InputStream open() throws IOException {
-                return ZipFileResourceFinder.this.zipFile.getInputStream(ze);
-            }
-            public String getFileName() {
-                return ZipFileResourceFinder.this.zipFile.getName() + ':' + resourceName;
-            }
-            public long lastModified() {
-            	long l = ze.getTime();
-            	return l == -1L ? 0L : l;
-            }
+  // Implement ResourceFinder.
 
-            public String toString() { return this.getFileName(); }
-        };
-    }
+  public Resource findResource(final String resourceName) {
+    final ZipEntry ze = this.zipFile.getEntry(resourceName);
+    if (ze == null) return null;
+    return new Resource() {
+      public InputStream open() throws IOException {
+        return ZipFileResourceFinder.this.zipFile.getInputStream(ze);
+      }
+
+      public String getFileName() {
+        return ZipFileResourceFinder.this.zipFile.getName() + ':' + resourceName;
+      }
+
+      public long lastModified() {
+        long l = ze.getTime();
+        return l == -1L ? 0L : l;
+      }
+
+      public String toString() {
+        return this.getFileName();
+      }
+    };
+  }
 }

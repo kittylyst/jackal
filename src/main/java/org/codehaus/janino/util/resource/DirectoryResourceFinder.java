@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -38,48 +37,51 @@ import java.io.*;
 import java.util.*;
 
 /**
- * A {@link org.codehaus.janino.util.resource.FileResourceFinder} that finds file resources in
- * a directory. The name of the file is constructed by concatenating a dirctory name
- * with the resource name such that slashes in the resource name map to file
- * separators.
+ * A {@link org.codehaus.janino.util.resource.FileResourceFinder} that finds file resources in a
+ * directory. The name of the file is constructed by concatenating a dirctory name with the resource
+ * name such that slashes in the resource name map to file separators.
  */
 public class DirectoryResourceFinder extends FileResourceFinder {
-    private final File directory;
-    private final Map  subdirectoryNameToFiles = new HashMap(); // String directoryName => Set => File
+  private final File directory;
+  private final Map subdirectoryNameToFiles = new HashMap(); // String directoryName => Set => File
 
-    /**
-     * @param directory the directory to use as the search base
-     */
-    public DirectoryResourceFinder(File directory) {
-        this.directory = directory;
+  /**
+   * @param directory the directory to use as the search base
+   */
+  public DirectoryResourceFinder(File directory) {
+    this.directory = directory;
+  }
+
+  public String toString() {
+    return "dir:" + this.directory;
+  }
+
+  // Implement FileResourceFinder.
+  protected File findResourceAsFile(String resourceName) {
+
+    // Determine the subdirectory name (null for no subdirectory).
+    int idx = resourceName.lastIndexOf('/');
+    String subdirectoryName =
+        (idx == -1 ? null : resourceName.substring(0, idx).replace('/', File.separatorChar));
+
+    // Determine files existing in this subdirectory.
+    Set files =
+        (Set)
+            this.subdirectoryNameToFiles.get(
+                subdirectoryName); // String directoryName => Set => File
+    if (files == null) {
+      File subDirectory =
+          (subdirectoryName == null) ? this.directory : new File(this.directory, subdirectoryName);
+      File[] fa = subDirectory.listFiles();
+      files = (fa == null) ? Collections.EMPTY_SET : new HashSet(Arrays.asList(fa));
+      this.subdirectoryNameToFiles.put(subdirectoryName, files);
     }
 
-    public String toString() { return "dir:" + this.directory; }
+    // Notice that "File.equals()" performs all the file-system dependent
+    // magic like case conversion.
+    File file = new File(this.directory, resourceName.replace('/', File.separatorChar));
+    if (!files.contains(file)) return null;
 
-    // Implement FileResourceFinder.
-    protected File findResourceAsFile(String resourceName) {
-    
-        // Determine the subdirectory name (null for no subdirectory).
-        int idx = resourceName.lastIndexOf('/');
-        String subdirectoryName = (
-            idx == -1 ? null :
-            resourceName.substring(0, idx).replace('/', File.separatorChar)
-        );
-    
-        // Determine files existing in this subdirectory.
-        Set files = (Set) this.subdirectoryNameToFiles.get(subdirectoryName); // String directoryName => Set => File
-        if (files == null) {
-            File subDirectory = (subdirectoryName == null) ? this.directory : new File(this.directory, subdirectoryName);
-            File[] fa = subDirectory.listFiles();
-            files = (fa == null) ? Collections.EMPTY_SET : new HashSet(Arrays.asList(fa));
-            this.subdirectoryNameToFiles.put(subdirectoryName, files);
-        }
-    
-        // Notice that "File.equals()" performs all the file-system dependent
-        // magic like case conversion.
-        File file = new File(this.directory, resourceName.replace('/', File.separatorChar));
-        if (!files.contains(file)) return null;
-    
-        return file;
-    }
+    return file;
+  }
 }

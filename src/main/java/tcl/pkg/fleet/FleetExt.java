@@ -7,19 +7,17 @@ import tcl.lang.Interp;
  * This class implements a simple Tcl extension package "Fleet".
  */
 /**
- * 
  * @author brucejohnson
  */
 public class FleetExt extends Extension {
-    /*
-     * Create all the commands in the Simple package.
-     */
+  /*
+   * Create all the commands in the Simple package.
+   */
 
-    /**
-     * 
-     * @param interp
-     */
-    public void init(Interp interp) {
-        Extension.loadOnDemand(interp, "fleet", "tcl.pkg.fleet.FleetCmd");
-    }
+  /**
+   * @param interp
+   */
+  public void init(Interp interp) {
+    Extension.loadOnDemand(interp, "fleet", "tcl.pkg.fleet.FleetCmd");
+  }
 }

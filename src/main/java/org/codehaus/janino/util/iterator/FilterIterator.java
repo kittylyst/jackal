@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -37,16 +36,26 @@ package org.codehaus.janino.util.iterator;
 import java.util.*;
 
 /**
- * An {@link java.util.Iterator} that retrieves its elements from a delegate
- * {@link java.util.Iterator}. The default implementation simply passes
- * all method invocations to the delegate.
+ * An {@link java.util.Iterator} that retrieves its elements from a delegate {@link
+ * java.util.Iterator}. The default implementation simply passes all method invocations to the
+ * delegate.
  */
 public abstract class FilterIterator implements Iterator {
-    protected final Iterator delegate;
+  protected final Iterator delegate;
 
-    public FilterIterator(Iterator delegate) { this.delegate = delegate; }
+  public FilterIterator(Iterator delegate) {
+    this.delegate = delegate;
+  }
 
-    public boolean hasNext() { return this.delegate.hasNext(); }
-    public Object  next()    { return this.delegate.next(); }
-    public void    remove()  { this.delegate.remove(); }
+  public boolean hasNext() {
+    return this.delegate.hasNext();
+  }
+
+  public Object next() {
+    return this.delegate.next();
+  }
+
+  public void remove() {
+    this.delegate.remove();
+  }
 }

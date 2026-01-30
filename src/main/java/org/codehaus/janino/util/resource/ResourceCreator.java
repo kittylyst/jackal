@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -38,27 +37,28 @@ import java.io.*;
 
 /**
  * Opens a resource, characterized by a name, for writing.
- * <p>
- * There also exists a concept {@link org.codehaus.janino.util.resource.ResourceFinder} that
+ *
+ * <p>There also exists a concept {@link org.codehaus.janino.util.resource.ResourceFinder} that
  * finds {@link org.codehaus.janino.util.resource.Resource}s for reading.
  *
  * @see org.codehaus.janino.util.resource.ResourceFinder
  */
 public interface ResourceCreator {
 
-    /**
-     * Create the designated resource.
-     *
-     * @param resourceName Designates the resource; typically structured by slashes ("/") like "<code>com/foo/pkg/Bar.class</code>"
-     * @return bytes written to this {@link OutputStream} are stored in the resource
-     * @throws IOException Problems creating the resource
-     */
-    public abstract OutputStream createResource(String resourceName) throws IOException;
+  /**
+   * Create the designated resource.
+   *
+   * @param resourceName Designates the resource; typically structured by slashes ("/") like "<code>
+   *     com/foo/pkg/Bar.class</code>"
+   * @return bytes written to this {@link OutputStream} are stored in the resource
+   * @throws IOException Problems creating the resource
+   */
+  public abstract OutputStream createResource(String resourceName) throws IOException;
 
-    /**
-     * Deletes the resource with the given name.
-     * 
-     * @return <code>false</code> if the resource could not be deleted
-     */
-    public abstract boolean deleteResource(String resourceName);
+  /**
+   * Deletes the resource with the given name.
+   *
+   * @return <code>false</code> if the resource could not be deleted
+   */
+  public abstract boolean deleteResource(String resourceName);
 }

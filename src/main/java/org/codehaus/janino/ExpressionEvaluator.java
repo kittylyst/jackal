@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -154,292 +153,305 @@ import java.io.*;
  * expression must be an invocation of a <code>void</code> method.
  */
 public class ExpressionEvaluator extends ScriptEvaluator {
-    public static final Class ANY_TYPE = null;
-    private Class             expressionType = ExpressionEvaluator.ANY_TYPE;
+  public static final Class ANY_TYPE = null;
+  private Class expressionType = ExpressionEvaluator.ANY_TYPE;
 
-    /**
-     * Equivalent to<pre>
-     * ExpressionEvaluator ee = new ExpressionEvaluator();
-     * ee.setExpressionType(expressionType);
-     * ee.setParameters(parameterNames, parameterTypes);
-     * ee.cook(expression);</pre>
-     *
-     * @see #ExpressionEvaluator()
-     * @see ExpressionEvaluator#setExpressionType(Class)
-     * @see ScriptEvaluator#setParameters(String[], Class[])
-     * @see Cookable#cook(String)
-     */
-    public ExpressionEvaluator(
-        String   expression,
-        Class    expressionType,
-        String[] parameterNames,
-        Class[]  parameterTypes
-    ) throws CompileException, Parser.ParseException, Scanner.ScanException {
-        this.setExpressionType(expressionType);
-        this.setParameters(parameterNames, parameterTypes);
-        this.cook(expression);
-    }
+  /**
+   * Equivalent to
+   *
+   * <pre>
+   * ExpressionEvaluator ee = new ExpressionEvaluator();
+   * ee.setExpressionType(expressionType);
+   * ee.setParameters(parameterNames, parameterTypes);
+   * ee.cook(expression);</pre>
+   *
+   * @see #ExpressionEvaluator()
+   * @see ExpressionEvaluator#setExpressionType(Class)
+   * @see ScriptEvaluator#setParameters(String[], Class[])
+   * @see Cookable#cook(String)
+   */
+  public ExpressionEvaluator(
+      String expression, Class expressionType, String[] parameterNames, Class[] parameterTypes)
+      throws CompileException, Parser.ParseException, Scanner.ScanException {
+    this.setExpressionType(expressionType);
+    this.setParameters(parameterNames, parameterTypes);
+    this.cook(expression);
+  }
 
-    /**
-     * Equivalent to<pre>
-     * ExpressionEvaluator ee = new ExpressionEvaluator();
-     * ee.setExpressionType(expressionType);
-     * ee.setParameters(parameterNames, parameterTypes);
-     * ee.setThrownExceptions(thrownExceptions);
-     * ee.setParentClassLoader(optionalParentClassLoader);
-     * ee.cook(expression);</pre>
-     *
-     * @see #ExpressionEvaluator()
-     * @see ExpressionEvaluator#setExpressionType(Class)
-     * @see ScriptEvaluator#setParameters(String[], Class[])
-     * @see ScriptEvaluator#setThrownExceptions(Class[])
-     * @see SimpleCompiler#setParentClassLoader(ClassLoader)
-     * @see Cookable#cook(String)
-     */
-    public ExpressionEvaluator(
-        String      expression,
-        Class       expressionType,
-        String[]    parameterNames,
-        Class[]     parameterTypes,
-        Class[]     thrownExceptions,
-        ClassLoader optionalParentClassLoader
-    ) throws CompileException, Parser.ParseException, Scanner.ScanException {
-        this.setExpressionType(expressionType);
-        this.setParameters(parameterNames, parameterTypes);
-        this.setThrownExceptions(thrownExceptions);
-        this.setParentClassLoader(optionalParentClassLoader);
-        this.cook(expression);
-    }
+  /**
+   * Equivalent to
+   *
+   * <pre>
+   * ExpressionEvaluator ee = new ExpressionEvaluator();
+   * ee.setExpressionType(expressionType);
+   * ee.setParameters(parameterNames, parameterTypes);
+   * ee.setThrownExceptions(thrownExceptions);
+   * ee.setParentClassLoader(optionalParentClassLoader);
+   * ee.cook(expression);</pre>
+   *
+   * @see #ExpressionEvaluator()
+   * @see ExpressionEvaluator#setExpressionType(Class)
+   * @see ScriptEvaluator#setParameters(String[], Class[])
+   * @see ScriptEvaluator#setThrownExceptions(Class[])
+   * @see SimpleCompiler#setParentClassLoader(ClassLoader)
+   * @see Cookable#cook(String)
+   */
+  public ExpressionEvaluator(
+      String expression,
+      Class expressionType,
+      String[] parameterNames,
+      Class[] parameterTypes,
+      Class[] thrownExceptions,
+      ClassLoader optionalParentClassLoader)
+      throws CompileException, Parser.ParseException, Scanner.ScanException {
+    this.setExpressionType(expressionType);
+    this.setParameters(parameterNames, parameterTypes);
+    this.setThrownExceptions(thrownExceptions);
+    this.setParentClassLoader(optionalParentClassLoader);
+    this.cook(expression);
+  }
 
-    /**
-     * Equivalent to<pre>
-     * ExpressionEvaluator ee = new ExpressionEvaluator();
-     * ee.setExpressionType(expressionType);
-     * ee.setParameters(parameterNames, parameterTypes);
-     * ee.setThrownExceptions(thrownExceptions);
-     * ee.setExtendedType(optionalExtendedType);
-     * ee.setImplementedTypes(implementedTypes);
-     * ee.setParentClassLoader(optionalParentClassLoader);
-     * ee.cook(expression);</pre>
-     *
-     * @see #ExpressionEvaluator()
-     * @see ExpressionEvaluator#setExpressionType(Class)
-     * @see ScriptEvaluator#setParameters(String[], Class[])
-     * @see ScriptEvaluator#setThrownExceptions(Class[])
-     * @see ClassBodyEvaluator#setExtendedType(Class)
-     * @see ClassBodyEvaluator#setImplementedTypes(Class[])
-     * @see SimpleCompiler#setParentClassLoader(ClassLoader)
-     * @see Cookable#cook(String)
-     */
-    public ExpressionEvaluator(
-        String      expression,
-        Class       expressionType,
-        String[]    parameterNames,
-        Class[]     parameterTypes,
-        Class[]     thrownExceptions,
-        Class       optionalExtendedType,
-        Class[]     implementedTypes,
-        ClassLoader optionalParentClassLoader
-    ) throws CompileException, Parser.ParseException, Scanner.ScanException {
-        this.setExpressionType(expressionType);
-        this.setParameters(parameterNames, parameterTypes);
-        this.setThrownExceptions(thrownExceptions);
-        this.setExtendedType(optionalExtendedType);
-        this.setImplementedTypes(implementedTypes);
-        this.setParentClassLoader(optionalParentClassLoader);
-        this.cook(expression);
-    }
+  /**
+   * Equivalent to
+   *
+   * <pre>
+   * ExpressionEvaluator ee = new ExpressionEvaluator();
+   * ee.setExpressionType(expressionType);
+   * ee.setParameters(parameterNames, parameterTypes);
+   * ee.setThrownExceptions(thrownExceptions);
+   * ee.setExtendedType(optionalExtendedType);
+   * ee.setImplementedTypes(implementedTypes);
+   * ee.setParentClassLoader(optionalParentClassLoader);
+   * ee.cook(expression);</pre>
+   *
+   * @see #ExpressionEvaluator()
+   * @see ExpressionEvaluator#setExpressionType(Class)
+   * @see ScriptEvaluator#setParameters(String[], Class[])
+   * @see ScriptEvaluator#setThrownExceptions(Class[])
+   * @see ClassBodyEvaluator#setExtendedType(Class)
+   * @see ClassBodyEvaluator#setImplementedTypes(Class[])
+   * @see SimpleCompiler#setParentClassLoader(ClassLoader)
+   * @see Cookable#cook(String)
+   */
+  public ExpressionEvaluator(
+      String expression,
+      Class expressionType,
+      String[] parameterNames,
+      Class[] parameterTypes,
+      Class[] thrownExceptions,
+      Class optionalExtendedType,
+      Class[] implementedTypes,
+      ClassLoader optionalParentClassLoader)
+      throws CompileException, Parser.ParseException, Scanner.ScanException {
+    this.setExpressionType(expressionType);
+    this.setParameters(parameterNames, parameterTypes);
+    this.setThrownExceptions(thrownExceptions);
+    this.setExtendedType(optionalExtendedType);
+    this.setImplementedTypes(implementedTypes);
+    this.setParentClassLoader(optionalParentClassLoader);
+    this.cook(expression);
+  }
 
-    /**
-     * Equivalent to<pre>
-     * ExpressionEvaluator ee = new ExpressionEvaluator();
-     * ee.setClassName(className);
-     * ee.setExtendedType(optionalExtendedType);
-     * ee.setImplementedTypes(implementedTypes);
-     * ee.setStaticMethod(staticMethod);
-     * ee.setExpressionType(expressionType);
-     * ee.setMethodName(methodName);
-     * ee.setParameters(parameterNames, parameterTypes);
-     * ee.setThrownExceptions(thrownExceptions);
-     * ee.setParentClassLoader(optionalParentClassLoader);
-     * ee.cook(scanner);
-     *
-     * @see #ExpressionEvaluator()
-     * @see ClassBodyEvaluator#setClassName(String)
-     * @see ClassBodyEvaluator#setExtendedType(Class)
-     * @see ClassBodyEvaluator#setImplementedTypes(Class[])
-     * @see ScriptEvaluator#setStaticMethod(boolean)
-     * @see ExpressionEvaluator#setExpressionType(Class)
-     * @see ScriptEvaluator#setMethodName(String)
-     * @see ScriptEvaluator#setParameters(String[], Class[])
-     * @see ScriptEvaluator#setThrownExceptions(Class[])
-     * @see SimpleCompiler#setParentClassLoader(ClassLoader)
-     * @see Cookable#cook(Scanner)
-     */
-    public ExpressionEvaluator(
-        Scanner     scanner,
-        String      className,
-        Class       optionalExtendedType,
-        Class[]     implementedTypes,
-        boolean     staticMethod,
-        Class       expressionType,
-        String      methodName,
-        String[]    parameterNames,
-        Class[]     parameterTypes,
-        Class[]     thrownExceptions,
-        ClassLoader optionalParentClassLoader
-    ) throws Scanner.ScanException, Parser.ParseException, CompileException, IOException {
-        this.setClassName(className);
-        this.setExtendedType(optionalExtendedType);
-        this.setImplementedTypes(implementedTypes);
-        this.setStaticMethod(staticMethod);
-        this.setExpressionType(expressionType);
-        this.setMethodName(methodName);
-        this.setParameters(parameterNames, parameterTypes);
-        this.setThrownExceptions(thrownExceptions);
-        this.setParentClassLoader(optionalParentClassLoader);
-        this.cook(scanner);
-    }
+  /**
+   * Equivalent to<pre>
+   * ExpressionEvaluator ee = new ExpressionEvaluator();
+   * ee.setClassName(className);
+   * ee.setExtendedType(optionalExtendedType);
+   * ee.setImplementedTypes(implementedTypes);
+   * ee.setStaticMethod(staticMethod);
+   * ee.setExpressionType(expressionType);
+   * ee.setMethodName(methodName);
+   * ee.setParameters(parameterNames, parameterTypes);
+   * ee.setThrownExceptions(thrownExceptions);
+   * ee.setParentClassLoader(optionalParentClassLoader);
+   * ee.cook(scanner);
+   *
+   * @see #ExpressionEvaluator()
+   * @see ClassBodyEvaluator#setClassName(String)
+   * @see ClassBodyEvaluator#setExtendedType(Class)
+   * @see ClassBodyEvaluator#setImplementedTypes(Class[])
+   * @see ScriptEvaluator#setStaticMethod(boolean)
+   * @see ExpressionEvaluator#setExpressionType(Class)
+   * @see ScriptEvaluator#setMethodName(String)
+   * @see ScriptEvaluator#setParameters(String[], Class[])
+   * @see ScriptEvaluator#setThrownExceptions(Class[])
+   * @see SimpleCompiler#setParentClassLoader(ClassLoader)
+   * @see Cookable#cook(Scanner)
+   */
+  public ExpressionEvaluator(
+      Scanner scanner,
+      String className,
+      Class optionalExtendedType,
+      Class[] implementedTypes,
+      boolean staticMethod,
+      Class expressionType,
+      String methodName,
+      String[] parameterNames,
+      Class[] parameterTypes,
+      Class[] thrownExceptions,
+      ClassLoader optionalParentClassLoader)
+      throws Scanner.ScanException, Parser.ParseException, CompileException, IOException {
+    this.setClassName(className);
+    this.setExtendedType(optionalExtendedType);
+    this.setImplementedTypes(implementedTypes);
+    this.setStaticMethod(staticMethod);
+    this.setExpressionType(expressionType);
+    this.setMethodName(methodName);
+    this.setParameters(parameterNames, parameterTypes);
+    this.setThrownExceptions(thrownExceptions);
+    this.setParentClassLoader(optionalParentClassLoader);
+    this.cook(scanner);
+  }
 
-    public ExpressionEvaluator() {}
+  public ExpressionEvaluator() {}
 
-    /**
-     * Define the type of the expression. The special type {@link #ANY_TYPE} allows the expression
-     * to return any type (primitive or reference).
-     * <p>
-     * Defaults to {@link #ANY_TYPE}.
-     */
-    public void setExpressionType(Class expressionType) {
-        this.expressionType = expressionType;
-    }
+  /**
+   * Define the type of the expression. The special type {@link #ANY_TYPE} allows the expression to
+   * return any type (primitive or reference).
+   *
+   * <p>Defaults to {@link #ANY_TYPE}.
+   */
+  public void setExpressionType(Class expressionType) {
+    this.expressionType = expressionType;
+  }
 
-    public final void setReturnType(Class returnType) {
-        throw new RuntimeException("Don't call \"setReturnType()\" on an ExpressionEvaluator, user \"setExpressionType()\" instead");
-    }
+  public final void setReturnType(Class returnType) {
+    throw new RuntimeException(
+        "Don't call \"setReturnType()\" on an ExpressionEvaluator, user \"setExpressionType()\" instead");
+  }
 
-    protected void internalCook(Scanner scanner) throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        Java.CompilationUnit compilationUnit = this.makeCompilationUnit(scanner);
+  protected void internalCook(Scanner scanner)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    Java.CompilationUnit compilationUnit = this.makeCompilationUnit(scanner);
 
-        // Create class, method and block.
-        Java.Block block = this.addClassMethodBlockDeclaration(
-            scanner.location(),        // location
-            compilationUnit,           // compilationUnit
-            (                          // returnType
-                this.expressionType == null ?
-                Object.class :
-                this.expressionType
-            )
-        );
+    // Create class, method and block.
+    Java.Block block =
+        this.addClassMethodBlockDeclaration(
+            scanner.location(), // location
+            compilationUnit, // compilationUnit
+            ( // returnType
+            this.expressionType == null ? Object.class : this.expressionType));
 
-        Parser parser = new Parser(scanner);
-        if (this.expressionType == void.class) {
+    Parser parser = new Parser(scanner);
+    if (this.expressionType == void.class) {
 
-            // ExpressionEvaluator with an expression type "void" is a simple expression statement.
-            block.addStatement(new Java.ExpressionStatement(parser.parseExpression().toRvalueOrPE()));
-        } else {
+      // ExpressionEvaluator with an expression type "void" is a simple expression statement.
+      block.addStatement(new Java.ExpressionStatement(parser.parseExpression().toRvalueOrPE()));
+    } else {
 
-            // Compute expression value
-            Java.Rvalue value = parser.parseExpression().toRvalueOrPE();
+      // Compute expression value
+      Java.Rvalue value = parser.parseExpression().toRvalueOrPE();
 
-            // Special case: A "null" expression type means return type "Object" and automatic
-            // wrapping of primitive types.
-            if (this.expressionType == null) {
-                value = new Java.MethodInvocation(
-                    scanner.location(),           // location
-                    new Java.ReferenceType(       // optionalTarget
-                        scanner.location(),                                                      // location
-                        new String[] { "org", "codehaus", "janino", "util", "PrimitiveWrapper" } // identifiers
+      // Special case: A "null" expression type means return type "Object" and automatic
+      // wrapping of primitive types.
+      if (this.expressionType == null) {
+        value =
+            new Java.MethodInvocation(
+                scanner.location(), // location
+                new Java.ReferenceType( // optionalTarget
+                    scanner.location(), // location
+                    new String[] {
+                      "org", "codehaus", "janino", "util", "PrimitiveWrapper"
+                    } // identifiers
                     ),
-                    "wrap",
-                    new Java.Rvalue[] { value }   // arguments
+                "wrap",
+                new Java.Rvalue[] {value} // arguments
                 );
-                org.codehaus.janino.util.PrimitiveWrapper.wrap(99); // Make sure "PrimitiveWrapper" is compiled.
-            }
+        org.codehaus.janino.util.PrimitiveWrapper.wrap(
+            99); // Make sure "PrimitiveWrapper" is compiled.
+      }
 
-            // Add a return statement.
-            block.addStatement(new Java.ReturnStatement(scanner.location(), value));
-        }
-        if (!scanner.peek().isEOF()) throw new Parser.ParseException("Unexpected token \"" + scanner.peek() + "\"", scanner.location());
-
-        this.compileToMethod(compilationUnit);
+      // Add a return statement.
+      block.addStatement(new Java.ReturnStatement(scanner.location(), value));
     }
+    if (!scanner.peek().isEOF())
+      throw new Parser.ParseException(
+          "Unexpected token \"" + scanner.peek() + "\"", scanner.location());
 
-    /**
-     * Creates a "fast expression evaluator" from the given {@link java.lang.String}
-     * <code>expression</code>, generating a class with the {@link #DEFAULT_CLASS_NAME} that
-     * extends {@link Object}.
-     * <p>
-     * See the class description for an explanation of the "fast expression evaluator" concept.
-     *
-     * @see #createFastExpressionEvaluator(Scanner, String[], String, Class, Class, String[], ClassLoader)
-     * @see ExpressionEvaluator
-     */
-    public static Object createFastExpressionEvaluator(
-        String      expression,
-        Class       interfaceToImplement,
-        String[]    parameterNames,
-        ClassLoader optionalClassLoader
-    ) throws CompileException, Parser.ParseException, Scanner.ScanException {
-        ExpressionEvaluator ee = new ExpressionEvaluator();
-        return ScriptEvaluator.createFastEvaluator(ee, expression, parameterNames, interfaceToImplement);
-    }
+    this.compileToMethod(compilationUnit);
+  }
 
-    /**
-     * Creates a "fast expression evaluator" from the given {@link Scanner} with no default
-     * imports.
-     * <p>
-     * See the class description for an explanation of the "fast expression evaluator" concept.
-     *
-     * @see #createFastExpressionEvaluator(Scanner, String[], String, Class, Class, String[], ClassLoader)
-     * @see ExpressionEvaluator
-     */
-    public static Object createFastExpressionEvaluator(
-        Scanner     scanner,
-        String      className,
-        Class       optionalExtendedType,
-        Class       interfaceToImplement,
-        String[]    parameterNames,
-        ClassLoader optionalParentClassLoader
-    ) throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        ExpressionEvaluator ee = new ExpressionEvaluator();
-        ee.setClassName(className);
-        ee.setExtendedType(optionalExtendedType);
-        ee.setParentClassLoader(optionalParentClassLoader);
-        return ScriptEvaluator.createFastEvaluator(ee, scanner, parameterNames, interfaceToImplement);
-    }
+  /**
+   * Creates a "fast expression evaluator" from the given {@link java.lang.String} <code>expression
+   * </code>, generating a class with the {@link #DEFAULT_CLASS_NAME} that extends {@link Object}.
+   *
+   * <p>See the class description for an explanation of the "fast expression evaluator" concept.
+   *
+   * @see #createFastExpressionEvaluator(Scanner, String[], String, Class, Class, String[],
+   *     ClassLoader)
+   * @see ExpressionEvaluator
+   */
+  public static Object createFastExpressionEvaluator(
+      String expression,
+      Class interfaceToImplement,
+      String[] parameterNames,
+      ClassLoader optionalClassLoader)
+      throws CompileException, Parser.ParseException, Scanner.ScanException {
+    ExpressionEvaluator ee = new ExpressionEvaluator();
+    return ScriptEvaluator.createFastEvaluator(
+        ee, expression, parameterNames, interfaceToImplement);
+  }
 
-    /**
-     * Creates a "fast expression evaluator".
-     * <p>
-     * See the class description for an explanation of the "fast expression evaluator" concept.
-     * <p> 
-     * Notice: The <code>interfaceToImplement</code> must either be declared <code>public</code>,
-     * or with package scope in the same package as <code>className</code>.
-     * 
-     * @param scanner                   Source of expression tokens
-     * @param optionalDefaultImports    Default imports, e.g. <code>{ "java.util.Map", "java.io.*" }</code>
-     * @param className                 Name of generated class
-     * @param optionalExtendedType      Class to extend
-     * @param interfaceToImplement      Must declare exactly the one method that defines the expression's signature
-     * @param parameterNames            The expression references the parameters through these names
-     * @param optionalParentClassLoader Used to load referenced classes, defaults to the current thread's "context class loader"
-     * @return an object that implements the given interface and extends the <code>optionalExtendedType</code>
-     * @see ExpressionEvaluator
-     */
-    public static Object createFastExpressionEvaluator(
-        Scanner     scanner,
-        String[]    optionalDefaultImports,
-        String      className,
-        Class       optionalExtendedType,
-        Class       interfaceToImplement,
-        String[]    parameterNames,
-        ClassLoader optionalParentClassLoader
-    ) throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        ExpressionEvaluator ee = new ExpressionEvaluator();
-        ee.setClassName(className);
-        ee.setExtendedType(optionalExtendedType);
-        ee.setDefaultImports(optionalDefaultImports);
-        ee.setParentClassLoader(optionalParentClassLoader);
-        return ScriptEvaluator.createFastEvaluator(ee, scanner, parameterNames, interfaceToImplement);
-    }
+  /**
+   * Creates a "fast expression evaluator" from the given {@link Scanner} with no default imports.
+   *
+   * <p>See the class description for an explanation of the "fast expression evaluator" concept.
+   *
+   * @see #createFastExpressionEvaluator(Scanner, String[], String, Class, Class, String[],
+   *     ClassLoader)
+   * @see ExpressionEvaluator
+   */
+  public static Object createFastExpressionEvaluator(
+      Scanner scanner,
+      String className,
+      Class optionalExtendedType,
+      Class interfaceToImplement,
+      String[] parameterNames,
+      ClassLoader optionalParentClassLoader)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    ExpressionEvaluator ee = new ExpressionEvaluator();
+    ee.setClassName(className);
+    ee.setExtendedType(optionalExtendedType);
+    ee.setParentClassLoader(optionalParentClassLoader);
+    return ScriptEvaluator.createFastEvaluator(ee, scanner, parameterNames, interfaceToImplement);
+  }
+
+  /**
+   * Creates a "fast expression evaluator".
+   *
+   * <p>See the class description for an explanation of the "fast expression evaluator" concept.
+   *
+   * <p>Notice: The <code>interfaceToImplement</code> must either be declared <code>public</code>,
+   * or with package scope in the same package as <code>className</code>.
+   *
+   * @param scanner Source of expression tokens
+   * @param optionalDefaultImports Default imports, e.g. <code>{ "java.util.Map", "java.io.*" }
+   *     </code>
+   * @param className Name of generated class
+   * @param optionalExtendedType Class to extend
+   * @param interfaceToImplement Must declare exactly the one method that defines the expression's
+   *     signature
+   * @param parameterNames The expression references the parameters through these names
+   * @param optionalParentClassLoader Used to load referenced classes, defaults to the current
+   *     thread's "context class loader"
+   * @return an object that implements the given interface and extends the <code>
+   *     optionalExtendedType</code>
+   * @see ExpressionEvaluator
+   */
+  public static Object createFastExpressionEvaluator(
+      Scanner scanner,
+      String[] optionalDefaultImports,
+      String className,
+      Class optionalExtendedType,
+      Class interfaceToImplement,
+      String[] parameterNames,
+      ClassLoader optionalParentClassLoader)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    ExpressionEvaluator ee = new ExpressionEvaluator();
+    ee.setClassName(className);
+    ee.setExtendedType(optionalExtendedType);
+    ee.setDefaultImports(optionalDefaultImports);
+    ee.setParentClassLoader(optionalParentClassLoader);
+    return ScriptEvaluator.createFastEvaluator(ee, scanner, parameterNames, interfaceToImplement);
+  }
 }

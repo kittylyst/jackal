@@ -26,46 +26,44 @@ import tcl.lang.TclObject;
 
 public class JavaThrowCmd implements Command {
 
-	/*
-	 * ----------------------------------------------------------------------
-	 * 
-	 * cmdProc --
-	 * 
-	 * This procedure is invoked as part of the Command interface to process the
-	 * "java::throw" Tcl command. It receives a Throwable object and throws it
-	 * by encapsulating the Throwable inside a ReflectException, which inherits
-	 * from TclException. If the Throwable is already of type TclException,
-	 * throw it after resetting the interp result to the TclException message.
-	 * 
-	 * Results: None.
-	 * 
-	 * Side effects: Can change the interp result, errorInfo, and errorCode.
-	 * 
-	 * ----------------------------------------------------------------------
-	 */
+  /*
+   * ----------------------------------------------------------------------
+   *
+   * cmdProc --
+   *
+   * This procedure is invoked as part of the Command interface to process the
+   * "java::throw" Tcl command. It receives a Throwable object and throws it
+   * by encapsulating the Throwable inside a ReflectException, which inherits
+   * from TclException. If the Throwable is already of type TclException,
+   * throw it after resetting the interp result to the TclException message.
+   *
+   * Results: None.
+   *
+   * Side effects: Can change the interp result, errorInfo, and errorCode.
+   *
+   * ----------------------------------------------------------------------
+   */
 
-	public void cmdProc(Interp interp, // Current interpreter.
-			TclObject argv[]) // Argument list.
-			throws TclException // Standard Tcl exception.
-	{
-		if (argv.length != 2) {
-			throw new TclNumArgsException(interp, 1, argv, "throwableObj");
-		}
+  public void cmdProc(
+      Interp interp, // Current interpreter.
+      TclObject argv[]) // Argument list.
+      throws TclException // Standard Tcl exception.
+      {
+    if (argv.length != 2) {
+      throw new TclNumArgsException(interp, 1, argv, "throwableObj");
+    }
 
-		Object javaObj = null;
-		javaObj = ReflectObject.get(interp, argv[1]);
+    Object javaObj = null;
+    javaObj = ReflectObject.get(interp, argv[1]);
 
-		if (!(javaObj instanceof Throwable)) {
-			throw new TclException(interp,
-					"bad object: must be an instance of Throwable");
-		} else if (javaObj instanceof TclException) {
-			TclException te = (TclException) javaObj;
-			interp.setResult(te.getMessage());
-			throw te;
-		} else {
-			throw new ReflectException(interp, (Throwable) javaObj);
-		}
-	}
-
+    if (!(javaObj instanceof Throwable)) {
+      throw new TclException(interp, "bad object: must be an instance of Throwable");
+    } else if (javaObj instanceof TclException) {
+      TclException te = (TclException) javaObj;
+      interp.setResult(te.getMessage());
+      throw te;
+    } else {
+      throw new ReflectException(interp, (Throwable) javaObj);
+    }
+  }
 } // end JavaThrowCmd
-

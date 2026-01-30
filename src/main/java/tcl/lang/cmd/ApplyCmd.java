@@ -16,17 +16,16 @@ import tcl.lang.*;
 /**
  * Implementation of the [apply] command.
  *
- * @author  Neil Madden &lt;nem@cs.nott.ac.uk&gt;
+ * @author Neil Madden &lt;nem@cs.nott.ac.uk&gt;
  * @version $Revision$
  */
 public class ApplyCmd implements Command {
 
-	public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
-		if (objv.length < 2) {
-			throw new TclNumArgsException(interp, 1, objv, "lambdaExpr ?arg ...?");
-		}
+  public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
+    if (objv.length < 2) {
+      throw new TclNumArgsException(interp, 1, objv, "lambdaExpr ?arg ...?");
+    }
 
-		TclLambda.apply(interp, objv[1], objv);
-	}
-
+    TclLambda.apply(interp, objv[1], objv);
+  }
 }

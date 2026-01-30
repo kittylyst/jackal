@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -37,32 +36,32 @@ package org.codehaus.janino.util.resource;
 import java.io.*;
 import java.util.*;
 
-/**
- * Creates resources as byte arrays in a delegate {@link java.util.Map}.
- */
+/** Creates resources as byte arrays in a delegate {@link java.util.Map}. */
 public class MapResourceCreator implements ResourceCreator {
-    private final Map map;
+  private final Map map;
 
-    public MapResourceCreator() {
-        this.map = new HashMap();
-    }
-    public MapResourceCreator(Map map) {
-    	this.map = map;
-    }
-    public Map getMap() {
-        return this.map;
-    }
+  public MapResourceCreator() {
+    this.map = new HashMap();
+  }
 
-    public OutputStream createResource(final String resourceName) throws IOException {
-        return new ByteArrayOutputStream() {
-            public void close() throws IOException {
-                super.close();
-                MapResourceCreator.this.map.put(resourceName, this.toByteArray());
-            }
-        };
-    }
+  public MapResourceCreator(Map map) {
+    this.map = map;
+  }
 
-    public boolean deleteResource(String resourceName) {
-        return this.map.remove(resourceName) != null;
-    }
+  public Map getMap() {
+    return this.map;
+  }
+
+  public OutputStream createResource(final String resourceName) throws IOException {
+    return new ByteArrayOutputStream() {
+      public void close() throws IOException {
+        super.close();
+        MapResourceCreator.this.map.put(resourceName, this.toByteArray());
+      }
+    };
+  }
+
+  public boolean deleteResource(String resourceName) {
+    return this.map.remove(resourceName) != null;
+  }
 }

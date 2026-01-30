@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -36,27 +35,26 @@ package org.codehaus.janino.util.resource;
 
 import java.io.*;
 
-/**
- * Stores a stream of bytes in a named resource.
- */
+/** Stores a stream of bytes in a named resource. */
 public abstract class FileResourceCreator implements ResourceCreator {
 
-    public final OutputStream createResource(String resourceName) throws IOException {
-    	File file = this.getFile(resourceName);
+  public final OutputStream createResource(String resourceName) throws IOException {
+    File file = this.getFile(resourceName);
 
-        // Create directory for class file if it does not exist.
-    	File dir = file.getParentFile();
-        if (dir != null && !dir.isDirectory()) {
-            if (!dir.mkdirs()) throw new IOException("Cannot create directory for class file \"" + file + "\"");
-        }
-
-        // Create the file.
-        return new FileOutputStream(file);
+    // Create directory for class file if it does not exist.
+    File dir = file.getParentFile();
+    if (dir != null && !dir.isDirectory()) {
+      if (!dir.mkdirs())
+        throw new IOException("Cannot create directory for class file \"" + file + "\"");
     }
 
-    public final boolean deleteResource(String resourceName) {
-    	return this.getFile(resourceName).delete();
-    }
+    // Create the file.
+    return new FileOutputStream(file);
+  }
 
-    protected abstract File getFile(String resourceName);
+  public final boolean deleteResource(String resourceName) {
+    return this.getFile(resourceName).delete();
+  }
+
+  protected abstract File getFile(String resourceName);
 }

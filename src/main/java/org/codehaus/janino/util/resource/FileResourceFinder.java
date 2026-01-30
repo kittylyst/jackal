@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -37,21 +36,18 @@ package org.codehaus.janino.util.resource;
 import java.io.*;
 
 /**
- * This class specializes the {@link org.codehaus.janino.util.resource.ResourceFinder}
- * for finding resources in {@link java.io.File}s.
- * <p>
- * It finds {@link FileResource}s instead of simple
- * {@link Resource}s.
+ * This class specializes the {@link org.codehaus.janino.util.resource.ResourceFinder} for finding
+ * resources in {@link java.io.File}s.
+ *
+ * <p>It finds {@link FileResource}s instead of simple {@link Resource}s.
  */
 public abstract class FileResourceFinder extends ResourceFinder {
-    public final Resource findResource(String resourceName) {
-        File file = this.findResourceAsFile(resourceName);
-        if (file == null) return null;
-        return new FileResource(file);
-    }
+  public final Resource findResource(String resourceName) {
+    File file = this.findResourceAsFile(resourceName);
+    if (file == null) return null;
+    return new FileResource(file);
+  }
 
-    /**
-     * Converts a given resource resource name into a {@link File}.
-     */
-    protected abstract File findResourceAsFile(String resourceName);
+  /** Converts a given resource resource name into a {@link File}. */
+  protected abstract File findResourceAsFile(String resourceName);
 }

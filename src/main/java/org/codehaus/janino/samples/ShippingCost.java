@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -37,36 +36,37 @@ package org.codehaus.janino.samples;
 import org.codehaus.janino.*;
 
 /**
- * Sample application which demonstrates how to use the
- * {@link org.codehaus.janino.ExpressionEvaluator ExpressionEvaluator} class.
+ * Sample application which demonstrates how to use the {@link
+ * org.codehaus.janino.ExpressionEvaluator ExpressionEvaluator} class.
  */
-
 public class ShippingCost {
-    public static void main(String[] args) throws Exception {
-        if (args.length != 1) {
-            System.err.println("Usage: <total>");
-            System.err.println("Computes the shipping costs from the double value \"total\".");
-            System.err.println("If \"total\" is less than 100.0, then the result is 7.95, else the result is 0.");
-            System.exit(1);
-        }
-
-        // Convert command line argument to parameter "total".
-        Object[] parameterValues = new Object[] { new Double(args[0]) };
-
-        // Create "ExpressionEvaluator" object.
-        ExpressionEvaluator ee = new ExpressionEvaluator(
-            "total >= 100.0 ? 0.0 : 7.95", // expression
-            double.class,                  // optionalExpressionType
-            new String[] { "total" },      // parameterNames,
-            new Class[] { double.class },  // parameterTypes
-            new Class[0],                  // thrownExceptions
-            null                           // optionalClassLoader
-        );
-
-        // Evaluate expression with actual parameter values.
-        Object res = ee.evaluate(parameterValues);
-
-        // Print expression result.
-        System.out.println("Result = " + (res == null ? "(null)" : res.toString()));
+  public static void main(String[] args) throws Exception {
+    if (args.length != 1) {
+      System.err.println("Usage: <total>");
+      System.err.println("Computes the shipping costs from the double value \"total\".");
+      System.err.println(
+          "If \"total\" is less than 100.0, then the result is 7.95, else the result is 0.");
+      System.exit(1);
     }
+
+    // Convert command line argument to parameter "total".
+    Object[] parameterValues = new Object[] {new Double(args[0])};
+
+    // Create "ExpressionEvaluator" object.
+    ExpressionEvaluator ee =
+        new ExpressionEvaluator(
+            "total >= 100.0 ? 0.0 : 7.95", // expression
+            double.class, // optionalExpressionType
+            new String[] {"total"}, // parameterNames,
+            new Class[] {double.class}, // parameterTypes
+            new Class[0], // thrownExceptions
+            null // optionalClassLoader
+            );
+
+    // Evaluate expression with actual parameter values.
+    Object res = ee.evaluate(parameterValues);
+
+    // Print expression result.
+    System.out.println("Result = " + (res == null ? "(null)" : res.toString()));
+  }
 }

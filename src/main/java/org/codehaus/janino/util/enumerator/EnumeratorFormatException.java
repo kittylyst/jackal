@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -36,10 +35,13 @@ package org.codehaus.janino.util.enumerator;
 
 /**
  * Represents a problem related to parsing {@link org.codehaus.janino.util.enumerator.Enumerator}s
- * and {@link org.codehaus.janino.util.enumerator.EnumeratorSet}s, in analogy with
- * {@link EnumeratorFormatException}.
+ * and {@link org.codehaus.janino.util.enumerator.EnumeratorSet}s, in analogy with {@link
+ * EnumeratorFormatException}.
  */
 public class EnumeratorFormatException extends Exception {
-    public EnumeratorFormatException()               {}
-    public EnumeratorFormatException(String message) { super(message); }
+  public EnumeratorFormatException() {}
+
+  public EnumeratorFormatException(String message) {
+    super(message);
+  }
 }

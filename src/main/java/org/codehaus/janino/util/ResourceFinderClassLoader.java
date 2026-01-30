@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -35,72 +34,78 @@
 package org.codehaus.janino.util;
 
 import java.io.*;
-
 import org.codehaus.janino.util.resource.*;
 
-
 /**
- * A {@link ClassLoader} that uses a {@link org.codehaus.janino.util.resource.ResourceFinder}
- * to find ".class" files.
+ * A {@link ClassLoader} that uses a {@link org.codehaus.janino.util.resource.ResourceFinder} to
+ * find ".class" files.
  */
 public class ResourceFinderClassLoader extends ClassLoader {
-    private final ResourceFinder resourceFinder;
+  private final ResourceFinder resourceFinder;
 
-    public ResourceFinderClassLoader(ResourceFinder resourceFinder, ClassLoader parent) {
-        super(parent);
-        this.resourceFinder = resourceFinder;
+  public ResourceFinderClassLoader(ResourceFinder resourceFinder, ClassLoader parent) {
+    super(parent);
+    this.resourceFinder = resourceFinder;
+  }
+
+  public ResourceFinder getResourceFinder() {
+    return this.resourceFinder;
+  }
+
+  /**
+   * @throws ClassNotFoundException
+   */
+  protected Class findClass(String className) throws ClassNotFoundException {
+
+    // Find the resource containing the class bytecode.
+    Resource classFileResource =
+        this.resourceFinder.findResource(ClassFile.getClassFileResourceName(className));
+    if (classFileResource == null) throw new ClassNotFoundException(className);
+
+    // Open the class file resource.
+    InputStream is;
+    try {
+      is = classFileResource.open();
+    } catch (IOException ex) {
+      throw new RuntimeException(
+          "Opening class file resource \""
+              + classFileResource.getFileName()
+              + "\": "
+              + ex.getMessage());
     }
 
-    public ResourceFinder getResourceFinder() {
-        return this.resourceFinder;
+    // Read bytecode from the resource into a byte array.
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try {
+      byte[] buffer = new byte[4096];
+      for (; ; ) {
+        int bytesRead = is.read(buffer);
+        if (bytesRead == -1) break;
+        baos.write(buffer, 0, bytesRead);
+      }
+    } catch (IOException ex) {
+      throw new ClassNotFoundException("Reading class file from \"" + classFileResource + "\"", ex);
+    } finally {
+      try {
+        is.close();
+      } catch (IOException ex) {
+      }
+    }
+    byte[] ba = baos.toByteArray();
+
+    // Define the class in this ClassLoader.
+    Class clazz = super.defineClass(null, ba, 0, ba.length);
+
+    if (!clazz.getName().equals(className)) {
+
+      // This is a really complicated case: We may find a class file on
+      // the class path that seemingly defines the class we are looking
+      // for, but doesn't. This is possible if the underlying file system
+      // has case-insensitive file names and/or file names that are
+      // limited in length (e.g. DOS 8.3).
+      throw new ClassNotFoundException(className);
     }
 
-    /**
-     * @throws ClassNotFoundException
-     */
-    protected Class findClass(String className) throws ClassNotFoundException {
-
-        // Find the resource containing the class bytecode.
-        Resource classFileResource = this.resourceFinder.findResource(ClassFile.getClassFileResourceName(className));
-        if (classFileResource == null) throw new ClassNotFoundException(className);
-
-        // Open the class file resource.
-        InputStream is;
-        try {
-            is = classFileResource.open();
-        } catch (IOException ex) {
-            throw new RuntimeException("Opening class file resource \"" + classFileResource.getFileName() + "\": " + ex.getMessage());
-        }
-
-        // Read bytecode from the resource into a byte array.
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            byte[] buffer = new byte[4096];
-            for (;;) {
-                int bytesRead = is.read(buffer);
-                if (bytesRead == -1) break;
-                baos.write(buffer, 0, bytesRead);
-            }
-        } catch (IOException ex) {
-            throw new ClassNotFoundException("Reading class file from \"" + classFileResource + "\"", ex);
-        } finally {
-            try { is.close(); } catch (IOException ex) {}
-        }
-        byte[] ba = baos.toByteArray();
-
-        // Define the class in this ClassLoader.
-        Class clazz = super.defineClass(null, ba, 0, ba.length);
-
-        if (!clazz.getName().equals(className)) {
-
-            // This is a really complicated case: We may find a class file on
-            // the class path that seemingly defines the class we are looking
-            // for, but doesn't. This is possible if the underlying file system
-            // has case-insensitive file names and/or file names that are
-            // limited in length (e.g. DOS 8.3).
-            throw new ClassNotFoundException(className);
-        }
-
-        return clazz;
-    }
+    return clazz;
+  }
 }

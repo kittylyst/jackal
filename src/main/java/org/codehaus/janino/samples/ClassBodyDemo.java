@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -35,40 +34,40 @@
 package org.codehaus.janino.samples;
 
 import java.lang.reflect.*;
-
 import org.codehaus.janino.*;
 
 /**
- * A test program that allows you to play around with the
- * {@link org.codehaus.janino.ClassBodyEvaluator ClassBodyEvaluator} class.
+ * A test program that allows you to play around with the {@link
+ * org.codehaus.janino.ClassBodyEvaluator ClassBodyEvaluator} class.
  */
-
 public class ClassBodyDemo extends DemoBase {
-    public static void main(String[] args) throws Exception {
-        String script = (
-            "import java.util.*;\n" +
-            "\n" +
-            "public static int add(int a, int b) {\n" +
-            "    return a + b;\n" +
-            "}\n" +
-            "public String toString() {\n" +
-            "    return \"HELLO\";\n" +
-            "}\n" +
-            ""
-        );
+  public static void main(String[] args) throws Exception {
+    String script =
+        ("import java.util.*;\n"
+            + "\n"
+            + "public static int add(int a, int b) {\n"
+            + "    return a + b;\n"
+            + "}\n"
+            + "public String toString() {\n"
+            + "    return \"HELLO\";\n"
+            + "}\n"
+            + "");
 
-        Class c = new ClassBodyEvaluator(script).getClazz();
-        Method m = c.getMethod("add", new Class[] { int.class, int.class });
-        Integer res = (Integer) m.invoke(null, new Object[] {
-            new Integer(7),
-            new Integer(11),
-        });
-        System.out.println("res = " + res);
+    Class c = new ClassBodyEvaluator(script).getClazz();
+    Method m = c.getMethod("add", new Class[] {int.class, int.class});
+    Integer res =
+        (Integer)
+            m.invoke(
+                null,
+                new Object[] {
+                  new Integer(7), new Integer(11),
+                });
+    System.out.println("res = " + res);
 
-        Object o = c.newInstance();
-        String s = o.toString();
-        System.out.println("o.toString()=" + s);
-    }
+    Object o = c.newInstance();
+    String s = o.toString();
+    System.out.println("o.toString()=" + s);
+  }
 
-    private ClassBodyDemo() {}
+  private ClassBodyDemo() {}
 }

@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -37,111 +36,109 @@ package org.codehaus.janino;
 import java.io.*;
 
 /**
- * "Cooking" means scanning a sequence of Java<sup>TM</sup> tokens with a
- * {@link org.codehaus.janino.Scanner}. This class declares numerous <code>cook*()</code> methods
- * that use a {@link java.lang.String}, a {@link java.io.File}, an {@link java.io.InputStream} or
- * a {@link java.io.Reader} as the source of characters for scanning.
- * <p>
- * The <code>cook*()</code> methods eventually invoke the abstract {@link #internalCook(Scanner)}
+ * "Cooking" means scanning a sequence of Java<sup>TM</sup> tokens with a {@link
+ * org.codehaus.janino.Scanner}. This class declares numerous <code>cook*()</code> methods that use
+ * a {@link java.lang.String}, a {@link java.io.File}, an {@link java.io.InputStream} or a {@link
+ * java.io.Reader} as the source of characters for scanning.
+ *
+ * <p>The <code>cook*()</code> methods eventually invoke the abstract {@link #internalCook(Scanner)}
  * method with a correctly configured {@link org.codehaus.janino.Scanner}.
  */
 public abstract class Cookable {
 
-    /**
-     * To be implemented by the derived classes.
-     */
-    protected abstract void internalCook(Scanner scanner)
-    throws CompileException, Parser.ParseException, Scanner.ScanException, IOException;
+  /** To be implemented by the derived classes. */
+  protected abstract void internalCook(Scanner scanner)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException;
 
-    // The "cook()" method family.
+  // The "cook()" method family.
 
-    public final void cook(Scanner scanner)
-    throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        this.internalCook(scanner);
-    }
-    public final void cook(Reader r)
-    throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        this.cook(null, r);
-    }
+  public final void cook(Scanner scanner)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    this.internalCook(scanner);
+  }
 
-    /**
-     * @param optionalFileName Used when reporting errors and warnings.
-     */
-    public final void cook(String optionalFileName, Reader r)
-    throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        this.cook(new Scanner(optionalFileName, r));
-    }
+  public final void cook(Reader r)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    this.cook(null, r);
+  }
 
-    /**
-     * Cook tokens from an {@link InputStream}, encoded in the "platform default encoding".
-     */
-    public final void cook(InputStream is)
-    throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        this.cook(null, is);
-    }
+  /**
+   * @param optionalFileName Used when reporting errors and warnings.
+   */
+  public final void cook(String optionalFileName, Reader r)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    this.cook(new Scanner(optionalFileName, r));
+  }
 
-    /**
-     * Cook tokens from an {@link InputStream}, encoded in the "platform default encoding".
-     *
-     * @param optionalFileName Used when reporting errors and warnings.
-     */
-    public final void cook(String optionalFileName, InputStream is)
-    throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        this.cook(optionalFileName, is, null);
-    }
-    public final void cook(InputStream is, String optionalEncoding)
-    throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        this.cook(new Scanner(null, is, optionalEncoding));
-    }
+  /** Cook tokens from an {@link InputStream}, encoded in the "platform default encoding". */
+  public final void cook(InputStream is)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    this.cook(null, is);
+  }
 
-    /**
-     * @param optionalFileName Used when reporting errors and warnings.
-     */
-    public final void cook(String optionalFileName, InputStream is, String optionalEncoding)
-    throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        this.cook(new Scanner(optionalFileName, is, optionalEncoding));
-    }
+  /**
+   * Cook tokens from an {@link InputStream}, encoded in the "platform default encoding".
+   *
+   * @param optionalFileName Used when reporting errors and warnings.
+   */
+  public final void cook(String optionalFileName, InputStream is)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    this.cook(optionalFileName, is, null);
+  }
 
-    /**
-     * Cook tokens from the given {@link File}, encoded in the "platform default encoding".
-     */
-    public final void cookFile(File file)
-    throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        this.cookFile(file, null);
-    }
-    public final void cookFile(File file, String optionalEncoding)
-    throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        InputStream is = new FileInputStream(file);
+  public final void cook(InputStream is, String optionalEncoding)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    this.cook(new Scanner(null, is, optionalEncoding));
+  }
+
+  /**
+   * @param optionalFileName Used when reporting errors and warnings.
+   */
+  public final void cook(String optionalFileName, InputStream is, String optionalEncoding)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    this.cook(new Scanner(optionalFileName, is, optionalEncoding));
+  }
+
+  /** Cook tokens from the given {@link File}, encoded in the "platform default encoding". */
+  public final void cookFile(File file)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    this.cookFile(file, null);
+  }
+
+  public final void cookFile(File file, String optionalEncoding)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    InputStream is = new FileInputStream(file);
+    try {
+      this.internalCook(new Scanner(file.getAbsolutePath(), is, optionalEncoding));
+      is.close();
+      is = null;
+    } finally {
+      if (is != null)
         try {
-            this.internalCook(new Scanner(file.getAbsolutePath(), is, optionalEncoding));
-            is.close();
-            is = null;
-        } finally {
-            if (is != null) try { is.close(); } catch (IOException ex) {}
-        }
-    }
-
-    /**
-     * Cook tokens from the named file, encoded in the "platform default encoding".
-     */
-    public final void cookFile(String fileName)
-    throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        this.cookFile(fileName, null);
-    }
-    public final void cookFile(String fileName, String optionalEncoding)
-    throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
-        this.cookFile(new File(fileName), optionalEncoding);
-    }
-
-    /**
-     * Cook tokens from a {@link java.lang.String}.
-     */
-    public final void cook(String s)
-    throws CompileException, Parser.ParseException, Scanner.ScanException {
-        try {
-            this.cook(new StringReader(s));
+          is.close();
         } catch (IOException ex) {
-            throw new RuntimeException("SNO: IOException despite StringReader");
         }
     }
+  }
+
+  /** Cook tokens from the named file, encoded in the "platform default encoding". */
+  public final void cookFile(String fileName)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    this.cookFile(fileName, null);
+  }
+
+  public final void cookFile(String fileName, String optionalEncoding)
+      throws CompileException, Parser.ParseException, Scanner.ScanException, IOException {
+    this.cookFile(new File(fileName), optionalEncoding);
+  }
+
+  /** Cook tokens from a {@link java.lang.String}. */
+  public final void cook(String s)
+      throws CompileException, Parser.ParseException, Scanner.ScanException {
+    try {
+      this.cook(new StringReader(s));
+    } catch (IOException ex) {
+      throw new RuntimeException("SNO: IOException despite StringReader");
+    }
+  }
 }

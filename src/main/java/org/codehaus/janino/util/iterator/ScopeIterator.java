@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -35,28 +34,38 @@
 package org.codehaus.janino.util.iterator;
 
 import java.util.*;
-
 import org.codehaus.janino.*;
 
 /**
- * An {@link java.util.Iterator} that iterates over scoped statements.
- * This iterator is used to iterate over the objects that implement
- * the Scope interface until there is no longer an enclosing scope.
+ * An {@link java.util.Iterator} that iterates over scoped statements. This iterator is used to
+ * iterate over the objects that implement the Scope interface until there is no longer an enclosing
+ * scope.
  */
 public class ScopeIterator implements Iterator {
-    protected Java.Scope s;
+  protected Java.Scope s;
 
-    // Create ScopeIterator starting with the Scope that encloses
-    // the given Statement.
+  // Create ScopeIterator starting with the Scope that encloses
+  // the given Statement.
 
-    public ScopeIterator(Java.Statement stmt) { s = stmt.getEnclosingScope(); }
+  public ScopeIterator(Java.Statement stmt) {
+    s = stmt.getEnclosingScope();
+  }
 
-    // Create ScopeIterator starting with the given Scope.
+  // Create ScopeIterator starting with the given Scope.
 
-    public ScopeIterator(Java.Scope es) { s = es; }
+  public ScopeIterator(Java.Scope es) {
+    s = es;
+  }
 
-    public boolean hasNext() { return (s instanceof Java.Scope); }
-    public Object  next()    { return (s = s.getEnclosingScope()); }
-    public void    remove()  { throw new RuntimeException("unsupported remove()"); }
+  public boolean hasNext() {
+    return (s instanceof Java.Scope);
+  }
+
+  public Object next() {
+    return (s = s.getEnclosingScope());
+  }
+
+  public void remove() {
+    throw new RuntimeException("unsupported remove()");
+  }
 }
-

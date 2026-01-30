@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -36,20 +35,32 @@ package org.codehaus.janino.util.resource;
 
 import java.io.*;
 
-/**
- * Representation of a resource that is a {@link java.io.File}.
- */
+/** Representation of a resource that is a {@link java.io.File}. */
 public class FileResource implements Resource {
-    public FileResource(File file) { this.file = file; }
+  public FileResource(File file) {
+    this.file = file;
+  }
 
-    // Implement "Resource".
-    public final String      getFileName()             { return this.file.toString(); }
-    public final InputStream open() throws IOException { return new FileInputStream(this.file); }
-    public final long        lastModified()            { return this.file.lastModified(); }
+  // Implement "Resource".
+  public final String getFileName() {
+    return this.file.toString();
+  }
 
-    public File getFile() { return this.file; }
+  public final InputStream open() throws IOException {
+    return new FileInputStream(this.file);
+  }
 
-    public String toString() { return this.getFileName(); }
+  public final long lastModified() {
+    return this.file.lastModified();
+  }
 
-    private final File file;
+  public File getFile() {
+    return this.file;
+  }
+
+  public String toString() {
+    return this.getFileName();
+  }
+
+  private final File file;
 }

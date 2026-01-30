@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -37,28 +36,28 @@ package org.codehaus.janino.util.resource;
 import java.util.*;
 
 /**
- * A {@link org.codehaus.janino.util.resource.ResourceFinder} that finds its resources through a collection of
- * other {@link org.codehaus.janino.util.resource.ResourceFinder}s.
+ * A {@link org.codehaus.janino.util.resource.ResourceFinder} that finds its resources through a
+ * collection of other {@link org.codehaus.janino.util.resource.ResourceFinder}s.
  */
 public class MultiResourceFinder extends ResourceFinder {
-    private final Collection resourceFinders; // One for each entry
+  private final Collection resourceFinders; // One for each entry
 
-    /**
-     * @param resourceFinders The entries of the "path"
-     */
-    public MultiResourceFinder(Collection resourceFinders) {
-        this.resourceFinders = resourceFinders;
+  /**
+   * @param resourceFinders The entries of the "path"
+   */
+  public MultiResourceFinder(Collection resourceFinders) {
+    this.resourceFinders = resourceFinders;
+  }
+
+  // Implement ResourceFinder.
+
+  public Resource findResource(String resourceName) {
+    for (Iterator it = this.resourceFinders.iterator(); it.hasNext(); ) {
+      ResourceFinder rf = (ResourceFinder) it.next();
+      Resource resource = rf.findResource(resourceName);
+      // System.err.println("*** " + resourceName + " in " + rf + "? => " + url);
+      if (resource != null) return resource;
     }
-
-    // Implement ResourceFinder.
-
-    public Resource findResource(String resourceName) {
-        for (Iterator it = this.resourceFinders.iterator(); it.hasNext();) {
-            ResourceFinder rf = (ResourceFinder) it.next();
-            Resource resource = rf.findResource(resourceName);
-//System.err.println("*** " + resourceName + " in " + rf + "? => " + url);
-            if (resource != null) return resource;
-        }
-        return null;
-    }
+    return null;
+  }
 }

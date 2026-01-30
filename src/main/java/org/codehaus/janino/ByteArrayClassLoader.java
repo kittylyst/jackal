@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -37,84 +36,88 @@ package org.codehaus.janino;
 import java.util.*;
 
 /**
- * This {@link ClassLoader} allows for the loading of a set of Java<sup>TM</sup> classes
- * provided in class file format.
+ * This {@link ClassLoader} allows for the loading of a set of Java<sup>TM</sup> classes provided in
+ * class file format.
  */
 public class ByteArrayClassLoader extends ClassLoader {
 
-    /**
-     * The given {@link Map} of classes must not be modified afterwards.
-     * 
-     * @param classes String className => byte[] data
-     */
-    public ByteArrayClassLoader(Map classes) {
-        this.classes = classes;
-    }
+  /**
+   * The given {@link Map} of classes must not be modified afterwards.
+   *
+   * @param classes String className => byte[] data
+   */
+  public ByteArrayClassLoader(Map classes) {
+    this.classes = classes;
+  }
 
-    /**
-     * @see #ByteArrayClassLoader(Map)
-     */
-    public ByteArrayClassLoader(Map classes, ClassLoader parent) {
-        super(parent);
-        this.classes = classes;
-    }
+  /**
+   * @see #ByteArrayClassLoader(Map)
+   */
+  public ByteArrayClassLoader(Map classes, ClassLoader parent) {
+    super(parent);
+    this.classes = classes;
+  }
 
-    /**
-     * Implements {@link ClassLoader#findClass(String)}.
-     * <p>
-     * Notice that, although nowhere documented, no more than one thread at a time calls this
-     * method, because {@link ClassLoader#loadClass(java.lang.String)} is
-     * <code>synchronized</code>.
-     */
-    protected Class findClass(String name) throws ClassNotFoundException {
-        byte[] data = (byte[]) this.classes.get(name);
-        if (data == null) throw new ClassNotFoundException(name); 
+  /**
+   * Implements {@link ClassLoader#findClass(String)}.
+   *
+   * <p>Notice that, although nowhere documented, no more than one thread at a time calls this
+   * method, because {@link ClassLoader#loadClass(java.lang.String)} is <code>synchronized</code>.
+   */
+  protected Class findClass(String name) throws ClassNotFoundException {
+    byte[] data = (byte[]) this.classes.get(name);
+    if (data == null) throw new ClassNotFoundException(name);
 
-        return super.defineClass(
-            name,                // name
-            data, 0, data.length // b, off, len
+    return super.defineClass(
+        name, // name
+        data,
+        0,
+        data.length // b, off, len
         );
+  }
+
+  /**
+   * An object is regarded equal to <code>this</code> iff
+   *
+   * <ul>
+   *   <li>It is also an instance of {@link ByteArrayClassLoader}
+   *   <li>Both have the same parent {@link ClassLoader}
+   *   <li>Exactly the same classes (name, bytecode) were added to both
+   * </ul>
+   *
+   * Roughly speaking, equal {@link ByteArrayClassLoader}s will return functionally identical {@link
+   * Class}es on {@link ClassLoader#loadClass(java.lang.String)}.
+   */
+  public boolean equals(Object o) {
+    if (!(o instanceof ByteArrayClassLoader)) return false;
+    if (this == o) return true;
+    ByteArrayClassLoader that = (ByteArrayClassLoader) o;
+
+    if (this.getParent() != that.getParent()) return false;
+
+    if (this.classes.size() != that.classes.size()) return false;
+    for (Iterator it = this.classes.entrySet().iterator(); it.hasNext(); ) {
+      Map.Entry me = (Map.Entry) it.next();
+      byte[] ba = (byte[]) that.classes.get(me.getKey());
+      if (ba == null) return false; // Key missing in "that".
+      if (!Arrays.equals((byte[]) me.getValue(), ba)) return false; // Byte arrays differ.
     }
+    return true;
+  }
 
-    /**
-     * An object is regarded equal to <code>this</code> iff
-     * <ul>
-     *   <li>It is also an instance of {@link ByteArrayClassLoader}
-     *   <li>Both have the same parent {@link ClassLoader}
-     *   <li>Exactly the same classes (name, bytecode) were added to both
-     * </ul>
-     * Roughly speaking, equal {@link ByteArrayClassLoader}s will return functionally identical
-     * {@link Class}es on {@link ClassLoader#loadClass(java.lang.String)}.
-     */
-    public boolean equals(Object o) {
-        if (!(o instanceof ByteArrayClassLoader)) return false;
-        if (this == o) return true;
-        ByteArrayClassLoader that = (ByteArrayClassLoader) o;
+  public int hashCode() {
+    int hc = this.getParent().hashCode();
 
-        if (this.getParent() != that.getParent()) return false;
-
-        if (this.classes.size() != that.classes.size()) return false;
-        for (Iterator it = this.classes.entrySet().iterator(); it.hasNext();) {
-            Map.Entry me = (Map.Entry) it.next();
-            byte[] ba = (byte[]) that.classes.get(me.getKey());
-            if (ba == null) return false; // Key missing in "that".
-            if (!Arrays.equals((byte[]) me.getValue(), ba)) return false; // Byte arrays differ.
-        }
-        return true;
+    for (Iterator it = this.classes.entrySet().iterator(); it.hasNext(); ) {
+      Map.Entry me = (Map.Entry) it.next();
+      hc ^= me.getKey().hashCode();
+      byte[] ba = (byte[]) me.getValue();
+      for (int i = 0; i < ba.length; ++i) {
+        hc = (31 * hc) ^ ba[i];
+      }
     }
-    public int hashCode() {
-        int hc = this.getParent().hashCode();
+    return hc;
+  }
 
-        for (Iterator it = this.classes.entrySet().iterator(); it.hasNext();) {
-            Map.Entry me = (Map.Entry) it.next();
-            hc ^= me.getKey().hashCode();
-            byte[] ba = (byte[]) me.getValue();
-            for (int i = 0; i < ba.length; ++i) {
-                hc = (31 * hc) ^ ba[i];
-            }
-        }
-        return hc;
-    }
-
-    private final Map classes; // String className => byte[] data
+  private final Map classes; // String className => byte[] data
 }

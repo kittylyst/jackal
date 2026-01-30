@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -35,10 +34,10 @@
 package org.codehaus.janino.util.iterator;
 
 /**
- * Thrown by {@link org.codehaus.janino.util.iterator.MultiDimensionalIterator} to
- * indicate that it has encountered an element that cannot be iterated.
+ * Thrown by {@link org.codehaus.janino.util.iterator.MultiDimensionalIterator} to indicate that it
+ * has encountered an element that cannot be iterated.
  */
 public class UniterableElementException extends RuntimeException {
-    /** */
-    public UniterableElementException() {}
+  /** */
+  public UniterableElementException() {}
 }

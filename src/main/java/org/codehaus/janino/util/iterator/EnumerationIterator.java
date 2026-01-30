@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -37,15 +36,25 @@ package org.codehaus.janino.util.iterator;
 import java.util.*;
 
 /**
- * An {@link java.util.Iterator} that iterates over the elements of an
- * {@link java.util.Enumeration}.
+ * An {@link java.util.Iterator} that iterates over the elements of an {@link
+ * java.util.Enumeration}.
  */
 public class EnumerationIterator implements Iterator {
-    private final Enumeration e;
+  private final Enumeration e;
 
-    public EnumerationIterator(Enumeration e) { this.e = e; }
+  public EnumerationIterator(Enumeration e) {
+    this.e = e;
+  }
 
-    public boolean hasNext() { return this.e.hasMoreElements(); }
-    public Object  next()    { return this.e.nextElement(); }
-    public void    remove()  { throw new UnsupportedOperationException("remove"); }
+  public boolean hasNext() {
+    return this.e.hasMoreElements();
+  }
+
+  public Object next() {
+    return this.e.nextElement();
+  }
+
+  public void remove() {
+    throw new UnsupportedOperationException("remove");
+  }
 }

@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -39,94 +38,85 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import org.codehaus.janino.util.Producer;
 
 /**
- * An {@link Iterator} that finds the normal {@link File}s who's names are
- * {@link FilenameFilter#accept(java.io.File, java.lang.String)}ed by the
- * <code>fileNameFilter</code> and
+ * An {@link Iterator} that finds the normal {@link File}s who's names are {@link
+ * FilenameFilter#accept(java.io.File, java.lang.String)}ed by the <code>fileNameFilter</code> and
+ *
  * <ul>
- *   <li>
- *     that exist in the given <code>rootDirectory</code>,
- *   </li>
- *   <li>
- *     and those that exist in all subdirectories of the
- *     <code>rootDirectory</code> who's names are
- *     {@link FilenameFilter#accept(java.io.File, java.lang.String)}ed by the
- *     <code>directoryNameFilter</code>
- *   </li>
+ *   <li>that exist in the given <code>rootDirectory</code>,
+ *   <li>and those that exist in all subdirectories of the <code>rootDirectory</code> who's names
+ *       are {@link FilenameFilter#accept(java.io.File, java.lang.String)}ed by the <code>
+ *       directoryNameFilter</code>
  * </ul>
  */
 public class DirectoryIterator extends ProducerIterator {
-    public DirectoryIterator(
-        final File           rootDirectory,
-        final FilenameFilter directoryNameFilter,
-        final FilenameFilter fileNameFilter
-    ) {
-        super(new Producer() {
-            private final List stateStack = DirectoryIterator.newArrayList(new State(rootDirectory));
-            public Object produce() {
-                while (!this.stateStack.isEmpty()) {
-                    State state = (State) this.stateStack.get(this.stateStack.size() - 1);
-                    if (state.directories.hasNext()) {
-                        this.stateStack.add(new State((File) state.directories.next()));
-                    } else
-                    if (state.files.hasNext()) {
-                        return (File) state.files.next();
-                    } else
-                    {
-                        this.stateStack.remove(this.stateStack.size() - 1);
-                    }
-                }
-                return null;
+  public DirectoryIterator(
+      final File rootDirectory,
+      final FilenameFilter directoryNameFilter,
+      final FilenameFilter fileNameFilter) {
+    super(
+        new Producer() {
+          private final List stateStack = DirectoryIterator.newArrayList(new State(rootDirectory));
+
+          public Object produce() {
+            while (!this.stateStack.isEmpty()) {
+              State state = (State) this.stateStack.get(this.stateStack.size() - 1);
+              if (state.directories.hasNext()) {
+                this.stateStack.add(new State((File) state.directories.next()));
+              } else if (state.files.hasNext()) {
+                return (File) state.files.next();
+              } else {
+                this.stateStack.remove(this.stateStack.size() - 1);
+              }
             }
-    
-            class State {
-                State(File dir) {
-                    File[] entries = dir.listFiles();
-                    if (entries == null) throw new RuntimeException("Directory \"" + dir + "\" could not be read");
-                    List directoryList = new ArrayList();
-                    List fileList      = new ArrayList();
-                    for (int i = 0; i < entries.length; ++i) {
-                        File entry = entries[i];
-                        if (entry.isDirectory()) {
-                            if (directoryNameFilter.accept(dir, entry.getName())) directoryList.add(entry);
-                        } else
-                        if (entry.isFile()) {
-                            if (fileNameFilter.accept(dir, entry.getName())) fileList.add(entry);
-                        }
-                    }
-                    this.directories = directoryList.iterator();
-                    this.files       = fileList.iterator();
+            return null;
+          }
+
+          class State {
+            State(File dir) {
+              File[] entries = dir.listFiles();
+              if (entries == null)
+                throw new RuntimeException("Directory \"" + dir + "\" could not be read");
+              List directoryList = new ArrayList();
+              List fileList = new ArrayList();
+              for (int i = 0; i < entries.length; ++i) {
+                File entry = entries[i];
+                if (entry.isDirectory()) {
+                  if (directoryNameFilter.accept(dir, entry.getName())) directoryList.add(entry);
+                } else if (entry.isFile()) {
+                  if (fileNameFilter.accept(dir, entry.getName())) fileList.add(entry);
                 }
-                final Iterator directories; // File
-                final Iterator files;       // File
+              }
+              this.directories = directoryList.iterator();
+              this.files = fileList.iterator();
             }
+
+            final Iterator directories; // File
+            final Iterator files; // File
+          }
         });
-    }
+  }
 
-    /**
-     * Create an {@link Iterator} that return all matching
-     * {@link File}s locatable in a <i>set</i> of root directories.
-     *
-     * @see #DirectoryIterator(File, FilenameFilter, FilenameFilter)
-     */
-    public static Iterator traverseDirectories(
-        File[]         rootDirectories,
-        FilenameFilter directoryNameFilter,
-        FilenameFilter fileNameFilter
-    ) {
-        List result = new ArrayList();
-        for (int i = 0; i < rootDirectories.length; ++i) {
-            result.add(new DirectoryIterator(rootDirectories[i], directoryNameFilter, fileNameFilter));
-        }
-        return new MultiDimensionalIterator(result.iterator(), 2);
+  /**
+   * Create an {@link Iterator} that return all matching {@link File}s locatable in a <i>set</i> of
+   * root directories.
+   *
+   * @see #DirectoryIterator(File, FilenameFilter, FilenameFilter)
+   */
+  public static Iterator traverseDirectories(
+      File[] rootDirectories, FilenameFilter directoryNameFilter, FilenameFilter fileNameFilter) {
+    List result = new ArrayList();
+    for (int i = 0; i < rootDirectories.length; ++i) {
+      result.add(new DirectoryIterator(rootDirectories[i], directoryNameFilter, fileNameFilter));
     }
+    return new MultiDimensionalIterator(result.iterator(), 2);
+  }
 
-    private static ArrayList newArrayList(Object initialElement) {
-        ArrayList result = new ArrayList();
-        result.add(initialElement);
-        return result;
-    }
+  private static ArrayList newArrayList(Object initialElement) {
+    ArrayList result = new ArrayList();
+    result.add(initialElement);
+    return result;
+  }
 }

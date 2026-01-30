@@ -14,75 +14,70 @@
 
 package tcl.lang;
 
-
-/**
- * This class is used to store a word during the parsing of Tcl commands.
- */
+/** This class is used to store a word during the parsing of Tcl commands. */
 class Word {
-	StringBuffer sbuf;
-	TclObject obj;
+  StringBuffer sbuf;
+  TclObject obj;
 
-	/**
-	 * Number of objects that have been concatenated into this word.
-	 */
-	int objCount;
+  /** Number of objects that have been concatenated into this word. */
+  int objCount;
 
-	Word() {
-		sbuf = null;
-		obj = null;
-		objCount = 0;
-	}
+  Word() {
+    sbuf = null;
+    obj = null;
+    objCount = 0;
+  }
 
-	void append(TclObject o) {
-		/*
-		 * The object inside a word must be preserved. Otherwise code like the
-		 * following will fail (prints out 2020 instead of 1020):
-		 * 
-		 * set a 10 puts $a[set a 20]
-		 */
+  void append(TclObject o) {
+    /*
+     * The object inside a word must be preserved. Otherwise code like the
+     * following will fail (prints out 2020 instead of 1020):
+     *
+     * set a 10 puts $a[set a 20]
+     */
 
-		if (sbuf != null) {
-			sbuf.append(o.toString());
-		} else if (obj != null) {
-			sbuf = new StringBuffer(obj.toString());
-			obj.release();
-			obj = null;
-			sbuf.append(o.toString());
-		} else {
-			obj = o;
-			obj.preserve();
-		}
+    if (sbuf != null) {
+      sbuf.append(o.toString());
+    } else if (obj != null) {
+      sbuf = new StringBuffer(obj.toString());
+      obj.release();
+      obj = null;
+      sbuf.append(o.toString());
+    } else {
+      obj = o;
+      obj.preserve();
+    }
 
-		objCount++;
-	}
+    objCount++;
+  }
 
-	void append(char c) {
-		if (sbuf != null) {
-			sbuf.append(c);
-		} else if (obj != null) {
-			sbuf = new StringBuffer(obj.toString());
-			obj.release();
-			obj = null;
-			sbuf.append(c);
-		} else {
-			sbuf = new StringBuffer();
-			sbuf.append(c);
-		}
+  void append(char c) {
+    if (sbuf != null) {
+      sbuf.append(c);
+    } else if (obj != null) {
+      sbuf = new StringBuffer(obj.toString());
+      obj.release();
+      obj = null;
+      sbuf.append(c);
+    } else {
+      sbuf = new StringBuffer();
+      sbuf.append(c);
+    }
 
-		objCount++;
-	}
+    objCount++;
+  }
 
-	TclObject getTclObject() {
-		if (sbuf != null) {
-			obj = TclString.newInstance(sbuf.toString());
-			obj.preserve();
-			return obj;
-		} else if (obj != null) {
-			return obj;
-		} else {
-			obj = TclString.newInstance("");
-			obj.preserve();
-			return obj;
-		}
-	}
+  TclObject getTclObject() {
+    if (sbuf != null) {
+      obj = TclString.newInstance(sbuf.toString());
+      obj.preserve();
+      return obj;
+    } else if (obj != null) {
+      return obj;
+    } else {
+      obj = TclString.newInstance("");
+      obj.preserve();
+      return obj;
+    }
+  }
 }

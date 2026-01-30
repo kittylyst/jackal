@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -35,55 +34,56 @@
 package org.codehaus.janino;
 
 import java.io.*;
-
 import org.codehaus.janino.util.ClassFile;
 import org.codehaus.janino.util.resource.*;
 
-
 /**
- * This {@link org.codehaus.janino.IClassLoader} loads IClasses through a
- * a {@link org.codehaus.janino.util.resource.ResourceFinder} that designates
- * {@link org.codehaus.janino.util.ClassFile}s.
+ * This {@link org.codehaus.janino.IClassLoader} loads IClasses through a a {@link
+ * org.codehaus.janino.util.resource.ResourceFinder} that designates {@link
+ * org.codehaus.janino.util.ClassFile}s.
  */
 public class ResourceFinderIClassLoader extends IClassLoader {
-    private final ResourceFinder resourceFinder;
+  private final ResourceFinder resourceFinder;
 
-    public ResourceFinderIClassLoader(
-        ResourceFinder resourceFinder,
-        IClassLoader   optionalParentIClassLoader
-    ) {
-        super(optionalParentIClassLoader);
-        this.resourceFinder = resourceFinder;
-        this.postConstruct();
+  public ResourceFinderIClassLoader(
+      ResourceFinder resourceFinder, IClassLoader optionalParentIClassLoader) {
+    super(optionalParentIClassLoader);
+    this.resourceFinder = resourceFinder;
+    this.postConstruct();
+  }
+
+  protected IClass findIClass(String descriptor) throws ClassNotFoundException {
+    String className = Descriptor.toClassName(descriptor);
+
+    // Find the class file resource.
+    Resource classFileResource =
+        this.resourceFinder.findResource(ClassFile.getClassFileResourceName(className));
+    if (classFileResource == null) return null;
+
+    // Open the class file resource.
+    InputStream is;
+    try {
+      is = classFileResource.open();
+    } catch (IOException ex) {
+      throw new ClassNotFoundException(
+          "Opening resource \"" + classFileResource.getFileName() + "\"", ex);
     }
 
-    protected IClass findIClass(String descriptor) throws ClassNotFoundException {
-        String className = Descriptor.toClassName(descriptor);
-
-        // Find the class file resource.
-        Resource classFileResource = this.resourceFinder.findResource(ClassFile.getClassFileResourceName(className));
-        if (classFileResource == null) return null;
-
-        // Open the class file resource.
-        InputStream is;
-        try {
-            is = classFileResource.open();
-        } catch (IOException ex) {
-            throw new ClassNotFoundException("Opening resource \"" + classFileResource.getFileName() + "\"", ex);
-        }
-
-        // Load the IClass from the class file.
-        ClassFile cf;
-        try {
-            cf = new ClassFile(is);
-        } catch (IOException e) {
-            throw new ClassNotFoundException("Reading resource \"" + classFileResource.getFileName() + "\"", e);
-        } finally {
-            try { is.close(); } catch (IOException e) {}
-        }
-        IClass iClass = new ClassFileIClass(cf, this);
-        this.defineIClass(iClass);
-        return iClass;
+    // Load the IClass from the class file.
+    ClassFile cf;
+    try {
+      cf = new ClassFile(is);
+    } catch (IOException e) {
+      throw new ClassNotFoundException(
+          "Reading resource \"" + classFileResource.getFileName() + "\"", e);
+    } finally {
+      try {
+        is.close();
+      } catch (IOException e) {
+      }
     }
-
+    IClass iClass = new ClassFileIClass(cf, this);
+    this.defineIClass(iClass);
+    return iClass;
+  }
 }

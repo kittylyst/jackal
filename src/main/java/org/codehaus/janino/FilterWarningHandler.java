@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -37,21 +36,21 @@ package org.codehaus.janino;
 import org.codehaus.janino.util.StringPattern;
 
 public class FilterWarningHandler implements WarningHandler {
-    private final StringPattern[] handlePatterns;
-    private final WarningHandler  delegate;
+  private final StringPattern[] handlePatterns;
+  private final WarningHandler delegate;
 
-    /**
-     * Popular values for the <code>handlePatterns</code> parameter are
-     * {@link StringPattern#PATTERNS_ALL} and {@link StringPattern#PATTERNS_NONE}.
-     */
-    public FilterWarningHandler(StringPattern[] handlePatterns, WarningHandler delegate) {
-        this.handlePatterns = handlePatterns;
-        this.delegate = delegate;
-    }
+  /**
+   * Popular values for the <code>handlePatterns</code> parameter are {@link
+   * StringPattern#PATTERNS_ALL} and {@link StringPattern#PATTERNS_NONE}.
+   */
+  public FilterWarningHandler(StringPattern[] handlePatterns, WarningHandler delegate) {
+    this.handlePatterns = handlePatterns;
+    this.delegate = delegate;
+  }
 
-    public void handleWarning(String handle, String message, Location optionalLocation) {
-        if (StringPattern.matches(this.handlePatterns, handle)) {
-            this.delegate.handleWarning(handle, message, optionalLocation);
-        }
+  public void handleWarning(String handle, String message, Location optionalLocation) {
+    if (StringPattern.matches(this.handlePatterns, handle)) {
+      this.delegate.handleWarning(handle, message, optionalLocation);
     }
+  }
 }

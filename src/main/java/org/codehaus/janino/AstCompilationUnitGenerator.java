@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -38,5 +37,5 @@ package org.codehaus.janino;
  * @author Eugene Kuleshov
  */
 public interface AstCompilationUnitGenerator {
-    Java.CompilationUnit generate() throws Exception;
+  Java.CompilationUnit generate() throws Exception;
 }

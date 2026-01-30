@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -35,10 +34,13 @@
 package org.codehaus.janino.util.enumerator;
 
 /**
- * Indicates that an attempt was made to add or remove values of different type to an
- * {@link org.codehaus.janino.util.enumerator.EnumeratorSet}.
+ * Indicates that an attempt was made to add or remove values of different type to an {@link
+ * org.codehaus.janino.util.enumerator.EnumeratorSet}.
  */
 public class EnumeratorSetTypeException extends RuntimeException {
-    public EnumeratorSetTypeException()               {}
-    public EnumeratorSetTypeException(String message) { super(message); }
+  public EnumeratorSetTypeException() {}
+
+  public EnumeratorSetTypeException(String message) {
+    super(message);
+  }
 }

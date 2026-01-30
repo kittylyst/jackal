@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -38,28 +37,37 @@ import java.io.*;
 import java.util.*;
 
 /**
- * A {@link org.codehaus.janino.util.resource.ResourceFinder} that provides access
- * to resource stored as byte arrays in a {@link java.util.Map}.
+ * A {@link org.codehaus.janino.util.resource.ResourceFinder} that provides access to resource
+ * stored as byte arrays in a {@link java.util.Map}.
  */
 public class MapResourceFinder extends ResourceFinder {
-    private final Map map;
-    private long      lastModified = 0L;
+  private final Map map;
+  private long lastModified = 0L;
 
-    public MapResourceFinder(Map map) {
-        this.map = map;
-    }
-    public void setLastModified(long lastModified) {
-        this.lastModified = lastModified;
-    }
+  public MapResourceFinder(Map map) {
+    this.map = map;
+  }
 
-    public final Resource findResource(final String resourceName) {
-        final byte[] ba = (byte[]) this.map.get(resourceName);
-        if (ba == null) return null;
+  public void setLastModified(long lastModified) {
+    this.lastModified = lastModified;
+  }
 
-        return new Resource() {
-            public InputStream open() throws IOException { return new ByteArrayInputStream(ba); }
-            public String getFileName()                  { return resourceName; }
-            public long lastModified()                   { return MapResourceFinder.this.lastModified; }
-        };
-    }
+  public final Resource findResource(final String resourceName) {
+    final byte[] ba = (byte[]) this.map.get(resourceName);
+    if (ba == null) return null;
+
+    return new Resource() {
+      public InputStream open() throws IOException {
+        return new ByteArrayInputStream(ba);
+      }
+
+      public String getFileName() {
+        return resourceName;
+      }
+
+      public long lastModified() {
+        return MapResourceFinder.this.lastModified;
+      }
+    };
+  }
 }

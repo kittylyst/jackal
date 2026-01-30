@@ -1,4 +1,4 @@
-/* 
+/*
  * JavaDefineClassCmd.java --
  *
  *	 This class implements the built-in "java::defineclass" command.
@@ -22,71 +22,67 @@ import tcl.lang.TclObject;
 
 public class JavaDefineClassCmd implements Command {
 
-	/*
-	 * ----------------------------------------------------------------------
-	 * 
-	 * cmdProc --
-	 * 
-	 * This procedure is invoked to process the "java::defineclass" Tcl comamnd.
-	 * See the user documentation for details on what it does.
-	 * 
-	 * Results: None.
-	 * 
-	 * Side effects: A standard Tcl result is stored in the interpreter.
-	 * 
-	 * ----------------------------------------------------------------------
-	 */
+  /*
+   * ----------------------------------------------------------------------
+   *
+   * cmdProc --
+   *
+   * This procedure is invoked to process the "java::defineclass" Tcl comamnd.
+   * See the user documentation for details on what it does.
+   *
+   * Results: None.
+   *
+   * Side effects: A standard Tcl result is stored in the interpreter.
+   *
+   * ----------------------------------------------------------------------
+   */
 
-	public void cmdProc(Interp interp, // Current interpreter.
-			TclObject argv[]) // Argument list.
-			throws TclException // A standard Tcl exception.
-	{
-		byte[] classData = null;
-		Class result;
+  public void cmdProc(
+      Interp interp, // Current interpreter.
+      TclObject argv[]) // Argument list.
+      throws TclException // A standard Tcl exception.
+      {
+    byte[] classData = null;
+    Class result;
 
-		if (argv.length != 2) {
-			throw new TclNumArgsException(interp, 1, argv, "classbytes");
-		}
+    if (argv.length != 2) {
+      throw new TclNumArgsException(interp, 1, argv, "classbytes");
+    }
 
-		TclObject classBytesObj = argv[1];
+    TclObject classBytesObj = argv[1];
 
-		// If the classbytes argument is a ReflectObject
-		// that contains a byte[] then unwrap it and
-		// use the bytes directly. Creating a TclByteArray
-		// actually creates a copy of the passed in array,
-		// so passing the byte[] directly is faster.
+    // If the classbytes argument is a ReflectObject
+    // that contains a byte[] then unwrap it and
+    // use the bytes directly. Creating a TclByteArray
+    // actually creates a copy of the passed in array,
+    // so passing the byte[] directly is faster.
 
-		if (classBytesObj.getInternalRep() instanceof ReflectObject) {
-			Object obj = ReflectObject.get(interp, classBytesObj);
-			if (obj instanceof byte[]) {
-				classData = (byte[]) obj;
-			}
-		}
+    if (classBytesObj.getInternalRep() instanceof ReflectObject) {
+      Object obj = ReflectObject.get(interp, classBytesObj);
+      if (obj instanceof byte[]) {
+        classData = (byte[]) obj;
+      }
+    }
 
-		if (classData == null) {
-			// FIXME: It would be better if the TclByteArray class
-			// was available in both Tcl Blend and Jacl so that we
-			// could query bytes directly instead of converting to
-			// a string and then converting back to bytes.
+    if (classData == null) {
+      // FIXME: It would be better if the TclByteArray class
+      // was available in both Tcl Blend and Jacl so that we
+      // could query bytes directly instead of converting to
+      // a string and then converting back to bytes.
 
-			String str = classBytesObj.toString();
-			final int str_length = str.length();
-			classData = new byte[str_length];
-			for (int i = 0; i < str_length; i++) {
-				classData[i] = (byte) str.charAt(i);
-			}
-		}
+      String str = classBytesObj.toString();
+      final int str_length = str.length();
+      classData = new byte[str_length];
+      for (int i = 0; i < str_length; i++) {
+        classData[i] = (byte) str.charAt(i);
+      }
+    }
 
-		// Use TclClassLoader defined on a per-interp basis
-		TclClassLoader tclClassLoader = (TclClassLoader) interp
-				.getClassLoader();
+    // Use TclClassLoader defined on a per-interp basis
+    TclClassLoader tclClassLoader = (TclClassLoader) interp.getClassLoader();
 
-		result = tclClassLoader.defineClass(null, classData);
+    result = tclClassLoader.defineClass(null, classData);
 
-		interp
-				.setResult(ReflectObject.newInstance(interp, Class.class,
-						result));
-	}
-
+    interp.setResult(ReflectObject.newInstance(interp, Class.class, result));
+  }
 } // end JavaNewCmd
-

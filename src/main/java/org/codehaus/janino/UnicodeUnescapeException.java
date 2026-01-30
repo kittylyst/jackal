@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -35,11 +34,11 @@
 package org.codehaus.janino;
 
 /**
- * Represents a problem that occurred while unescaping a unicode escape
- * sequence through a {@link org.codehaus.janino.UnicodeUnescapeReader}.
+ * Represents a problem that occurred while unescaping a unicode escape sequence through a {@link
+ * org.codehaus.janino.UnicodeUnescapeReader}.
  */
 public class UnicodeUnescapeException extends RuntimeException {
-    public UnicodeUnescapeException(String message) {
-        super(message);
-    }
+  public UnicodeUnescapeException(String message) {
+    super(message);
+  }
 }

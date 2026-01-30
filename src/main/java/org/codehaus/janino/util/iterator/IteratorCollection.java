@@ -1,4 +1,3 @@
-
 /*
  * Janino - An embedded Java[TM] compiler
  *
@@ -37,46 +36,48 @@ package org.codehaus.janino.util.iterator;
 import java.util.*;
 
 /**
- * A {@link java.util.Collection} that lazily reads its elements from an
- * {@link java.util.Iterator}.
- * <p>
- * In other words, you can call {@link #iterator()} as often as you want, but the
- * {@link IteratorCollection} will iterate over its delegate only once.
+ * A {@link java.util.Collection} that lazily reads its elements from an {@link java.util.Iterator}.
+ *
+ * <p>In other words, you can call {@link #iterator()} as often as you want, but the {@link
+ * IteratorCollection} will iterate over its delegate only once.
  */
 public class IteratorCollection extends AbstractCollection {
-    private final Iterator iterator; // The delegate.
-    private final List     elements = new ArrayList(); // Lazily-filled collection of the elements delivered by the delegate.
+  private final Iterator iterator; // The delegate.
+  private final List elements =
+      new ArrayList(); // Lazily-filled collection of the elements delivered by the delegate.
 
-    public IteratorCollection(Iterator iterator) {
-        this.iterator = iterator;
-    }
+  public IteratorCollection(Iterator iterator) {
+    this.iterator = iterator;
+  }
 
-    public Iterator iterator() {
-        return new Iterator() {
-            private Iterator elementsIterator = IteratorCollection.this.elements.iterator();
-            public Object next() {
-                if (this.elementsIterator != null) {
-                    if (this.elementsIterator.hasNext()) return this.elementsIterator.next();
-                    this.elementsIterator = null;
-                }
-                Object o = IteratorCollection.this.iterator.next();
-                IteratorCollection.this.elements.add(o);
-                return o;
-            }
-            public boolean hasNext() {
-                return (
-                    (this.elementsIterator != null && this.elementsIterator.hasNext())
-                    || IteratorCollection.this.iterator.hasNext()
-                );
-            }
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        };
-    }
-    public int size() {
-        int size = 0;
-        for (Iterator it = this.iterator(); it.hasNext(); it.next()) ++size;
-        return size;
-    }
+  public Iterator iterator() {
+    return new Iterator() {
+      private Iterator elementsIterator = IteratorCollection.this.elements.iterator();
+
+      public Object next() {
+        if (this.elementsIterator != null) {
+          if (this.elementsIterator.hasNext()) return this.elementsIterator.next();
+          this.elementsIterator = null;
+        }
+        Object o = IteratorCollection.this.iterator.next();
+        IteratorCollection.this.elements.add(o);
+        return o;
+      }
+
+      public boolean hasNext() {
+        return ((this.elementsIterator != null && this.elementsIterator.hasNext())
+            || IteratorCollection.this.iterator.hasNext());
+      }
+
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    };
+  }
+
+  public int size() {
+    int size = 0;
+    for (Iterator it = this.iterator(); it.hasNext(); it.next()) ++size;
+    return size;
+  }
 }
