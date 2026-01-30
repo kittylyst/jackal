@@ -82,7 +82,8 @@ public class BiCmds {
     // Declare all of the built-in methods as Java procedures.
 
     for (int i = 0; i < BiMethodListLen; i++) {
-      Linkage.RegisterObjC(interp, BiMethodList[i].registration().substring(1), BiMethodList[i].proc());
+      Linkage.RegisterObjC(
+          interp, BiMethodList[i].registration().substring(1), BiMethodList[i].proc());
     }
 
     // Create the "::itcl::builtin" namespace for built-in class

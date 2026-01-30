@@ -1,6 +1,5 @@
 package tcl.lang.cmd;
 
-import java.io.File;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclException;
@@ -23,7 +22,7 @@ public final class PidCmd implements Command {
    * @return PID of the TCL process
    */
   public static int getPid() {
-      return (int) ProcessHandle.current().pid();
+    return (int) ProcessHandle.current().pid();
   }
 
   public void cmdProc(Interp interp, TclObject[] objv) throws TclException {

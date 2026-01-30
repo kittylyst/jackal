@@ -4,8 +4,8 @@
  */
 module jackal {
   requires java.base;
-  requires java.desktop;   // java.beans (Tcl Blend / Java integration)
-  requires java.scripting;  // javax.script (JSR 223)
+  requires java.desktop; // java.beans (Tcl Blend / Java integration)
+  requires java.scripting; // javax.script (JSR 223)
 
   exports tcl.lang;
   exports tcl.lang.channel;

@@ -1663,8 +1663,8 @@ public class Methods {
             // Tcl_IncrRefCount(objPtr); /* local var is a reference
             // */
             // varPtr->flags &= ~VAR_UNDEFINED;
-          obj = TclString.newInstance("");
-          AssignLocal(interp, arg.name(), obj, frame);
+            obj = TclString.newInstance("");
+            AssignLocal(interp, arg.name(), obj, frame);
           }
         }
 
@@ -1677,7 +1677,7 @@ public class Methods {
           // Tcl_IncrRefCount(objPtr); // local var is a reference
           obj = objv[objvi];
           AssignLocal(interp, arg.name(), obj, frame);
-          } else if (arg.defValue() != null) { // ...or use default value
+        } else if (arg.defValue() != null) { // ...or use default value
           // objPtr = argPtr->defValuePtr;
           // varPtr->value.objPtr = objPtr;
           // varPtr->flags &= ~VAR_UNDEFINED;

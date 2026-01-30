@@ -15,8 +15,4 @@ import tcl.lang.TclObject;
 
 // Name of local variable, can be null.
 
-public record CompiledLocal(
-  CompiledLocal next,
-  TclObject defValue,
-  String name
-) {}
+public record CompiledLocal(CompiledLocal next, TclObject defValue, String name) {}

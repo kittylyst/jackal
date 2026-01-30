@@ -15,8 +15,6 @@
 package tcl.lang;
 
 import tcl.lang.cmd.*;
-import tcl.pkg.fleet.FleetCmd;
-import tcl.pkg.itcl.ItclExtension;
 import tcl.pkg.java.*;
 import tcl.pkg.tjc.*;
 

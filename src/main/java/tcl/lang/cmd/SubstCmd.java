@@ -111,7 +111,9 @@ public final class SubstCmd implements Command {
           // exception
           i += vres.getNextIndex();
         } catch (TclException e) {
-          i = doCmdOrVarSub(e, s, i, vres == null ? "" : vres.getValue().toString(), result, interp);
+          i =
+              doCmdOrVarSub(
+                  e, s, i, vres == null ? "" : vres.getValue().toString(), result, interp);
         } finally {
           if (vres != null) {
             vres.release();

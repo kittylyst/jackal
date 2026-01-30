@@ -25,7 +25,8 @@ public class MiscCmdTest extends TclCmdTest {
         new LinkedList<String>(
             Arrays.asList(
                 new String[] {
-                  // JTcl reports "stream closed" / errorCode none instead of "broken pipe" / posix epipe
+                  // JTcl reports "stream closed" / errorCode none instead of "broken pipe" / posix
+                  // epipe
                   "io-29.27"
                 }));
     String resName = "/tcl/lang/cmd/io.test";

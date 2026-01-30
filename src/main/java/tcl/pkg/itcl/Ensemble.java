@@ -829,8 +829,7 @@ public class Ensemble {
     }
     ensData.numParts++;
 
-    part =
-        new EnsemblePart(partName, 0, null, null, null, ensData);
+    part = new EnsemblePart(partName, 0, null, null, null, ensData);
 
     ensData.parts[pos] = part;
 
@@ -880,8 +879,7 @@ public class Ensemble {
     // Find this part within its ensemble, and remove it from
     // the list of parts.
 
-    FindEnsemblePartIndexResult res =
-        FindEnsemblePartIndex(ensPart.ensemble(), ensPart.name());
+    FindEnsemblePartIndexResult res = FindEnsemblePartIndex(ensPart.ensemble(), ensPart.name());
 
     if (res.status) {
       pos = res.pos;

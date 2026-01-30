@@ -1,7 +1,6 @@
 package tcl.lang.cmd;
 
 import java.util.Collections;
-import java.util.LinkedList;
 import org.junit.jupiter.api.Test;
 import tcl.lang.TclCmdTest;
 

@@ -44,10 +44,7 @@ public class RegexCmdTest extends TclCmdTest {
         new LinkedList<String>(
             Arrays.asList(
                 new String[] {
-                  "reg-3.5.execute",
-                  "reg-26.1.execute",
-                  "reg-26.2.execute",
-                  "reg-26.3.execute"
+                  "reg-3.5.execute", "reg-26.1.execute", "reg-26.2.execute", "reg-26.3.execute"
                 }));
     String resName = "/tcl/lang/cmd/reg.test";
 
