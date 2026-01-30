@@ -21,90 +21,82 @@ import tcl.lang.Interp;
 import tcl.lang.TclException;
 import tcl.lang.TclObject;
 
-/**
- * This class implements the internal representation of a Java class name.
- */
-
+/** This class implements the internal representation of a Java class name. */
 class ClassRep implements InternalRep {
 
-	// The class referred to by this ClassRep.
+  // The class referred to by this ClassRep.
 
-	Class cls;
+  Class cls;
 
-	/*
-	 * ----------------------------------------------------------------------
-	 * 
-	 * ClassRep --
-	 * 
-	 * Creates a new ClassRep instance.
-	 * 
-	 * Side effects: Member fields are initialized.
-	 * 
-	 * ----------------------------------------------------------------------
-	 */
+  /*
+   * ----------------------------------------------------------------------
+   *
+   * ClassRep --
+   *
+   * Creates a new ClassRep instance.
+   *
+   * Side effects: Member fields are initialized.
+   *
+   * ----------------------------------------------------------------------
+   */
 
-	ClassRep(Class c) // Initial value for cls.
-	{
-		cls = c;
-	}
+  ClassRep(Class c) // Initial value for cls.
+      {
+    cls = c;
+  }
 
-	/*
-	 * ----------------------------------------------------------------------
-	 * 
-	 * duplicate --
-	 * 
-	 * Make a copy of an object's internal representation.
-	 * 
-	 * Results: Returns a newly allocated instance of the appropriate type.
-	 * 
-	 * Side effects: None.
-	 * 
-	 * ----------------------------------------------------------------------
-	 */
+  /*
+   * ----------------------------------------------------------------------
+   *
+   * duplicate --
+   *
+   * Make a copy of an object's internal representation.
+   *
+   * Results: Returns a newly allocated instance of the appropriate type.
+   *
+   * Side effects: None.
+   *
+   * ----------------------------------------------------------------------
+   */
 
-	public InternalRep duplicate() {
-		return new ClassRep(cls);
-	}
+  public InternalRep duplicate() {
+    return new ClassRep(cls);
+  }
 
-	/**
-	 * Implement this no-op for the InternalRep interface.
-	 */
+  /** Implement this no-op for the InternalRep interface. */
+  public void dispose() {}
 
-	public void dispose() {
-	}
+  /*
+   * ----------------------------------------------------------------------
+   *
+   * get --
+   *
+   * Returns the Class object referred to by the TclObject.
+   *
+   * Results: The Class object referred to by the TclObject.
+   *
+   * Side effects: When successful, the internalRep of the signature object is
+   * converted to ClassRep.
+   *
+   * ----------------------------------------------------------------------
+   */
 
-	/*
-	 * ----------------------------------------------------------------------
-	 * 
-	 * get --
-	 * 
-	 * Returns the Class object referred to by the TclObject.
-	 * 
-	 * Results: The Class object referred to by the TclObject.
-	 * 
-	 * Side effects: When successful, the internalRep of the signature object is
-	 * converted to ClassRep.
-	 * 
-	 * ----------------------------------------------------------------------
-	 */
+  static Class get(
+      Interp interp, // Current interpreter.
+      TclObject tclObj) // TclObject that contains a valid Java
+      // class name.
+      throws TclException // If the TclObject doesn't contain a valid
+        // class name.
+      {
+    InternalRep rep = tclObj.getInternalRep();
 
-	static Class get(Interp interp, // Current interpreter.
-			TclObject tclObj) // TclObject that contains a valid Java
-			// class name.
-			throws TclException // If the TclObject doesn't contain a valid
-	// class name.
-	{
-		InternalRep rep = tclObj.getInternalRep();
-
-		if (rep instanceof ClassRep) {
-			// If a ClassRep is already cached, return it right away.
-			return ((ClassRep) rep).cls;
-		} else {
-			Class c = JavaInvoke.getClassByName(interp, tclObj.toString());
-			tclObj.setInternalRep(new ClassRep(c));
-			return c;
-		}
-	}
-
+    if (rep instanceof ClassRep) {
+      // If a ClassRep is already cached, return it right away.
+      return ((ClassRep) rep).cls;
+    } else {
+      Class c = JavaInvoke.getClassByName(interp, tclObj.toString());
+      tclObj.setInternalRep(new ClassRep(c));
+      return c;
+    }
+  }
 } // end ClassRep
-

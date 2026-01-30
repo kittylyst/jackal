@@ -7,43 +7,40 @@ package tcl.lang.channel;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import tcl.lang.Interp;
 import tcl.lang.TclIO;
 
 /**
- * The ReadInputStreamChannel class is a bridge between existing Java
- * InputStream objects and Tcl channels.
- **/
+ * The ReadInputStreamChannel class is a bridge between existing Java InputStream objects and Tcl
+ * channels.
+ */
+public final class ReadInputStreamChannel extends Channel {
 
-public class ReadInputStreamChannel extends Channel {
+  InputStream inStream;
 
-	InputStream inStream;
+  /**
+   * Constructor - creates a new ReadInputStreamChannel object that will read from the passed in
+   * InputStream.
+   */
+  public ReadInputStreamChannel(Interp interp, InputStream in_stream) {
+    this.mode = TclIO.RDONLY;
+    this.inStream = in_stream;
+  }
 
-	/**
-	 * Constructor - creates a new ReadInputStreamChannel object that will read
-	 * from the passed in InputStream.
-	 **/
+  String getChanType() {
+    return "ReadInputStream";
+  }
 
-	public ReadInputStreamChannel(Interp interp, InputStream in_stream) {
-		this.mode = TclIO.RDONLY;
-		this.inStream = in_stream;
-	}
+  protected InputStream getInputStream() throws IOException {
+    return inStream;
+  }
 
-	String getChanType() {
-		return "ReadInputStream";
-	}
+  protected OutputStream getOutputStream() throws IOException {
+    throw new RuntimeException("should never be called");
+  }
 
-	protected InputStream getInputStream() throws IOException {
-		return inStream;
-	}
-
-	protected OutputStream getOutputStream() throws IOException {
-		throw new RuntimeException("should never be called");
-	}
-
-	@Override
-	void implClose() throws IOException {
-		// caller must close the input stream
-	}
+  @Override
+  void implClose() throws IOException {
+    // caller must close the input stream
+  }
 }

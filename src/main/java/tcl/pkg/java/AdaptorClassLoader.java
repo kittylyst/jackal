@@ -15,7 +15,6 @@
 package tcl.pkg.java;
 
 import java.beans.EventSetDescriptor;
-
 import tcl.lang.Interp;
 
 // This class is a ClassLoader which loads event adaptor classes
@@ -23,88 +22,87 @@ import tcl.lang.Interp;
 
 class AdaptorClassLoader extends ClassLoader {
 
-	// Number of classes generated so far.
+  // Number of classes generated so far.
 
-	private static int genCount = 0;
+  private static int genCount = 0;
 
-	// The event adaptor generator.
+  // The event adaptor generator.
 
-	private AdaptorGen adaptorGen = new AdaptorGen();
+  private AdaptorGen adaptorGen = new AdaptorGen();
 
-	/*
-	 * ----------------------------------------------------------------------
-	 * 
-	 * getNewClassName --
-	 * 
-	 * Generate a unique class name for a new adaptor class. The first adaptor
-	 * class is tcl.lang.Adaptor0, the second is tcl.lang.Adaptor1, and so on.
-	 * 
-	 * Results: A unique name for an adaptor class.
-	 * 
-	 * Side effects: None.
-	 * 
-	 * ----------------------------------------------------------------------
-	 */
+  /*
+   * ----------------------------------------------------------------------
+   *
+   * getNewClassName --
+   *
+   * Generate a unique class name for a new adaptor class. The first adaptor
+   * class is tcl.lang.Adaptor0, the second is tcl.lang.Adaptor1, and so on.
+   *
+   * Results: A unique name for an adaptor class.
+   *
+   * Side effects: None.
+   *
+   * ----------------------------------------------------------------------
+   */
 
-	private synchronized String getNewClassName() {
-		return "tcl.pkg.java.Adaptor" + (genCount++);
-	}
+  private synchronized String getNewClassName() {
+    return "tcl.pkg.java.Adaptor" + (genCount++);
+  }
 
-	/*
-	 * ----------------------------------------------------------------------
-	 * 
-	 * loadEventAdaptor --
-	 * 
-	 * Generates and loads an event adaptor class to handle the given event set.
-	 * 
-	 * Results: The Class object of the newly generated adaptor class.
-	 * 
-	 * Side effects: The adaptor class is generated and loaded into the JVM.
-	 * 
-	 * ----------------------------------------------------------------------
-	 */
+  /*
+   * ----------------------------------------------------------------------
+   *
+   * loadEventAdaptor --
+   *
+   * Generates and loads an event adaptor class to handle the given event set.
+   *
+   * Results: The Class object of the newly generated adaptor class.
+   *
+   * Side effects: The adaptor class is generated and loaded into the JVM.
+   *
+   * ----------------------------------------------------------------------
+   */
 
-	synchronized Class loadEventAdaptor(Interp interp, // Current interpreter.
-			EventSetDescriptor desc) // The descriptor of the event interface
-	// to generate an adaptor for.
-	{
-		String classToGen = getNewClassName();
-		byte classData[] = adaptorGen.generate(desc, EventAdaptor.class,
-				classToGen);
-		Class cls = defineClass(classToGen, classData, 0, classData.length);
-		resolveClass(cls);
+  synchronized Class loadEventAdaptor(
+      Interp interp, // Current interpreter.
+      EventSetDescriptor desc) // The descriptor of the event interface
+        // to generate an adaptor for.
+      {
+    String classToGen = getNewClassName();
+    byte classData[] = adaptorGen.generate(desc, EventAdaptor.class, classToGen);
+    Class cls = defineClass(classToGen, classData, 0, classData.length);
+    resolveClass(cls);
 
-		return cls;
-	}
+    return cls;
+  }
 
-	/*
-	 * ----------------------------------------------------------------------
-	 * 
-	 * loadClass --
-	 * 
-	 * Loads the given class in the JVM. This implementation uses the class
-	 * loader that loaded this class.
-	 * 
-	 * Results: The Class object of the requested class.
-	 * 
-	 * Side effects: The class is loaded into the JVM.
-	 * 
-	 * ----------------------------------------------------------------------
-	 */
+  /*
+   * ----------------------------------------------------------------------
+   *
+   * loadClass --
+   *
+   * Loads the given class in the JVM. This implementation uses the class
+   * loader that loaded this class.
+   *
+   * Results: The Class object of the requested class.
+   *
+   * Side effects: The class is loaded into the JVM.
+   *
+   * ----------------------------------------------------------------------
+   */
 
-	protected synchronized Class loadClass(String className, // The name of the
-			// class to
-			// load.
-			boolean resolve) // True if we must resolve the class now.
-			throws ClassNotFoundException // If the class cannot be found.
-	{
-		Class cls = Class.forName(className);
+  protected synchronized Class loadClass(
+      String className, // The name of the
+      // class to
+      // load.
+      boolean resolve) // True if we must resolve the class now.
+      throws ClassNotFoundException // If the class cannot be found.
+      {
+    Class cls = Class.forName(className);
 
-		if (resolve) {
-			resolveClass(cls);
-		}
-		return cls;
-	}
-
+    if (resolve) {
+      resolveClass(cls);
+    }
+    return cls;
+  }
 } // end AdaptorClassLoader
-

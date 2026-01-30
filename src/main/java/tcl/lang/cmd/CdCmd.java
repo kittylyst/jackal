@@ -9,7 +9,7 @@
  * See the file "license.terms" for information on usage and
  * redistribution of this file, and for a DISCLAIMER OF ALL
  * WARRANTIES.
- * 
+ *
  * RCS: @(#) $Id: CdCmd.java,v 1.2 1999/05/08 23:53:08 dejong Exp $
  *
  */
@@ -25,50 +25,50 @@ import tcl.lang.TclObject;
 
 // This class implements the built-in "cd" command in Tcl.
 
-public class CdCmd implements Command {
+public final class CdCmd implements Command {
 
-	/*
-	 * --------------------------------------------------------------------------
-	 * ---
-	 * 
-	 * cmdProc --
-	 * 
-	 * This procedure is invoked to process the "cd" Tcl command. See the user
-	 * documentation for details on what it does.
-	 * 
-	 * Results: None.
-	 * 
-	 * Side effects: See the user documentation.
-	 * 
-	 * 
-	 * 
-	 * --------------------------------------------------------------------------
-	 * ---
-	 */
+  /*
+   * --------------------------------------------------------------------------
+   * ---
+   *
+   * cmdProc --
+   *
+   * This procedure is invoked to process the "cd" Tcl command. See the user
+   * documentation for details on what it does.
+   *
+   * Results: None.
+   *
+   * Side effects: See the user documentation.
+   *
+   *
+   *
+   * --------------------------------------------------------------------------
+   * ---
+   */
 
-	public void cmdProc(Interp interp, // Current interp to eval the file cmd.
-			TclObject argv[]) // Args passed to the file command.
-			throws TclException {
-		String dirName;
+  public void cmdProc(
+      Interp interp, // Current interp to eval the file cmd.
+      TclObject argv[]) // Args passed to the file command.
+      throws TclException {
+    String dirName;
 
-		if (argv.length > 2) {
-			throw new TclNumArgsException(interp, 1, argv, "?dirName?");
-		}
+    if (argv.length > 2) {
+      throw new TclNumArgsException(interp, 1, argv, "?dirName?");
+    }
 
-		if (argv.length == 1) {
-			dirName = "~";
-		} else {
-			dirName = argv[1].toString();
-		}
-		if ((JACL.PLATFORM == JACL.PLATFORM_WINDOWS) && (dirName.length() == 2)
-				&& (dirName.charAt(1) == ':')) {
-			dirName = dirName + "/";
-		}
+    if (argv.length == 1) {
+      dirName = "~";
+    } else {
+      dirName = argv[1].toString();
+    }
+    if ((JACL.PLATFORM == JACL.PLATFORM_WINDOWS)
+        && (dirName.length() == 2)
+        && (dirName.charAt(1) == ':')) {
+      dirName = dirName + "/";
+    }
 
-		// Set the interp's working dir.
+    // Set the interp's working dir.
 
-		interp.setWorkingDir(dirName);
-	}
-
+    interp.setWorkingDir(dirName);
+  }
 } // end CdCmd class
-

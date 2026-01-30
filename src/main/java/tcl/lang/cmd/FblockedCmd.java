@@ -6,7 +6,7 @@
  * See the file "license.terms" for information on usage and
  * redistribution of this file, and for a DISCLAIMER OF ALL
  * WARRANTIES.
- * 
+ *
  * RCS: @(#) $Id: FblockedCmd.java,v 1.5 2003/03/08 03:42:43 mdejong Exp $
  *
  */
@@ -21,35 +21,28 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.lang.channel.Channel;
 
-/**
- * This class implements the built-in "fblocked" command in Tcl.
- */
+/** This class implements the built-in "fblocked" command in Tcl. */
+public final class FblockedCmd implements Command {
+  /**
+   * This procedure is invoked to process the "fblocked" Tcl command. See the user documentation for
+   * details on what it does.
+   *
+   * @param interp the current interpreter.
+   * @param argv command arguments.
+   */
+  public void cmdProc(Interp interp, TclObject argv[]) throws TclException {
 
-public class FblockedCmd implements Command {
-	/**
-	 * This procedure is invoked to process the "fblocked" Tcl command. See the
-	 * user documentation for details on what it does.
-	 * 
-	 * @param interp
-	 *            the current interpreter.
-	 * @param argv
-	 *            command arguments.
-	 */
+    Channel chan; // The channel being operated on this method
 
-	public void cmdProc(Interp interp, TclObject argv[]) throws TclException {
+    if (argv.length != 2) {
+      throw new TclNumArgsException(interp, 1, argv, "channelId");
+    }
 
-		Channel chan; // The channel being operated on this method
+    chan = TclIO.getChannel(interp, argv[1].toString());
+    if (chan == null) {
+      throw new TclException(interp, "can not find channel named \"" + argv[1].toString() + "\"");
+    }
 
-		if (argv.length != 2) {
-			throw new TclNumArgsException(interp, 1, argv, "channelId");
-		}
-
-		chan = TclIO.getChannel(interp, argv[1].toString());
-		if (chan == null) {
-			throw new TclException(interp, "can not find channel named \""
-					+ argv[1].toString() + "\"");
-		}
-
-		interp.setResult(chan.isBlocked(interp));
-	}
+    interp.setResult(chan.isBlocked(interp));
+  }
 }

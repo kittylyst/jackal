@@ -7,7 +7,7 @@
  * See the file "license.terms" for information on usage and
  * redistribution of this file, and for a DISCLAIMER OF ALL
  * WARRANTIES.
- * 
+ *
  * RCS: @(#) $Id: ParseResult.java,v 1.3 2003/01/09 02:15:39 mdejong Exp $
  *
  */
@@ -15,53 +15,57 @@
 package tcl.lang;
 
 /**
- * This class stores a single word that's generated inside the Tcl parser inside
- * the Interp class.
+ * This class stores a single word that's generated inside the Tcl parser inside the Interp class.
  */
 public class ParseResult {
 
-	/**
-	 * The value of a parse operation. For calls to Interp.intEval(), this
-	 * variable is the same as interp.m_result. The ref count has been
-	 * incremented, so the user will need to explicitly invoke release() to drop
-	 * the ref.
-	 */
-	public TclObject value;
+  /**
+   * The value of a parse operation. For calls to Interp.intEval(), this variable is the same as
+   * interp.m_result. The ref count has been incremented, so the user will need to explicitly invoke
+   * release() to drop the ref.
+   */
+  private TclObject value;
 
-	/**
-	 * Points to the next character to be parsed.
-	 */
-	public int nextIndex;
+  /** Points to the next character to be parsed. */
+  private int nextIndex;
 
-	/**
-	 * Create an empty parsed word.
-	 */
-	ParseResult() {
-		value = TclString.newInstance("");
-		value.preserve();
-	}
+  public TclObject getValue() {
+    return value;
+  }
 
-	ParseResult(String s, int ni) {
-		value = TclString.newInstance(s);
-		value.preserve();
-		nextIndex = ni;
-	}
+  public int getNextIndex() {
+    return nextIndex;
+  }
 
-	/**
-	 * Assume that the caller has already preserve()'ed the TclObject.
-	 */
-	public ParseResult(TclObject o, int ni) {
-		value = o;
-		nextIndex = ni;
-	}
+  public void setNextIndex(int nextIndex) {
+    this.nextIndex = nextIndex;
+  }
 
-	ParseResult(StringBuffer sbuf, int ni) {
-		value = TclString.newInstance(sbuf.toString());
-		value.preserve();
-		nextIndex = ni;
-	}
+  /** Create an empty parsed word. */
+  ParseResult() {
+    value = TclString.newInstance("");
+    value.preserve();
+  }
 
-	public void release() {
-		value.release();
-	}
+  ParseResult(String s, int ni) {
+    value = TclString.newInstance(s);
+    value.preserve();
+    nextIndex = ni;
+  }
+
+  /** Assume that the caller has already preserve()'ed the TclObject. */
+  public ParseResult(TclObject o, int ni) {
+    value = o;
+    nextIndex = ni;
+  }
+
+  ParseResult(StringBuffer sbuf, int ni) {
+    value = TclString.newInstance(sbuf.toString());
+    value.preserve();
+    nextIndex = ni;
+  }
+
+  public void release() {
+    value.release();
+  }
 }

@@ -239,7 +239,7 @@ proc jdk_tool_javac { filenames } {
 
             set javac [list $java \
                 -classpath $classpath \
-                org.codehaus.janino.Compiler \
+                org.codehaus.old.janino.Compiler \
                 -classpath $classpath \
                 ]
         } else {

@@ -20,34 +20,30 @@ import tcl.lang.Interp;
 import tcl.lang.TclException;
 import tcl.lang.TclObject;
 
-/**
- * Implements the built-in "java::null" command.
- */
+/** Implements the built-in "java::null" command. */
+public final class JavaNullCmd implements Command {
 
-public class JavaNullCmd implements Command {
+  /*----------------------------------------------------------------------
+   *
+   * cmdProc --
+   *
+   * 	This procedure is invoked to process the "java::null" Tcl
+   * 	command. See the user documentation for details on what it
+   * 	does.
+   *
+   * Results:
+   *	None.
+   *
+   * Side effects:
+   *	A standard Tcl result is stored in the interpreter.
+   *
+   *----------------------------------------------------------------------
+   */
 
-	/*----------------------------------------------------------------------
-	 *
-	 * cmdProc --
-	 *
-	 * 	This procedure is invoked to process the "java::null" Tcl
-	 * 	command. See the user documentation for details on what it
-	 * 	does.
-	 *
-	 * Results:
-	 *	None.
-	 *
-	 * Side effects:
-	 *	A standard Tcl result is stored in the interpreter.
-	 *
-	 *----------------------------------------------------------------------
-	 */
-
-	public void cmdProc(Interp interp, // Current interpreter.
-			TclObject argv[]) // Argument list.
-			throws TclException {
-		interp.setResult(ReflectObject.newInstance(interp, null, null));
-	}
-
+  public void cmdProc(
+      Interp interp, // Current interpreter.
+      TclObject argv[]) // Argument list.
+      throws TclException {
+    interp.setResult(ReflectObject.newInstance(interp, null, null));
+  }
 } // end JavaNullCmd
-

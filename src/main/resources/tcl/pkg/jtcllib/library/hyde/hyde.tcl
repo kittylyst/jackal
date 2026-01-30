@@ -608,7 +608,7 @@ proc hyde::compileWith_janino {name codeStr {keepClass 0}} {
 	set old_java_class_path [java::call System getProperty java.class.path]
 	java::call System setProperty java.class.path $classPath
 
-	set janino [java::new {org.codehaus.janino.SimpleCompiler boolean} 1]
+	set janino [java::new {org.codehaus.old.janino.SimpleCompiler boolean} 1]
 	$janino setParentClassLoader [[java::getinterp] getClassLoader]
 
 	java::call System setProperty java.class.path $old_java_class_path

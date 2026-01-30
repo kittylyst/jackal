@@ -8,32 +8,194 @@
  * See the file "license.terms" for information on usage and
  * redistribution of this file, and for a DISCLAIMER OF ALL
  * WARRANTIES.
- * 
- * RCS: @(#) $Id: Command.java,v 1.3 1999/08/05 03:43:27 mo Exp $
+ *
+ * RCS: @(#) $Id: Command.java,v 1.3 1999/08/05 03.43:27 mo Exp $
  */
 
 package tcl.lang;
 
-/**
- * The Command interface specifies the method that a new Tcl command must
- * implement. See the createCommand method of the Interp class to see how to add
- * a new command to an interperter.
- */
+import tcl.lang.cmd.*;
+import tcl.pkg.java.*;
+import tcl.pkg.tjc.*;
 
-public interface Command {
-	/**
-	 * This method implements the functionality of the command. However, calling
-	 * it directly in application code will bypass execution traces. Instead,
-	 * commands should be called with WrappedCommand.invoke
-	 * 
-	 * @param interp
-	 *            The interpreter for setting the results and which contains the
-	 *            context
-	 * @param objv
-	 *            the argument list for the command; objv[0[ is the command name
-	 *            itself
-	 * @throws TclException
-	 *             on any errors
-	 */
-	abstract public void cmdProc(Interp interp, TclObject[] objv) throws TclException;
+/**
+ * The Command interface specifies the method that a new Tcl command must implement. See the
+ * createCommand method of the Interp class to see how to add a new command to an interperter.
+ */
+public sealed interface Command
+    permits tcl.lang.cmd.AfterCmd,
+        tcl.lang.cmd.AppendCmd,
+        tcl.lang.cmd.ApplyCmd,
+        tcl.lang.cmd.ArrayCmd,
+        tcl.lang.AutoloadStub,
+        tcl.pkg.itcl.BiCmds.BiCgetCmd,
+        tcl.pkg.itcl.BiCmds.BiChainCmd,
+        tcl.pkg.itcl.BiCmds.BiConfigureCmd,
+        tcl.pkg.itcl.BiCmds.BiInfoArgsCmd,
+        tcl.pkg.itcl.BiCmds.BiInfoBodyCmd,
+        tcl.pkg.itcl.BiCmds.BiInfoClassCmd,
+        tcl.pkg.itcl.BiCmds.BiInfoFunctionCmd,
+        tcl.pkg.itcl.BiCmds.BiInfoHeritageCmd,
+        tcl.pkg.itcl.BiCmds.BiInfoInheritCmd,
+        tcl.pkg.itcl.BiCmds.BiInfoVariableCmd,
+        tcl.pkg.itcl.BiCmds.BiIsaCmd,
+        tcl.lang.cmd.BinaryCmd,
+        tcl.pkg.itcl.Methods.BodyCmd,
+        tcl.lang.cmd.BreakCmd,
+        tcl.lang.cmd.CaseCmd,
+        tcl.lang.cmd.CatchCmd,
+        tcl.lang.cmd.CdCmd,
+        tcl.pkg.itcl.Parse.ClassCommonCmd,
+        tcl.pkg.itcl.Parse.ClassConstructorCmd,
+        tcl.pkg.itcl.Parse.ClassDestructorCmd,
+        tcl.pkg.itcl.Parse.ClassInheritCmd,
+        tcl.pkg.itcl.Parse.ClassMethodCmd,
+        tcl.pkg.itcl.Parse.ClassProcCmd,
+        tcl.pkg.itcl.Parse.ClassVariableCmd,
+        tcl.lang.cmd.ClockCmd,
+        tcl.lang.cmd.CloseCmd,
+        tcl.pkg.itcl.Cmds.CodeCmd,
+        tcl.pkg.tjc.TJC.CompiledCommand,
+        tcl.lang.cmd.ConcatCmd,
+        tcl.pkg.itcl.Methods.ConfigBodyCmd,
+        tcl.lang.embed.jsr223.JtclScriptEngine.ContextCommand,
+        tcl.lang.cmd.ContinueCmd,
+        tcl.lang.cmd.DictCmd.AppendCmd,
+        tcl.lang.cmd.DictCmd.CreateCmd,
+        tcl.pkg.itcl.BiCmds.DefaultInfoCmd,
+        tcl.lang.cmd.DictCmd,
+        tcl.lang.embed.jsr223.JtclScriptEngine.EchoCommand,
+        tcl.lang.cmd.EncodingCmd,
+        tcl.pkg.itcl.Ensemble.EnsPartCmd,
+        tcl.pkg.itcl.Ensemble.EnsembleCmd,
+        tcl.lang.cmd.EofCmd,
+        tcl.lang.cmd.ErrorCmd,
+        tcl.lang.cmd.EvalCmd,
+        tcl.lang.cmd.ExecCmd,
+        tcl.lang.cmd.DictCmd.ExistsCmd,
+        tcl.lang.cmd.ExitCmd,
+        tcl.lang.cmd.ExprCmd,
+        tcl.lang.cmd.FblockedCmd,
+        tcl.lang.cmd.FconfigureCmd,
+        tcl.lang.cmd.FcopyCmd,
+        tcl.lang.cmd.FileCmd,
+        tcl.lang.cmd.FileeventCmd,
+        tcl.lang.cmd.DictCmd.FilterCmd,
+        tcl.lang.cmd.DictCmd.ForCmd,
+        tcl.pkg.fleet.FleetCmd,
+        tcl.lang.cmd.FlushCmd,
+        tcl.lang.cmd.ForCmd,
+        tcl.lang.cmd.ForeachCmd,
+        tcl.lang.cmd.FormatCmd,
+        tcl.lang.cmd.DictCmd.GetCmd,
+        tcl.lang.cmd.DictCmd.IncrCmd,
+        tcl.lang.cmd.DictCmd.InfoCmd,
+        tcl.lang.cmd.GetsCmd,
+        tcl.lang.cmd.GlobCmd,
+        tcl.lang.cmd.GlobalCmd,
+        tcl.lang.cmd.IfCmd,
+        tcl.lang.ImportedCmdData,
+        tcl.lang.cmd.IncrCmd,
+        tcl.lang.cmd.InfoCmd,
+        tcl.pkg.tjc.TJC.InitSourceCmd,
+        tcl.lang.cmd.InterpCmd,
+        tcl.lang.cmd.NamespaceCmd,
+        tcl.pkg.itcl.ItclExtension,
+        tcl.pkg.java.JaclLoadJavaCmd,
+        tcl.pkg.tjc.JaclLoadTJCCmd,
+        tcl.pkg.java.JavaBindCmd,
+        tcl.pkg.java.JavaCallCmd,
+        tcl.pkg.java.JavaCastCmd,
+        tcl.pkg.java.JavaDefineClassCmd,
+        tcl.pkg.java.JavaEventCmd,
+        tcl.pkg.java.JavaFieldCmd,
+        tcl.pkg.java.JavaForCmd,
+        tcl.pkg.java.JavaGetInterpCmd,
+        tcl.pkg.java.JavaImportCmd,
+        tcl.pkg.java.JavaInfoCmd,
+        tcl.pkg.java.JavaInstanceofCmd,
+        tcl.pkg.java.JavaIsNullCmd,
+        tcl.pkg.java.JavaLoadCmd,
+        tcl.pkg.java.JavaNewCmd,
+        tcl.pkg.java.JavaNullCmd,
+        tcl.pkg.java.JavaPropCmd,
+        tcl.pkg.java.JavaThrowCmd,
+        tcl.pkg.java.JavaTryCmd,
+        tcl.lang.cmd.JoinCmd,
+        tcl.lang.cmd.DictCmd.KeysCmd,
+        tcl.lang.cmd.DictCmd.LappendCmd,
+        tcl.lang.cmd.LappendCmd,
+        tcl.lang.cmd.LassignCmd,
+        tcl.lang.cmd.LindexCmd,
+        tcl.lang.cmd.LinsertCmd,
+        tcl.lang.cmd.ListCmd,
+        tcl.lang.cmd.LlengthCmd,
+        tcl.lang.cmd.LrangeCmd,
+        tcl.lang.cmd.LrepeatCmd,
+        tcl.lang.cmd.LreplaceCmd,
+        tcl.lang.cmd.LreverseCmd,
+        tcl.lang.cmd.LsearchCmd,
+        tcl.lang.cmd.LsetCmd,
+        tcl.lang.cmd.LsortCmd,
+        tcl.lang.cmd.DictCmd.MergeCmd,
+        tcl.lang.cmd.OpenCmd,
+        tcl.lang.cmd.PackageCmd,
+        tcl.lang.cmd.PidCmd,
+        tcl.lang.Procedure,
+        tcl.lang.cmd.ProcCmd,
+        tcl.pkg.itcl.Cmds.ProtectionCmd,
+        tcl.lang.cmd.PutsCmd,
+        tcl.lang.cmd.PwdCmd,
+        tcl.lang.cmd.ReadCmd,
+        tcl.lang.cmd.RegexpCmd,
+        tcl.lang.cmd.RegsubCmd,
+        tcl.lang.cmd.DictCmd.RemoveCmd,
+        tcl.lang.cmd.DictCmd.ReplaceCmd,
+        tcl.lang.cmd.RenameCmd,
+        tcl.lang.cmd.ReturnCmd,
+        tcl.lang.cmd.ScanCmd,
+        tcl.pkg.itcl.Cmds.ScopeCmd,
+        tcl.lang.cmd.SeekCmd,
+        tcl.lang.cmd.SetCmd,
+        tcl.lang.cmd.DictCmd.SetCmd,
+        tcl.lang.cmd.DictCmd.SizeCmd,
+        tcl.lang.cmd.SocketCmd,
+        tcl.lang.cmd.SourceCmd,
+        tcl.lang.cmd.SplitCmd,
+        tcl.lang.cmd.StringCmd,
+        tcl.pkg.itcl.Cmds.StubCreateCmd,
+        tcl.pkg.itcl.Cmds.StubExistsCmd,
+        tcl.lang.cmd.SubstCmd,
+        tcl.lang.cmd.SwitchCmd,
+        tcl.pkg.tjc.TJCCommandCmd,
+        tcl.pkg.tjc.TJCCompileCmd,
+        tcl.pkg.tjc.TJCPackageCmd,
+        tcl.lang.TclParser,
+        tcl.lang.TclParserExtension,
+        tcl.lang.cmd.TellCmd,
+        tcl.lang.cmd.TimeCmd,
+        tcl.lang.cmd.TraceCmd,
+        tcl.lang.cmd.UnsetCmd,
+        tcl.lang.cmd.DictCmd.UnsetCmd,
+        tcl.pkg.java.UnsupportedJDetachCallCmd,
+        tcl.lang.cmd.UpdateCmd,
+        tcl.lang.cmd.DictCmd.UpdateCmd,
+        tcl.lang.cmd.UplevelCmd,
+        tcl.lang.cmd.UpvarCmd,
+        tcl.lang.cmd.DictCmd.ValuesCmd,
+        tcl.lang.cmd.VariableCmd,
+        tcl.lang.cmd.VwaitCmd,
+        tcl.lang.cmd.WhileCmd,
+        tcl.lang.cmd.DictCmd.WithCmd,
+        tcl.lang.CommandWithDispose {
+  /**
+   * This method implements the functionality of the command. However, calling it directly in
+   * application code will bypass execution traces. Instead, commands should be called with
+   * WrappedCommand.invoke
+   *
+   * @param interp The interpreter for setting the results and which contains the context
+   * @param objv the argument list for the command; objv[0[ is the command name itself
+   * @throws TclException on any errors
+   */
+  public abstract void cmdProc(Interp interp, TclObject[] objv) throws TclException;
 }

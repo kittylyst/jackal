@@ -6,7 +6,7 @@
  * See the file "license.terms" for information on usage and
  * redistribution of this file, and for a DISCLAIMER OF ALL
  * WARRANTIES.
- * 
+ *
  * RCS: @(#) $Id: TellCmd.java,v 1.2 2005/10/07 06:50:09 mdejong Exp $
  *
  */
@@ -14,7 +14,6 @@
 package tcl.lang.cmd;
 
 import java.io.IOException;
-
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclException;
@@ -23,40 +22,33 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.lang.channel.Channel;
 
-/**
- * This class implements the built-in "tell" command in Tcl.
- */
+/** This class implements the built-in "tell" command in Tcl. */
+public final class TellCmd implements Command {
 
-public class TellCmd implements Command {
+  /**
+   * This procedure is invoked to process the "tell" Tcl command. See the user documentation for
+   * details on what it does.
+   *
+   * @param interp the current interpreter.
+   * @param argv command arguments.
+   */
+  public void cmdProc(Interp interp, TclObject argv[]) throws TclException {
 
-	/**
-	 * This procedure is invoked to process the "tell" Tcl command. See the user
-	 * documentation for details on what it does.
-	 * 
-	 * @param interp
-	 *            the current interpreter.
-	 * @param argv
-	 *            command arguments.
-	 */
+    Channel chan; /* The channel being operated on this method */
 
-	public void cmdProc(Interp interp, TclObject argv[]) throws TclException {
+    if (argv.length != 2) {
+      throw new TclNumArgsException(interp, 1, argv, "channelId");
+    }
 
-		Channel chan; /* The channel being operated on this method */
+    chan = TclIO.getChannel(interp, argv[1].toString());
+    if (chan == null) {
+      throw new TclException(interp, "can not find channel named \"" + argv[1].toString() + "\"");
+    }
 
-		if (argv.length != 2) {
-			throw new TclNumArgsException(interp, 1, argv, "channelId");
-		}
-
-		chan = TclIO.getChannel(interp, argv[1].toString());
-		if (chan == null) {
-			throw new TclException(interp, "can not find channel named \""
-					+ argv[1].toString() + "\"");
-		}
-
-		try {
-			interp.setResult(chan.tell());
-		} catch (IOException e) {
-			throw new TclException(interp, "Error in TellCmd");
-		}
-	}
+    try {
+      interp.setResult(chan.tell());
+    } catch (IOException e) {
+      throw new TclException(interp, "Error in TellCmd");
+    }
+  }
 }

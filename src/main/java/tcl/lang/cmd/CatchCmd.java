@@ -7,7 +7,7 @@
  * See the file "license.terms" for information on usage and
  * redistribution of this file, and for a DISCLAIMER OF ALL
  * WARRANTIES.
- * 
+ *
  * RCS: @(#) $Id: CatchCmd.java,v 1.3 2005/10/07 06:50:09 mdejong Exp $
  *
  */
@@ -21,49 +21,41 @@ import tcl.lang.TclException;
 import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
-/**
- * This class implements the built-in "catch" command in Tcl.
- */
+/** This class implements the built-in "catch" command in Tcl. */
+public final class CatchCmd implements Command {
+  /**
+   * This procedure is invoked to process the "catch" Tcl command. See the user documentation for
+   * details on what it does.
+   *
+   * @param interp the current interpreter.
+   * @param argv command arguments.
+   * @exception TclException if wrong number of arguments.
+   */
+  public void cmdProc(Interp interp, TclObject argv[]) throws TclException {
+    if (argv.length != 2 && argv.length != 3) {
+      throw new TclNumArgsException(interp, 1, argv, "command ?varName?");
+    }
 
-public class CatchCmd implements Command {
-	/**
-	 * This procedure is invoked to process the "catch" Tcl command. See the
-	 * user documentation for details on what it does.
-	 * 
-	 * @param interp
-	 *            the current interpreter.
-	 * @param argv
-	 *            command arguments.
-	 * @exception TclException
-	 *                if wrong number of arguments.
-	 */
+    TclObject result;
+    int code = TCL.OK;
 
-	public void cmdProc(Interp interp, TclObject argv[]) throws TclException {
-		if (argv.length != 2 && argv.length != 3) {
-			throw new TclNumArgsException(interp, 1, argv, "command ?varName?");
-		}
+    try {
+      interp.eval(argv[1], 0);
+    } catch (TclException e) {
+      code = e.getCompletionCode();
+    }
 
-		TclObject result;
-		int code = TCL.OK;
+    result = interp.getResult();
 
-		try {
-			interp.eval(argv[1], 0);
-		} catch (TclException e) {
-			code = e.getCompletionCode();
-		}
+    if (argv.length == 3) {
+      try {
+        interp.setVar(argv[2], result, 0);
+      } catch (TclException e) {
+        throw new TclException(interp, "couldn't save command result in variable");
+      }
+    }
 
-		result = interp.getResult();
-
-		if (argv.length == 3) {
-			try {
-				interp.setVar(argv[2], result, 0);
-			} catch (TclException e) {
-				throw new TclException(interp,
-						"couldn't save command result in variable");
-			}
-		}
-
-		interp.resetResult();
-		interp.setResult(code);
-	}
+    interp.resetResult();
+    interp.setResult(code);
+  }
 }

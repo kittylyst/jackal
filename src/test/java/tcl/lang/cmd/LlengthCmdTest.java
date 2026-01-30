@@ -1,12 +1,12 @@
 package tcl.lang.cmd;
 
-import java.util.Collections;
-
+import org.junit.jupiter.api.Test;
 import tcl.lang.TclCmdTest;
 
 public class LlengthCmdTest extends TclCmdTest {
-	public void testCmd() throws Exception {
-		String resName = "/tcl/lang/cmd/llength.test";
-		tclTestResource(resName);
-	}
+  @Test
+  public void testCmd() throws Exception {
+    String resName = "/tcl/lang/cmd/llength.test";
+    tclTestResource(resName);
+  }
 }

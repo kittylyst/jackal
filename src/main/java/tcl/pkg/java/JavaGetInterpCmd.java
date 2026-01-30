@@ -23,32 +23,30 @@ import tcl.lang.TclObject;
  * Implements the built-in "java::getinterp" command.
  */
 
-public class JavaGetInterpCmd implements Command {
+public final class JavaGetInterpCmd implements Command {
 
-	/*----------------------------------------------------------------------
-	 *
-	 * cmdProc --
-	 *
-	 * 	This procedure is invoked to process the "java::getInterp" Tcl
-	 * 	command. See the user documentation for details on what it
-	 * 	does.
-	 *
-	 * Results:
-	 *	None.
-	 *
-	 * Side effects:
-	 *	A standard Tcl result is stored in the interpreter.
-	 *
-	 *----------------------------------------------------------------------
-	 */
+  /*----------------------------------------------------------------------
+   *
+   * cmdProc --
+   *
+   * 	This procedure is invoked to process the "java::getInterp" Tcl
+   * 	command. See the user documentation for details on what it
+   * 	does.
+   *
+   * Results:
+   *	None.
+   *
+   * Side effects:
+   *	A standard Tcl result is stored in the interpreter.
+   *
+   *----------------------------------------------------------------------
+   */
 
-	public void cmdProc(Interp interp, // Current interpreter.
-			TclObject argv[]) // Argument list.
-			throws TclException // A standard Tcl exception.
-	{
-		interp.setResult(ReflectObject
-				.newInstance(interp, Interp.class, interp));
-	}
-
+  public void cmdProc(
+      Interp interp, // Current interpreter.
+      TclObject argv[]) // Argument list.
+      throws TclException // A standard Tcl exception.
+      {
+    interp.setResult(ReflectObject.newInstance(interp, Interp.class, interp));
+  }
 } // end JavaGetInterpCmd
-

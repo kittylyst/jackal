@@ -15,7 +15,6 @@
 
 package tcl.pkg.java;
 
-
 /*
  * This class stores the parameters that are passed to the event
  * method when an event is fired.
@@ -23,36 +22,35 @@ package tcl.pkg.java;
 
 class BeanEventParamSet {
 
-	/*
-	 * The types of the parameters.
-	 */
+  /*
+   * The types of the parameters.
+   */
 
-	Class paramTypes[];
+  Class paramTypes[];
 
-	/*
-	 * The parameters to the event method that has been fired.
-	 */
+  /*
+   * The parameters to the event method that has been fired.
+   */
 
-	Object params[];
+  Object params[];
 
-	/*
-	 * ----------------------------------------------------------------------
-	 * 
-	 * BeanEventParamSet --
-	 * 
-	 * Creates a new BeanEventParamSet instance.
-	 * 
-	 * Side effects: Member fields are initialized.
-	 * 
-	 * ----------------------------------------------------------------------
-	 */
+  /*
+   * ----------------------------------------------------------------------
+   *
+   * BeanEventParamSet --
+   *
+   * Creates a new BeanEventParamSet instance.
+   *
+   * Side effects: Member fields are initialized.
+   *
+   * ----------------------------------------------------------------------
+   */
 
-	BeanEventParamSet(Class t[], // Initial value for paramTypes.
-			Object p[]) // Initial value for params.
-	{
-		paramTypes = t;
-		params = p;
-	}
-
+  BeanEventParamSet(
+      Class t[], // Initial value for paramTypes.
+      Object p[]) // Initial value for params.
+      {
+    paramTypes = t;
+    params = p;
+  }
 } // end BeanEventParam
-
