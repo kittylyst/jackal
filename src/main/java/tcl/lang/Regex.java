@@ -938,12 +938,12 @@ public class Regex {
           /* openSubExpression and validSubExpression are 0-based,
            * even though back refs are 1-based
            */
-          openSubExpressions.push(new Integer(validSubExpression.size()));
-          validSubExpression.add(new Boolean(false));
+          openSubExpressions.push(Integer.valueOf(validSubExpression.size()));
+          validSubExpression.add(Boolean.valueOf(false));
         } else {
           isCaptureGroup = false;
         }
-        groupStack.push(new Boolean(isCaptureGroup));
+        groupStack.push(Boolean.valueOf(isCaptureGroup));
 
         ++index;
         continue; // next regex char, since we don't do anything with '('
@@ -955,7 +955,7 @@ public class Regex {
         boolean isCaptureGroup = ((Boolean) groupStack.pop()).booleanValue();
         if (isCaptureGroup) {
           int closedExpr = ((Integer) openSubExpressions.pop()).intValue();
-          validSubExpression.set(closedExpr, new Boolean(true));
+          validSubExpression.set(closedExpr, Boolean.valueOf(true));
         }
         ++index;
         continue; // next regex char, since we don't do anything with ')'

@@ -658,7 +658,7 @@ public class FormatCmd implements Command {
       dblValue = -dblValue;
       prefix = '-';
       prefixSize = 1;
-    } else if (dblValue == 0.0 && (new Double(dblValue)).equals((new Double(-0.0)))) {
+    } else if (dblValue == 0.0 && Double.valueOf(dblValue).equals(Double.valueOf(-0.0))) {
       // Handle -0.0
       //
       // 15.19.1 "Numerical Comparison Operators <, <=, >, and >= "

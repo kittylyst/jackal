@@ -93,8 +93,8 @@ proc initJavaCompiler {} {
             }
         } elseif {$driver == "janino"} {
             # janino compiler builtin
-                set test_class org.codehaus.janino.SimpleCompiler
-                set test_ctor {org.codehaus.janino.SimpleCompiler boolean}
+                set test_class org.codehaus.old.janino.SimpleCompiler
+                set test_ctor {org.codehaus.old.janino.SimpleCompiler boolean}
                 set java_cmd janinoCompile
                 break
         }

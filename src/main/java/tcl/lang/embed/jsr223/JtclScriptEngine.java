@@ -107,11 +107,11 @@ public class JtclScriptEngine extends AbstractScriptEngine {
       // TCL primitive type
       InternalRep rep = tclObj.getInternalRep();
       if (rep instanceof TclBoolean) {
-        return new Boolean(TclBoolean.get(interp, tclObj));
+        return Boolean.valueOf(TclBoolean.get(interp, tclObj));
       } else if (rep instanceof TclInteger) {
-        return new Integer(TclInteger.get(interp, tclObj));
+        return Integer.valueOf(TclInteger.get(interp, tclObj));
       } else if (rep instanceof TclDouble) {
-        return new Double(TclDouble.get(interp, tclObj));
+        return Double.valueOf(TclDouble.get(interp, tclObj));
       } else if (rep instanceof TclString) {
         return tclObj.toString();
       } else {

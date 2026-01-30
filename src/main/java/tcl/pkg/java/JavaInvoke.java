@@ -1033,13 +1033,13 @@ public class JavaInvoke {
         return tclObj.toString();
 
       } else if ((type == Integer.TYPE) || (type == Integer.class)) {
-        return new Integer(TclInteger.getInt(interp, tclObj));
+        return Integer.valueOf(TclInteger.getInt(interp, tclObj));
 
       } else if ((type == Boolean.TYPE) || (type == Boolean.class)) {
-        return new Boolean(TclBoolean.get(interp, tclObj));
+        return Boolean.valueOf(TclBoolean.get(interp, tclObj));
 
       } else if ((type == Long.TYPE) || (type == Long.class)) {
-        return new Long(TclInteger.getLong(interp, tclObj));
+        return Long.valueOf(TclInteger.getLong(interp, tclObj));
 
       } else if ((type == Float.TYPE) || (type == Float.class)) {
         // Tcl stores floating point numbers as doubles,
@@ -1059,10 +1059,10 @@ public class JavaInvoke {
                 || (Math.abs(jdouble) < (double) Float.MIN_VALUE))) {
           throw new TclException(interp, "double value too large to represent in a float");
         }
-        return new Float(jfloat);
+        return Float.valueOf(jfloat);
 
       } else if ((type == Double.TYPE) || (type == Double.class)) {
-        return new Double(TclDouble.get(interp, tclObj));
+        return Double.valueOf(TclDouble.get(interp, tclObj));
 
       } else if ((type == Byte.TYPE) || (type == Byte.class)) {
         // Parse a Java int, then check valid byte range.
@@ -1071,7 +1071,7 @@ public class JavaInvoke {
         if ((jint < Byte.MIN_VALUE) || (jint > Byte.MAX_VALUE)) {
           throw new TclException(interp, "integer value too large to represent in a byte");
         }
-        return new Byte((byte) jint);
+        return Byte.valueOf((byte) jint);
 
       } else if ((type == Short.TYPE) || (type == Short.class)) {
         // Parse a Java int, then check valid byte range.
@@ -1080,14 +1080,14 @@ public class JavaInvoke {
         if ((jint < Short.MIN_VALUE) || (jint > Short.MAX_VALUE)) {
           throw new TclException(interp, "integer value too large to represent in a short");
         }
-        return new Short((short) jint);
+        return Short.valueOf((short) jint);
 
       } else if ((type == Character.TYPE) || (type == Character.class)) {
         String str = tclObj.toString();
         if (str.length() != 1) {
           throw new TclException(interp, "expected character but got \"" + tclObj + "\"");
         }
-        return new Character(str.charAt(0));
+        return Character.valueOf(str.charAt(0));
 
       } else if (type == TclObject.class) {
         // Pass a non ReflectObject TclObject directly to a Java method.

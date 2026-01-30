@@ -1703,7 +1703,7 @@ class ClockToken {
     } else if (kind == WORD) {
       return word;
     } else if (kind == CHAR) {
-      return new Character(c).toString();
+      return Character.valueOf(c).toString();
     } else if (kind == ZONE || kind == DAYZONE) {
       return zone.getID();
     } else {
