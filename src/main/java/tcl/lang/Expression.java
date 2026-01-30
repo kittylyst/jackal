@@ -2043,7 +2043,15 @@ public class Expression {
   }
 }
 
-abstract class MathFunction {
+abstract sealed class MathFunction
+    permits UnaryMathFunction,
+        BinaryMathFunction,
+        NoArgMathFunction,
+        AbsFunction,
+        DoubleFunction,
+        IntFunction,
+        WideFunction,
+        RoundFunction {
   static final int INT = 0;
   static final int DOUBLE = 1;
   static final int EITHER = 2;
@@ -2053,14 +2061,31 @@ abstract class MathFunction {
   abstract void apply(Interp interp, ExprValue[] values) throws TclException;
 }
 
-abstract class UnaryMathFunction extends MathFunction {
+abstract sealed class UnaryMathFunction extends MathFunction
+    permits AcosFunction,
+        AsinFunction,
+        AtanFunction,
+        CeilFunction,
+        CosFunction,
+        CoshFunction,
+        ExpFunction,
+        FloorFunction,
+        LogFunction,
+        Log10Function,
+        SinFunction,
+        SinhFunction,
+        SqrtFunction,
+        TanFunction,
+        TanhFunction,
+        SrandFunction {
   UnaryMathFunction() {
     argTypes = new int[1];
     argTypes[0] = DOUBLE;
   }
 }
 
-abstract class BinaryMathFunction extends MathFunction {
+abstract sealed class BinaryMathFunction extends MathFunction
+    permits Atan2Function, PowFunction, FmodFunction, HypotFunction {
   BinaryMathFunction() {
     argTypes = new int[2];
     argTypes[0] = DOUBLE;
@@ -2068,7 +2093,7 @@ abstract class BinaryMathFunction extends MathFunction {
   }
 }
 
-abstract class NoArgMathFunction extends MathFunction {
+abstract sealed class NoArgMathFunction extends MathFunction permits RandFunction {
   NoArgMathFunction() {
     argTypes = new int[0];
   }
@@ -2086,7 +2111,7 @@ abstract class NoArgMathFunction extends MathFunction {
   }
 }
 
-class Atan2Function extends BinaryMathFunction {
+final class Atan2Function extends BinaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     double y = values[0].getDoubleValue();
     double x = values[1].getDoubleValue();
@@ -2097,7 +2122,7 @@ class Atan2Function extends BinaryMathFunction {
   }
 }
 
-class AbsFunction extends MathFunction {
+final class AbsFunction extends MathFunction {
   AbsFunction() {
     argTypes = new int[1];
     argTypes[0] = EITHER;
@@ -2123,7 +2148,7 @@ class AbsFunction extends MathFunction {
   }
 }
 
-class DoubleFunction extends MathFunction {
+final class DoubleFunction extends MathFunction {
   DoubleFunction() {
     argTypes = new int[1];
     argTypes[0] = EITHER;
@@ -2137,7 +2162,7 @@ class DoubleFunction extends MathFunction {
   }
 }
 
-class IntFunction extends MathFunction {
+final class IntFunction extends MathFunction {
   IntFunction() {
     argTypes = new int[1];
     argTypes[0] = EITHER;
@@ -2153,7 +2178,7 @@ class IntFunction extends MathFunction {
   }
 }
 
-class WideFunction extends MathFunction {
+final class WideFunction extends MathFunction {
   WideFunction() {
     argTypes = new int[1];
     argTypes[0] = EITHER;
@@ -2169,7 +2194,7 @@ class WideFunction extends MathFunction {
   }
 }
 
-class RoundFunction extends MathFunction {
+final class RoundFunction extends MathFunction {
   RoundFunction() {
     argTypes = new int[1];
     argTypes[0] = EITHER;
@@ -2198,7 +2223,7 @@ class RoundFunction extends MathFunction {
   }
 }
 
-class PowFunction extends BinaryMathFunction {
+final class PowFunction extends BinaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     double x = values[0].getDoubleValue();
     double y = values[1].getDoubleValue();
@@ -2229,7 +2254,7 @@ class PowFunction extends BinaryMathFunction {
  * " }
  */
 
-class AcosFunction extends UnaryMathFunction {
+final class AcosFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     double d = value.getDoubleValue();
@@ -2240,7 +2265,7 @@ class AcosFunction extends UnaryMathFunction {
   }
 }
 
-class AsinFunction extends UnaryMathFunction {
+final class AsinFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     double d = value.getDoubleValue();
@@ -2251,7 +2276,7 @@ class AsinFunction extends UnaryMathFunction {
   }
 }
 
-class AtanFunction extends UnaryMathFunction {
+final class AtanFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     double d = value.getDoubleValue();
@@ -2262,21 +2287,21 @@ class AtanFunction extends UnaryMathFunction {
   }
 }
 
-class CeilFunction extends UnaryMathFunction {
+final class CeilFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     value.setDoubleValue(Math.ceil(value.getDoubleValue()));
   }
 }
 
-class CosFunction extends UnaryMathFunction {
+final class CosFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     value.setDoubleValue(Math.cos(value.getDoubleValue()));
   }
 }
 
-class CoshFunction extends UnaryMathFunction {
+final class CoshFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     double x = value.getDoubleValue();
@@ -2289,7 +2314,7 @@ class CoshFunction extends UnaryMathFunction {
   }
 }
 
-class ExpFunction extends UnaryMathFunction {
+final class ExpFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     double d = Math.exp(value.getDoubleValue());
@@ -2300,14 +2325,14 @@ class ExpFunction extends UnaryMathFunction {
   }
 }
 
-class FloorFunction extends UnaryMathFunction {
+final class FloorFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     value.setDoubleValue(Math.floor(value.getDoubleValue()));
   }
 }
 
-class FmodFunction extends BinaryMathFunction {
+final class FmodFunction extends BinaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     double d1 = values[0].getDoubleValue();
     double d2 = values[1].getDoubleValue();
@@ -2318,7 +2343,7 @@ class FmodFunction extends BinaryMathFunction {
   }
 }
 
-class HypotFunction extends BinaryMathFunction {
+final class HypotFunction extends BinaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     double x = values[0].getDoubleValue();
     double y = values[1].getDoubleValue();
@@ -2326,7 +2351,7 @@ class HypotFunction extends BinaryMathFunction {
   }
 }
 
-class LogFunction extends UnaryMathFunction {
+final class LogFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     double d = value.getDoubleValue();
@@ -2337,7 +2362,7 @@ class LogFunction extends UnaryMathFunction {
   }
 }
 
-class Log10Function extends UnaryMathFunction {
+final class Log10Function extends UnaryMathFunction {
   private static final double log10 = Math.log(10);
 
   void apply(Interp interp, ExprValue[] values) throws TclException {
@@ -2350,7 +2375,7 @@ class Log10Function extends UnaryMathFunction {
   }
 }
 
-class SinFunction extends UnaryMathFunction {
+final class SinFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     double d = value.getDoubleValue();
@@ -2358,7 +2383,7 @@ class SinFunction extends UnaryMathFunction {
   }
 }
 
-class SinhFunction extends UnaryMathFunction {
+final class SinhFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     double x = value.getDoubleValue();
@@ -2373,7 +2398,7 @@ class SinhFunction extends UnaryMathFunction {
   }
 }
 
-class SqrtFunction extends UnaryMathFunction {
+final class SqrtFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     double x = value.getDoubleValue();
@@ -2384,14 +2409,14 @@ class SqrtFunction extends UnaryMathFunction {
   }
 }
 
-class TanFunction extends UnaryMathFunction {
+final class TanFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     value.setDoubleValue(Math.tan(value.getDoubleValue()));
   }
 }
 
-class TanhFunction extends UnaryMathFunction {
+final class TanhFunction extends UnaryMathFunction {
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];
     double x = value.getDoubleValue();
@@ -2409,7 +2434,7 @@ class TanhFunction extends UnaryMathFunction {
   }
 }
 
-class RandFunction extends NoArgMathFunction {
+final class RandFunction extends NoArgMathFunction {
 
   // Generate the random number using the linear congruential
   // generator defined by the following recurrence:
@@ -2469,7 +2494,7 @@ class RandFunction extends NoArgMathFunction {
   }
 }
 
-class SrandFunction extends UnaryMathFunction {
+final class SrandFunction extends UnaryMathFunction {
 
   void apply(Interp interp, ExprValue[] values) throws TclException {
     ExprValue value = values[0];

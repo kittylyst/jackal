@@ -21,7 +21,7 @@ import tcl.lang.TclString;
  * The SocketChannel class implements a channel object for Socket connections, created using the
  * socket command.
  */
-public class SocketChannel extends AbstractSocketChannel {
+public final class SocketChannel extends AbstractSocketChannel {
 
   /** The java Socket object associated with this Channel */
   private Socket sock = null;

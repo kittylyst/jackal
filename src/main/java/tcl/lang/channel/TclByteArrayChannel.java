@@ -16,7 +16,7 @@ import tcl.lang.TclString;
 import tcl.lang.cmd.EncodingCmd;
 
 /** Read and write channel for byte arrays, in the form of TclObjects */
-public class TclByteArrayChannel extends Channel {
+public final class TclByteArrayChannel extends Channel {
   Interp interp;
   ByteArrayOutputStream ostream = null;
   ByteArrayInputStream istream = null;

@@ -10,7 +10,8 @@ import tcl.lang.TclObject;
 import tcl.lang.TclString;
 
 /** This abstract class allows fconfigure to query information about a socket channel */
-public abstract class AbstractSocketChannel extends Channel {
+public abstract sealed class AbstractSocketChannel extends Channel
+    permits SocketChannel, ServerSocketChannel {
 
   /**
    * This method returns a list of three elements; these are the address, the host name and the port

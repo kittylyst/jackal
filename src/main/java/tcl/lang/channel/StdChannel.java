@@ -25,7 +25,7 @@ import tcl.lang.TclRuntimeError;
  * Subclass of the abstract class Channel. It implements all of the methods to perform read, write,
  * open, close, etc on system stdio channels.
  */
-public class StdChannel extends Channel {
+public final class StdChannel extends Channel {
 
   /** Defines the type of Channel: STDIN, STDOUT or STDERR */
   private int stdType = -1;

@@ -27,7 +27,7 @@ import tcl.lang.TclString;
  * The ServerSocketChannel class implements a channel object for ServerSocket connections, created
  * using the socket -server command.
  */
-public class ServerSocketChannel extends AbstractSocketChannel {
+public final class ServerSocketChannel extends AbstractSocketChannel {
 
   /** The java ServerSocket object associated with this Channel. */
   private ServerSocket sock;

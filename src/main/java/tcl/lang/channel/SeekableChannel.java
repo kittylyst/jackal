@@ -12,7 +12,7 @@ import tcl.lang.TclRuntimeError;
  *
  * @author Dan Bodoh
  */
-public abstract class SeekableChannel extends Channel {
+public abstract sealed class SeekableChannel extends Channel permits FileChannel {
 
   /**
    * Seek to a specified absolute place in the file

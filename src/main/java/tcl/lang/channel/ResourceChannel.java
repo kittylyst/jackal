@@ -26,7 +26,7 @@ import tcl.lang.TclRuntimeError;
  * Subclass of the abstract class Channel. It implements all of the methods to perform read, write,
  * open, close, etc on a file.
  */
-public class ResourceChannel extends Channel {
+public final class ResourceChannel extends Channel {
 
   /** Resource files are read only. */
   private InputStream file = null;

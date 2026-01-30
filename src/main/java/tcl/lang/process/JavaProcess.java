@@ -27,7 +27,7 @@ import tcl.lang.channel.Channel;
  *
  * @author danb
  */
-public class JavaProcess extends TclProcess {
+public final class JavaProcess extends TclProcess {
   /** The Java Process object */
   protected Process process = null;
 

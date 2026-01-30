@@ -14,7 +14,7 @@ import tcl.lang.TclIO;
  * The ReadInputStreamChannel class is a bridge between existing Java InputStream objects and Tcl
  * channels.
  */
-public class ReadInputStreamChannel extends Channel {
+public final class ReadInputStreamChannel extends Channel {
 
   InputStream inStream;
 

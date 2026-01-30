@@ -19,7 +19,7 @@ import tcl.lang.TclRuntimeError;
  *
  * @author Dan Bodoh
  */
-public abstract class TclProcess {
+public abstract sealed class TclProcess permits JavaProcess {
   /** A tcl.lang.process.Redirect object specifying where stdin is redirected from */
   protected Redirect stdinRedirect = null;
 

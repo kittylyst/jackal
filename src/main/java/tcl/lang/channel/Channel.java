@@ -34,7 +34,14 @@ import tcl.lang.cmd.EncodingCmd;
  * new channel type will need to extend the abstract Channel class and override any methods it needs
  * to provide a specific implementation for.
  */
-public abstract class Channel {
+public abstract sealed class Channel
+    permits ReadInputStreamChannel,
+        PipelineChannel,
+        SeekableChannel,
+        TclByteArrayChannel,
+        StdChannel,
+        ResourceChannel,
+        AbstractSocketChannel {
 
   /**
    * The read, write, append and create flags are set here. The variables used to set the flags are

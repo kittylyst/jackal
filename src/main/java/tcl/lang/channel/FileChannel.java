@@ -31,7 +31,7 @@ import tcl.lang.TclRuntimeError;
  * Subclass of the abstract class SeekableChannel. It implements all of the methods to perform read,
  * write, open, close, etc on a file.
  */
-public class FileChannel extends SeekableChannel {
+public final class FileChannel extends SeekableChannel {
 
   /**
    * The file needs to have a file pointer that can be moved randomly within the file. The

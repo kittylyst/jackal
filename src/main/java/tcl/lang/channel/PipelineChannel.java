@@ -13,7 +13,7 @@ import tcl.lang.TclString;
 import tcl.lang.process.Redirect;
 
 /** This class provides a Channel view of a Pipeline object */
-public class PipelineChannel extends Channel {
+public final class PipelineChannel extends Channel {
   private Pipeline pipeline;
   private TclByteArrayChannel stderr;
   Interp interp = null;
