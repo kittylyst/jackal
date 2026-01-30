@@ -187,22 +187,22 @@ public class TclCmdTest {
     // two lines contain "FAILED", a beginning line with extra information, followed
     // by the differences, followed by a trailing line contain "FAILED".  we just check
     // the last line, which doesn't contain extra failure textual information.
-    BufferedReader in = new BufferedReader(new FileReader(tmpFile));
-    String line = in.readLine();
-    while (line != null) {
-      System.out.println(line);
-      if (line.indexOf("FAILED") > 0) {
-        String[] words = line.split(" ");
-        if (words.length == 3) { // example:  "---- for-6.13 FAILED"
-          String testCaseName = words[1];
-          if (!expectedFailureCases.remove(testCaseName)) {
-            unexpectedFailures.add(testCaseName);
+    try (BufferedReader in = new BufferedReader(new FileReader(tmpFile))) {
+      String line = in.readLine();
+      while (line != null) {
+        System.out.println(line);
+        if (line.indexOf("FAILED") > 0) {
+          String[] words = line.split(" ");
+          if (words.length == 3) { // example:  "---- for-6.13 FAILED"
+            String testCaseName = words[1];
+            if (!expectedFailureCases.remove(testCaseName)) {
+              unexpectedFailures.add(testCaseName);
+            }
           }
         }
+        line = in.readLine();
       }
-      line = in.readLine();
     }
-    in.close();
 
     tmpFile.delete();
 
@@ -228,14 +228,12 @@ public class TclCmdTest {
 
   private String readFile(File file) {
     StringBuffer buf = new StringBuffer();
-    try {
-      BufferedReader in = new BufferedReader(new FileReader(file));
+    try (BufferedReader in = new BufferedReader(new FileReader(file))) {
       String line = in.readLine();
       while (line != null) {
         buf.append(line).append('\n');
         line = in.readLine();
       }
-      in.close();
     } catch (FileNotFoundException e) {
       // ignore
     } catch (IOException e) {
@@ -340,11 +338,8 @@ public class TclCmdTest {
     }
     File execFile = new File(path, name);
     execFile.deleteOnExit();
-    FileWriter out = null;
-    try {
-      out = new FileWriter(execFile);
+    try (FileWriter out = new FileWriter(execFile)) {
       out.write(execLine);
-      out.close();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

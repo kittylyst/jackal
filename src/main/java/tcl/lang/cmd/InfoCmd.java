@@ -789,11 +789,8 @@ public class InfoCmd implements Command {
       execLine += (isWindows ? " %*" : " ${1+\"$@\"}") + eol;
 
       // write the file and set delete on exit
-      FileWriter out = null;
-      try {
-        out = new FileWriter(execFile);
+      try (FileWriter out = new FileWriter(execFile)) {
         out.write(execLine);
-        out.close();
       } catch (Exception e) {
         throw new TclException(interp, "Could not write temp file [info nameofexecutable]");
       }

@@ -1177,10 +1177,9 @@ public class FileCmd implements Command {
               interp, f.getPath(), new File(targetFileObj, f.getName()).getPath(), true, force);
         }
       } else {
-        try {
-          BufferedInputStream bin = new BufferedInputStream(new FileInputStream(sourceFileObj));
-          BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(targetFileObj));
-
+        try (BufferedInputStream bin = new BufferedInputStream(new FileInputStream(sourceFileObj));
+            BufferedOutputStream bout =
+                new BufferedOutputStream(new FileOutputStream(targetFileObj))) {
           final int bsize = 1024;
           byte[] buff = new byte[bsize];
           int numChars = bin.read(buff, 0, bsize);
@@ -1188,8 +1187,6 @@ public class FileCmd implements Command {
             bout.write(buff, 0, numChars);
             numChars = bin.read(buff, 0, bsize);
           }
-          bin.close();
-          bout.close();
         } catch (IOException e) {
           throw new TclException(interp, "error copying: " + e.getMessage());
         }

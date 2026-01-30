@@ -2710,7 +2710,7 @@ public class Interp extends EventuallyFreed {
 
     boolean couldBeCached = false;
     boolean isCached = false;
-    InputStream stream;
+    InputStream stream = null;
     String script = null;
 
     // Tcl library scripts can be cached since they will not change
@@ -2745,12 +2745,15 @@ public class Interp extends EventuallyFreed {
           if (stream == null) {
             throw new TclException(this, "cannot read resource \"" + resName + "\"");
           }
-          script = readScriptFromInputStream(stream, javaEncoding);
-          if (script == null) {
-            throw new TclException(this, "cannot read resource \"" + resName + "\"");
+          try {
+            script = readScriptFromInputStream(stream, javaEncoding);
+            if (script == null) {
+              throw new TclException(this, "cannot read resource \"" + resName + "\"");
+            }
+            tclLibraryScripts.put(resName, script);
+          } finally {
+            closeInputStream(stream);
           }
-
-          tclLibraryScripts.put(resName, script);
         } else {
 
           // No-op, just use script that was set above
@@ -2762,9 +2765,13 @@ public class Interp extends EventuallyFreed {
       if (stream == null) {
         throw new TclException(this, "cannot read resource \"" + resName + "\"");
       }
-      script = readScriptFromInputStream(stream, javaEncoding);
-      if (script == null) {
-        throw new TclException(this, "cannot read resource \"" + resName + "\"");
+      try {
+        script = readScriptFromInputStream(stream, javaEncoding);
+        if (script == null) {
+          throw new TclException(this, "cannot read resource \"" + resName + "\"");
+        }
+      } finally {
+        closeInputStream(stream);
       }
     }
 

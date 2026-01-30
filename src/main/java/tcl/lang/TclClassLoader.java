@@ -595,19 +595,20 @@ public class TclClassLoader extends ClassLoader {
 
             file = new File(curDir, className);
             if (file.exists()) {
-              FileInputStream fi = new FileInputStream(file);
-              classData = new byte[fi.available()];
+              try (FileInputStream fi = new FileInputStream(file)) {
+                classData = new byte[fi.available()];
 
-              total = fi.read(classData);
-              while (total != classData.length) {
-                total += fi.read(classData, total, (classData.length - total));
+                total = fi.read(classData);
+                while (total != classData.length) {
+                  total += fi.read(classData, total, (classData.length - total));
+                }
+
+                // Set this so we can get the full name of the
+                // file we loaded the class from later
+                lastSearchedClassFile = file.toString();
+
+                return (classData);
               }
-
-              // Set this so we can get the full name of the
-              // file we loaded the class from later
-              lastSearchedClassFile = file.toString();
-
-              return (classData);
             }
           }
         } catch (Exception e) {
@@ -699,15 +700,12 @@ public class TclClassLoader extends ClassLoader {
    * @throws IOException
    */
   private byte[] extractClassFromJar(String jarName, String className) throws IOException {
-    ZipInputStream zin; // The jar file input stream.
     ZipEntry entry; // A file contained in the jar file.
     byte[] result; // The bytes that compose the class file.
     int size; // Uncompressed size of the class file.
     int total; // Number of bytes read from class file.
 
-    zin = new ZipInputStream(new FileInputStream(jarName));
-
-    try {
+    try (ZipInputStream zin = new ZipInputStream(new FileInputStream(jarName))) {
       while ((entry = zin.getNextEntry()) != null) {
         // see if the current ZipEntry's name equals
         // the file we want to extract. If equal
@@ -730,8 +728,6 @@ public class TclClassLoader extends ClassLoader {
         }
       }
       return null;
-    } finally {
-      zin.close();
     }
   }
 
@@ -936,15 +932,9 @@ public class TclClassLoader extends ClassLoader {
    * @throws IOException
    */
   private URL extractURLFromJar(String jarName, String resName) throws IOException {
-    ZipInputStream zin; // The jar file input stream.
     ZipEntry entry; // A file contained in the jar file.
-    URL result;
-    int size; // Uncompressed size of the class file.
-    int total; // Number of bytes read from class file.
 
-    zin = new ZipInputStream(new FileInputStream(jarName));
-
-    try {
+    try (ZipInputStream zin = new ZipInputStream(new FileInputStream(jarName))) {
       while ((entry = zin.getNextEntry()) != null) {
         // see if the current ZipEntry's name equals
         // the file we want to extract. If equal
@@ -958,8 +948,6 @@ public class TclClassLoader extends ClassLoader {
         }
       }
       return null;
-    } finally {
-      zin.close();
     }
   }
 }

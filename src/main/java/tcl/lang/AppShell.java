@@ -41,14 +41,12 @@ public class AppShell {
    */
   public static void main(String args[]) {
     Manifest mf;
-    try {
-      InputStream inputStream =
-          AppShell.class
-              .getProtectionDomain()
-              .getClassLoader()
-              .getResourceAsStream("META-INF/MANIFEST.MF");
+    try (InputStream inputStream =
+        AppShell.class
+            .getProtectionDomain()
+            .getClassLoader()
+            .getResourceAsStream("META-INF/MANIFEST.MF")) {
       mf = new Manifest(inputStream);
-      inputStream.close();
     } catch (Exception e) {
       throw new TclRuntimeError(
           "META-INF/MANIFEST.MF does not exist or not running from a .jar file: " + e);
@@ -59,16 +57,14 @@ public class AppShell {
 
     if (fileName == null) {
       // java 1.5 - have to read the app jar file directly
-      ZipInputStream zipin = null;
-      try {
-        InputStream inputStream =
-            AppShell.class
-                .getProtectionDomain()
-                .getCodeSource()
-                .getLocation()
-                .openConnection()
-                .getInputStream();
-        zipin = new ZipInputStream(inputStream);
+      try (InputStream inputStream =
+              AppShell.class
+                  .getProtectionDomain()
+                  .getCodeSource()
+                  .getLocation()
+                  .openConnection()
+                  .getInputStream();
+          ZipInputStream zipin = new ZipInputStream(inputStream)) {
         ZipEntry entry = zipin.getNextEntry();
         while (entry != null) {
           if ("META-INF/MANIFEST.MF".equals(entry.getName())) {
@@ -79,12 +75,6 @@ public class AppShell {
         }
       } catch (Exception e) {
         // ignore
-      } finally {
-        try {
-          zipin.close();
-        } catch (Exception e) {
-          // ignore
-        }
       }
       fileName = mf.getMainAttributes().getValue(JTCL_MAIN);
     }

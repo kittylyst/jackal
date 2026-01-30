@@ -876,16 +876,16 @@ public class FileUtil {
         try {
           userDirs = new HashMap<String, String>();
           File passwd = new File("/etc/passwd");
-          BufferedReader reader = new BufferedReader(new FileReader(passwd));
-          while (true) {
-            String line = reader.readLine();
-            if (line == null) break;
-            String[] fields = line.split(":");
-            if (fields.length >= 6 && fields[0].length() > 0 && fields[5].length() > 0) {
-              userDirs.put(fields[0], fields[5]);
+          try (BufferedReader reader = new BufferedReader(new FileReader(passwd))) {
+            while (true) {
+              String line = reader.readLine();
+              if (line == null) break;
+              String[] fields = line.split(":");
+              if (fields.length >= 6 && fields[0].length() > 0 && fields[5].length() > 0) {
+                userDirs.put(fields[0], fields[5]);
+              }
             }
           }
-          reader.close();
         } catch (IOException e) {
           userDirs = null;
         }
