@@ -1,4 +1,4 @@
-JTcl - Tcl Language Interpreter in Java
+Jackal - Modern Tcl Language Interpreter in Java
 
 http://jtcl-project.github.io/jtcl/
 
@@ -10,7 +10,7 @@ the Jacl interpreter (http://tcljava.sf.net)
 
 INSTALLING JTCL
 
-JTcl requires a Java JVM 1.6 or higher.  You may have to install Java 
+JTcl requires a Java JVM 8 or higher.  You may have to install Java 
 if you don't already have it installed.  
 
 Download JTcl distribution from: 
