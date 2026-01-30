@@ -285,12 +285,14 @@ public class TclIO {
       try {
         chan.close();
       } catch (IOException e) {
-        // e.printStackTrace(System.err);
-        throw new TclRuntimeError(
-            "TclIO.unregisterChannel() Error: IOException when closing "
-                + chan.getChanName()
-                + ": "
-                + e.getMessage());
+        // Stream already closed (e.g. pipeline subprocess ended) is non-fatal for unregister
+        if (!"Stream closed".equals(e.getMessage())) {
+          throw new TclRuntimeError(
+              "TclIO.unregisterChannel() Error: IOException when closing "
+                  + chan.getChanName()
+                  + ": "
+                  + e.getMessage());
+        }
       }
     }
   }

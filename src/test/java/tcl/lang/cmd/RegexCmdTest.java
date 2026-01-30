@@ -45,7 +45,6 @@ public class RegexCmdTest extends TclCmdTest {
             Arrays.asList(
                 new String[] {
                   "reg-3.5.execute",
-                  "reg-14.9.execute",
                   "reg-26.1.execute",
                   "reg-26.2.execute",
                   "reg-26.3.execute"
