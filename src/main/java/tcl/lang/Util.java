@@ -255,8 +255,8 @@ public class Util {
     }
     Util.strtoul(s, i, 0, res);
 
-    if (res.errno < 0) {
-      if (res.errno == TCL.INTEGER_RANGE) {
+    if (res.getErrno() < 0) {
+      if (res.getErrno() == TCL.INTEGER_RANGE) {
         if (interp != null) {
           interp.setErrorCode(TclString.newInstance(intTooBigCode));
         }
@@ -265,8 +265,8 @@ public class Util {
         throw new TclException(
             interp, "expected integer but got \"" + s + "\"" + checkBadOctal(interp, s));
       }
-    } else if (res.index < len) {
-      for (i = res.index; i < len; i++) {
+    } else if (res.getIndex() < len) {
+      for (i = res.getIndex(); i < len; i++) {
         if (((c = s.charAt(i)) != ' ') && !Character.isWhitespace(c)) {
           throw new TclException(
               interp, "expected integer but got \"" + s + "\"" + checkBadOctal(interp, s));
@@ -274,7 +274,7 @@ public class Util {
       }
     }
 
-    return res.value;
+    return res.getValue();
   }
 
   /**
@@ -640,8 +640,8 @@ public class Util {
     }
     Util.strtod(s, i, len, res);
 
-    if (res.errno != 0) {
-      if (res.errno == TCL.DOUBLE_RANGE) {
+    if (res.getErrno() != 0) {
+      if (res.getErrno() == TCL.DOUBLE_RANGE) {
         if (interp != null) {
           interp.setErrorCode(TclString.newInstance(fpTooBigCode));
         }
@@ -649,15 +649,15 @@ public class Util {
       } else {
         throw new TclException(interp, "expected floating-point number but got \"" + s + "\"");
       }
-    } else if (res.index < len) {
-      for (i = res.index; i < len; i++) {
+    } else if (res.getIndex() < len) {
+      for (i = res.getIndex(); i < len; i++) {
         if ((c = s.charAt(i)) != ' ' && !Character.isWhitespace(c)) {
           throw new TclException(interp, "expected floating-point number but got \"" + s + "\"");
         }
       }
     }
 
-    return res.value;
+    return res.getValue();
   }
 
   /**
@@ -1122,10 +1122,10 @@ public class Util {
               sbuf = new StringBuffer();
             }
             sbuf.append(s.substring(simpleStart, i));
-            sbuf.append(bs.c);
-            simpleStart = bs.nextIndex;
+            sbuf.append(bs.getC());
+            simpleStart = bs.getNextIndex();
           }
-          i = bs.nextIndex;
+          i = bs.getNextIndex();
 
           break;
 
@@ -1312,7 +1312,7 @@ public class Util {
             // Subtract 1 because the for loop will automatically
             // add one on the next iteration.
 
-            i = (bs.nextIndex - 1);
+            i = (bs.getNextIndex() - 1);
             flags |= USE_BRACES;
           }
           break;
@@ -1858,15 +1858,15 @@ final class PrecTraceProc implements VarTrace {
     StrtoulResult r = interp.strtoulResult;
     Util.strtoul(value, 0, 10, r);
 
-    if ((r.value <= 0)
-        || (r.value > TCL_MAX_PREC)
-        || (r.value > 100)
-        || (r.index == 0)
-        || (r.index != value.length())) {
+    if ((r.getValue() <= 0)
+        || (r.getValue() > TCL_MAX_PREC)
+        || (r.getValue() > 100)
+        || (r.getIndex() == 0)
+        || (r.getIndex() != value.length())) {
       interp.setVar(name1, name2, Util.precision, TCL.GLOBAL_ONLY);
       throw new TclException(interp, "improper value for precision");
     }
 
-    Util.precision = (int) r.value;
+    Util.precision = (int) r.getValue();
   }
 }

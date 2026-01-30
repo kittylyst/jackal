@@ -24,10 +24,22 @@ public class ParseResult {
    * interp.m_result. The ref count has been incremented, so the user will need to explicitly invoke
    * release() to drop the ref.
    */
-  public TclObject value;
+  private TclObject value;
 
   /** Points to the next character to be parsed. */
-  public int nextIndex;
+  private int nextIndex;
+
+  public TclObject getValue() {
+    return value;
+  }
+
+  public int getNextIndex() {
+    return nextIndex;
+  }
+
+  public void setNextIndex(int nextIndex) {
+    this.nextIndex = nextIndex;
+  }
 
   /** Create an empty parsed word. */
   ParseResult() {

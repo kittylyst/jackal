@@ -151,9 +151,9 @@ public class ScanCmd implements Command {
          * locale.
          */
         Util.strtoul(format, formatIndex - 1, 10, interp.strtoulResult);
-        value = interp.strtoulResult.value;
-        if (format.charAt(interp.strtoulResult.index) == '$') {
-          formatIndex = interp.strtoulResult.index + 1;
+        value = interp.strtoulResult.getValue();
+        if (format.charAt(interp.strtoulResult.getIndex()) == '$') {
+          formatIndex = interp.strtoulResult.getIndex() + 1;
           ch = format.charAt(formatIndex++);
           objIndex = (int) (value - 1);
         }
@@ -166,8 +166,8 @@ public class ScanCmd implements Command {
       if ((ch < 0x80) && Character.isDigit(ch)) {
         /* INTL: "C" locale. */
         Util.strtoul(format, formatIndex - 1, 10, interp.strtoulResult);
-        width = (int) interp.strtoulResult.value;
-        formatIndex = interp.strtoulResult.index;
+        width = (int) interp.strtoulResult.getValue();
+        formatIndex = interp.strtoulResult.getIndex();
         ch = format.charAt(formatIndex++);
       } else {
         width = 0;
@@ -378,14 +378,14 @@ public class ScanCmd implements Command {
             String truncString = string.substring(0, stringIndex + width);
             Util.strtoul(truncString, stringIndex, radix, interp.strtoulResult);
           }
-          if (interp.strtoulResult.errno != TCL.INVALID_INTEGER) {
+          if (interp.strtoulResult.getErrno() != TCL.INVALID_INTEGER) {
             long v;
-            if (interp.strtoulResult.errno == TCL.INTEGER_RANGE) {
+            if (interp.strtoulResult.getErrno() == TCL.INTEGER_RANGE) {
               v = -1;
             } else {
-              v = interp.strtoulResult.value;
+              v = interp.strtoulResult.getValue();
             }
-            stringIndex = interp.strtoulResult.index;
+            stringIndex = interp.strtoulResult.getIndex();
             if ((flags & SCAN_SUPPRESS) == 0) {
               objs[objIndex++] = TclInteger.newInstance(v);
             }
@@ -414,10 +414,10 @@ public class ScanCmd implements Command {
             Util.strtod(truncString, stringIndex, -1, interp.strtodResult);
           }
 
-          if (interp.strtodResult.errno == 0) {
-            stringIndex = interp.strtodResult.index;
+          if (interp.strtodResult.getErrno() == 0) {
+            stringIndex = interp.strtodResult.getIndex();
             if ((flags & SCAN_SUPPRESS) == 0) {
-              objs[objIndex++] = TclDouble.newInstance(interp.strtodResult.value);
+              objs[objIndex++] = TclDouble.newInstance(interp.strtodResult.getValue());
             }
           } else {
             if (width == 1 || string.length() == 1) {
@@ -537,7 +537,7 @@ public class ScanCmd implements Command {
            */
           StrtoulResult result = new StrtoulResult();
           Util.strtoul(format, formatIndex - 1, 10, result);
-          int endIndex = result.index;
+          int endIndex = result.getIndex();
           if (endIndex >= format.length()) {
             // ran out of format characters before finding conversion character
             throw new TclException(interp, "bad scan conversion character \"\"");
@@ -555,7 +555,7 @@ public class ScanCmd implements Command {
             if (gotSequential) {
               errorBadField(interp, '$');
             }
-            value = (int) result.value;
+            value = (int) result.getValue();
             objIndex = value - 1;
             if ((objIndex < 0) || (numVars != 0 && (objIndex >= numVars))) {
               errorDiffVars(interp, gotXpg);
@@ -566,7 +566,7 @@ public class ScanCmd implements Command {
                * consider special rules for growing the assign
                * array. 'value' is guaranteed to be > 0.
                */
-              xpgSize = (xpgSize > (int) result.value) ? xpgSize : (int) result.value;
+              xpgSize = (xpgSize > (int) result.getValue()) ? xpgSize : (int) result.getValue();
             }
           }
         } else {
@@ -587,12 +587,12 @@ public class ScanCmd implements Command {
       if ((ch < 0x80) && Character.isDigit(ch)) {
         StrtoulResult result = new StrtoulResult();
         Util.strtoul(format, formatIndex - 1, 10, result);
-        if (result.errno != 0) {
+        if (result.getErrno() != 0) {
           value = 0;
         } else {
-          value = (int) result.value;
+          value = (int) result.getValue();
         }
-        formatIndex = result.index;
+        formatIndex = result.getIndex();
         flags |= SCAN_WIDTH;
         ch = format.charAt(formatIndex++);
       }

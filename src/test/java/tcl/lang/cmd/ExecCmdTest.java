@@ -33,7 +33,7 @@ public class ExecCmdTest extends TclCmdTest {
                   // work, even though these tests fail.
                   "exec-11.5", "exec-17.1"
                 }));
-    String resName = "/tcl/lang/cmd/exec.test";
-    tclTestResource(TCLTEST_NAMEOFEXECUTABLE, resName, expectedFailureList);
+
+    tclTestResource(TCLTEST_NAMEOFEXECUTABLE, "/tcl/lang/cmd/exec.test", expectedFailureList);
   }
 }

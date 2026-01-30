@@ -1266,8 +1266,8 @@ class ParseExpr {
       if (startsWithDigit && Expression.looksLikeInt(s, s.length(), 0, false)) {
         StrtoulResult res = interp.strtoulResult;
         Util.strtoul(s, 0, 0, res);
-        if (res.errno == 0) {
-          term = src + res.index;
+        if (res.getErrno() == 0) {
+          term = src + res.getIndex();
           info.lexeme = LITERAL;
           info.start = src;
           info.size = (term - src);
@@ -1276,7 +1276,7 @@ class ParseExpr {
           return;
         } else {
           parseObj.errorType = Parser.TCL_PARSE_BAD_NUMBER;
-          if (res.errno == TCL.INTEGER_RANGE) {
+          if (res.getErrno() == TCL.INTEGER_RANGE) {
             Expression.IntegerTooLarge(interp);
           } else {
             throw new TclException(interp, "parse bad number");
@@ -1291,11 +1291,11 @@ class ParseExpr {
 
         StrtodResult res = interp.strtodResult;
         Util.strtod(s, 0, -1, res);
-        if (res.index > 0) {
-          if (res.errno != 0) {
+        if (res.getIndex() > 0) {
+          if (res.getErrno() != 0) {
             parseObj.errorType = Parser.TCL_PARSE_BAD_NUMBER;
-            if (res.errno == TCL.DOUBLE_RANGE) {
-              if (res.value != 0) {
+            if (res.getErrno() == TCL.DOUBLE_RANGE) {
+              if (res.getValue() != 0) {
                 Expression.DoubleTooLarge(interp);
               } else {
                 Expression.DoubleTooSmall(interp);
@@ -1308,7 +1308,7 @@ class ParseExpr {
           // string was the start of a valid double, copied
           // from src.
 
-          term = src + res.index;
+          term = src + res.getIndex();
           info.lexeme = LITERAL;
           info.start = src;
           info.size = (term - src);

@@ -165,7 +165,7 @@ public class Parser {
               parse.incomplete = true;
             }
             bs = backslash(script_array, script_index);
-            script_index = bs.nextIndex;
+            script_index = bs.getNextIndex();
           } else if (cur == '\n') {
             script_index++;
             parse.commentSize = script_index - parse.commentStart;
@@ -208,7 +208,7 @@ public class Parser {
               parse.incomplete = true;
             }
             bs = backslash(script_array, script_index);
-            script_index = bs.nextIndex;
+            script_index = bs.getNextIndex();
             continue;
           }
           break;
@@ -303,17 +303,17 @@ public class Parser {
                 token.type = TCL_TOKEN_BS;
                 token.script_array = script_array;
                 token.script_index = script_index;
-                token.size = bs.nextIndex - script_index;
+                token.size = bs.getNextIndex() - script_index;
                 token.numComponents = 0;
                 parse.numTokens++;
-                script_index = bs.nextIndex;
+                script_index = bs.getNextIndex();
                 token = parse.getToken(parse.numTokens);
                 token.type = TCL_TOKEN_TEXT;
                 token.script_array = script_array;
                 token.script_index = script_index;
                 token.numComponents = 0;
               } else {
-                script_index = bs.nextIndex;
+                script_index = bs.getNextIndex();
               }
             } else if (script_index == parse.endIndex) {
               parse.termIndex = parse.getToken(wordIndex).script_index;
@@ -664,8 +664,8 @@ public class Parser {
         bs = backslash(script_array, script_index);
         token.type = TCL_TOKEN_BS;
 
-        // token.size = bs.nextIndex - script_index;
-        token.size = bs.count;
+        // token.size = bs.getNextIndex() - script_index;
+        token.size = bs.getCount();
         if (token.size == 1) {
           // Just a backslash, due to end of string
           token.type = TCL_TOKEN_TEXT;
@@ -964,10 +964,10 @@ public class Parser {
 
         case TCL_TOKEN_BS:
           bs = backslash(token.script_array, token.script_index);
-          if (bs.isWordSep) {
-            p = "\\" + bs.c;
+          if (bs.isWordSep()) {
+            p = "\\" + bs.getC();
           } else {
-            Character ch = Character.valueOf(bs.c);
+            Character ch = Character.valueOf(bs.getC());
             p = ch.toString();
           }
           break;
@@ -1937,7 +1937,7 @@ public class Parser {
           break;
         case '\\':
           bs = backslash(script_array, src);
-          length = bs.count;
+          length = bs.getCount();
           if ((length > 1) && (script_array[src + 1] == '\n')) {
             // A backslash-newline sequence must be collapsed, even
             // inside braces, so we have to split the word into

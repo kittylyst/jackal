@@ -46,7 +46,7 @@ class ParseAdaptor {
 
     index--;
     result = Parser.parseVar(interp, string.substring(index, length));
-    result.nextIndex += index;
+    result.setNextIndex(result.getNextIndex() + index);
     return (result);
   }
 
@@ -230,7 +230,7 @@ class ParseAdaptor {
         i++;
       } else if (arr[i] == '\\') {
         BackSlashResult bs = Parser.backslash(arr, i);
-        i = bs.nextIndex;
+        i = bs.getNextIndex();
       } else {
         i++;
       }

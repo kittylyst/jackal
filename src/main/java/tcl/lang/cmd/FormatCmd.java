@@ -154,8 +154,8 @@ public class FormatCmd implements Command {
         // the number.
 
         stoul = FormatCmd.strtoul(interp, format, fmtIndex);
-        intValue = (int) stoul.value;
-        endIndex = stoul.index;
+        intValue = (int) stoul.getValue();
+        endIndex = stoul.getIndex();
         stoul = null;
 
         if (format[endIndex] == '$') {
@@ -260,8 +260,8 @@ public class FormatCmd implements Command {
       checkOverFlow(interp, format, fmtIndex);
       if (Character.isDigit(format[fmtIndex])) {
         stoul = FormatCmd.strtoul(interp, format, fmtIndex);
-        width = (int) stoul.value;
-        fmtIndex = stoul.index;
+        width = (int) stoul.getValue();
+        fmtIndex = stoul.getIndex();
         stoul = null;
       } else if (format[fmtIndex] == '*') {
         if (argv.length > argIndex) {
@@ -285,8 +285,8 @@ public class FormatCmd implements Command {
         if (Character.isDigit(format[fmtIndex])) {
           precisionSet = true;
           stoul = FormatCmd.strtoul(interp, format, fmtIndex);
-          precision = (int) stoul.value;
-          fmtIndex = stoul.index;
+          precision = (int) stoul.getValue();
+          fmtIndex = stoul.getIndex();
           stoul = null;
         } else if (format[fmtIndex] == '*') {
           if (argv.length > argIndex) {

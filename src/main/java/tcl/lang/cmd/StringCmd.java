@@ -410,8 +410,8 @@ public class StringCmd implements Command {
                 if (Expression.looksLikeInt(string1, length1, 0, false)) {
                   StrtoulResult res = interp.strtoulResult;
                   Util.strtoul(string1, 0, 0, res);
-                  if (res.index == length1) {
-                    if (res.errno == TCL.INTEGER_RANGE) {
+                  if (res.getIndex() == length1) {
+                    if (res.getErrno() == TCL.INTEGER_RANGE) {
                       result = false;
                       failat = -1;
                     }
@@ -421,7 +421,7 @@ public class StringCmd implements Command {
 
                 StrtodResult res = interp.strtodResult;
                 Util.strtod(string1, 0, -1, res);
-                if (res.errno == TCL.DOUBLE_RANGE) {
+                if (res.getErrno() == TCL.DOUBLE_RANGE) {
                   // if (errno == ERANGE), then it was an over/underflow
                   // problem, but in this method, we only want to know
                   // yes or no, so bad flow returns 0 (false) and sets
@@ -429,7 +429,7 @@ public class StringCmd implements Command {
 
                   result = false;
                   failat = -1;
-                } else if (res.index == 0) {
+                } else if (res.getIndex() == 0) {
                   // In this case, nothing like a number was found
 
                   result = false;
@@ -438,8 +438,8 @@ public class StringCmd implements Command {
                   // Go onto SPACE, since we are
                   // allowed trailing whitespace
 
-                  failat = res.index;
-                  for (int i = res.index; i < length1; i++) {
+                  failat = res.getIndex();
+                  for (int i = res.getIndex(); i < length1; i++) {
                     if (!Character.isWhitespace(string1.charAt(i))) {
                       result = false;
                       break;
@@ -462,9 +462,9 @@ public class StringCmd implements Command {
 
                 StrtoulResult res = interp.strtoulResult;
                 Util.strtoul(string1, 0, 0, res);
-                if (res.errno == TCL.INTEGER_RANGE
-                    || res.value > Integer.MAX_VALUE
-                    || res.value < Integer.MIN_VALUE) {
+                if (res.getErrno() == TCL.INTEGER_RANGE
+                    || res.getValue() > Integer.MAX_VALUE
+                    || res.getValue() < Integer.MIN_VALUE) {
                   // if (errno == ERANGE), then it was an over/underflow
                   // problem, but in this method, we only want to know
                   // yes or no, so bad flow returns false and sets
@@ -472,7 +472,7 @@ public class StringCmd implements Command {
 
                   result = false;
                   failat = -1;
-                } else if (res.index == 0) {
+                } else if (res.getIndex() == 0) {
                   // In this case, nothing like a number was found
 
                   result = false;
@@ -481,8 +481,8 @@ public class StringCmd implements Command {
                   // Go onto SPACE, since we are
                   // allowed trailing whitespace
 
-                  failat = res.index;
-                  for (int i = res.index; i < length1; i++) {
+                  failat = res.getIndex();
+                  for (int i = res.getIndex(); i < length1; i++) {
                     if (!Character.isWhitespace(string1.charAt(i))) {
                       result = false;
                       break;
@@ -505,7 +505,7 @@ public class StringCmd implements Command {
 
                 StrtoulResult res = interp.strtoulResult;
                 Util.strtoul(string1, 0, 0, res);
-                if (res.errno == TCL.INTEGER_RANGE) {
+                if (res.getErrno() == TCL.INTEGER_RANGE) {
                   // if (errno == ERANGE), then it was an over/underflow
                   // problem, but in this method, we only want to know
                   // yes or no, so bad flow returns false and sets
@@ -513,7 +513,7 @@ public class StringCmd implements Command {
 
                   result = false;
                   failat = -1;
-                } else if (res.index == 0) {
+                } else if (res.getIndex() == 0) {
                   // In this case, nothing like a number was found
 
                   result = false;
@@ -522,8 +522,8 @@ public class StringCmd implements Command {
                   // Go onto SPACE, since we are
                   // allowed trailing whitespace
 
-                  failat = res.index;
-                  for (int i = res.index; i < length1; i++) {
+                  failat = res.getIndex();
+                  for (int i = res.getIndex(); i < length1; i++) {
                     if (!Character.isWhitespace(string1.charAt(i))) {
                       result = false;
                       break;

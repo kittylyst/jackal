@@ -176,22 +176,58 @@ public class JavaProcess extends TclProcess {
                   buf[0] = (byte) (b & 0xFF);
                   tclbuf = TclByteArray.newInstance(buf);
                   try {
-                    stdoutRedirect.channel.write(interp, tclbuf);
+                    try {
+                      stdoutRedirect.channel.waitForOwnership(Channel.WRITE_OWNERSHIP);
+                    } catch (InterruptedException e) {
+                      Thread.currentThread().interrupt();
+                      throw new IOException("interrupted", e);
+                    }
+                    try {
+                      stdoutRedirect.channel.write(interp, tclbuf);
+                    } finally {
+                      stdoutRedirect.channel.setOwnership(false, Channel.WRITE_OWNERSHIP);
+                    }
                   } catch (TclException e) {
                     throw new IOException(e.getMessage());
                   }
                 }
 
-                /*
-                 * (non-Javadoc)
-                 *
-                 * @see java.io.OutputStream#flush()
-                 */
+                @Override
+                public void write(byte[] b, int off, int len) throws IOException {
+                  if (len <= 0) return;
+                  TclObject tclbuf = TclByteArray.newInstance(b, off, len);
+                  try {
+                    try {
+                      stdoutRedirect.channel.waitForOwnership(Channel.WRITE_OWNERSHIP);
+                    } catch (InterruptedException e) {
+                      Thread.currentThread().interrupt();
+                      throw new IOException("interrupted", e);
+                    }
+                    try {
+                      stdoutRedirect.channel.write(interp, tclbuf);
+                    } finally {
+                      stdoutRedirect.channel.setOwnership(false, Channel.WRITE_OWNERSHIP);
+                    }
+                  } catch (TclException e) {
+                    throw new IOException(e.getMessage());
+                  }
+                }
+
                 @Override
                 public void flush() throws IOException {
                   super.flush();
                   try {
-                    stdoutRedirect.channel.flush(interp);
+                    try {
+                      stdoutRedirect.channel.waitForOwnership(Channel.WRITE_OWNERSHIP);
+                    } catch (InterruptedException e) {
+                      Thread.currentThread().interrupt();
+                      throw new IOException("interrupted", e);
+                    }
+                    try {
+                      stdoutRedirect.channel.flush(interp);
+                    } finally {
+                      stdoutRedirect.channel.setOwnership(false, Channel.WRITE_OWNERSHIP);
+                    }
                   } catch (TclException e) {
                     throw new IOException(e.getMessage());
                   }

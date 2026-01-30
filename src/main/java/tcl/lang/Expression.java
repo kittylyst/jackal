@@ -507,19 +507,19 @@ public class Expression {
 
       StrtoulResult res = interp.strtoulResult;
       Util.strtoul(s, 0, 0, res);
-      // String token = s.substring(i, res.index);
+      // String token = s.substring(i, res.getIndex());
       // System.out.println("token string from strtoul is \"" + token +
       // "\"");
-      // System.out.println("res.errno is " + res.errno);
+      // System.out.println("res.getErrno() is " + res.getErrno());
 
-      if (res.errno == 0) {
+      if (res.getErrno() == 0) {
         // We treat this string as a number if all the charcters
         // following the parsed number are a whitespace chars.
         // E.g.: " 1", "1", "1 ", and " 1 " are all good numbers
 
         boolean trailing_blanks = true;
 
-        for (int i = res.index; i < len; i++) {
+        for (int i = res.getIndex(); i < len; i++) {
           if ((c = s.charAt(i)) != ' ' && !Character.isWhitespace(c)) {
             trailing_blanks = false;
             break;
@@ -527,7 +527,7 @@ public class Expression {
         }
 
         if (trailing_blanks) {
-          ival = res.value;
+          ival = res.getValue();
           // System.out.println("string is an Integer of value " +
           // ival);
           value.setIntValue(ival, s);
@@ -543,12 +543,12 @@ public class Expression {
       StrtodResult res = interp.strtodResult;
       Util.strtod(s, 0, len, res);
 
-      if (res.errno == 0) {
+      if (res.getErrno() == 0) {
         // Trailing whitespaces are treated just like the Integer case
 
         boolean trailing_blanks = true;
 
-        for (int i = res.index; i < len; i++) {
+        for (int i = res.getIndex(); i < len; i++) {
           if ((c = s.charAt(i)) != ' ' && !Character.isWhitespace(c)) {
             trailing_blanks = false;
             break;
@@ -556,7 +556,7 @@ public class Expression {
         }
 
         if (trailing_blanks) {
-          dval = res.value;
+          dval = res.getValue();
           // System.out.println("string is a Double of value " +
           // dval);
           value.setDoubleValue(dval, s);
@@ -1328,31 +1328,31 @@ public class Expression {
         StrtoulResult res = interp.strtoulResult;
         Util.strtoul(m_expr, m_ind, 0, res);
 
-        if (res.errno == 0) {
-          String token = m_expr.substring(m_ind, res.index);
-          m_ind = res.index;
+        if (res.getErrno() == 0) {
+          String token = m_expr.substring(m_ind, res.getIndex());
+          m_ind = res.getIndex();
           m_token = VALUE;
           ExprValue value = grabExprValue();
-          value.setIntValue(res.value, token);
+          value.setIntValue(res.getValue(), token);
           return value;
         } else {
-          if (res.errno == TCL.INTEGER_RANGE) {
+          if (res.getErrno() == TCL.INTEGER_RANGE) {
             IntegerTooLarge(interp);
           }
         }
       } else if (startsWithDigit || (c == '.') || (c == 'n') || (c == 'N')) {
         StrtodResult res = interp.strtodResult;
         Util.strtod(m_expr, m_ind, -1, res);
-        if (res.errno == 0) {
-          String token = m_expr.substring(m_ind, res.index);
-          m_ind = res.index;
+        if (res.getErrno() == 0) {
+          String token = m_expr.substring(m_ind, res.getIndex());
+          m_ind = res.getIndex();
           m_token = VALUE;
           ExprValue value = grabExprValue();
-          value.setDoubleValue(res.value, token);
+          value.setDoubleValue(res.getValue(), token);
           return value;
         } else {
-          if (res.errno == TCL.DOUBLE_RANGE) {
-            if (res.value != 0) {
+          if (res.getErrno() == TCL.DOUBLE_RANGE) {
+            if (res.getValue() != 0) {
               DoubleTooLarge(interp);
             } else {
               DoubleTooSmall(interp);
@@ -1370,28 +1370,28 @@ public class Expression {
       case '$':
         m_token = VALUE;
         pres = ParseAdaptor.parseVar(interp, m_expr, m_ind, m_len);
-        m_ind = pres.nextIndex;
+        m_ind = pres.getNextIndex();
 
         if (interp.noEval != 0) {
           retval = grabExprValue();
           retval.setIntValue(0);
         } else {
           retval = grabExprValue();
-          ExprParseObject(interp, pres.value, retval);
+          ExprParseObject(interp, pres.getValue(), retval);
         }
         pres.release();
         return retval;
       case '[':
         m_token = VALUE;
         pres = ParseAdaptor.parseNestedCmd(interp, m_expr, m_ind, m_len);
-        m_ind = pres.nextIndex;
+        m_ind = pres.getNextIndex();
 
         if (interp.noEval != 0) {
           retval = grabExprValue();
           retval.setIntValue(0);
         } else {
           retval = grabExprValue();
-          ExprParseObject(interp, pres.value, retval);
+          ExprParseObject(interp, pres.getValue(), retval);
         }
         pres.release();
         return retval;
@@ -1403,7 +1403,7 @@ public class Expression {
         // + m_ind);
 
         pres = ParseAdaptor.parseQuotes(interp, m_expr, m_ind, m_len);
-        m_ind = pres.nextIndex;
+        m_ind = pres.getNextIndex();
 
         // System.out.println("after parse next index is " + m_ind);
 
@@ -1413,22 +1413,22 @@ public class Expression {
           retval.setIntValue(0);
         } else {
           // System.out.println("returning value string ->" +
-          // pres.value.toString() + "<-" );
+          // pres.getValue().toString() + "<-" );
           retval = grabExprValue();
-          ExprParseObject(interp, pres.value, retval);
+          ExprParseObject(interp, pres.getValue(), retval);
         }
         pres.release();
         return retval;
       case '{':
         m_token = VALUE;
         pres = ParseAdaptor.parseBraces(interp, m_expr, m_ind, m_len);
-        m_ind = pres.nextIndex;
+        m_ind = pres.getNextIndex();
         if (interp.noEval != 0) {
           retval = grabExprValue();
           retval.setIntValue(0);
         } else {
           retval = grabExprValue();
-          ExprParseObject(interp, pres.value, retval);
+          ExprParseObject(interp, pres.getValue(), retval);
         }
         pres.release();
         return retval;

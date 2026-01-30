@@ -107,11 +107,11 @@ public class SubstCmd implements Command {
            * $var(array_value). Can't get break, continue or return
            * exception in any other variable form
            */
-          result.append(vres.value.toString()); // var sub with no
+          result.append(vres.getValue().toString()); // var sub with no
           // exception
-          i += vres.nextIndex;
+          i += vres.getNextIndex();
         } catch (TclException e) {
-          i = doCmdOrVarSub(e, s, i, vres == null ? "" : vres.value.toString(), result, interp);
+          i = doCmdOrVarSub(e, s, i, vres == null ? "" : vres.getValue().toString(), result, interp);
         } finally {
           if (vres != null) {
             vres.release();
@@ -123,11 +123,11 @@ public class SubstCmd implements Command {
          * Substitute for backslash
          */
         BackSlashResult bs = Interp.backslash(s, i, len);
-        i = bs.nextIndex;
-        if (bs.isWordSep) {
+        i = bs.getNextIndex();
+        if (bs.isWordSep()) {
           break;
         } else {
-          result.append(bs.c);
+          result.append(bs.getC());
         }
 
         /*

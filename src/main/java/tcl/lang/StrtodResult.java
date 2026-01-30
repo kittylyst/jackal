@@ -28,20 +28,29 @@ public class StrtodResult {
    * If the number cannot be converted to a valid signed 64-bit double,
    * contains the error code (TCL.DOUBLE_RANGE or TCL.UNVALID_DOUBLE).
    */
-
-  public int errno;
+  private int errno;
 
   /*
    * If errno is 0, points to the character right after the number
    */
-
-  public int index;
+  private int index;
 
   /*
    * If errno is 0, contains the value of the number.
    */
+  private double value;
 
-  public double value;
+  public int getErrno() {
+    return errno;
+  }
+
+  public int getIndex() {
+    return index;
+  }
+
+  public double getValue() {
+    return value;
+  }
 
   // Update a StrtodResult. Note that there is typically
   // just one StrtodResult for each interp.

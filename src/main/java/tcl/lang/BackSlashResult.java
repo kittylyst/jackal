@@ -17,15 +17,31 @@ package tcl.lang;
 /** Encapsulates the replacement for a backslash in the parser */
 public class BackSlashResult {
   /** character to replace backslash sequence with */
-  public char c;
+  private char c;
 
   /** script index that follows backslash sequence */
-  public int nextIndex;
+  private int nextIndex;
 
-  public boolean isWordSep;
+  private boolean isWordSep;
 
   /** Number of characters in the backslash sequence */
-  int count;
+  private int count;
+
+  public char getC() {
+    return c;
+  }
+
+  public int getNextIndex() {
+    return nextIndex;
+  }
+
+  public boolean isWordSep() {
+    return isWordSep;
+  }
+
+  int getCount() {
+    return count;
+  }
 
   /**
    * @param c character ro replace the backslash sequence with
@@ -42,7 +58,7 @@ public class BackSlashResult {
   BackSlashResult(char c, int nextIndex, boolean isWordSep, int count) {
     this.c = c;
     this.nextIndex = nextIndex;
-    this.isWordSep = false;
+    this.isWordSep = isWordSep;
     this.count = count;
   }
 }

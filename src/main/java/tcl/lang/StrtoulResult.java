@@ -23,13 +23,25 @@ public class StrtoulResult {
    * If the conversion is successful, errno = 0; If the number cannot be converted to a valid
    * unsigned 32-bit integer, contains the error code (TCL.INTEGER_RANGE or TCL.INVALID_INTEGER).
    */
-  public int errno = 0;
+  private int errno = 0;
 
   /** If errno is 0, points to the character right after the number */
-  public int index = -1;
+  private int index = -1;
 
   /** If errno is 0, contains the value of the number. */
-  public long value = 0;
+  private long value = 0;
+
+  public int getErrno() {
+    return errno;
+  }
+
+  public int getIndex() {
+    return index;
+  }
+
+  public long getValue() {
+    return value;
+  }
 
   /**
    * Update a StrtoulResult. Note that there is typically just one StrtoulResult for each interp.
