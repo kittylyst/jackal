@@ -80,7 +80,7 @@ public class DictCmd implements Command {
 			TclObject dictObj = null;
 			try {
 				dictObj = interp.getVar(objv[2], 0);
-			} catch (TclException _) {
+			} catch (TclException ignored) {
 				// Var doesn't exist: create it
 				dictObj = TclDict.newInstance();
 				dictObj.preserve();
@@ -380,7 +380,7 @@ public class DictCmd implements Command {
 			TclObject dictObj = null;
 			try {
 				dictObj = interp.getVar(objv[2], 0);
-			} catch (TclException _) {
+			} catch (TclException ignored) {
 				// Var doesn't exist: create it
 				dictObj = TclDict.newInstance();
 				dictObj.preserve();
@@ -484,7 +484,7 @@ public class DictCmd implements Command {
 			TclObject dictObj = null;
 			try {
 				dictObj = interp.getVar(objv[2], 0);
-			} catch (TclException _) {
+			} catch (TclException ignored) {
 				// Var doesn't exist: create it
 				dictObj = TclDict.newInstance();
 				dictObj.preserve();
@@ -607,7 +607,7 @@ public class DictCmd implements Command {
 			TclObject dict = null;
 			try {
 				dict = interp.getVar(objv[2], 0);
-			} catch (TclException _) {
+			} catch (TclException ignored) {
 				// Var doesn't exist: create it
 				dict = TclDict.newInstance();
 				dict.preserve();
@@ -655,7 +655,7 @@ public class DictCmd implements Command {
 			TclObject dict = null;
 			try {
 				dict = interp.getVar(objv[2], 0);
-			} catch (TclException _) {
+			} catch (TclException ignored) {
 				// Var doesn't exist: create it (yes, even unset creates the
 				// var!)
 				dict = TclDict.newInstance();
@@ -694,7 +694,7 @@ public class DictCmd implements Command {
 			TclObject dict = null;
 			try {
 				dict = interp.getVar(objv[2], 0);
-			} catch (TclException _) {
+			} catch (TclException ignored) {
 				// Var doesn't exist: create it
 				dict = TclDict.newInstance();
 				dict.preserve();
@@ -708,7 +708,7 @@ public class DictCmd implements Command {
 					// Make sure the var is unset
 					try {
 						interp.unsetVar(objv[i + 1], 0);
-					} catch (TclException _) {
+					} catch (TclException ignored) {
 					}
 				}
 			}
@@ -730,7 +730,7 @@ public class DictCmd implements Command {
 				// still readable.
 				try {
 					interp.getVar(objv[2], 0);
-				} catch (TclException _) {
+				} catch (TclException ignored) {
 					// No longer readable - ignore
 					interp.resetResult();
 					return;
@@ -743,7 +743,7 @@ public class DictCmd implements Command {
 					TclObject newVal = null;
 					try {
 						newVal = interp.getVar(objv[i + 1], 0);
-					} catch (TclException _) {
+					} catch (TclException ignored) {
 						// Var was unset
 						newVal = null;
 					}
@@ -849,7 +849,7 @@ public class DictCmd implements Command {
 			// still readable
 			try {
 				interp.getVar(objv[2], 0);
-			} catch (TclException _) {
+			} catch (TclException ignored) {
 				interp.resetResult();
 				return;
 			}
@@ -862,7 +862,7 @@ public class DictCmd implements Command {
 				TclObject val = null;
 				try {
 					val = interp.getVar(key, 0);
-				} catch (TclException _) {
+				} catch (TclException ignored) {
 					val = null;
 				}
 				if (val != null) {
