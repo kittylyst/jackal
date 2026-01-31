@@ -22,12 +22,9 @@ import tcl.lang.Namespace;
 import tcl.lang.Parser;
 import tcl.lang.TCL;
 import tcl.lang.TclDouble;
-import tcl.lang.TclException;
 import tcl.lang.TclInteger;
 import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.TclString;
 import tcl.lang.Util;
 import tcl.lang.Var;
@@ -36,6 +33,9 @@ import tcl.lang.cmd.LappendCmd;
 import tcl.lang.cmd.LindexCmd;
 import tcl.lang.cmd.ProcCmd;
 import tcl.lang.cmd.SwitchCmd;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
 
 public class TJC {
 

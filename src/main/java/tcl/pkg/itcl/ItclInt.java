@@ -35,11 +35,11 @@ import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.Namespace;
 import tcl.lang.Procedure;
-import tcl.lang.TclException;
 import tcl.lang.TclObject;
 import tcl.lang.Var;
 import tcl.lang.VarTrace;
 import tcl.lang.WrappedCommand;
+import tcl.lang.exception.TclException;
 
 class ItclObjectInfo implements AssocData, ItclEventuallyFreed {
 

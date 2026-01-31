@@ -16,6 +16,7 @@ package tcl.lang;
 
 import java.util.ArrayList;
 import java.util.Map;
+import tcl.lang.exception.TclException;
 
 /**
  * A Wrapped Command is like the Command struct defined in the C version in the file

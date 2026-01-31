@@ -17,12 +17,12 @@ import tcl.lang.ConsoleThread;
 import tcl.lang.Interp;
 import tcl.lang.Notifier;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
 import tcl.lang.TclInteger;
 import tcl.lang.TclList;
 import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.TclString;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 public class TJCShell {
 

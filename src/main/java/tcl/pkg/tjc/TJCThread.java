@@ -23,10 +23,10 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
 import tcl.lang.TclList;
 import tcl.lang.TclObject;
 import tcl.lang.TclString;
+import tcl.lang.exception.TclException;
 import tcl.pkg.java.ReflectObject;
 
 public class TJCThread implements Runnable {

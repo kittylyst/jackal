@@ -2,13 +2,13 @@ package tcl.lang.cmd;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
 import tcl.lang.TclInteger;
 import tcl.lang.TclList;
 import tcl.lang.TclObject;
 import tcl.lang.channel.Channel;
 import tcl.lang.channel.PipelineChannel;
+import tcl.lang.exception.TclException;
 
 /**
  * implement TCL 'pid' command. JVM doesn't support PID queries directly so we play some tricks

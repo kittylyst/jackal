@@ -12,10 +12,10 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
 import tcl.lang.TclObject;
 import tcl.lang.TclString;
+import tcl.lang.exception.TclException;
 
 /**
  * The SocketChannel class implements a channel object for Socket connections, created using the

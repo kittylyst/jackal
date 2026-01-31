@@ -12,6 +12,8 @@
 package tcl.lang;
 
 import java.util.Arrays;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * This class contains methods that parse Tcl scripts. They do so in a general-purpose fashion that

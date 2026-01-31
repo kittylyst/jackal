@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+import tcl.lang.exception.PackageNameException;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * TclClassLoader.java --

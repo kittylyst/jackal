@@ -6,6 +6,7 @@ package tcl.pkg.fleet;
 
 import java.util.ArrayList;
 import tcl.lang.*;
+import tcl.lang.exception.TclException;
 
 /**
  * @author brucejohnson

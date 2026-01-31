@@ -2,12 +2,12 @@ package tcl.lang.channel;
 
 import java.net.InetAddress;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
 import tcl.lang.TclInteger;
 import tcl.lang.TclList;
 import tcl.lang.TclObject;
 import tcl.lang.TclString;
+import tcl.lang.exception.TclException;
 
 /** This abstract class allows fconfigure to query information about a socket channel */
 public abstract sealed class AbstractSocketChannel extends Channel

@@ -37,12 +37,12 @@ import tcl.lang.CallFrame;
 import tcl.lang.Interp;
 import tcl.lang.Namespace;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
 import tcl.lang.TclList;
 import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.TclString;
 import tcl.lang.WrappedCommand;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 //  These records are used to keep track of reference-counted data
 //  for Itcl_PreserveData and Itcl_ReleaseData.

@@ -38,7 +38,7 @@ import tcl.lang.AssocData;
 import tcl.lang.Command;
 import tcl.lang.CommandWithDispose;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
+import tcl.lang.exception.TclException;
 
 //  These records store the refs for the RegisterObjC function.
 

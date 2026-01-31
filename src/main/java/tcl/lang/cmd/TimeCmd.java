@@ -16,11 +16,11 @@ package tcl.lang.cmd;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
 import tcl.lang.TclInteger;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.lang.TclString;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
 
 /** This class implements the built-in "time" command in Tcl. */
 public final class TimeCmd implements Command {

@@ -14,6 +14,9 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+
 class ParseAdaptor {
 
   /*

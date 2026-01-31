@@ -25,9 +25,6 @@ public interface EventDeleter {
    * This method is called once for each event in the event queue. It returns 1 for all events that
    * should be deleted and 0 for events that should remain in the queue.
    *
-   * <p>If this method determines that an event should be removed, it should perform appropriate
-   * clean up on the event object.
-   *
    * @param evt Event to test whether it should be removed
    * @return 1 means evt should be removed from the event queue. 0 otherwise.
    */

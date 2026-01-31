@@ -16,6 +16,10 @@ import tcl.lang.cmd.InterpAliasCmd;
 import tcl.lang.cmd.InterpSlaveCmd;
 import tcl.lang.cmd.PackageCmd;
 import tcl.lang.cmd.RegexpCmd;
+import tcl.lang.exception.PackageNameException;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclPosixException;
+import tcl.lang.exception.TclRuntimeError;
 import tcl.pkg.java.ReflectObject;
 
 /**

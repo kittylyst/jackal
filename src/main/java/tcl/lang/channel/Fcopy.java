@@ -4,8 +4,8 @@ import java.io.IOException;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
 import tcl.lang.TclEvent;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
+import tcl.lang.exception.TclException;
 
 /**
  * This class implements an efficient copy between Channels

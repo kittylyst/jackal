@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
 import tcl.lang.TclEvent;
-import tcl.lang.TclException;
 import tcl.lang.TclList;
 import tcl.lang.TclObject;
 import tcl.lang.TclString;
+import tcl.lang.exception.TclException;
 import tcl.pkg.java.ReflectObject;
 
 public class TJCReadyVar implements TJCThread.CompiledClassReady {

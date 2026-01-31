@@ -14,6 +14,9 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+
 /*
  * This file is adapted from the JDK 1.0 QSortAlgorithm.java demo program.
  * Original copyright notice is preserveed below.

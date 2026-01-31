@@ -16,14 +16,14 @@ package tcl.lang.cmd;
 import java.io.IOException;
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
 import tcl.lang.TclIndex;
 import tcl.lang.TclInteger;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.channel.Channel;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
 
 /** This class implements the built-in "seek" command in Tcl. */
 public final class SeekCmd implements Command {

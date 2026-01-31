@@ -18,12 +18,12 @@ package tcl.lang.cmd;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
 import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.Util;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
 
 /*
  * This class implements the built-in "lindex" command in Tcl.

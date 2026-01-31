@@ -17,6 +17,8 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclRuntimeError;
+
 /**
  * This is an abstract class that describes an event in the Jacl implementation of the notifier. It
  * contains package protected fields and methods that are accessed by the Jacl notifier. Tcl Blend
@@ -45,17 +47,7 @@ public abstract class TclEvent {
   /** Links to the next event in the event queue. */
   TclEvent next;
 
-  /**
-   * Process the event. Override this method to implement new types of events.
-   *
-   * <p>Note: this method is called by the primary thread of the notifier.
-   *
-   * @param flags Miscellaneous flag values: may be any combination of TCL.DONT_WAIT,
-   *     TCL.WINDOW_EVENTS, TCL.FILE_EVENTS, TCL.TIMER_EVENTS, TCL.IDLE_EVENTS, or others defined by
-   *     event sources - this is the same as the flags passed to Notifier.doOneEvent()
-   * @return 1 means the event has been processed and can be removed from the event queue. 0 means
-   *     the event should be deferred for processing later.
-   */
+  /** Process the event. Override this method to implement new types of events. */
   public abstract int processEvent(int flags);
 
   /** Wait until this event has been processed. */
@@ -75,10 +67,6 @@ public abstract class TclEvent {
           try {
             wait(0);
           } catch (InterruptedException e) {
-            // Another thread has sent us an "interrupt"
-            // signal. We ignore it and continue waiting until
-            // the event is processed.
-
             continue;
           }
         }

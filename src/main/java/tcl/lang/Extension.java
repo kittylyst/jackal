@@ -14,6 +14,9 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.PackageNameException;
+import tcl.lang.exception.TclException;
+
 /**
  * Base class for all Tcl Extensions. A Tcl Extension defines a set of commands that can be loaded
  * into an Interp as a single unit.

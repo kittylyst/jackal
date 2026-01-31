@@ -18,6 +18,9 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+
 class ParseExpr {
 
   // Definitions of the different lexemes that appear in expressions. The

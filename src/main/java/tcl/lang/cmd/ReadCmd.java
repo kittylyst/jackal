@@ -17,13 +17,13 @@ import java.io.IOException;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclByteArray;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
 import tcl.lang.TclInteger;
 import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.TclString;
 import tcl.lang.channel.Channel;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 /** This class implements the built-in "read" command in Tcl. */
 public final class ReadCmd implements Command {

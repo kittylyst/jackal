@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 import tcl.lang.channel.Channel;
 import tcl.lang.channel.TclByteArrayChannel;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclPosixException;
 import tcl.lang.process.Redirect;
 import tcl.lang.process.TclProcess;
 

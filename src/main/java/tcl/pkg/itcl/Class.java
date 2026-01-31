@@ -37,6 +37,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import tcl.lang.*;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 // Note: ItclResolvedVarInfo structure not ported since it seems
 // to be used only in the bytecode compiler implementation.

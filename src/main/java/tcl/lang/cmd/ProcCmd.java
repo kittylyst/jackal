@@ -19,10 +19,10 @@ import tcl.lang.Interp;
 import tcl.lang.Namespace;
 import tcl.lang.Procedure;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.lang.WrappedCommand;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
 
 /** This class implements the built-in "proc" command in Tcl. */
 public final class ProcCmd implements Command {

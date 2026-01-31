@@ -15,6 +15,7 @@ package tcl.lang;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * This class implements the basic notion of an "object" in Tcl. The fundamental representation of

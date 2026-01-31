@@ -16,6 +16,8 @@ package tcl.lang;
 
 import java.util.Date;
 import java.util.HashMap;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 /** This class handles Tcl expressions. */
 public class Expression {

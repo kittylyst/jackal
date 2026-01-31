@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
-import tcl.lang.TclPosixException;
-import tcl.lang.TclRuntimeError;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclPosixException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * This abstract class represents a process that may be executed from Tcl. Individual platforms

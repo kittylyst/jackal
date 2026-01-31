@@ -15,6 +15,8 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+
 /**
  * This interface is used to make variable traces. To make a variable trace, write a class that
  * implements the VarTrace and call Interp.traceVar with an instance of that class.

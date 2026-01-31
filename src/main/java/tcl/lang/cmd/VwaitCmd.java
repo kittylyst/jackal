@@ -17,12 +17,12 @@ package tcl.lang.cmd;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.lang.Var;
 import tcl.lang.VarTrace;
 import tcl.lang.channel.FileEvent;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
 
 /*
  * This class implements the built-in "vwait" command in Tcl.

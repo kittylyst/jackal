@@ -2,10 +2,10 @@ package tcl.pkg.java;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * This class implements a small helper function that is used to load the Java package into Jacl.

@@ -54,13 +54,13 @@ import tcl.lang.Interp;
 import tcl.lang.Namespace;
 import tcl.lang.Resolver;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
 import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.lang.TclString;
 import tcl.lang.Var;
 import tcl.lang.WrappedCommand;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
 
 public class Parse {
 

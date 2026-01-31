@@ -17,10 +17,10 @@ import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.StrtoulResult;
 import tcl.lang.TclDouble;
-import tcl.lang.TclException;
 import tcl.lang.TclInteger;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
 
 /** This class implements the built-in "format" command in Tcl. */
 public final class FormatCmd implements Command {

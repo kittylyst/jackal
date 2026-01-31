@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * This structure contains a cached pointer to a namespace that is the result of resolving the

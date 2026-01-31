@@ -15,6 +15,8 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+
 /**
  * Class which is used as the Command implementation inside a WrappedCommand that has been imported
  * into another namespace. The cmd member of a Wrapped command will be set to an instance of this

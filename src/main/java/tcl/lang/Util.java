@@ -15,6 +15,10 @@
 package tcl.lang;
 
 import tcl.lang.cmd.FormatCmd;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.regex.Regex;
+import tcl.lang.regex.TclRegexp;
 
 public class Util {
 

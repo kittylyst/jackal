@@ -16,6 +16,8 @@
 package tcl.lang;
 
 import tcl.lang.cmd.EncodingCmd;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * The Shell class is similar to the Tclsh program: you can use it to execute a Tcl script or enter

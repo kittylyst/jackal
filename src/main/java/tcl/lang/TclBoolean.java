@@ -13,6 +13,8 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+
 /** This class implements the boolean object type in Tcl. */
 public class TclBoolean implements InternalRep {
   /** Internal representations for all TclBooleans. */

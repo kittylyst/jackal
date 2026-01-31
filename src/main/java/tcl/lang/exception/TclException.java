@@ -14,7 +14,10 @@
  *
  */
 
-package tcl.lang;
+package tcl.lang.exception;
+
+import tcl.lang.Interp;
+import tcl.lang.TCL;
 
 /**
  * TclException is used to interrupt the Tcl script currently being interpreted by the Tcl
@@ -52,24 +55,8 @@ public class TclException extends Exception {
   /**
    * Create an TclException with the given error message and completion code and indicate the
    * location of the error in a script.
-   *
-   * <p>Results: None.
-   *
-   * <p>Side effects: The instance fields are initialized; the message is assigned to the
-   * interpreter's result if interp is non-null.
-   *
-   * @param interp current interpreter; may be null
-   * @param msg error message
-   * @param ccode completion code (TCL.ERROR, TCL.BREAK, etc)
-   * @param idx error index
    */
-  protected TclException(
-      Interp interp, // Current interpreter. May be null if
-      // unknown.
-      String msg, // Error message.
-      int ccode, // Completion code.
-      int idx) // Error index.
-      {
+  protected TclException(Interp interp, String msg, int ccode, int idx) {
     super(msg);
     if (ccode == TCL.OK) {
       throw new TclRuntimeError(
@@ -83,17 +70,8 @@ public class TclException extends Exception {
     }
   }
 
-  /**
-   * Create a TclException with the given completion code.
-   *
-   * <p>Results: None.
-   *
-   * <p>Side effects: The instance fields are initialized.
-   *
-   * @param ccode completion code
-   */
-  public TclException(int ccode) // Completion code.
-      {
+  /** Create a TclException with the given completion code. */
+  public TclException(int ccode) {
     super();
     if (ccode == TCL.OK) {
       throw new TclRuntimeError("The reserved completion code TCL.OK (0) cannot be used");
@@ -102,66 +80,24 @@ public class TclException extends Exception {
     errIndex = -1;
   }
 
-  /**
-   * Create an TclException with the given error message. The completion code is set to ERROR by
-   * default.
-   *
-   * <p>Results: None.
-   *
-   * <p>Side effects: The instance fields are initialized; the message is assigned to the
-   * interpreter's result if interp is non-null.
-   *
-   * @param interp current interpreter, may be null if unknown
-   * @param msg error message
-   */
-  public TclException(
-      Interp interp, // Current interpreter. May be null if
-      // unknown.
-      String msg) // Error message.
-      {
+  /** Create a TclException with the given error message. The completion code is set to ERROR. */
+  public TclException(Interp interp, String msg) {
     this(interp, msg, TCL.ERROR, -1);
   }
 
-  /**
-   * Create an TclException with the given error message and completion code.
-   *
-   * <p>Results: None.
-   *
-   * <p>Side effects: The instance fields are initialized; the message is assigned to the
-   * interpreter's result if interp is non-null.
-   *
-   * @param interp current interpreter, may be null if unknown
-   * @param msg error message
-   * @param ccode completion code
-   */
-  public TclException(
-      Interp interp, // Current interpreter. May be null if
-      // unknown.
-      String msg, // Error message.
-      int ccode) // Completion code.
-      {
+  /** Create a TclException with the given error message and completion code. */
+  public TclException(Interp interp, String msg, int ccode) {
     this(interp, msg, ccode, -1);
   }
 
-  /**
-   * getCompletionCode --
-   *
-   * @return the current completion code (TCL.BREAK, TCL.OK, TCL.RETURN...).
-   */
   public final int getCompletionCode() {
     return compCode;
   }
 
-  /**
-   * Sets the current completion code.
-   *
-   * @param ccode new completion code
-   */
-  public final void setCompletionCode(int ccode) // New completion code.
-      {
+  public final void setCompletionCode(int ccode) {
     if (ccode == TCL.OK) {
       throw new TclRuntimeError("The reserved completion code TCL.OK (0) cannot be used");
     }
     compCode = ccode;
   }
-} // end TclException
+}

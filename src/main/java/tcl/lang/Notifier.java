@@ -17,6 +17,7 @@ package tcl.lang;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * Implements the Jacl version of the Notifier class. The Notifier is the lowest-level part of the

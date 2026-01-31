@@ -18,6 +18,9 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.exception.TclVarException;
 
 /*
  * Implements variables in Tcl. The Var class encapsulates most of the functionality

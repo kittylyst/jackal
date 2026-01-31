@@ -20,9 +20,9 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import tcl.lang.InternalRep;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
 import tcl.lang.TclList;
 import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 /** This class implements the internal representation of a Java field signature. */

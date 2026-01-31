@@ -14,6 +14,8 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+
 class TclParse {
 
   /** The original command string passed to Parser.parseCommand. */

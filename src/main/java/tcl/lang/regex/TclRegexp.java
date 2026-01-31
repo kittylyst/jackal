@@ -10,9 +10,12 @@
  * SCCS: %Z% %M% %I% %E% %U%
  */
 
-package tcl.lang;
+package tcl.lang.regex;
 
 import java.util.regex.PatternSyntaxException;
+import tcl.lang.Interp;
+import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
 
 public class TclRegexp {
   private TclRegexp() {}

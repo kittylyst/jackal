@@ -25,10 +25,10 @@ import java.util.Hashtable;
 import java.util.Map.Entry;
 import tcl.lang.InternalRep;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
 import tcl.lang.TclList;
 import tcl.lang.TclObject;
 import tcl.lang.TclString;
+import tcl.lang.exception.TclException;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 /**

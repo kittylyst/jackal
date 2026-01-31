@@ -23,15 +23,15 @@ import tcl.lang.StrtodResult;
 import tcl.lang.StrtoulResult;
 import tcl.lang.TCL;
 import tcl.lang.TclByteArray;
-import tcl.lang.TclException;
 import tcl.lang.TclIndex;
 import tcl.lang.TclInteger;
 import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.TclString;
 import tcl.lang.Util;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
 
 /** This class implements the built-in "string" command in Tcl. */
 public final class StringCmd implements Command {

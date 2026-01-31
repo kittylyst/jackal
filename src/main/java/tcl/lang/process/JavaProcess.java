@@ -13,10 +13,10 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import tcl.lang.ManagedSystemInStream;
 import tcl.lang.TclByteArray;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
 import tcl.lang.TclObject;
 import tcl.lang.channel.Channel;
+import tcl.lang.exception.TclException;
 
 /**
  * Implements a pure Java process. Combines java.lang.ProcessBuilder and java.lang.Process. Has the

@@ -21,13 +21,13 @@ package tcl.pkg.java;
 import java.util.*;
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.PackageNameException;
 import tcl.lang.TclClassLoader;
-import tcl.lang.TclException;
 import tcl.lang.TclList;
 import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.TclString;
+import tcl.lang.exception.PackageNameException;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 public final class JavaImportCmd implements Command {

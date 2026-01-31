@@ -15,6 +15,9 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+
 public final class TclParserExtension extends Extension implements Command {
 
   // name and version of this package

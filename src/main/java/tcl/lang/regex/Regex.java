@@ -14,7 +14,7 @@
  * RCS: @(#) $Id: Regex.java,v 1.12 2010/02/21 18:30:44 mdejong Exp $
  */
 
-package tcl.lang;
+package tcl.lang.regex;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,6 +24,11 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import tcl.lang.Interp;
+import tcl.lang.TclList;
+import tcl.lang.TclObject;
+import tcl.lang.TclString;
+import tcl.lang.exception.TclException;
 
 /**
  * The Regex class can be used to match a TCL-style regular expression against a string and

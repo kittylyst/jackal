@@ -19,6 +19,8 @@ import tcl.lang.channel.Channel;
 import tcl.lang.channel.FileEvent;
 import tcl.lang.channel.FileEventScript;
 import tcl.lang.channel.StdChannel;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 public class TclIO {
 

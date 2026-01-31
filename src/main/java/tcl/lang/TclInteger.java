@@ -13,6 +13,9 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+
 /** This class implements the integer object type in Tcl. */
 public class TclInteger implements InternalRep {
 

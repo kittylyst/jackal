@@ -14,6 +14,9 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+
 /**
  * Describes an expression value, which can be either an integer (the usual case), a
  * double-precision floating-point value, or a string. A number type will typically have a string

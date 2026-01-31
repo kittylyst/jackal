@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import tcl.lang.*;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
 
 public final class FleetCmd implements Command {
 

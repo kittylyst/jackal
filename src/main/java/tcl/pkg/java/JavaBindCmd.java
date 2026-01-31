@@ -22,9 +22,9 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
 
 /** This class implements the built-in "java::bind" command in Tcl. */
 public final class JavaBindCmd implements Command {

@@ -19,7 +19,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import tcl.lang.ManagedSystemInStream;
 import tcl.lang.TclIO;
-import tcl.lang.TclRuntimeError;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * Subclass of the abstract class Channel. It implements all of the methods to perform read, write,

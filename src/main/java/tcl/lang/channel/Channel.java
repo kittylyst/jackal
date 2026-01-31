@@ -20,13 +20,13 @@ import java.io.SyncFailedException;
 import java.io.Writer;
 import tcl.lang.Interp;
 import tcl.lang.TclByteArray;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
 import tcl.lang.TclObject;
-import tcl.lang.TclPosixException;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.TclString;
 import tcl.lang.cmd.EncodingCmd;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclPosixException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * The Channel class provides functionality that will be needed for any type of Tcl channel. It

@@ -16,6 +16,9 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+
 /** This class implements the body of a Tcl procedure. */
 public final class Procedure implements Command, CommandWithDispose {
 

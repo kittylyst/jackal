@@ -1,5 +1,7 @@
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+
 /** This class is used to trace command execution */
 public class ExecutionTrace {
   /** Indicates an ExecutionTrace that will execute on a command entry */

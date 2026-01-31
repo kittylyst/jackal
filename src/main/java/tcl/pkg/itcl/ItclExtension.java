@@ -19,9 +19,9 @@ import tcl.lang.Command;
 import tcl.lang.Extension;
 import tcl.lang.Interp;
 import tcl.lang.TclBoolean;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
 
 public final class ItclExtension extends Extension implements Command {
   /*

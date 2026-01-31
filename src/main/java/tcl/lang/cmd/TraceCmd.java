@@ -23,17 +23,17 @@ import tcl.lang.CommandTrace;
 import tcl.lang.ExecutionTrace;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
 import tcl.lang.TclIndex;
 import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.TclString;
 import tcl.lang.TraceRecord;
 import tcl.lang.Util;
 import tcl.lang.Var;
 import tcl.lang.VarTrace;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * The TraceCmd class implements the Command interface for specifying a new Tcl command. The method

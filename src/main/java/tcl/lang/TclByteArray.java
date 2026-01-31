@@ -23,6 +23,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import tcl.lang.cmd.EncodingCmd;
+import tcl.lang.exception.TclRuntimeError;
 
 /** This class implements the binary data object type in Tcl. */
 public class TclByteArray implements InternalRep {

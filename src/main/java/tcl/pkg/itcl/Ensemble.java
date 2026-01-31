@@ -41,11 +41,11 @@ import tcl.lang.Interp;
 import tcl.lang.Namespace;
 import tcl.lang.Procedure;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
 import tcl.lang.TclList;
 import tcl.lang.TclObject;
 import tcl.lang.TclString;
 import tcl.lang.WrappedCommand;
+import tcl.lang.exception.TclException;
 
 //  Data used to represent an ensemble:
 

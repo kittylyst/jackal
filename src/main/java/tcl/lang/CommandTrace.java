@@ -1,5 +1,7 @@
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+
 /** This CommandTrace class is used to trace command rename and deletion */
 public class CommandTrace {
   /** Indicates a CommandTrace that will execute on a command deletion */

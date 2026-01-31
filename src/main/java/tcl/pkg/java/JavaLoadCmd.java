@@ -16,12 +16,12 @@ package tcl.pkg.java;
 import tcl.lang.Command;
 import tcl.lang.Extension;
 import tcl.lang.Interp;
-import tcl.lang.PackageNameException;
 import tcl.lang.TclClassLoader;
-import tcl.lang.TclException;
 import tcl.lang.TclIndex;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
+import tcl.lang.exception.PackageNameException;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
 
 public final class JavaLoadCmd implements Command {
 

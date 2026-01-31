@@ -17,9 +17,9 @@ package tcl.pkg.java;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 /** Implements the built-in "java::cast" command. */

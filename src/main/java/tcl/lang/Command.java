@@ -15,6 +15,7 @@
 package tcl.lang;
 
 import tcl.lang.cmd.*;
+import tcl.lang.exception.TclException;
 import tcl.pkg.java.*;
 import tcl.pkg.tjc.*;
 

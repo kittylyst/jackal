@@ -16,6 +16,8 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+
 public class TclIndex implements InternalRep {
 
   /** The variable slots for this object. */

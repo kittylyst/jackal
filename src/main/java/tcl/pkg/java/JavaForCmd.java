@@ -21,13 +21,13 @@ import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
 import tcl.lang.TclDouble;
-import tcl.lang.TclException;
 import tcl.lang.TclInteger;
 import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.TclString;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * This class implements the built-in "java::for" command. This command is semantically equivalent

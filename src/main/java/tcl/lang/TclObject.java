@@ -14,6 +14,7 @@
 package tcl.lang;
 
 import java.util.Hashtable;
+import tcl.lang.exception.TclRuntimeError;
 
 /** This class extends TclObjectBase to implement the basic notion of an object in Tcl. */
 public final class TclObject extends TclObjectBase {

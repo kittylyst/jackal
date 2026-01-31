@@ -15,6 +15,8 @@ package tcl.lang;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 /** This class implements the dict object type in Tcl. */
 public class TclDict implements InternalRep {

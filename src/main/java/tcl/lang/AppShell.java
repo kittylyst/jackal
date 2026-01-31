@@ -18,6 +18,8 @@ import java.io.InputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * The AppShell class expects to load and execute a Tcl resource file by retrieving the JTcl-Main

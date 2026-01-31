@@ -16,6 +16,9 @@
 package tcl.lang;
 
 import tcl.lang.cmd.StringCmd;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
 
 public final class TclParser implements Command {
 

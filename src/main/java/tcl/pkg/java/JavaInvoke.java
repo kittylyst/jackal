@@ -23,15 +23,15 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import tcl.lang.Interp;
-import tcl.lang.PackageNameException;
 import tcl.lang.TclBoolean;
 import tcl.lang.TclClassLoader;
 import tcl.lang.TclDouble;
-import tcl.lang.TclException;
 import tcl.lang.TclInteger;
 import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.TclString;
+import tcl.lang.exception.PackageNameException;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 /**

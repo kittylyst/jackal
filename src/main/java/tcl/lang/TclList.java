@@ -14,6 +14,8 @@
 package tcl.lang;
 
 import java.util.ArrayList;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 /** This class implements the list object type in Tcl. */
 public class TclList implements InternalRep {

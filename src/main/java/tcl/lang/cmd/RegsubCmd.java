@@ -18,13 +18,13 @@ package tcl.lang.cmd;
 import java.util.regex.PatternSyntaxException;
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.Regex;
-import tcl.lang.TclException;
 import tcl.lang.TclIndex;
 import tcl.lang.TclInteger;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.lang.TclString;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.regex.Regex;
 
 /** This class implements the built-in "regsub" command in Tcl. */
 public final class RegsubCmd implements Command {

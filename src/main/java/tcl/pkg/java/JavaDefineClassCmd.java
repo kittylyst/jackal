@@ -16,9 +16,9 @@ package tcl.pkg.java;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclClassLoader;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
 
 public final class JavaDefineClassCmd implements Command {
 

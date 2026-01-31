@@ -17,6 +17,8 @@ package tcl.lang;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * This class implements a frame in the call stack.
