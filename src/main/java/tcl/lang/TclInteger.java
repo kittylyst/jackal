@@ -89,7 +89,7 @@ public class TclInteger implements InternalRep {
 
     if (TclObject.saveObjRecords) {
       String key = "TclString -> TclInteger";
-      Integer num = (Integer) TclObject.objRecordMap.get(key);
+      Integer num = TclObject.objRecordMap.get(key);
       if (num == null) {
         num = Integer.valueOf(1);
       } else {

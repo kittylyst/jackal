@@ -146,7 +146,7 @@ public class Interp extends EventuallyFreed {
   // Schemes are added/removed by calling addInterpResolver and
   // removeInterpResolver.
 
-  ArrayList resolvers;
+  ArrayList<ResolverScheme> resolvers;
 
   /** The expression parser for this interp. */
   public Expression expr;
@@ -286,7 +286,9 @@ public class Interp extends EventuallyFreed {
 
   /** Used ONLY by JavaImportCmd: classTable, packageTable, wildcardTable */
   public HashMap[] importTable = {
-    new HashMap<String, String>(), new HashMap<String, List<String>>(), new HashMap()
+    new HashMap<String, String>(),
+    new HashMap<String, List<String>>(),
+    new HashMap<String, List<String>>()
   };
 
   /**
@@ -748,12 +750,13 @@ public class Interp extends EventuallyFreed {
     // callbacks, so we iterate.
 
     while (assocData != null) {
-      HashMap table = assocData;
+      HashMap<String, AssocData> table = assocData;
       assocData = null;
 
-      for (Iterator iter = table.entrySet().iterator(); iter.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iter.next();
-        AssocData data = (AssocData) entry.getValue();
+      for (Iterator<Map.Entry<String, AssocData>> iter = table.entrySet().iterator();
+          iter.hasNext(); ) {
+        Map.Entry<String, AssocData> entry = iter.next();
+        AssocData data = entry.getValue();
         data.disposeAssocData(this);
         iter.remove();
       }
@@ -3631,8 +3634,8 @@ public class Interp extends EventuallyFreed {
     // If found, then replace its rules.
 
     if (resolvers != null) {
-      for (ListIterator iter = resolvers.listIterator(); iter.hasNext(); ) {
-        res = (ResolverScheme) iter.next();
+      for (ListIterator<ResolverScheme> iter = resolvers.listIterator(); iter.hasNext(); ) {
+        res = iter.next();
         if (name.equals(res.name)) {
           res.resolver = resolver;
           return;
@@ -3641,7 +3644,7 @@ public class Interp extends EventuallyFreed {
     }
 
     if (resolvers == null) {
-      resolvers = new ArrayList();
+      resolvers = new ArrayList<>();
     }
 
     // Otherwise, this is a new scheme. Add it to the FRONT
@@ -3672,8 +3675,8 @@ public class Interp extends EventuallyFreed {
     // then return pointers to its procedures.
 
     if (resolvers != null) {
-      for (ListIterator iter = resolvers.listIterator(); iter.hasNext(); ) {
-        res = (ResolverScheme) iter.next();
+      for (ListIterator<ResolverScheme> iter = resolvers.listIterator(); iter.hasNext(); ) {
+        res = iter.next();
         if (name.equals(res.name)) {
           return res.resolver;
         }
@@ -3703,8 +3706,8 @@ public class Interp extends EventuallyFreed {
     // Look for an existing scheme with the given name.
 
     if (resolvers != null) {
-      for (ListIterator iter = resolvers.listIterator(); iter.hasNext(); ) {
-        res = (ResolverScheme) iter.next();
+      for (ListIterator<ResolverScheme> iter = resolvers.listIterator(); iter.hasNext(); ) {
+        res = iter.next();
         if (name.equals(res.name)) {
           found = true;
           break;

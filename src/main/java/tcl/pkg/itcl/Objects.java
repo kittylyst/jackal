@@ -49,7 +49,7 @@ import tcl.lang.Var;
 import tcl.lang.WrappedCommand;
 
 public class Objects {
-  static HashMap dangleTable = new HashMap();
+  static HashMap<String, Var> dangleTable = new HashMap<>();
 
   /*
    * ------------------------------------------------------------------------

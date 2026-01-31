@@ -842,7 +842,7 @@ public final class DictCmd implements Command {
 
       dict.preserve();
 
-      final List keyList = new LinkedList();
+      final List<TclObject> keyList = new LinkedList<>();
       // Add each key as a new variable in the environment
       TclDict.foreach(
           interp,
@@ -874,8 +874,7 @@ public final class DictCmd implements Command {
       final TclObject tmp = TclDict.newInstance();
       // Get new key values -- using keys that were in the
       // dictionary when we started.
-      for (Object keyObj : keyList) {
-        TclObject key = (TclObject) keyObj;
+      for (TclObject key : keyList) {
         TclObject val = null;
         try {
           val = interp.getVar(key, 0);

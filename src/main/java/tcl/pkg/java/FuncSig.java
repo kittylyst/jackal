@@ -87,8 +87,8 @@ class FuncSig implements InternalRep {
   // since these fields could be accessed from multiple
   // threads and the Hashtable class is synchronized.
 
-  static Hashtable instanceMethodTable = new Hashtable();
-  static Hashtable staticMethodTable = new Hashtable();
+  static Hashtable<Class<?>, Method[]> instanceMethodTable = new Hashtable<>();
+  static Hashtable<Class<?>, Method[]> staticMethodTable = new Hashtable<>();
   static Hashtable<Class<?>, HashMap<String, Method[]>> instanceMethodTableByName =
       new Hashtable<Class<?>, HashMap<String, Method[]>>();
 
@@ -1146,7 +1146,7 @@ class FuncSig implements InternalRep {
   static Method[] getAccessibleInstanceMethods(Class cls) // The class to
         // query.
       {
-    Method[] methods = (Method[]) instanceMethodTable.get(cls);
+    Method[] methods = instanceMethodTable.get(cls);
     if (methods != null) {
       return methods;
     }
@@ -1215,7 +1215,7 @@ class FuncSig implements InternalRep {
 
   static Method[] getAccessibleStaticMethods(Class cls) // The class to query.
       {
-    Method[] methods = (Method[]) staticMethodTable.get(cls);
+    Method[] methods = staticMethodTable.get(cls);
     if (methods != null) {
       return methods;
     }

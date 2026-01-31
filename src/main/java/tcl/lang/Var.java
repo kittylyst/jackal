@@ -185,9 +185,9 @@ public class Var {
   Var linkto;
 
   /** List that holds the traces that were placed in this Var */
-  public ArrayList traces;
+  public ArrayList<TraceRecord> traces;
 
-  public ArrayList sidVec;
+  public ArrayList<SearchId> sidVec;
 
   /**
    * Miscellaneous bits of information about variable.
@@ -209,7 +209,7 @@ public class Var {
    * its elements are still referred to in upvars). null if the variable is not in a hashtable. This
    * is used to delete an variable from its hashtable if it is no longer needed.
    */
-  public Map table;
+  public Map<String, Var> table;
 
   /** The key under which this variable is stored in the hash table. */
   public String hashKey;
@@ -346,7 +346,7 @@ public class Var {
     if (size == 0) {
       return 1;
     }
-    SearchId sid = (SearchId) sidVec.get(size - 1);
+    SearchId sid = sidVec.get(size - 1);
     return (sid.getIndex() + 1);
   }
 
@@ -360,7 +360,7 @@ public class Var {
   public Iterator getSearch(String s) {
     SearchId sid;
     for (int i = 0; i < sidVec.size(); i++) {
-      sid = (SearchId) sidVec.get(i);
+      sid = sidVec.get(i);
       if (sid.equals(s)) {
         return sid.getIterator();
       }
@@ -377,7 +377,7 @@ public class Var {
     SearchId curSid;
 
     for (int i = 0; i < sidVec.size(); i++) {
-      curSid = (SearchId) sidVec.get(i);
+      curSid = sidVec.get(i);
       if (curSid.equals(sid)) {
         sidVec.remove(i);
         return true;
@@ -456,7 +456,7 @@ public class Var {
     // variables are currently in use. Same as
     // the current procedure's frame, if any,
     // unless an "uplevel" is executing.
-    HashMap table; // to the hashtable, if any, in which
+    HashMap<String, Var> table; // to the hashtable, if any, in which
     // to look up the variable.
     Var var; // Used to search for global names.
     String elName; // Name of array element or null.
@@ -522,9 +522,9 @@ public class Var {
         }
 
         if (var == null && interp.resolvers != null) {
-          for (ListIterator iter = interp.resolvers.listIterator();
+          for (ListIterator<Interp.ResolverScheme> iter = interp.resolvers.listIterator();
               var == null && iter.hasNext(); ) {
-            res = (Interp.ResolverScheme) iter.next();
+            res = iter.next();
             var = res.resolver.resolveVar(interp, part1, cxtNs, flags);
             if (var != null) {
               var.setVarNoCache();
@@ -1160,7 +1160,7 @@ public class Var {
       }
 
       // Look in local table, there should not be an entry
-      HashMap table = varFrame.varTable;
+      HashMap<String, Var> table = varFrame.varTable;
 
       if (table != null && table.size() > 0) {
         Var var = (Var) table.get(varname);
@@ -1408,7 +1408,7 @@ public class Var {
 
       // Look in local table, there should not be an entry for this
       // varname
-      HashMap table = varFrame.varTable;
+      HashMap<String, Var> table = varFrame.varTable;
 
       if (table != null && table.size() > 0) {
         Var var = (Var) table.get(varname);
@@ -1508,7 +1508,7 @@ public class Var {
 
       // Look in local table, there should not be an entry for this
       // varname
-      HashMap table = varFrame.varTable;
+      HashMap<String, Var> table = varFrame.varTable;
 
       if (table != null && table.size() > 0) {
         Var var = (Var) table.get(varname);
@@ -1916,7 +1916,7 @@ public class Var {
 
     if (var.traces == null) {
       var.setVarTraceExists();
-      var.traces = new ArrayList();
+      var.traces = new ArrayList<>();
     }
 
     TraceRecord rec = new TraceRecord();
@@ -1983,7 +1983,7 @@ public class Var {
     if (var.traces != null) {
       int len = var.traces.size();
       for (int i = 0; i < len; i++) {
-        TraceRecord rec = (TraceRecord) var.traces.get(i);
+        TraceRecord rec = var.traces.get(i);
         if (rec.trace == proc) {
           var.traces.remove(i);
           break;
@@ -2017,7 +2017,7 @@ public class Var {
    * @param part2 2nd part of the variable name (can be null).
    * @param flags misc flags that control the actions of this method.
    */
-  public static ArrayList getTraces(
+  public static ArrayList<TraceRecord> getTraces(
       Interp interp, // Interpreter containing
       // variable.
       String part1, // Name of variable or array.
@@ -2091,7 +2091,7 @@ public class Var {
     Var[] result = null;
     CallFrame varFrame;
     CallFrame savedFrame = null;
-    HashMap table;
+    HashMap<String, Var> table;
     Namespace ns, altNs;
     String tail;
     boolean newvar = false;
@@ -2197,7 +2197,7 @@ public class Var {
                 + "\": upvar won't create namespace variable that refers to procedure variable");
       }
 
-      var = (Var) ns.varTable.get(tail);
+      var = ns.varTable.get(tail);
       if (var == null) { // we are adding a new entry
         newvar = true;
         var = new Var();
@@ -2468,7 +2468,7 @@ public class Var {
       }
       if ((array != null) && (array.traces != null)) {
         for (i = 0; (array.traces != null) && (i < array.traces.size()); i++) {
-          TraceRecord rec = (TraceRecord) array.traces.get(i);
+          TraceRecord rec = array.traces.get(i);
           if ((rec.flags & flags) != 0) {
             try {
               rec.trace.traceProc(interp, part1, part2, flags);
@@ -2488,7 +2488,7 @@ public class Var {
       }
 
       for (i = 0; (var.traces != null) && (i < var.traces.size()); i++) {
-        TraceRecord rec = (TraceRecord) var.traces.get(i);
+        TraceRecord rec = var.traces.get(i);
         if ((rec.flags & flags) != 0) {
           try {
             rec.trace.traceProc(interp, part1, part2, flags);
@@ -2537,7 +2537,7 @@ public class Var {
    * @param interp Interpreter containing array.
    * @param table HashMap that holds the Vars to delete
    */
-  public static void deleteVars(Interp interp, HashMap table) {
+  public static void deleteVars(Interp interp, HashMap<String, Var> table) {
     int flags;
     Namespace currNs = Namespace.getCurrentNamespace(interp);
 
@@ -2550,9 +2550,8 @@ public class Var {
       flags |= TCL.NAMESPACE_ONLY;
     }
 
-    for (Object o : table.entrySet()) {
-      Map.Entry entry = (Map.Entry) o;
-      deleteVar(interp, (Var) entry.getValue(), flags);
+    for (Map.Entry<String, Var> entry : table.entrySet()) {
+      deleteVar(interp, entry.getValue(), flags);
     }
     table.clear();
   }
@@ -2912,7 +2911,7 @@ public class Var {
     String varName;
     CallFrame frame = interp.varFrame;
 
-    HashMap localVarTable = frame.varTable;
+    HashMap<String, Var> localVarTable = frame.varTable;
     if (localVarTable != null) {
       for (Object o : localVarTable.entrySet()) {
         Map.Entry entry = (Map.Entry) o;

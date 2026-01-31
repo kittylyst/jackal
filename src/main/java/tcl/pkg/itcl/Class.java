@@ -36,18 +36,7 @@ package tcl.pkg.itcl;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import tcl.lang.CallFrame;
-import tcl.lang.CommandWithDispose;
-import tcl.lang.Interp;
-import tcl.lang.Namespace;
-import tcl.lang.Resolver;
-import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
-import tcl.lang.Var;
-import tcl.lang.WrappedCommand;
+import tcl.lang.*;
 
 // Note: ItclResolvedVarInfo structure not ported since it seems
 // to be used only in the bytecode compiler implementation.
@@ -377,9 +366,10 @@ public class Class {
     // Scan through and find all objects that belong to this class.
     // Destroy them quietly by deleting their access command.
 
-    for (Iterator iter = cdefn.info.objects.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
-      contextObj = (ItclObject) entry.getValue();
+    for (Iterator<Map.Entry<Command, ItclObject>> iter = cdefn.info.objects.entrySet().iterator();
+        iter.hasNext(); ) {
+      Map.Entry<Command, ItclObject> entry = iter.next();
+      contextObj = entry.getValue();
 
       if (contextObj.classDefn == cdefn) {
         cdefn.interp.deleteCommandFromToken(contextObj.w_accessCmd);
@@ -462,7 +452,7 @@ public class Class {
     ItclVarDefn vdefn;
     ItclVarLookup vlookup;
     Var var;
-    HashMap varTable;
+    HashMap<String, Var> varTable;
 
     // Tear down the list of derived classes. This list should
     // really be empty if everything is working properly, but
@@ -480,11 +470,10 @@ public class Class {
     // appear multiple times in the table (for x, foo::x, etc.)
     // so each one has a reference count.
 
-    varTable = new HashMap();
+    varTable = new HashMap<>();
 
-    for (Object o : cdefn.resolveVars.entrySet()) {
-      Map.Entry entry = (Map.Entry) o;
-      vlookup = (ItclVarLookup) entry.getValue();
+    for (Map.Entry<String, ItclVarLookup> entry : cdefn.resolveVars.entrySet()) {
+      vlookup = entry.getValue();
 
       if (--vlookup.usage == 0) {
         // If this is a common variable owned by this class,
@@ -494,7 +483,7 @@ public class Class {
 
         if ((vlookup.vdefn.member.flags & ItclInt.COMMON) != 0
             && vlookup.vdefn.member.classDefn == cdefn) {
-          var = (Var) vlookup.common;
+          var = vlookup.common;
           if (ItclAccess.decrVarRefCount(var) == 0) {
             varTable.put(vlookup.vdefn.member.fullname, var);
           }
@@ -511,9 +500,8 @@ public class Class {
 
     // Delete all variable definitions.
 
-    for (Object o : cdefn.variables.entrySet()) {
-      Map.Entry entry = (Map.Entry) o;
-      vdefn = (ItclVarDefn) entry.getValue();
+    for (Map.Entry<String, ItclVarDefn> entry : cdefn.variables.entrySet()) {
+      vdefn = entry.getValue();
       DeleteVarDefn(vdefn);
     }
     cdefn.variables.clear();
@@ -521,9 +509,8 @@ public class Class {
 
     // Delete all function definitions.
 
-    for (Object o : cdefn.functions.entrySet()) {
-      Map.Entry entry = (Map.Entry) o;
-      ItclMemberFunc mfunc = (ItclMemberFunc) entry.getValue();
+    for (Map.Entry<String, ItclMemberFunc> entry : cdefn.functions.entrySet()) {
+      ItclMemberFunc mfunc = entry.getValue();
       Util.ReleaseData(mfunc);
     }
     cdefn.functions.clear();
@@ -1079,7 +1066,7 @@ public class Class {
 
     frame = Migrate.GetCallFrame(interp, 0);
 
-    contextObj = (ItclObject) cdefn.info.contextFrames.get(frame);
+    contextObj = cdefn.info.contextFrames.get(frame);
     if (contextObj == null) {
       return null;
     }

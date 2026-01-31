@@ -19,7 +19,7 @@ import java.util.Hashtable;
 public final class TclObject extends TclObjectBase {
 
   static final boolean saveObjRecords = TclObjectBase.saveObjRecords;
-  static Hashtable objRecordMap = TclObjectBase.objRecordMap;
+  static Hashtable<String, Integer> objRecordMap = TclObjectBase.objRecordMap;
 
   /**
    * Creates a TclObject with the given InternalRep. This method should be called only by an

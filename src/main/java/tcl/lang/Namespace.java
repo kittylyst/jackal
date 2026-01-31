@@ -456,7 +456,7 @@ public class Namespace {
     // ns.refCount = 0;
     ns.refCount = 1;
     ns.cmdTable = new HashMap();
-    ns.varTable = new HashMap();
+    ns.varTable = new HashMap<>();
     ns.exportArray = null;
     ns.numExportPatterns = 0;
     ns.maxExportPatterns = 0;
@@ -1673,9 +1673,9 @@ public class Namespace {
         }
 
         if (cmd == null && interp.resolvers != null) {
-          for (ListIterator iter = interp.resolvers.listIterator();
+          for (ListIterator<Interp.ResolverScheme> iter = interp.resolvers.listIterator();
               cmd == null && iter.hasNext(); ) {
-            res = (Interp.ResolverScheme) iter.next();
+            res = iter.next();
             cmd = res.resolver.resolveCmd(interp, name, cxtNs, flags);
           }
         }
@@ -1794,9 +1794,9 @@ public class Namespace {
         }
 
         if (var == null && interp.resolvers != null) {
-          for (ListIterator iter = interp.resolvers.listIterator();
+          for (ListIterator<Interp.ResolverScheme> iter = interp.resolvers.listIterator();
               var == null && iter.hasNext(); ) {
-            res = (Interp.ResolverScheme) iter.next();
+            res = iter.next();
             var = res.resolver.resolveVar(interp, name, cxtNs, flags);
           }
         }
@@ -1833,7 +1833,7 @@ public class Namespace {
         throw new TclRuntimeError("bad search value" + search);
       }
       if ((ns != null) && (simpleName != null)) {
-        var = (Var) ns.varTable.get(simpleName);
+        var = ns.varTable.get(simpleName);
       }
     }
     if (var != null) {
@@ -2054,7 +2054,7 @@ public class Namespace {
    * @param table a hash table
    * @return first element in the hash table
    */
-  public static Object FirstHashEntry(HashMap table) {
+  public static Object FirstHashEntry(HashMap<?, ?> table) {
     Set eset = table.entrySet();
     if (eset.size() == 0) {
       return null;

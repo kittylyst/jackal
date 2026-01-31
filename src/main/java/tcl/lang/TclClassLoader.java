@@ -41,7 +41,7 @@ public class TclClassLoader extends ClassLoader {
    * Different interpreters require different caches since the same class name could be loaded from
    * two different locations in different interps.
    */
-  private HashMap class_cache = new HashMap();
+  private HashMap<String, Class<?>> class_cache = new HashMap<>();
 
   /**
    * Each instance can have a list of additional paths to search. This needs to be stored on a per
@@ -255,14 +255,14 @@ public class TclClassLoader extends ClassLoader {
    */
   protected Class loadClass(String className, boolean resolveIt)
       throws ClassNotFoundException, PackageNameException, SecurityException {
-    Class result; // The Class that is loaded.
+    Class<?> result; // The Class that is loaded.
     byte[] classData = null; // The bytes that compose the class file.
 
     final boolean printStack = false;
 
     // Check our local cache of classes
 
-    result = (Class) class_cache.get(className);
+    result = class_cache.get(className);
     if (result != null) {
       return result;
     }

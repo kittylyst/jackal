@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
-import java.util.Set;
 import tcl.lang.CallFrame;
 import tcl.lang.Command;
 import tcl.lang.Expression;
@@ -478,10 +477,8 @@ public final class InfoCmd implements Command {
 
     list = TclList.newInstance();
 
-    Set set = mathFns.mathFuncTable.entrySet();
-    for (Object o : set) {
-      Map.Entry entry = (Map.Entry) o;
-      varName = (String) entry.getKey();
+    for (Map.Entry<String, ?> entry : mathFns.mathFuncTable.entrySet()) {
+      varName = entry.getKey();
 
       if ((pattern == null) || Util.stringMatch(varName, pattern)) {
         TclList.append(interp, list, TclString.newInstance(varName));

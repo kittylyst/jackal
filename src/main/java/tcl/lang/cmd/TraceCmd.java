@@ -444,11 +444,11 @@ public final class TraceCmd implements Command {
           // see if there's one with the given command. If so, then
           // delete the first one that matches.
 
-          ArrayList traces = Var.getTraces(interp, objv[start].toString(), null, 0);
+          ArrayList<TraceRecord> traces = Var.getTraces(interp, objv[start].toString(), null, 0);
           if (traces != null) {
             len = traces.size();
             for (int i = 0; i < len; i++) {
-              TraceRecord rec = (TraceRecord) traces.get(i);
+              TraceRecord rec = traces.get(i);
 
               if (rec.trace instanceof VarTraceProc) {
                 VarTraceProc proc = (VarTraceProc) rec.trace;
@@ -465,7 +465,7 @@ public final class TraceCmd implements Command {
 
       case OPT_VINFO:
       case OPT_INFO:
-        ArrayList traces = Var.getTraces(interp, objv[start].toString(), null, 0);
+        ArrayList<TraceRecord> traces = Var.getTraces(interp, objv[start].toString(), null, 0);
         if (traces != null) {
           len = traces.size();
           TclObject list = TclList.newInstance();
@@ -474,7 +474,7 @@ public final class TraceCmd implements Command {
 
           try {
             for (int i = 0; i < len; i++) {
-              TraceRecord rec = (TraceRecord) traces.get(i);
+              TraceRecord rec = traces.get(i);
 
               if (rec.trace instanceof VarTraceProc) {
                 VarTraceProc proc = (VarTraceProc) rec.trace;

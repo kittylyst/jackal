@@ -368,7 +368,7 @@ public final class ArrayCmd implements Command {
           }
 
           if (tclVar.sidVec == null) {
-            tclVar.sidVec = new ArrayList();
+            tclVar.sidVec = new ArrayList<>();
           }
 
           // Create a SearchId Object:

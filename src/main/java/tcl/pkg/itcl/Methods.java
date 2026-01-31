@@ -1396,7 +1396,7 @@ public class Methods {
     frame = Migrate.GetCallFrame(interp, 0);
     info = context.classDefn.info;
 
-    contextObj = (ItclObject) info.contextFrames.get(frame);
+    contextObj = info.contextFrames.get(frame);
     if (contextObj != null) {
       Util.ReleaseData(contextObj);
       info.contextFrames.remove(frame);
@@ -1447,7 +1447,7 @@ public class Methods {
       frame = Migrate.GetCallFrame(interp, 0);
 
       info = cdefn.info;
-      odefn = (ItclObject) info.contextFrames.get(frame);
+      odefn = info.contextFrames.get(frame);
 
       return new GetContextResult(cdefn, odefn);
     }

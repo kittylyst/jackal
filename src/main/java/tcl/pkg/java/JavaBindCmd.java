@@ -44,7 +44,7 @@ public final class JavaBindCmd implements Command {
   // This cache allows us to always use the same BeanInfo instance for each
   // Java class.
 
-  private Hashtable beanInfoCache = new Hashtable();
+  private Hashtable<Class<?>, BeanInfo> beanInfoCache = new Hashtable<>();
 
   /*
    * ----------------------------------------------------------------------
@@ -156,7 +156,7 @@ public final class JavaBindCmd implements Command {
       BeanInfo beanInfo;
 
       try {
-        beanInfo = (BeanInfo) beanInfoCache.get(cls);
+        beanInfo = beanInfoCache.get(cls);
         if (beanInfo == null) {
           // System.out.println("Introspecting " + cls);
           beanInfo = Introspector.getBeanInfo(cls);

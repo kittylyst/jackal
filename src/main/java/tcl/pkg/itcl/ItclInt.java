@@ -45,7 +45,7 @@ class ItclObjectInfo implements AssocData, ItclEventuallyFreed {
 
   Interp interp; // interpreter that manages this info
 
-  HashMap objects; // Maps Command to ItclObject
+  HashMap<Command, ItclObject> objects; // Maps Command to ItclObject
   // for all known objects
 
   Itcl_Stack transparentFrames; // stack of call frames that should be
@@ -54,7 +54,7 @@ class ItclObjectInfo implements AssocData, ItclEventuallyFreed {
   // one of these contexts, it does an
   // "uplevel" to get past the transparent
   // frame and back to the calling context.
-  HashMap contextFrames; // object contexts for active call frames
+  HashMap<tcl.lang.CallFrame, ItclObject> contextFrames; // object contexts for active call frames
 
   int protection; // protection level currently in effect
 
@@ -89,22 +89,22 @@ class ItclClass implements ItclEventuallyFreed {
   ItclObjectInfo info; // info about all known objects
   Itcl_List bases; // list of base classes
   Itcl_List derived; // list of all derived classes
-  HashMap heritage; // table of all base classes that provides
+  HashMap<ItclClass, String> heritage; // table of all base classes that provides
   // provides fast lookup for inheritance tests.
   // Maps ItclClass to the empty string.
   TclObject initCode; // initialization code for new objs
-  HashMap variables; // definitions for all data members
+  HashMap<String, ItclVarDefn> variables; // definitions for all data members
   // in this class. Look up simple string
   // names and get back ItclVarDefn refs
-  HashMap functions; // definitions for all member functions
+  HashMap<String, ItclMemberFunc> functions; // definitions for all member functions
   // in this class. Look up simple string
   // names and get back ItclMemberFunc refs
   int numInstanceVars; // number of instance vars in variables
   // table
-  HashMap resolveVars; // all possible names for variables in
+  HashMap<String, ItclVarLookup> resolveVars; // all possible names for variables in
   // this class (e.g., x, foo::x, etc.)
   // Maps String to ItclVarLookup.
-  HashMap resolveCmds; // all possible names for functions in
+  HashMap<String, ItclMemberFunc> resolveCmds; // all possible names for functions in
   // this class (e.g., x, foo::x, etc.)
   // Maps String to ItclMemberFunc.
   int unique; // unique number for #auto generation
@@ -132,9 +132,9 @@ class ItclObject implements ItclEventuallyFreed, VarTrace {
 
   int dataSize; // number of elements in data array
   Var[] data; // all object-specific data members
-  HashMap constructed; // temp storage used during construction
+  HashMap<String, String> constructed; // temp storage used during construction
   // Maps class name String to the empty string.
-  HashMap destructed; // temp storage used during destruction
+  HashMap<String, String> destructed; // temp storage used during destruction
 
   // Maps class name String to the empty string.
 

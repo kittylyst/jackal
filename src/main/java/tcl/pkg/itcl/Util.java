@@ -77,7 +77,7 @@ class Util {
   static Itcl_ListElem listPool = null;
   static int listPoolLen = 0;
 
-  static Hashtable ItclPreservedList = new Hashtable();
+  static Hashtable<ItclEventuallyFreed, ItclPreservedData> ItclPreservedList = new Hashtable<>();
   // Mutex ItclPreservedListLock
 
   static int VALID_LIST = 0x01face10; // magic bit pattern for validation
@@ -625,7 +625,7 @@ class Util {
 
       // Find the data in the global list and bump its usage count.
 
-      chunk = (ItclPreservedData) ItclPreservedList.get(fobj);
+      chunk = ItclPreservedList.get(fobj);
       if (chunk == null) {
         chunk = new ItclPreservedData();
         chunk.fobj = fobj;
@@ -671,7 +671,7 @@ class Util {
     // decrement its usage count.
 
     synchronized (ItclPreservedList) {
-      chunk = (ItclPreservedData) ItclPreservedList.get(fobj);
+      chunk = ItclPreservedList.get(fobj);
 
       Assert(chunk != null, "chunk != null");
 

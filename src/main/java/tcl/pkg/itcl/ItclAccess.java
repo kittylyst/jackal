@@ -83,11 +83,11 @@ public class ItclAccess {
     return i.varFrame;
   }
 
-  public static HashMap getVarTable(CallFrame frame) {
+  public static HashMap<String, Var> getVarTable(CallFrame frame) {
     return frame.varTable;
   }
 
-  public static void setVarTable(CallFrame frame, HashMap table) {
+  public static void setVarTable(CallFrame frame, HashMap<String, Var> table) {
     frame.varTable = table;
   }
 
@@ -95,7 +95,7 @@ public class ItclAccess {
     return new Var();
   }
 
-  public static void deleteVars(Interp interp, HashMap varTable) {
+  public static void deleteVars(Interp interp, HashMap<String, Var> varTable) {
     Var.deleteVars(interp, varTable);
   }
 
@@ -127,7 +127,7 @@ public class ItclAccess {
   public static void assignLocalVar(Interp interp, String name, TclObject val, CallFrame frame)
       throws TclException {
     if (frame.varTable == null) {
-      frame.varTable = new HashMap();
+      frame.varTable = new HashMap<>();
     }
     Var var = new Var();
     var.clearVarInHashtable(); // Needed to avoid "dangling namespace var"
@@ -137,7 +137,7 @@ public class ItclAccess {
     interp.setVar(name, null, val, 0);
   }
 
-  public static void createObjVar(Var var, String key, Namespace ns, HashMap table) {
+  public static void createObjVar(Var var, String key, Namespace ns, HashMap<String, Var> table) {
     var.hashKey = key;
     var.ns = ns;
 
@@ -155,7 +155,8 @@ public class ItclAccess {
     var.refCount = 1; // protect from being deleted
   }
 
-  public static void createCommonVar(Var var, String key, Namespace ns, HashMap table) {
+  public static void createCommonVar(
+      Var var, String key, Namespace ns, HashMap<String, Var> table) {
     var.table = table;
     var.hashKey = key;
     var.ns = ns;
@@ -165,7 +166,7 @@ public class ItclAccess {
     var.refCount++; // another use by class
   }
 
-  public static Object FirstHashEntry(HashMap table) {
+  public static Object FirstHashEntry(HashMap<?, ?> table) {
     return Namespace.FirstHashEntry(table);
   }
 }

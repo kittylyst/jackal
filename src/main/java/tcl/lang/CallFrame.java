@@ -61,7 +61,7 @@ public class CallFrame {
   public int level;
 
   /** Stores the variables of this CallFrame. */
-  public HashMap varTable;
+  public HashMap<String, Var> varTable;
 
   /**
    * Array of local variables in a compiled proc frame. These include locals set in the proc,
@@ -234,9 +234,8 @@ public class CallFrame {
       return alist;
     }
 
-    for (Object o : varTable.entrySet()) {
-      Map.Entry entry = (Map.Entry) o;
-      Var v = (Var) entry.getValue();
+    for (Map.Entry<String, Var> entry : varTable.entrySet()) {
+      Var v = entry.getValue();
       if (!v.isVarUndefined()) {
         alist.add(v.hashKey);
       }
@@ -255,9 +254,8 @@ public class CallFrame {
       return alist;
     }
 
-    for (Object o : varTable.entrySet()) {
-      Map.Entry entry = (Map.Entry) o;
-      Var v = (Var) entry.getValue();
+    for (Map.Entry<String, Var> entry : varTable.entrySet()) {
+      Var v = entry.getValue();
       if (!v.isVarUndefined() && !v.isVarLink()) {
         alist.add(v.hashKey);
       }

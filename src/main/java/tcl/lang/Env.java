@@ -65,7 +65,6 @@ class Env {
     // a nice shortcut for getting to these useful values.
 
     try {
-
       Properties props = System.getProperties();
       Enumeration list = props.propertyNames();
       while (list.hasMoreElements()) {

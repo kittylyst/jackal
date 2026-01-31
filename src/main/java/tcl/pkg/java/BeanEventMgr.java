@@ -39,7 +39,7 @@ class BeanEventMgr implements AssocData {
    * Stores all of the available event adaptor classes.
    */
 
-  private static Hashtable adaptorClsTab = new Hashtable();
+  private static Hashtable<Class<?>, Class<?>> adaptorClsTab = new Hashtable<>();
 
   /*
    * The class loader for loading automatically generated event adaptor
@@ -230,8 +230,8 @@ class BeanEventMgr implements AssocData {
     }
 
     if (adaptor == null) {
-      Class lsnType = eventSet.getListenerType();
-      Class adaptorCls = (Class) adaptorClsTab.get(lsnType);
+      Class<?> lsnType = eventSet.getListenerType();
+      Class<?> adaptorCls = adaptorClsTab.get(lsnType);
 
       if (adaptorCls == null) {
         /*

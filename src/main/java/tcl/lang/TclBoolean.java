@@ -86,7 +86,7 @@ public class TclBoolean implements InternalRep {
 
       if (TclObject.saveObjRecords) {
         String key = "TclInteger -> TclBoolean";
-        Integer num = (Integer) TclObject.objRecordMap.get(key);
+        Integer num = TclObject.objRecordMap.get(key);
         if (num == null) {
           num = Integer.valueOf(1);
         } else {
@@ -104,7 +104,7 @@ public class TclBoolean implements InternalRep {
 
       if (TclObject.saveObjRecords) {
         String key = "TclDouble -> TclBoolean";
-        Integer num = (Integer) TclObject.objRecordMap.get(key);
+        Integer num = TclObject.objRecordMap.get(key);
         if (num == null) {
           num = Integer.valueOf(1);
         } else {
@@ -166,7 +166,7 @@ public class TclBoolean implements InternalRep {
 
       if (TclObject.saveObjRecords) {
         String key = "TclString -> TclBoolean";
-        Integer num = (Integer) TclObject.objRecordMap.get(key);
+        Integer num = TclObject.objRecordMap.get(key);
         if (num == null) {
           num = Integer.valueOf(1);
         } else {

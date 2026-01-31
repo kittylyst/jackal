@@ -14,10 +14,10 @@ import tcl.lang.channel.StdChannel;
 public class ConsoleThread extends Thread {
 
   /** Interpreter associated with this console thread. */
-  Interp interp;
+  private Interp interp;
 
   /** Collect the user input in this buffer until it forms a complete Tcl command */
-  StringBuffer sbuf;
+  private StringBuffer sbuf;
 
   /** Used to for interactive output */
   private Channel out;

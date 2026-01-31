@@ -118,7 +118,7 @@ public class Cmds {
     info.objects = new HashMap();
     info.transparentFrames = new Itcl_Stack();
     Util.InitStack(info.transparentFrames);
-    info.contextFrames = new HashMap();
+    info.contextFrames = new HashMap<>();
     info.protection = Itcl.DEFAULT_PROTECT;
     info.cdefnStack = new Itcl_Stack();
     Util.InitStack(info.cdefnStack);
@@ -307,9 +307,8 @@ public class Cmds {
 
     // Discard all known object contexts.
 
-    for (Object o : info.contextFrames.entrySet()) {
-      Map.Entry entry = (Map.Entry) o;
-      contextObj = (ItclObject) entry.getValue();
+    for (Map.Entry<tcl.lang.CallFrame, ItclObject> entry : info.contextFrames.entrySet()) {
+      contextObj = entry.getValue();
       Util.ReleaseData(contextObj);
     }
     info.contextFrames.clear();
@@ -888,7 +887,7 @@ public class Cmds {
         frame = Migrate.GetCallFrame(interp, 0);
         info = contextClass.info;
 
-        contextObj = (ItclObject) info.contextFrames.get(frame);
+        contextObj = info.contextFrames.get(frame);
         if (contextObj == null) {
           throw new TclException(
               interp, "can't scope variable \"" + token + "\": missing object context\"");

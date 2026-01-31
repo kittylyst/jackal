@@ -38,7 +38,7 @@ public class TclString implements InternalRep {
 
     if (TclObject.saveObjRecords) {
       String key = "TclString";
-      Integer num = (Integer) TclObject.objRecordMap.get(key);
+      Integer num = TclObject.objRecordMap.get(key);
       if (num == null) {
         num = Integer.valueOf(1);
       } else {
@@ -53,7 +53,7 @@ public class TclString implements InternalRep {
 
     if (TclObject.saveObjRecords) {
       String key = "TclString";
-      Integer num = (Integer) TclObject.objRecordMap.get(key);
+      Integer num = TclObject.objRecordMap.get(key);
       if (num == null) {
         num = Integer.valueOf(1);
       } else {
@@ -67,7 +67,7 @@ public class TclString implements InternalRep {
   public InternalRep duplicate() {
     if (TclObject.saveObjRecords) {
       String key = "TclString.duplicate()";
-      Integer num = (Integer) TclObject.objRecordMap.get(key);
+      Integer num = TclObject.objRecordMap.get(key);
       if (num == null) {
         num = Integer.valueOf(1);
       } else {
@@ -150,7 +150,7 @@ public class TclString implements InternalRep {
 
     if (TclObject.saveObjRecords) {
       String key = "String -> TclString";
-      Integer num = (Integer) TclObject.objRecordMap.get(key);
+      Integer num = TclObject.objRecordMap.get(key);
       if (num == null) {
         num = Integer.valueOf(1);
       } else {

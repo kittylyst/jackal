@@ -44,7 +44,7 @@ abstract class TclObjectBase {
   // and transitions from one internal rep to another.
 
   static final boolean saveObjRecords = false;
-  static Hashtable objRecordMap = (saveObjRecords ? new Hashtable() : null);
+  static Hashtable<String, Integer> objRecordMap = (saveObjRecords ? new Hashtable<>() : null);
 
   // Only set this to true if running test code and
   // the user wants to run extra ref count checks.
@@ -183,7 +183,7 @@ abstract class TclObjectBase {
 
     if (TclObjectBase.saveObjRecords) {
       String key = "TclObject";
-      Integer num = (Integer) TclObject.objRecordMap.get(key);
+      Integer num = TclObject.objRecordMap.get(key);
       if (num == null) {
         num = Integer.valueOf(1);
       } else {
@@ -231,7 +231,7 @@ abstract class TclObjectBase {
 
     if (TclObjectBase.saveObjRecords) {
       String key = "TclObject";
-      Integer num = (Integer) TclObject.objRecordMap.get(key);
+      Integer num = TclObject.objRecordMap.get(key);
       if (num == null) {
         num = Integer.valueOf(1);
       } else {
@@ -267,7 +267,7 @@ abstract class TclObjectBase {
 
     if (TclObjectBase.saveObjRecords) {
       String key = "TclObject";
-      Integer num = (Integer) TclObject.objRecordMap.get(key);
+      Integer num = TclObject.objRecordMap.get(key);
       if (num == null) {
         num = Integer.valueOf(1);
       } else {
@@ -496,15 +496,15 @@ abstract class TclObjectBase {
   static String getObjRecords() {
     if (TclObjectBase.saveObjRecords) {
       StringBuffer sb = new StringBuffer(64);
-      for (Enumeration keys = TclObject.objRecordMap.keys(); keys.hasMoreElements(); ) {
-        String key = (String) keys.nextElement();
-        Integer num = (Integer) TclObject.objRecordMap.get(key);
+      for (Enumeration<String> keys = TclObject.objRecordMap.keys(); keys.hasMoreElements(); ) {
+        String key = keys.nextElement();
+        Integer num = TclObject.objRecordMap.get(key);
         sb.append(key);
         sb.append(" ");
         sb.append(num.intValue());
         sb.append("\n");
       }
-      TclObject.objRecordMap = new Hashtable();
+      TclObject.objRecordMap = new Hashtable<>();
       return sb.toString();
     } else {
       return "";

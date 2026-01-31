@@ -35,7 +35,7 @@ public class TclDict implements InternalRep {
 
     if (TclObject.saveObjRecords) {
       String key = "TclDict";
-      Integer num = (Integer) TclObject.objRecordMap.get(key);
+      Integer num = TclObject.objRecordMap.get(key);
       if (num == null) {
         num = Integer.valueOf(1);
       } else {
@@ -56,7 +56,7 @@ public class TclDict implements InternalRep {
 
     if (TclObject.saveObjRecords) {
       String key = "TclDict";
-      Integer num = (Integer) TclObject.objRecordMap.get(key);
+      Integer num = TclObject.objRecordMap.get(key);
       if (num == null) {
         num = Integer.valueOf(1);
       } else {
@@ -93,7 +93,7 @@ public class TclDict implements InternalRep {
 
     if (TclObject.saveObjRecords) {
       String key = "TclDict.duplicate()";
-      Integer num = (Integer) TclObject.objRecordMap.get(key);
+      Integer num = TclObject.objRecordMap.get(key);
       if (num == null) {
         num = Integer.valueOf(1);
       } else {
@@ -164,7 +164,7 @@ public class TclDict implements InternalRep {
 
     if (TclObject.saveObjRecords) {
       String key = "TclString -> TclDict";
-      Integer num = (Integer) TclObject.objRecordMap.get(key);
+      Integer num = TclObject.objRecordMap.get(key);
       if (num == null) {
         num = Integer.valueOf(1);
       } else {
