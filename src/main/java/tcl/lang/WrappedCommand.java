@@ -26,11 +26,11 @@ import tcl.lang.exception.TclException;
  * do this. This class also handles command and execution traces. This class is only used in the
  * internal implementation of Jacl.
  */
-public class WrappedCommand {
+public final class WrappedCommand {
   /**
    * Reference to the table that this command is defined inside. The hashKey member can be used to
    * lookup this WrappedCommand instance in the table of WrappedCommands. The table member combined
-   * with the hashKey member are are equivilent to the C version's Command->hPtr.
+   * with the hashKey member are equivilent to the C version's Command->hPtr.
    */
   public Map<String, WrappedCommand> table;
 

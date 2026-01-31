@@ -21,7 +21,11 @@ import tcl.lang.exception.TclException;
  * This interface is used to make variable traces. To make a variable trace, write a class that
  * implements the VarTrace and call Interp.traceVar with an instance of that class.
  */
-public interface VarTrace {
+public sealed interface VarTrace
+    permits PrecTraceProc,
+        tcl.lang.cmd.VarTraceProc,
+        tcl.lang.cmd.VwaitTrace,
+        tcl.pkg.itcl.ItclObject {
 
   /**
    * This function gets called when a variable is accessed.
@@ -38,7 +42,7 @@ public interface VarTrace {
    *     will be set.)
    * @throws TclException
    */
-  public abstract void traceProc(
+  void traceProc(
       Interp interp, // Current interpreter.
       String part1, // First part of the variable name.
       String part2, // Second part of the var name. May be null.

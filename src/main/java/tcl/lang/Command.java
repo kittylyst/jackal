@@ -198,5 +198,5 @@ public sealed interface Command
    * @param objv the argument list for the command; objv[0[ is the command name itself
    * @throws TclException on any errors
    */
-  public abstract void cmdProc(Interp interp, TclObject[] objv) throws TclException;
+  void cmdProc(Interp interp, TclObject[] objv) throws TclException;
 }
