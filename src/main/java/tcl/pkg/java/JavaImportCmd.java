@@ -21,7 +21,6 @@ package tcl.pkg.java;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.Map;
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -60,16 +59,16 @@ public final class JavaImportCmd implements Command {
     if (objv.length == 1) {
       import_list = TclList.newInstance();
 
-      for (Iterator iter = classTable.entrySet().iterator(); iter.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iter.next();
+      for (Object o : classTable.entrySet()) {
+        Map.Entry entry = (Map.Entry) o;
         String key = (String) entry.getKey();
         String value = (String) entry.getValue();
         TclList.append(interp, import_list, TclString.newInstance(value));
       }
       ArrayList wildcardList = (ArrayList) wildcardTable.get("*");
       if (wildcardList != null) {
-        for (Iterator iter = wildcardList.iterator(); iter.hasNext(); ) {
-          String wildcardPkg = (String) iter.next();
+        for (Object wildcardPkgObj : wildcardList) {
+          String wildcardPkg = (String) wildcardPkgObj;
           TclList.append(interp, import_list, TclString.newInstance(wildcardPkg + ".*"));
         }
       }
@@ -149,9 +148,9 @@ public final class JavaImportCmd implements Command {
             // and remove the class and package entry.
             ArrayList alist = (ArrayList) entry.getValue();
 
-            for (ListIterator iter2 = alist.listIterator(); iter2.hasNext(); ) {
+            for (Object o2 : alist) {
               // Remove imported class from the classTable
-              elem2 = (String) iter2.next();
+              elem2 = (String) o2;
               if (classTable.remove(elem2) == null) {
                 throw new TclRuntimeError("key " + elem2 + " not in classTable");
               }
@@ -182,8 +181,8 @@ public final class JavaImportCmd implements Command {
         // "java::import -package pkg" should return each imported
         // class in the given package
 
-        for (Iterator iter = packageTable.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
+        for (Object o : packageTable.entrySet()) {
+          Map.Entry entry = (Map.Entry) o;
           elem = (String) entry.getKey();
 
           if (elem.equals(pkg)) {
@@ -193,9 +192,9 @@ public final class JavaImportCmd implements Command {
 
             // Loop over each class imported from this package
             ArrayList alist = (ArrayList) entry.getValue();
-            for (ListIterator iter2 = alist.listIterator(); iter2.hasNext(); ) {
+            for (Object o2 : alist) {
               // Remove imported class from the classTable
-              elem2 = (String) iter2.next();
+              elem2 = (String) o2;
 
               TclList.append(
                   interp, import_list, TclString.newInstance((String) classTable.get(elem2)));
@@ -375,8 +374,8 @@ public final class JavaImportCmd implements Command {
     if (forgetClasses.size() != 0) {
       // Loop through each class we want to forget
 
-      for (ListIterator iter = forgetClasses.listIterator(); iter.hasNext(); ) {
-        String fullyqualified = (String) iter.next();
+      for (Object o : forgetClasses) {
+        String fullyqualified = (String) o;
         int ind = fullyqualified.lastIndexOf('.');
         if (ind == -1) {
           throw new TclRuntimeError("unexpected : no package in forget class");
@@ -422,8 +421,8 @@ public final class JavaImportCmd implements Command {
 
       // Loop through each class we want to import
 
-      for (ListIterator iter = importClasses.listIterator(); iter.hasNext(); ) {
-        String fullyqualified = (String) iter.next();
+      for (Object o : importClasses) {
+        String fullyqualified = (String) o;
         int ind = fullyqualified.lastIndexOf('.');
         if (ind == -1) {
           throw new TclRuntimeError("unexpected : no package in import class");
@@ -560,9 +559,8 @@ public final class JavaImportCmd implements Command {
     HashMap wildcardTable = interp.importTable[2];
     ArrayList wildcardList = (ArrayList) wildcardTable.get("*");
     if (wildcardList != null) {
-      Iterator iter = wildcardList.iterator();
-      while (iter.hasNext()) {
-        String class_package = (String) iter.next();
+      for (Object classPkgObj : wildcardList) {
+        String class_package = (String) classPkgObj;
         fullyqualified = class_package + "." + name;
         boolean loaded = false;
         TclClassLoader tclClassLoader = (TclClassLoader) interp.getClassLoader();

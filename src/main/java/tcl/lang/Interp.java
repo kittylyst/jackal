@@ -66,7 +66,7 @@ public class Interp extends EventuallyFreed {
    * Set to true if [encoding system] can set the encoding for stdout and stderr. This is an attempt
    * to replicate TCL behavior seen in encoding.test encoding-24.3
    */
-  public boolean systemEncodingChangesStdoutStderr = true;
+  private boolean systemEncodingChangesStdoutStderr = true;
 
   /** The Notifier associated with this Interp. */
   private Notifier notifier;
@@ -96,30 +96,22 @@ public class Interp extends EventuallyFreed {
   /** The interpreter's global namespace. */
   Namespace globalNs;
 
-  /** Hash table used to keep track of hidden commands on a per-interp basis. */
-  public HashMap hiddenCmdTable;
+  private final HashMap<String, WrappedCommand> hiddenCmdTable = new HashMap<>();
 
-  /**
-   * Information used by InterpCmd.java to keep track of master/slave interps on a per-interp basis.
-   *
-   * <p>Keeps track of all interps for which this interp is the Master. First, slaveTable (a
-   * hashtable) maps from names of commands to slave interpreters. This hashtable is used to store
-   * information about slave interpreters of this interpreter, to map over all slaves, etc.
-   */
-  public HashMap slaveTable;
+  private final HashMap<String, Object> slaveTable = new HashMap<>();
 
   /**
    * Hash table for Target Records. Contains all Target records which denote aliases from slaves or
    * sibling interpreters that direct to commands in this interpreter. This table is used to remove
    * dangling pointers from the slave (or sibling) interpreters when this interpreter is deleted.
    */
-  public HashMap targetTable;
+  private final Map<WrappedCommand, Interp> targetTable = new HashMap<>();
 
   /** Information necessary for this interp to function as a slave. */
   public InterpSlaveCmd slave;
 
   /** Table which maps from names of commands in slave interpreter to InterpAliasCmd objects. */
-  public HashMap aliasTable;
+  private final Map<String, InterpAliasCmd> aliasTable = new HashMap<>();
 
   // FIXME : does globalFrame need to be replaced by globalNs?
   // Points to the global variable frame.
@@ -281,7 +273,7 @@ public class Interp extends EventuallyFreed {
 
   // Used ONLY by PackageCmd.
 
-  public HashMap packageTable;
+  private final HashMap<String, tcl.lang.cmd.PackageCmd.Package> packageTable = new HashMap<>();
   public String packageUnknown;
 
   // Used ONLY by the Parser.
@@ -505,7 +497,6 @@ public class Interp extends EventuallyFreed {
     errorInfo = null;
     errorCode = null;
 
-    packageTable = new HashMap();
     packageUnknown = null;
     cmdCount = 0;
     termOffset = 0;
@@ -540,10 +531,6 @@ public class Interp extends EventuallyFreed {
     errCodeSet = false;
 
     dbg = initDebugInfo();
-
-    slaveTable = new HashMap();
-    targetTable = new HashMap();
-    aliasTable = new HashMap();
 
     // find the name of constructing class to use as the shell class name
     // can be overridden by setShellClassName()
@@ -772,8 +759,8 @@ public class Interp extends EventuallyFreed {
 
     // Close any remaining channels
 
-    for (Iterator iter = interpChanTable.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : interpChanTable.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       Channel chan = (Channel) entry.getValue();
       try {
         chan.close();
@@ -3257,16 +3244,12 @@ public class Interp extends EventuallyFreed {
 
     // Initialize the hidden command table if necessary.
 
-    if (hiddenCmdTable == null) {
-      hiddenCmdTable = new HashMap();
-    }
-
     // It is an error to move an exposed command to a hidden command with
     // hiddenCmdToken if a hidden command with the name hiddenCmdToken
     // already
     // exists.
 
-    if (hiddenCmdTable.containsKey(hiddenCmdToken)) {
+    if (getHiddenCmdTable().containsKey(hiddenCmdToken)) {
       throw new TclException(
           this, "hidden command named \"" + hiddenCmdToken + "\" already exists");
     }
@@ -3288,9 +3271,9 @@ public class Interp extends EventuallyFreed {
     // Now link the hash table entry with the command structure.
     // We ensured above that the nsPtr was right.
 
-    cmd.table = hiddenCmdTable;
+    cmd.table = getHiddenCmdTable();
     cmd.hashKey = hiddenCmdToken;
-    hiddenCmdTable.put(hiddenCmdToken, cmd);
+    getHiddenCmdTable().put(hiddenCmdToken, cmd);
   }
 
   /**
@@ -3326,10 +3309,10 @@ public class Interp extends EventuallyFreed {
 
     // Get the command from the hidden command table:
 
-    if (hiddenCmdTable == null || !hiddenCmdTable.containsKey(hiddenCmdToken)) {
+    if (getHiddenCmdTable() == null || !getHiddenCmdTable().containsKey(hiddenCmdToken)) {
       throw new TclException(this, "unknown hidden command \"" + hiddenCmdToken + "\"");
     }
-    cmd = (WrappedCommand) hiddenCmdTable.get(hiddenCmdToken);
+    cmd = (WrappedCommand) getHiddenCmdTable().get(hiddenCmdToken);
 
     // Check that we have a true global namespace
     // command (enforced by Tcl_HideCommand() but let's double
@@ -3450,10 +3433,10 @@ public class Interp extends EventuallyFreed {
 
       // We never invoke "unknown" for hidden commands.
 
-      if (hiddenCmdTable == null || !hiddenCmdTable.containsKey(cmdName)) {
+      if (getHiddenCmdTable() == null || !getHiddenCmdTable().containsKey(cmdName)) {
         throw new TclException(this, "invalid hidden command name \"" + cmdName + "\"");
       }
-      cmd = (WrappedCommand) hiddenCmdTable.get(cmdName);
+      cmd = (WrappedCommand) getHiddenCmdTable().get(cmdName);
     } else {
       cmd = Namespace.findCommand(this, cmdName, null, TCL.GLOBAL_ONLY);
       if (cmd == null) {
@@ -3506,9 +3489,9 @@ public class Interp extends EventuallyFreed {
       if (cmd != null) {
         // Basically just do the same as in hideCommand...
         cmd.table.remove(cmd.hashKey);
-        cmd.table = hiddenCmdTable;
+        cmd.table = getHiddenCmdTable();
         cmd.hashKey = cmdName;
-        hiddenCmdTable.put(cmdName, cmd);
+        getHiddenCmdTable().put(cmdName, cmd);
       }
     }
 
@@ -3569,6 +3552,42 @@ public class Interp extends EventuallyFreed {
    */
   public HashMap<String, List<ReflectObject>> getReflectConflictTable() {
     return reflectConflictTable;
+  }
+
+  /**
+   * Information used by InterpCmd.java to keep track of master/slave interps on a per-interp basis.
+   *
+   * <p>Keeps track of all interps for which this interp is the Master. First, slaveTable (a
+   * hashtable) maps from names of commands to slave interpreters. This hashtable is used to store
+   * information about slave interpreters of this interpreter, to map over all slaves, etc.
+   */
+  public Map<String, Object> getSlaveTable() {
+    return slaveTable;
+  }
+
+  public Map<String, tcl.lang.cmd.PackageCmd.Package> getPackageTable() {
+    return packageTable;
+  }
+
+  public Map<WrappedCommand, Interp> getTargetTable() {
+    return targetTable;
+  }
+
+  public Map<String, InterpAliasCmd> getAliasTable() {
+    return aliasTable;
+  }
+
+  /** Hash table used to keep track of hidden commands on a per-interp basis. */
+  public HashMap<String, WrappedCommand> getHiddenCmdTable() {
+    return hiddenCmdTable;
+  }
+
+  public void setSystemEncodingChangesStdoutStderr(boolean encodingChanges) {
+    systemEncodingChangesStdoutStderr = encodingChanges;
+  }
+
+  public boolean isSystemEncodingChangesStdoutStderr() {
+    return systemEncodingChangesStdoutStderr;
   }
 
   class ResolverScheme {

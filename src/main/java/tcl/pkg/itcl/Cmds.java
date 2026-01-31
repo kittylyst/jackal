@@ -32,7 +32,6 @@
 package tcl.pkg.itcl;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import tcl.lang.CallFrame;
 import tcl.lang.Command;
@@ -308,8 +307,8 @@ public class Cmds {
 
     // Discard all known object contexts.
 
-    for (Iterator iter = info.contextFrames.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : info.contextFrames.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       contextObj = (ItclObject) entry.getValue();
       Util.ReleaseData(contextObj);
     }
@@ -394,8 +393,8 @@ public class Cmds {
           continue;
         }
 
-        for (Iterator iter = ns.cmdTable.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
+        for (Object o : ns.cmdTable.entrySet()) {
+          Map.Entry entry = (Map.Entry) o;
           String key = (String) entry.getKey();
           cmd = (WrappedCommand) entry.getValue();
 
@@ -437,8 +436,8 @@ public class Cmds {
         // Push any child namespaces onto the stack and continue
         // the search in those namespaces.
 
-        for (Iterator iter = ns.childTable.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
+        for (Object o : ns.childTable.entrySet()) {
+          Map.Entry entry = (Map.Entry) o;
           String key = (String) entry.getKey();
           Namespace child = (Namespace) entry.getValue();
           Util.PushStack(child, search);
@@ -563,8 +562,8 @@ public class Cmds {
           continue;
         }
 
-        for (Iterator iter = ns.cmdTable.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
+        for (Object o : ns.cmdTable.entrySet()) {
+          Map.Entry entry = (Map.Entry) o;
           String key = (String) entry.getKey();
           wcmd = (WrappedCommand) entry.getValue();
 
@@ -620,8 +619,8 @@ public class Cmds {
         // Push any child namespaces onto the stack and continue
         // the search in those namespaces.
 
-        for (Iterator iter = ns.childTable.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
+        for (Object o : ns.childTable.entrySet()) {
+          Map.Entry entry = (Map.Entry) o;
           // String key = (String) entry.getKey();
           Namespace child = (Namespace) entry.getValue();
 

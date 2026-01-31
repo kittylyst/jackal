@@ -2549,8 +2549,8 @@ public class Var {
       flags |= TCL.NAMESPACE_ONLY;
     }
 
-    for (Iterator iter = table.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : table.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       deleteVar(interp, (Var) entry.getValue(), flags);
     }
     table.clear();
@@ -2709,8 +2709,8 @@ public class Var {
     deleteSearches(var);
     Map<String, Var> table = var.getArrayMap();
 
-    for (Iterator iter = table.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : table.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       // String key = (String) entry.getKey();
       el = (Var) entry.getValue();
 
@@ -2913,8 +2913,8 @@ public class Var {
 
     HashMap localVarTable = frame.varTable;
     if (localVarTable != null) {
-      for (Iterator iter = localVarTable.entrySet().iterator(); iter.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iter.next();
+      for (Object o : localVarTable.entrySet()) {
+        Map.Entry entry = (Map.Entry) o;
         varName = (String) entry.getKey();
         var = (Var) entry.getValue();
         if (!var.isVarUndefined() && (includeLinks || !var.isVarLink())) {

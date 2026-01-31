@@ -24,7 +24,6 @@ package tcl.lang;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
@@ -946,9 +945,7 @@ public class Namespace {
      * commands that should be loaded before we import
      */
     HashMap<String, AutoloadStub> toBeLoaded = new HashMap<String, AutoloadStub>();
-    for (Iterator<Map.Entry<String, WrappedCommand>> iter = importNs.cmdTable.entrySet().iterator();
-        iter.hasNext(); ) {
-      Map.Entry<String, WrappedCommand> entry = iter.next();
+    for (Map.Entry<String, WrappedCommand> entry : importNs.cmdTable.entrySet()) {
       cmdName = entry.getKey();
       if (Util.stringMatch(cmdName, simplePattern)) {
         cmd = (WrappedCommand) importNs.cmdTable.get(cmdName);
@@ -961,9 +958,7 @@ public class Namespace {
 
     /* Now load all the commands that were found */
 
-    for (Iterator<Map.Entry<String, AutoloadStub>> iter = toBeLoaded.entrySet().iterator();
-        iter.hasNext(); ) {
-      Map.Entry<String, AutoloadStub> entry = iter.next();
+    for (Map.Entry<String, AutoloadStub> entry : toBeLoaded.entrySet()) {
       cmdName = entry.getKey();
       AutoloadStub stubcmd = entry.getValue();
       stubcmd.load(interp, cmdName);
@@ -972,9 +967,7 @@ public class Namespace {
     // exported commands that match the string pattern. Create an "imported
     // command" in the current namespace for each imported command; these
     // commands redirect their invocations to the "real" command.
-    for (Iterator<Map.Entry<String, WrappedCommand>> iter = importNs.cmdTable.entrySet().iterator();
-        iter.hasNext(); ) {
-      Map.Entry<String, WrappedCommand> entry = iter.next();
+    for (Map.Entry<String, WrappedCommand> entry : importNs.cmdTable.entrySet()) {
       cmdName = entry.getKey();
 
       if (Util.stringMatch(cmdName, simplePattern)) {
@@ -1027,10 +1020,7 @@ public class Namespace {
             WrappedCommand testcmd = realCmd.ns.cmdTable.get(cmdName);
             if (testcmd != realCmd) {
               /* Need to actually search for it */
-              for (Iterator<Map.Entry<String, WrappedCommand>> itr =
-                      realCmd.ns.cmdTable.entrySet().iterator();
-                  itr.hasNext(); ) {
-                Map.Entry<String, WrappedCommand> entr = itr.next();
+              for (Map.Entry<String, WrappedCommand> entr : realCmd.ns.cmdTable.entrySet()) {
                 if (entr.getValue() == realCmd) {
                   cmdPath = realCmd.ns.fullName + "::" + entr.getKey();
                   break;
@@ -1139,9 +1129,7 @@ public class Namespace {
 
     ArrayList<WrappedCommand> matchingCommands = new ArrayList<WrappedCommand>();
 
-    for (Iterator<Map.Entry<String, WrappedCommand>> iter = importNs.cmdTable.entrySet().iterator();
-        iter.hasNext(); ) {
-      Map.Entry<String, WrappedCommand> entry = iter.next();
+    for (Map.Entry<String, WrappedCommand> entry : importNs.cmdTable.entrySet()) {
       cmdName = entry.getKey();
       cmd = entry.getValue();
 
@@ -1164,9 +1152,7 @@ public class Namespace {
        */
       ArrayList<WrappedCommand> commandsToDelete =
           new ArrayList<WrappedCommand>(matchingCommands.size());
-      for (Iterator<Map.Entry<String, WrappedCommand>> iter = ns.cmdTable.entrySet().iterator();
-          iter.hasNext(); ) {
-        Map.Entry<String, WrappedCommand> entry = iter.next();
+      for (Map.Entry<String, WrappedCommand> entry : ns.cmdTable.entrySet()) {
         cmd = entry.getValue();
 
         if (cmd.cmd instanceof ImportedCmdData) {
@@ -1960,8 +1946,8 @@ public class Namespace {
 
           // nsPtr->cmdRefEpoch++;
 
-          for (Iterator iter = ns.cmdTable.entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
+          for (Object o : ns.cmdTable.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             wcmd = (WrappedCommand) entry.getValue();
             wcmd.incrEpoch();
           }
@@ -2069,20 +2055,18 @@ public class Namespace {
    * @return first element in the hash table
    */
   public static Object FirstHashEntry(HashMap table) {
-    Object retVal;
     Set eset = table.entrySet();
     if (eset.size() == 0) {
       return null;
     }
-    Iterator iter = eset.iterator();
-    if (!iter.hasNext()) {
-      throw new TclRuntimeError("no next() object but set size was " + eset.size());
+    for (Object o : eset) {
+      Map.Entry entry = (Map.Entry) o;
+      Object retVal = entry.getValue();
+      if (retVal == null) {
+        throw new TclRuntimeError("entry value should not be null");
+      }
+      return retVal;
     }
-    Map.Entry entry = (Map.Entry) iter.next();
-    retVal = entry.getValue();
-    if (retVal == null) {
-      throw new TclRuntimeError("entry value should not be null");
-    }
-    return retVal;
+    return null;
   }
 } // end class Namespace

@@ -22,7 +22,6 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Set;
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -186,11 +185,9 @@ public final class EncodingCmd implements Command {
     all.add(defaultCharset.name());
     all.addAll(aliases);
 
-    Iterator<String> iterator = all.iterator();
-
     String enc = null;
-    while (iterator.hasNext()) {
-      enc = iterator.next();
+    for (String encName : all) {
+      enc = encName;
       // Lookup EncodingMap for this Java encoding name
       String key = "java," + enc;
       EncodingMap map = (EncodingMap) encodeHash.get(key);
@@ -389,13 +386,15 @@ public final class EncodingCmd implements Command {
             systemJavaEncoding = javaEncoding;
 
             /* TCL probably does this differently, but it's the easiest way to implement in JTCL */
-            if (interp.systemEncodingChangesStdoutStderr) {
+            if (interp.isSystemEncodingChangesStdoutStderr()) {
               Channel chan = TclIO.getChannel(interp, "stdout");
               if (chan != null) chan.setEncoding(systemJavaEncoding);
               chan = TclIO.getChannel(interp, "stderr");
-              if (chan != null) chan.setEncoding(systemJavaEncoding);
-              interp.systemEncodingChangesStdoutStderr =
-                  true; // reset it because getChannel() cleared it
+              if (chan != null) {
+                chan.setEncoding(systemJavaEncoding);
+              }
+              // reset it because getChannel() cleared it
+              interp.setSystemEncodingChangesStdoutStderr(true);
             }
           }
 

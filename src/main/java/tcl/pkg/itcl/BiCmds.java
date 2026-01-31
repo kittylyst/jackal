@@ -32,7 +32,6 @@
 
 package tcl.pkg.itcl;
 
-import java.util.Iterator;
 import java.util.Map;
 import tcl.lang.CallFrame;
 import tcl.lang.Command;
@@ -320,8 +319,8 @@ public class BiCmds {
         hier = new ItclHierIter();
         Class.InitHierIter(hier, contextClass);
         while ((cd = Class.AdvanceHierIter(hier)) != null) {
-          for (Iterator iter = cd.variables.entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
+          for (Object o : cd.variables.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             String key = (String) entry.getKey();
             vdefn = (ItclVarDefn) entry.getValue();
 
@@ -1080,8 +1079,8 @@ public class BiCmds {
         hier = new ItclHierIter();
         Class.InitHierIter(hier, contextClass);
         while ((cdefn = Class.AdvanceHierIter(hier)) != null) {
-          for (Iterator iter = cdefn.functions.entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
+          for (Object o : cdefn.functions.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             String key = (String) entry.getKey();
             mfunc = (ItclMemberFunc) entry.getValue();
             obj = TclString.newInstance(mfunc.member.fullname);
@@ -1303,8 +1302,8 @@ public class BiCmds {
         hier = new ItclHierIter();
         Class.InitHierIter(hier, contextClass);
         while ((cdefn = Class.AdvanceHierIter(hier)) != null) {
-          for (Iterator iter = cdefn.variables.entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
+          for (Object o : cdefn.variables.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             String key = (String) entry.getKey();
             vdefn = (ItclVarDefn) entry.getValue();
 

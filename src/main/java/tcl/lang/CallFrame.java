@@ -16,7 +16,6 @@ package tcl.lang;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -235,8 +234,8 @@ public class CallFrame {
       return alist;
     }
 
-    for (Iterator iter = varTable.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : varTable.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       Var v = (Var) entry.getValue();
       if (!v.isVarUndefined()) {
         alist.add(v.hashKey);
@@ -256,8 +255,8 @@ public class CallFrame {
       return alist;
     }
 
-    for (Iterator iter = varTable.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : varTable.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       Var v = (Var) entry.getValue();
       if (!v.isVarUndefined() && !v.isVarLink()) {
         alist.add(v.hashKey);

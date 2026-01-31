@@ -20,7 +20,6 @@
 
 package tcl.lang.cmd;
 
-import java.util.Iterator;
 import java.util.Map;
 import tcl.lang.CallFrame;
 import tcl.lang.Command;
@@ -252,8 +251,8 @@ public final class NamespaceCmd implements InternalRep, Command {
     // whose names match the specified pattern, if any.
 
     list = TclList.newInstance();
-    for (Iterator iter = ns.childTable.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : ns.childTable.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       childNs = (Namespace) entry.getValue();
       if ((pattern == null) || Util.stringMatch(childNs.fullName, pattern)) {
         elem = TclString.newInstance(childNs.fullName);

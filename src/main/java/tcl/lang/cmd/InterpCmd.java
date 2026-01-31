@@ -15,8 +15,6 @@
 
 package tcl.lang.cmd;
 
-import java.util.Iterator;
-import java.util.Map;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclException;
@@ -292,10 +290,9 @@ public final class InterpCmd implements Command {
           Interp slaveInterp = getInterp(interp, objv);
 
           TclObject result = TclList.newInstance();
-          for (Iterator iter = slaveInterp.slaveTable.entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            String string = (String) entry.getKey();
-            TclList.append(interp, result, TclString.newInstance(string));
+          for (var entry : slaveInterp.getSlaveTable().entrySet()) {
+            String s = entry.getKey();
+            TclList.append(interp, result, TclString.newInstance(s));
           }
           interp.setResult(result);
 
@@ -447,11 +444,11 @@ public final class InterpCmd implements Command {
 
     for (int i = 0; i < objv.length; i++) {
       String name = objv[i].toString();
-      if (!searchInterp.slaveTable.containsKey(name)) {
+      if (!searchInterp.getSlaveTable().containsKey(name)) {
         searchInterp = null;
         break;
       }
-      InterpSlaveCmd slave = (InterpSlaveCmd) searchInterp.slaveTable.get(name);
+      InterpSlaveCmd slave = (InterpSlaveCmd) searchInterp.getSlaveTable().get(name);
       searchInterp = slave.slaveInterp;
       if (searchInterp == null) {
         break;

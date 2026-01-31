@@ -15,8 +15,6 @@
 
 package tcl.lang.cmd;
 
-import java.util.Iterator;
-import java.util.Map;
 import tcl.lang.CommandWithDispose;
 import tcl.lang.Interp;
 import tcl.lang.Namespace;
@@ -136,11 +134,11 @@ public final class InterpAliasCmd implements CommandWithDispose {
    */
   public void disposeCmd() {
     if (aliasEntry != null) {
-      slaveInterp.aliasTable.remove(aliasEntry);
+      slaveInterp.getAliasTable().remove(aliasEntry);
     }
 
     if (slaveCmd != null) {
-      targetInterp.targetTable.remove(slaveCmd);
+      targetInterp.getTargetTable().remove(slaveCmd);
     }
 
     name.release();
@@ -175,7 +173,7 @@ public final class InterpAliasCmd implements CommandWithDispose {
       int objIx, // Offset of first element in objv.
       TclObject[] objv) // Additional arguments to store with alias
       throws TclException {
-    String string = name.toString();
+    String nameStr = name.toString();
 
     /* Don't allow alias over an interpreter's own slave command - see test interp-14.4 */
     WrappedCommand slaveCmd = Namespace.findCommand(slaveInterp, name.toString(), null, 0);
@@ -197,8 +195,8 @@ public final class InterpAliasCmd implements CommandWithDispose {
     TclList.append(interp, alias.prefix, targetName);
     TclList.insert(interp, alias.prefix, 1, objv, objIx, objv.length - 1);
 
-    slaveInterp.createCommand(string, alias);
-    alias.slaveCmd = Namespace.findCommand(slaveInterp, string, null, 0);
+    slaveInterp.createCommand(nameStr, alias);
+    alias.slaveCmd = Namespace.findCommand(slaveInterp, nameStr, null, 0);
 
     try {
       interp.preventAliasLoop(slaveInterp, alias.slaveCmd);
@@ -215,13 +213,13 @@ public final class InterpAliasCmd implements CommandWithDispose {
     // Make an entry in the alias table. If it already exists delete
     // the alias command. Then retry.
 
-    if (slaveInterp.aliasTable.containsKey(string)) {
-      InterpAliasCmd oldAlias = (InterpAliasCmd) slaveInterp.aliasTable.get(string);
+    if (slaveInterp.getAliasTable().containsKey(nameStr)) {
+      InterpAliasCmd oldAlias = slaveInterp.getAliasTable().get(nameStr);
       slaveInterp.deleteCommandFromToken(oldAlias.slaveCmd);
     }
 
-    alias.aliasEntry = string;
-    slaveInterp.aliasTable.put(string, alias);
+    alias.aliasEntry = nameStr;
+    slaveInterp.getAliasTable().put(nameStr, alias);
 
     // Create the new command. We must do it after deleting any old command,
     // because the alias may be pointing at a renamed alias, as in:
@@ -230,7 +228,7 @@ public final class InterpAliasCmd implements CommandWithDispose {
     // rename foo zop # Now rename the alias
     // interp alias {} foo {} zop # Now recreate "foo"...
 
-    masterInterp.targetTable.put(alias.slaveCmd, slaveInterp);
+    masterInterp.getTargetTable().put(alias.slaveCmd, slaveInterp);
 
     interp.setResult(name);
   }
@@ -258,11 +256,11 @@ public final class InterpAliasCmd implements CommandWithDispose {
     // delete it.
 
     String string = name.toString();
-    if (!slaveInterp.aliasTable.containsKey(string)) {
+    if (!slaveInterp.getAliasTable().containsKey(string)) {
       throw new TclException(interp, "alias \"" + string + "\" not found");
     }
 
-    InterpAliasCmd alias = (InterpAliasCmd) slaveInterp.aliasTable.get(string);
+    InterpAliasCmd alias = slaveInterp.getAliasTable().get(string);
     slaveInterp.deleteCommandFromToken(alias.slaveCmd);
   }
 
@@ -291,8 +289,8 @@ public final class InterpAliasCmd implements CommandWithDispose {
     // describe it.
 
     String string = name.toString();
-    if (slaveInterp.aliasTable.containsKey(string)) {
-      InterpAliasCmd alias = (InterpAliasCmd) slaveInterp.aliasTable.get(string);
+    if (slaveInterp.getAliasTable().containsKey(string)) {
+      InterpAliasCmd alias = (InterpAliasCmd) slaveInterp.getAliasTable().get(string);
       interp.setResult(alias.prefix);
     }
   }
@@ -315,8 +313,7 @@ public final class InterpAliasCmd implements CommandWithDispose {
       Interp slaveInterp) // Interp whose aliases to compute.
       throws TclException {
     TclObject result = TclList.newInstance();
-    for (Iterator iter = slaveInterp.aliasTable.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (var entry : slaveInterp.getAliasTable().entrySet()) {
       InterpAliasCmd alias = (InterpAliasCmd) entry.getValue();
       TclList.append(interp, result, alias.name);
     }
@@ -352,11 +349,11 @@ public final class InterpAliasCmd implements CommandWithDispose {
    *     <p>Side effects: None.
    */
   static Interp getTargetInterp(Interp slaveInterp, String aliasName) {
-    if (!slaveInterp.aliasTable.containsKey(aliasName)) {
+    if (!slaveInterp.getAliasTable().containsKey(aliasName)) {
       return null;
     }
 
-    InterpAliasCmd alias = (InterpAliasCmd) slaveInterp.aliasTable.get(aliasName);
+    InterpAliasCmd alias = slaveInterp.getAliasTable().get(aliasName);
 
     return alias.targetInterp;
   }

@@ -19,9 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import tcl.lang.CallFrame;
 import tcl.lang.Command;
@@ -313,8 +311,8 @@ public final class InfoCmd implements Command {
     list = TclList.newInstance();
 
     if (ns != null) {
-      for (Iterator iter = ns.cmdTable.entrySet().iterator(); iter.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iter.next();
+      for (Object o : ns.cmdTable.entrySet()) {
+        Map.Entry entry = (Map.Entry) o;
         cmdName = (String) entry.getKey();
 
         if ((simplePattern == null) || Util.stringMatch(cmdName, simplePattern)) {
@@ -335,8 +333,8 @@ public final class InfoCmd implements Command {
       // the effective namespace.
 
       if ((ns != globalNs) && !specificNsInPattern) {
-        for (Iterator iter = globalNs.cmdTable.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
+        for (Object o : globalNs.cmdTable.entrySet()) {
+          Map.Entry entry = (Map.Entry) o;
           cmdName = (String) entry.getKey();
           if ((simplePattern == null) || Util.stringMatch(cmdName, simplePattern)) {
             if (ns.cmdTable.get(cmdName) == null) {
@@ -481,10 +479,8 @@ public final class InfoCmd implements Command {
     list = TclList.newInstance();
 
     Set set = mathFns.mathFuncTable.entrySet();
-    Iterator it = set.iterator();
-
-    while (it.hasNext()) {
-      Map.Entry entry = (Map.Entry) it.next();
+    for (Object o : set) {
+      Map.Entry entry = (Map.Entry) o;
       varName = (String) entry.getKey();
 
       if ((pattern == null) || Util.stringMatch(varName, pattern)) {
@@ -525,8 +521,8 @@ public final class InfoCmd implements Command {
 
     list = TclList.newInstance();
 
-    for (Iterator iter = globalNs.varTable.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : globalNs.varTable.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       varName = (String) entry.getKey();
       var = (Var) entry.getValue();
       if (var.isVarUndefined()) {
@@ -872,9 +868,7 @@ public final class InfoCmd implements Command {
 
     list = TclList.newInstance();
     if (namespace != null) {
-      for (Iterator<Entry<String, WrappedCommand>> iter = namespace.cmdTable.entrySet().iterator();
-          iter.hasNext(); ) {
-        Map.Entry<String, WrappedCommand> entry = iter.next();
+      for (Map.Entry<String, WrappedCommand> entry : namespace.cmdTable.entrySet()) {
         cmdName = entry.getKey();
         cmd = entry.getValue();
 
@@ -1025,8 +1019,8 @@ public final class InfoCmd implements Command {
       // but a specific namespace was specified. Create a list containing
       // only the variables in the effective namespace's variable table.
 
-      for (Iterator iter = ns.varTable.entrySet().iterator(); iter.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iter.next();
+      for (Object o : ns.varTable.entrySet()) {
+        Map.Entry entry = (Map.Entry) o;
         varName = (String) entry.getKey();
         var = (Var) entry.getValue();
 
@@ -1050,8 +1044,8 @@ public final class InfoCmd implements Command {
       // namespace.
 
       if ((ns != globalNs) && !specificNsInPattern) {
-        for (Iterator iter = globalNs.varTable.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
+        for (Object o : globalNs.varTable.entrySet()) {
+          Map.Entry entry = (Map.Entry) o;
           varName = (String) entry.getKey();
           var = (Var) entry.getValue();
 

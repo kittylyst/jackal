@@ -15,8 +15,6 @@
 
 package tcl.lang.cmd;
 
-import java.util.Iterator;
-import java.util.Map;
 import tcl.lang.AssocData;
 import tcl.lang.CommandWithDispose;
 import tcl.lang.Interp;
@@ -214,7 +212,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
   public void disposeCmd() {
     // Unlink the slave from its master interpreter.
 
-    masterInterp.slaveTable.remove(path);
+    masterInterp.getSlaveTable().remove(path);
 
     // Set to null so that when the InterpInfo is cleaned up in the slave
     // it does not try to delete the command causing all sorts of grief.
@@ -246,23 +244,22 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
       {
     // There shouldn't be any commands left.
 
-    if (!interp.slaveTable.isEmpty()) {
+    if (!interp.getSlaveTable().isEmpty()) {
       throw new TclRuntimeError("disposeAssocData: commands still exist");
     }
-    interp.slaveTable = null;
+    interp.getSlaveTable().clear();
 
     // Tell any interps that have aliases to this interp that they should
     // delete those aliases. If the other interp was already dead, it
     // would have removed the target record already.
 
-    for (Iterator iter = interp.targetTable.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
-      WrappedCommand slaveCmd = (WrappedCommand) entry.getKey();
-      Interp slaveInterp = (Interp) entry.getValue();
+    for (var entry : interp.getTargetTable().entrySet()) {
+      WrappedCommand slaveCmd = entry.getKey();
+      Interp slaveInterp = entry.getValue();
       slaveInterp.deleteCommandFromToken(slaveCmd);
     }
 
-    interp.targetTable = null;
+    interp.getTargetTable().clear();
 
     if (interp.interpChanTable != null) {
       // Tear down channel table, be careful to pull the first element
@@ -287,10 +284,10 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
 
     // There shouldn't be any aliases left.
 
-    if (!interp.aliasTable.isEmpty()) {
+    if (!interp.getAliasTable().isEmpty()) {
       throw new TclRuntimeError("disposeAssocData: aliases still exist");
     }
-    interp.aliasTable = null;
+    interp.getAliasTable().clear();
   }
 
   /**
@@ -333,7 +330,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
       safe = masterInterp.isSafe;
     }
 
-    if (masterInterp.slaveTable.containsKey(pathString)) {
+    if (masterInterp.getSlaveTable().containsKey(pathString)) {
       throw new TclException(
           interp, "interpreter named \"" + pathString + "\" already exists, cannot create");
     }
@@ -353,7 +350,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
     masterInterp.createCommand(pathString, slaveInterp.slave);
     slaveInterp.slave.interpCmd = Namespace.findCommand(masterInterp, pathString, null, 0);
 
-    masterInterp.slaveTable.put(pathString, slaveInterp.slave);
+    masterInterp.getSlaveTable().put(pathString, slaveInterp.slave);
 
     if (debug) {
       System.out.println(
@@ -506,18 +503,10 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
    * @param slaveInterp interp whose hidden commands to query
    * @throws TclException
    */
-  static void hidden(
-      Interp interp, // Interp for data return.
-      Interp slaveInterp) // Interp whose hidden commands to query.
-      throws TclException {
-    if (slaveInterp.hiddenCmdTable == null) {
-      return;
-    }
-
+  static void hidden(Interp interp, Interp slaveInterp) throws TclException {
     TclObject result = TclList.newInstance();
-    for (Iterator iter = slaveInterp.hiddenCmdTable.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
-      String cmdName = (String) entry.getKey();
+    for (var entry : slaveInterp.getHiddenCmdTable().entrySet()) {
+      String cmdName = entry.getKey();
       TclList.append(interp, result, TclString.newInstance(cmdName));
     }
     interp.setResult(result);
@@ -772,7 +761,8 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
     searchInterp = interp;
     for (int i = 0; i < len; i++) {
       TclObject slavePathIndex = TclList.index(interp, slavePath, i);
-      InterpSlaveCmd isc = (InterpSlaveCmd) searchInterp.slaveTable.get(slavePathIndex.toString());
+      InterpSlaveCmd isc =
+          (InterpSlaveCmd) searchInterp.getSlaveTable().get(slavePathIndex.toString());
       if (isc == null) {
         searchInterp = null;
         break;

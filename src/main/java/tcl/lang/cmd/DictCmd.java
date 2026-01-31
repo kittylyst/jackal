@@ -13,7 +13,6 @@
 
 package tcl.lang.cmd;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import tcl.lang.Command;
@@ -875,9 +874,8 @@ public final class DictCmd implements Command {
       final TclObject tmp = TclDict.newInstance();
       // Get new key values -- using keys that were in the
       // dictionary when we started.
-      Iterator keys = keyList.iterator();
-      while (keys.hasNext()) {
-        TclObject key = (TclObject) keys.next();
+      for (Object keyObj : keyList) {
+        TclObject key = (TclObject) keyObj;
         TclObject val = null;
         try {
           val = interp.getVar(key, 0);

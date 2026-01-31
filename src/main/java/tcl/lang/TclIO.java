@@ -15,7 +15,6 @@ package tcl.lang;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import tcl.lang.channel.Channel;
 import tcl.lang.channel.FileEvent;
 import tcl.lang.channel.FileEventScript;
@@ -114,9 +113,9 @@ public class TclIO {
     HashMap<String, Channel> chanTable = getInterpChanTable(interp);
 
     /* Once we request stdin/stderr, [system encoding VALUE] can't change its encoding */
-    if (interp.systemEncodingChangesStdoutStderr
+    if (interp.isSystemEncodingChangesStdoutStderr()
         && ("stdout".equals(chanName) || "stderr".equals(chanName))) {
-      interp.systemEncodingChangesStdoutStderr = false;
+      interp.setSystemEncodingChangesStdoutStderr(false);
     }
     if (chanTable.containsKey(chanName)) {
       return chanTable.get(chanName);
@@ -141,14 +140,10 @@ public class TclIO {
    * @throws TclException
    */
   public static void getChannelNames(Interp interp, TclObject pattern) throws TclException {
-    Iterator<String> it = getInterpChanTable(interp).keySet().iterator();
-
     /* Once we request stdin/stderr, [system encoding VALUE] can't change its encoding */
-    interp.systemEncodingChangesStdoutStderr = false;
+    interp.setSystemEncodingChangesStdoutStderr(false);
 
-    while (it.hasNext()) {
-      String chanName = it.next();
-
+    for (String chanName : getInterpChanTable(interp).keySet()) {
       try {
         if (pattern == null) {
           interp.appendElement(chanName);
@@ -198,10 +193,8 @@ public class TclIO {
    */
   public static void flushAllOpenChannels(Interp interp) {
     HashMap<String, Channel> chanTable = getInterpChanTable(interp);
-    Iterator<Channel> chanIt = chanTable.values().iterator();
 
-    while (chanIt.hasNext()) {
-      Channel channel = chanIt.next();
+    for (Channel channel : chanTable.values()) {
       if (channel.isWriteOnly() || channel.isReadWrite()) {
         boolean blockingMode = channel.getBlocking();
         if (!blockingMode) channel.setBlocking(true);
@@ -230,7 +223,7 @@ public class TclIO {
     HashMap<String, Channel> masterTable = getInterpChanTable(master);
     HashMap<String, Channel> slaveTable = getInterpChanTable(slave);
 
-    slave.systemEncodingChangesStdoutStderr = false;
+    slave.setSystemEncodingChangesStdoutStderr(false);
 
     Channel channel = masterTable.get(chanName);
     if (channel != null) {

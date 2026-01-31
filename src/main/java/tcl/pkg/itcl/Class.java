@@ -482,8 +482,8 @@ public class Class {
 
     varTable = new HashMap();
 
-    for (Iterator iter = cdefn.resolveVars.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : cdefn.resolveVars.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       vlookup = (ItclVarLookup) entry.getValue();
 
       if (--vlookup.usage == 0) {
@@ -511,8 +511,8 @@ public class Class {
 
     // Delete all variable definitions.
 
-    for (Iterator iter = cdefn.variables.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : cdefn.variables.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       vdefn = (ItclVarDefn) entry.getValue();
       DeleteVarDefn(vdefn);
     }
@@ -521,8 +521,8 @@ public class Class {
 
     // Delete all function definitions.
 
-    for (Iterator iter = cdefn.functions.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : cdefn.functions.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       ItclMemberFunc mfunc = (ItclMemberFunc) entry.getValue();
       Util.ReleaseData(mfunc);
     }
@@ -1169,8 +1169,8 @@ public class Class {
 
     // Clear the variable resolution table.
 
-    for (Iterator iter = cdefn.resolveVars.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : cdefn.resolveVars.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       vlookup = (ItclVarLookup) entry.getValue();
       if (--vlookup.usage == 0) {
         // ckfree(vlookup);
@@ -1195,8 +1195,8 @@ public class Class {
     Class.InitHierIter(hier, cdefn);
     cd = Class.AdvanceHierIter(hier);
     while (cd != null) {
-      for (Iterator iter = cd.variables.entrySet().iterator(); iter.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iter.next();
+      for (Object o : cd.variables.entrySet()) {
+        Map.Entry entry = (Map.Entry) o;
         key = (String) entry.getKey();
         vdefn = (ItclVarDefn) entry.getValue();
 
@@ -1291,8 +1291,8 @@ public class Class {
     Class.InitHierIter(hier, cdefn);
     cd = Class.AdvanceHierIter(hier);
     while (cd != null) {
-      for (Iterator iter = cd.functions.entrySet().iterator(); iter.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iter.next();
+      for (Object o : cd.functions.entrySet()) {
+        Map.Entry entry = (Map.Entry) o;
         key = (String) entry.getKey();
         mfunc = (ItclMemberFunc) entry.getValue();
 

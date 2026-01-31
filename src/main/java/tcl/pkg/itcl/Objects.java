@@ -33,7 +33,6 @@
 package tcl.pkg.itcl;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import tcl.lang.CallFrame;
 import tcl.lang.CommandWithDispose;
@@ -176,8 +175,8 @@ public class Objects {
 
     cd = Class.AdvanceHierIter(hier);
     while (cd != null) {
-      for (Iterator iter = cd.variables.entrySet().iterator(); iter.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iter.next();
+      for (Object o : cd.variables.entrySet()) {
+        Map.Entry entry = (Map.Entry) o;
         vdefn = (ItclVarDefn) entry.getValue();
 
         if ((vdefn.member.flags & ItclInt.THIS_VAR) != 0) {
@@ -746,8 +745,8 @@ public class Objects {
     cmdList = new Itcl_List();
     Util.InitList(cmdList);
 
-    for (Iterator iter = cdefn.resolveCmds.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : cdefn.resolveCmds.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       name = (String) entry.getKey();
       mfunc = (ItclMemberFunc) entry.getValue();
 
@@ -946,8 +945,8 @@ public class Objects {
       }
 
       if (!pushErr) {
-        for (Iterator iter = cd.variables.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
+        for (Object o : cd.variables.entrySet()) {
+          Map.Entry entry = (Map.Entry) o;
           String key = (String) entry.getKey();
           vdefn = (ItclVarDefn) entry.getValue();
 
