@@ -18,10 +18,7 @@
 
 package tcl.pkg.java;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.PackageNameException;
@@ -45,24 +42,23 @@ public final class JavaImportCmd implements Command {
 
     final String usage = "java::import ?-forget? ?-package pkg? ?class ...?";
 
-    HashMap classTable = interp.importTable[0];
-    HashMap packageTable = interp.importTable[1];
-    HashMap wildcardTable = interp.importTable[2];
+    Map<String, String> classTable = interp.importTable[0];
+    Map<String, List<String>> packageTable = interp.importTable[1];
+    Map wildcardTable = interp.importTable[2];
 
     boolean forget = false;
     String pkg = null;
     TclObject import_list;
-    String elem, elem2;
+    String elem;
     int startIdx, i;
 
     // If there are no args simply return all the imported classes
     if (objv.length == 1) {
       import_list = TclList.newInstance();
 
-      for (Object o : classTable.entrySet()) {
-        Map.Entry entry = (Map.Entry) o;
-        String key = (String) entry.getKey();
-        String value = (String) entry.getValue();
+      for (Map.Entry<String, String> entry : classTable.entrySet()) {
+        String key = entry.getKey();
+        String value = entry.getValue();
         TclList.append(interp, import_list, TclString.newInstance(value));
       }
       ArrayList wildcardList = (ArrayList) wildcardTable.get("*");
@@ -133,9 +129,8 @@ public final class JavaImportCmd implements Command {
 
         boolean found = false;
 
-        for (Iterator iter = packageTable.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
-          elem = (String) entry.getKey();
+        for (Map.Entry<String, List<String>> entry : packageTable.entrySet()) {
+          elem = entry.getKey();
 
           if (elem.equals(pkg)) {
             // This is the package we are looking for, remove it!
@@ -146,11 +141,10 @@ public final class JavaImportCmd implements Command {
 
             // Loop over each class imported from this package
             // and remove the class and package entry.
-            ArrayList alist = (ArrayList) entry.getValue();
+            List<String> alist = entry.getValue();
 
-            for (Object o2 : alist) {
+            for (var elem2 : alist) {
               // Remove imported class from the classTable
-              elem2 = (String) o2;
               if (classTable.remove(elem2) == null) {
                 throw new TclRuntimeError("key " + elem2 + " not in classTable");
               }
@@ -180,31 +174,26 @@ public final class JavaImportCmd implements Command {
 
         // "java::import -package pkg" should return each imported
         // class in the given package
-
-        for (Object o : packageTable.entrySet()) {
-          Map.Entry entry = (Map.Entry) o;
-          elem = (String) entry.getKey();
+        for (var entry : packageTable.entrySet()) {
+          elem = entry.getKey();
 
           if (elem.equals(pkg)) {
             // This is the package we are looking for.
 
             import_list = TclList.newInstance();
-
             // Loop over each class imported from this package
-            ArrayList alist = (ArrayList) entry.getValue();
-            for (Object o2 : alist) {
+            List<String> alist = entry.getValue();
+            for (String elem2 : alist) {
               // Remove imported class from the classTable
-              elem2 = (String) o2;
 
-              TclList.append(
-                  interp, import_list, TclString.newInstance((String) classTable.get(elem2)));
+              TclList.append(interp, import_list, TclString.newInstance(classTable.get(elem2)));
             }
 
             // add wildcard entry, if any
             ArrayList wildcardList = (ArrayList) wildcardTable.get("*");
             if (wildcardList != null) {
               if (wildcardList.contains(pkg)) {
-                TclList.append(interp, import_list, TclString.newInstance((String) pkg + ".*"));
+                TclList.append(interp, import_list, TclString.newInstance(pkg + ".*"));
               }
             }
 

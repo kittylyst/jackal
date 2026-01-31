@@ -252,8 +252,8 @@ public final class ArrayCmd implements Command {
           // pattern, test for a match. Each valid key and its value
           // is written into sbuf, which is returned.
 
-          for (Iterator iter = table.entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
+          for (Object o : table.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             key = (String) entry.getKey();
             Var elem = (Var) entry.getValue();
             if (!elem.isVarUndefined()) {
@@ -390,8 +390,8 @@ public final class ArrayCmd implements Command {
 
           int i = tclVar.getNextIndex();
           String s = "s-" + i + "-" + objv[2].toString();
-          Map table = tclVar.getArrayMap();
-          Iterator iter = table.entrySet().iterator();
+          var table = tclVar.getArrayMap();
+          var iter = table.entrySet().iterator();
           tclVar.sidVec.add(new SearchId(iter, s, i));
           interp.setResult(s);
           break;

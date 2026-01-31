@@ -285,7 +285,9 @@ public class Interp extends EventuallyFreed {
   int parserTokensUsed;
 
   /** Used ONLY by JavaImportCmd: classTable, packageTable, wildcardTable */
-  public HashMap[] importTable = {new HashMap(), new HashMap(), new HashMap()};
+  public HashMap[] importTable = {
+    new HashMap<String, String>(), new HashMap<String, List<String>>(), new HashMap()
+  };
 
   /**
    * Used by callers of Util.strtoul(), also used in FormatCmd.strtoul(). There is typically only
