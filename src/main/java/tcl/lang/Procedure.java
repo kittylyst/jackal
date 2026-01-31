@@ -245,7 +245,7 @@ public final class Procedure implements Command, CommandWithDispose {
    * @return true if the procedure is anonymous, created with [apply].
    */
   public boolean isLambda() {
-    return wcmd.hashKey == null;
+    return wcmd.getHashKey() == null;
   }
 
   /*
@@ -264,7 +264,7 @@ public final class Procedure implements Command, CommandWithDispose {
    */
 
   public static boolean isProc(WrappedCommand cmd) {
-    return (cmd.cmd instanceof Procedure);
+    return (cmd.getCmd() instanceof Procedure);
 
     /*
      * // FIXME: do we really want to get the original command // and test
@@ -316,9 +316,9 @@ public final class Procedure implements Command, CommandWithDispose {
     if (origCmd != null) {
       cmd = origCmd;
     }
-    if (!(cmd.cmd instanceof Procedure)) {
+    if (!(cmd.getCmd() instanceof Procedure)) {
       return null;
     }
-    return (Procedure) cmd.cmd;
+    return (Procedure) cmd.getCmd();
   }
 } // end Procedure

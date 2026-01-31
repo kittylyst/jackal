@@ -208,7 +208,7 @@ public class Class {
     interp.createCommand(cd.fullname, new HandleClassCmd(cd));
 
     cd.w_accessCmd = Namespace.findCommand(interp, cd.fullname, null, TCL.NAMESPACE_ONLY);
-    cd.accessCmd = cd.w_accessCmd.cmd;
+    cd.accessCmd = cd.w_accessCmd.getCmd();
 
     return cd;
   }
@@ -591,13 +591,13 @@ public class Class {
     HandleClassCmd hcc = null;
     WrappedCommand origCmd;
 
-    if (wcmd.cmd instanceof HandleClassCmd) {
-      hcc = (HandleClassCmd) wcmd.cmd;
+    if (wcmd.getCmd() instanceof HandleClassCmd) {
+      hcc = (HandleClassCmd) wcmd.getCmd();
     } else {
       // May be an imported command
       origCmd = Namespace.getOriginalCommand(wcmd);
-      if ((origCmd != null) && (origCmd.cmd instanceof HandleClassCmd)) {
-        hcc = (HandleClassCmd) origCmd.cmd;
+      if ((origCmd != null) && (origCmd.getCmd() instanceof HandleClassCmd)) {
+        hcc = (HandleClassCmd) origCmd.getCmd();
       }
     }
 
@@ -961,7 +961,7 @@ public class Class {
     // it--as it is being resolved again by the compiler.
 
     wcmd = mfunc.w_accessCmd;
-    isCmdDeleted = wcmd.deleted;
+    isCmdDeleted = wcmd.isDeleted();
 
     if (isCmdDeleted) {
       // disallow access!

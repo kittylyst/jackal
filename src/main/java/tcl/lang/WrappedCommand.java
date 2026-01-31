@@ -15,6 +15,7 @@
 package tcl.lang;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import tcl.lang.exception.TclException;
 
@@ -27,21 +28,13 @@ import tcl.lang.exception.TclException;
  * internal implementation of Jacl.
  */
 public final class WrappedCommand {
-  /**
-   * Reference to the table that this command is defined inside. The hashKey member can be used to
-   * lookup this WrappedCommand instance in the table of WrappedCommands. The table member combined
-   * with the hashKey member are equivilent to the C version's Command->hPtr.
-   */
-  public Map<String, WrappedCommand> table;
+  private Map<String, WrappedCommand> table = new HashMap<>();
 
-  /** A string that stores the name of the command. This name is NOT fully qualified. */
-  public String hashKey;
+  private String hashKey;
 
-  /** The namespace where the command is located */
-  public Namespace ns;
+  private Namespace ns;
 
-  /** The actual command interface that is being wrapped */
-  public Command cmd;
+  private Command cmd;
 
   /** List of command traces on this command */
   private ArrayList<CommandTrace> commandTraces = null;
@@ -61,25 +54,11 @@ public final class WrappedCommand {
   /** set to true if a step trace exists on this command */
   private boolean hasStepTrace = false;
 
-  /**
-   * Means that the command is in the process of being deleted. Other attempts to delete the command
-   * should be ignored.
-   */
-  public boolean deleted;
+  private boolean deleted;
 
-  /**
-   * List of each imported Command created in another namespace when this command is imported. These
-   * imported commands redirect invocations back to this command. The list is used to remove all
-   * those imported commands when deleting this "real" command.
-   */
-  ImportRef importRef;
+  private ImportRef importRef;
 
-  /**
-   * incremented to invalidate any references. that point to this command when it is renamed,
-   * deleted, hidden, or exposed. This field always have a value in the range 1 to Integer.MAX_VALUE
-   * (inclusive). User code should NEVER modify this value.
-   */
-  public int cmdEpoch;
+  private int cmdEpoch;
 
   /**
    * @return true if there are any command traces on this command
@@ -194,8 +173,9 @@ public final class WrappedCommand {
     }
 
     /* Fire any command traces */
-    if (commandTraces != null && !inProgress && !ns.interp.deleted) {
-      String oldCommand = ns.fullName + (ns.fullName.endsWith("::") ? "" : "::") + hashKey;
+    if (commandTraces != null && !inProgress && !getNs().interp.deleted) {
+      String oldCommand =
+          getNs().fullName + (getNs().fullName.endsWith("::") ? "" : "::") + getHashKey();
 
       /*
        * Copy the commandTrace array, because it can be modified by the
@@ -204,9 +184,9 @@ public final class WrappedCommand {
       Object[] copyOfTraces = commandTraces.toArray();
       for (Object commandTrace : copyOfTraces) {
         ((CommandTrace) commandTrace)
-            .trace(ns.interp, type, oldCommand, (type == CommandTrace.DELETE ? "" : newName));
+            .trace(getNs().interp, type, oldCommand, (type == CommandTrace.DELETE ? "" : newName));
       }
-      ns.interp.resetResult();
+      getNs().interp.resetResult();
     }
     switch (type) {
       case CommandTrace.DELETE:
@@ -387,7 +367,7 @@ public final class WrappedCommand {
    */
   public void invoke(Interp interp, TclObject[] objv) throws TclException {
     if (!mustCallInvoke(interp)) {
-      cmd.cmdProc(interp, objv); // bypass all trace stuff
+      getCmd().cmdProc(interp, objv); // bypass all trace stuff
       return;
     } else {
       TclException savedException = null;
@@ -410,9 +390,9 @@ public final class WrappedCommand {
       }
 
       /* A trace may have deleted the command */
-      if (deleted) {
+      if (isDeleted()) {
         /* See if command was destroyed and re-created */
-        WrappedCommand newCmd = Namespace.findCommand(interp, objv[0].toString(), this.ns, 0);
+        WrappedCommand newCmd = Namespace.findCommand(interp, objv[0].toString(), this.getNs(), 0);
         if (newCmd == null)
           throw new TclException(interp, "invalid command name \"" + objv[0] + "\"");
         else {
@@ -426,7 +406,7 @@ public final class WrappedCommand {
       if (hasStepTrace) hadStepTrace = interp.activateExecutionStepTrace(this);
 
       try {
-        cmd.cmdProc(interp, objv);
+        getCmd().cmdProc(interp, objv);
       } catch (TclException e) {
         savedException = e;
       }
@@ -478,10 +458,10 @@ public final class WrappedCommand {
    * was hidden, renamed, or deleted.
    */
   void incrEpoch() {
-    cmdEpoch++;
-    if (cmdEpoch == Integer.MIN_VALUE) {
+    setCmdEpoch(getCmdEpoch() + 1);
+    if (getCmdEpoch() == Integer.MIN_VALUE) {
       // Integer overflow, really unlikely but possible.
-      cmdEpoch = 1;
+      setCmdEpoch(1);
     }
   }
 
@@ -490,22 +470,100 @@ public final class WrappedCommand {
     StringBuffer sb = new StringBuffer();
 
     sb.append("Wrapper for ");
-    if (ns != null) {
-      sb.append(ns.fullName);
-      if (!ns.fullName.equals("::")) {
+    if (getNs() != null) {
+      sb.append(getNs().fullName);
+      if (!getNs().fullName.equals("::")) {
         sb.append("::");
       }
     }
-    if (table != null) {
-      sb.append(hashKey);
+    if (getTable() != null) {
+      sb.append(getHashKey());
     }
 
     sb.append(" -> ");
-    sb.append(cmd.getClass().getName());
+    sb.append(getCmd().getClass().getName());
 
     sb.append(" cmdEpoch is ");
-    sb.append(cmdEpoch);
+    sb.append(getCmdEpoch());
 
     return sb.toString();
+  }
+
+  /**
+   * Reference to the table that this command is defined inside. The hashKey member can be used to
+   * lookup this WrappedCommand instance in the table of WrappedCommands. The table member combined
+   * with the hashKey member are equivilent to the C version's Command->hPtr.
+   */
+  public Map<String, WrappedCommand> getTable() {
+    return table;
+  }
+
+  public void setTable(Map<String, WrappedCommand> cmdTable) {
+    this.table = cmdTable;
+  }
+
+  /** A string that stores the name of the command. This name is NOT fully qualified. */
+  public String getHashKey() {
+    return hashKey;
+  }
+
+  public void setHashKey(String hashKey) {
+    this.hashKey = hashKey;
+  }
+
+  /** The namespace where the command is located */
+  public Namespace getNs() {
+    return ns;
+  }
+
+  public void setNs(Namespace ns) {
+    this.ns = ns;
+  }
+
+  /** The actual command interface that is being wrapped */
+  public Command getCmd() {
+    return cmd;
+  }
+
+  public void setCmd(Command cmd) {
+    this.cmd = cmd;
+  }
+
+  /**
+   * Means that the command is in the process of being deleted. Other attempts to delete the command
+   * should be ignored.
+   */
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
+  }
+
+  /**
+   * incremented to invalidate any references. that point to this command when it is renamed,
+   * deleted, hidden, or exposed. This field always have a value in the range 1 to Integer.MAX_VALUE
+   * (inclusive). User code should NEVER modify this value.
+   */
+  public int getCmdEpoch() {
+    return cmdEpoch;
+  }
+
+  public void setCmdEpoch(int cmdEpoch) {
+    this.cmdEpoch = cmdEpoch;
+  }
+
+  /**
+   * List of each imported Command created in another namespace when this command is imported. These
+   * imported commands redirect invocations back to this command. The list is used to remove all
+   * those imported commands when deleting this "real" command.
+   */
+  public ImportRef getImportRef() {
+    return importRef;
+  }
+
+  public void setImportRef(ImportRef importRef) {
+    this.importRef = importRef;
   }
 }

@@ -1263,7 +1263,7 @@ class Util {
 
     interp.resetResult();
     if (wcmd.mustCallInvoke(interp)) wcmd.invoke(interp, cmdlinev);
-    else wcmd.cmd.cmdProc(interp, cmdlinev);
+    else wcmd.getCmd().cmdProc(interp, cmdlinev);
   }
 
   /*

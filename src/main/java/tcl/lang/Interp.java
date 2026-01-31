@@ -1444,8 +1444,8 @@ public class Interp extends EventuallyFreed {
       // restore them down below. That way, you can redefine a
       // command and its import status will remain intact.
 
-      oldRef = cmd.importRef;
-      cmd.importRef = null;
+      oldRef = cmd.getImportRef();
+      cmd.setImportRef(null);
 
       deleteCommandFromToken(cmd);
 
@@ -1457,28 +1457,28 @@ public class Interp extends EventuallyFreed {
         // away the new command (if we try to delete it again, we
         // could get stuck in an infinite loop).
 
-        cmd.table.remove(cmd.hashKey);
+        cmd.getTable().remove(cmd.getHashKey());
       }
     }
 
     cmd = new WrappedCommand();
     ns.getCmdTable().put(tail, cmd);
-    cmd.table = ns.getCmdTable();
-    cmd.hashKey = tail;
-    cmd.ns = ns;
-    cmd.cmd = cmdImpl;
-    cmd.deleted = false;
-    cmd.importRef = null;
-    cmd.cmdEpoch = 1;
+    cmd.setTable(ns.getCmdTable());
+    cmd.setHashKey(tail);
+    cmd.setNs(ns);
+    cmd.setCmd(cmdImpl);
+    cmd.setDeleted(false);
+    cmd.setImportRef(null);
+    cmd.setCmdEpoch(1);
 
     // Plug in any existing import references found above. Be sure
     // to update all of these references to point to the new command.
 
     if (oldRef != null) {
-      cmd.importRef = oldRef;
+      cmd.setImportRef(oldRef);
       while (oldRef != null) {
         refCmd = oldRef.importedCmd;
-        data = (ImportedCmdData) refCmd.cmd;
+        data = (ImportedCmdData) refCmd.getCmd();
         data.realCmd = cmd;
         oldRef = oldRef.next;
       }
@@ -1509,14 +1509,14 @@ public class Interp extends EventuallyFreed {
     // separator, and the command name.
 
     if (cmd != null) {
-      if (cmd.ns != null) {
-        name.append(cmd.ns.fullName);
-        if (cmd.ns != interp.globalNs) {
+      if (cmd.getNs() != null) {
+        name.append(cmd.getNs().fullName);
+        if (cmd.getNs() != interp.globalNs) {
           name.append("::");
         }
       }
-      if (cmd.table != null) {
-        name.append(cmd.hashKey);
+      if (cmd.getTable() != null) {
+        name.append(cmd.getHashKey());
       }
     }
 
@@ -1531,14 +1531,14 @@ public class Interp extends EventuallyFreed {
    * @return name of the command
    */
   public String getCommandName(WrappedCommand cmd) {
-    if ((cmd == null) || (cmd.table == null)) {
+    if ((cmd == null) || (cmd.getTable() == null)) {
       // This should only happen if command was "created" after the
       // interpreter began to be deleted, so there isn't really any
       // command. Just return an empty string.
 
       return "";
     }
-    return cmd.hashKey;
+    return cmd.getHashKey();
   }
 
   /**
@@ -1596,22 +1596,22 @@ public class Interp extends EventuallyFreed {
     // callback could try to delete or rename the command. The deleted
     // flag allows us to detect these cases and skip nested deletes.
 
-    if (cmd.deleted) {
+    if (cmd.isDeleted()) {
       // Another deletion is already in progress. Remove the hash
       // table entry now, but don't invoke a callback or free the
       // command structure.
 
-      if (cmd.hashKey != null && cmd.table != null) {
-        cmd.table.remove(cmd.hashKey);
-        cmd.table = null;
-        cmd.hashKey = null;
+      if (cmd.getHashKey() != null && cmd.getTable() != null) {
+        cmd.getTable().remove(cmd.getHashKey());
+        cmd.setTable(null);
+        cmd.setHashKey(null);
       }
       return 0;
     }
 
-    cmd.deleted = true;
-    if (cmd.cmd instanceof CommandWithDispose) {
-      ((CommandWithDispose) cmd.cmd).disposeCmd();
+    cmd.setDeleted(true);
+    if (cmd.getCmd() instanceof CommandWithDispose) {
+      ((CommandWithDispose) cmd.getCmd()).disposeCmd();
     }
 
     // Bump the command epoch counter. This will invalidate all cached
@@ -1623,7 +1623,7 @@ public class Interp extends EventuallyFreed {
     // commands were created that refer back to this command. Delete these
     // imported commands now.
 
-    for (ref = cmd.importRef; ref != null; ref = nextRef) {
+    for (ref = cmd.getImportRef(); ref != null; ref = nextRef) {
       nextRef = ref.next;
       importCmd = ref.importedCmd;
       deleteCommandFromToken(importCmd);
@@ -1636,15 +1636,15 @@ public class Interp extends EventuallyFreed {
     // Instead, use cmdPtr->hptr, and make sure that no-one else
     // has already deleted the hash entry.
 
-    if (cmd.table != null) {
-      cmd.table.remove(cmd.hashKey);
-      cmd.table = null;
-      cmd.hashKey = null;
+    if (cmd.getTable() != null) {
+      cmd.getTable().remove(cmd.getHashKey());
+      cmd.setTable(null);
+      cmd.setHashKey(null);
     }
 
     // Drop the reference to the Command instance inside the WrappedCommand
 
-    cmd.cmd = null;
+    cmd.setCmd(null);
 
     // We do not need to cleanup the WrappedCommand because GC will get it.
 
@@ -1685,7 +1685,7 @@ public class Interp extends EventuallyFreed {
               + oldName
               + "\": command doesn't exist");
     }
-    cmdNs = cmd.ns;
+    cmdNs = cmd.getNs();
 
     // If the new command name is NULL or empty, delete the command. Do this
     // with Tcl_DeleteCommandFromToken, since we already have the command.
@@ -1728,12 +1728,12 @@ public class Interp extends EventuallyFreed {
     // loop. Since we are adding a new command to a namespace, we must
     // handle any shadowing of the global commands that this might create.
 
-    oldTable = cmd.table;
-    oldHashKey = cmd.hashKey;
+    oldTable = cmd.getTable();
+    oldHashKey = cmd.getHashKey();
     newNs.getCmdTable().put(newTail, cmd);
-    cmd.table = newNs.getCmdTable();
-    cmd.hashKey = newTail;
-    cmd.ns = newNs;
+    cmd.setTable(newNs.getCmdTable());
+    cmd.setHashKey(newTail);
+    cmd.setNs(newNs);
     Namespace.resetShadowedCmdRefs(this, cmd);
 
     // Now check for an alias loop. If we detect one, put everything back
@@ -1743,9 +1743,9 @@ public class Interp extends EventuallyFreed {
       interp.preventAliasLoop(interp, cmd);
     } catch (TclException e) {
       newNs.getCmdTable().remove(newTail);
-      cmd.table = oldTable;
-      cmd.hashKey = oldHashKey;
-      cmd.ns = cmdNs;
+      cmd.setTable(oldTable);
+      cmd.setHashKey(oldHashKey);
+      cmd.setNs(cmdNs);
       throw e;
     }
 
@@ -1780,7 +1780,7 @@ public class Interp extends EventuallyFreed {
     // If we are not creating or renaming an alias, then it is
     // always OK to create or rename the command.
 
-    if (!(cmd.cmd instanceof InterpAliasCmd)) {
+    if (!(cmd.getCmd() instanceof InterpAliasCmd)) {
       return;
     }
 
@@ -1788,7 +1788,7 @@ public class Interp extends EventuallyFreed {
     // If we encounter the alias we are defining (or renaming to) any in
     // the chain then we have a loop.
 
-    InterpAliasCmd alias = (InterpAliasCmd) cmd.cmd;
+    InterpAliasCmd alias = (InterpAliasCmd) cmd.getCmd();
     InterpAliasCmd nextAlias = alias;
     while (true) {
 
@@ -1799,7 +1799,7 @@ public class Interp extends EventuallyFreed {
       if (aliasCmd == null) {
         return;
       }
-      if (aliasCmd.cmd == cmd.cmd) {
+      if (aliasCmd.getCmd() == cmd.getCmd()) {
         throw new TclException(
             this, "cannot define or rename alias \"" + alias.name + "\": would create a loop");
       }
@@ -1808,10 +1808,10 @@ public class Interp extends EventuallyFreed {
       // command is an alias - if so, follow the loop to its target
       // command. Otherwise we do not have a loop.
 
-      if (!(aliasCmd.cmd instanceof InterpAliasCmd)) {
+      if (!(aliasCmd.getCmd() instanceof InterpAliasCmd)) {
         return;
       }
-      nextAlias = (InterpAliasCmd) aliasCmd.cmd;
+      nextAlias = (InterpAliasCmd) aliasCmd.getCmd();
     }
   }
 
@@ -1835,7 +1835,7 @@ public class Interp extends EventuallyFreed {
       throw new TclRuntimeError("unexpected TclException: " + e);
     }
 
-    return ((cmd == null) ? null : cmd.cmd);
+    return ((cmd == null) ? null : cmd.getCmd());
   }
 
   /**
@@ -3247,7 +3247,7 @@ public class Interp extends EventuallyFreed {
 
     // Check that the command is really in global namespace
 
-    if (cmd.ns != globalNs) {
+    if (cmd.getNs() != globalNs) {
       throw new TclException(
           this, "can only hide global namespace commands" + " (use rename then hide)");
     }
@@ -3273,16 +3273,16 @@ public class Interp extends EventuallyFreed {
     // table. This is like deleting the command, so bump its command epoch;
     // this invalidates any cached references that point to the command.
 
-    if (cmd.table.containsKey(cmd.hashKey)) {
-      cmd.table.remove(cmd.hashKey);
+    if (cmd.getTable().containsKey(cmd.getHashKey())) {
+      cmd.getTable().remove(cmd.getHashKey());
       cmd.incrEpoch();
     }
 
     // Now link the hash table entry with the command structure.
     // We ensured above that the nsPtr was right.
 
-    cmd.table = getHiddenCmdTable();
-    cmd.hashKey = hiddenCmdToken;
+    cmd.setTable(getHiddenCmdTable());
+    cmd.setHashKey(hiddenCmdToken);
     getHiddenCmdTable().put(hiddenCmdToken, cmd);
   }
 
@@ -3329,7 +3329,7 @@ public class Interp extends EventuallyFreed {
     // check. (If it was not, we would not really know how to
     // handle it).
 
-    if (cmd.ns != globalNs) {
+    if (cmd.getNs() != globalNs) {
 
       // This case is theoritically impossible,
       // we might rather panic() than 'nicely' erroring out ?
@@ -3338,7 +3338,7 @@ public class Interp extends EventuallyFreed {
     }
 
     // This is the global table
-    Namespace ns = cmd.ns;
+    Namespace ns = cmd.getNs();
 
     // It is an error to overwrite an existing exposed command as a result
     // of exposing a previously hidden command.
@@ -3350,10 +3350,10 @@ public class Interp extends EventuallyFreed {
     // Remove the hash entry for the command from the interpreter hidden
     // command table.
 
-    if (cmd.hashKey != null) {
-      cmd.table.remove(cmd.hashKey);
-      cmd.table = ns.getCmdTable();
-      cmd.hashKey = cmdName;
+    if (cmd.getHashKey() != null) {
+      cmd.getTable().remove(cmd.getHashKey());
+      cmd.setTable(ns.getCmdTable());
+      cmd.setHashKey(cmdName);
     }
 
     // Now link the hash table entry with the command structure.
@@ -3483,7 +3483,7 @@ public class Interp extends EventuallyFreed {
     int result = TCL.OK;
     try {
       if (cmd.mustCallInvoke(this)) cmd.invoke(this, objv);
-      else cmd.cmd.cmdProc(this, objv);
+      else cmd.getCmd().cmdProc(this, objv);
     } catch (TclException e) {
       result = e.getCompletionCode();
     }
@@ -3498,9 +3498,9 @@ public class Interp extends EventuallyFreed {
       cmd = Namespace.findCommand(this, cmdName, null, TCL.GLOBAL_ONLY);
       if (cmd != null) {
         // Basically just do the same as in hideCommand...
-        cmd.table.remove(cmd.hashKey);
-        cmd.table = getHiddenCmdTable();
-        cmd.hashKey = cmdName;
+        cmd.getTable().remove(cmd.getHashKey());
+        cmd.setTable(getHiddenCmdTable());
+        cmd.setHashKey(cmdName);
         getHiddenCmdTable().put(cmdName, cmd);
       }
     }

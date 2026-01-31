@@ -261,7 +261,7 @@ public class Methods {
     interp.createCommand(qname, new ExecMethod(mfunc));
 
     mfunc.w_accessCmd = Namespace.findCommand(interp, qname, null, TCL.NAMESPACE_ONLY);
-    mfunc.accessCmd = mfunc.w_accessCmd.cmd;
+    mfunc.accessCmd = mfunc.w_accessCmd.getCmd();
   }
 
   /*
@@ -314,7 +314,7 @@ public class Methods {
     interp.createCommand(qname, new ExecProc(mfunc));
 
     mfunc.w_accessCmd = Namespace.findCommand(interp, qname, null, TCL.NAMESPACE_ONLY);
-    mfunc.accessCmd = mfunc.w_accessCmd.cmd;
+    mfunc.accessCmd = mfunc.w_accessCmd.getCmd();
   }
 
   /*

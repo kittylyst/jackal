@@ -1076,7 +1076,7 @@ public class Cmds {
       interp.createCommand(cmdName, new HandleStubCmd());
 
       wcmd = Namespace.findCommand(interp, cmdName, null, TCL.NAMESPACE_ONLY);
-      ((HandleStubCmd) wcmd.cmd).wcmd = wcmd;
+      ((HandleStubCmd) wcmd.getCmd()).wcmd = wcmd;
     }
   } // end class StubCreateCmd
 
@@ -1133,7 +1133,7 @@ public class Cmds {
     // is a stub. If we really want the original command, we'll
     // find it at a higher level.
 
-    if (wcmd.cmd instanceof HandleStubCmd) {
+    if (wcmd.getCmd() instanceof HandleStubCmd) {
       return true;
     }
     return false;

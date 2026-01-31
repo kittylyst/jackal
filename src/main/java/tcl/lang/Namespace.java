@@ -910,7 +910,7 @@ public class Namespace {
       try {
         // Invoke the command with the arguments
         if (cmd.mustCallInvoke(interp)) cmd.invoke(interp, objv);
-        else cmd.cmd.cmdProc(interp, objv);
+        else cmd.getCmd().cmdProc(interp, objv);
       } finally {
         objv[0].release();
         objv[1].release();
@@ -957,8 +957,8 @@ public class Namespace {
       cmdName = entry.getKey();
       if (Util.stringMatch(cmdName, simplePattern)) {
         cmd = (WrappedCommand) importNs.getCmdTable().get(cmdName);
-        if (cmd.cmd instanceof AutoloadStub) {
-          AutoloadStub autoloadCmd = (AutoloadStub) cmd.cmd;
+        if (cmd.getCmd() instanceof AutoloadStub) {
+          AutoloadStub autoloadCmd = (AutoloadStub) cmd.getCmd();
           toBeLoaded.put(cmdName, autoloadCmd);
         }
       }
@@ -1021,21 +1021,22 @@ public class Namespace {
           realCmd = cmd;
           ArrayList<String> importPath = new ArrayList<String>();
           importPath.add(ns.fullName + "::" + cmdName);
-          while (realCmd.cmd instanceof ImportedCmdData) {
-            realCmd = ((ImportedCmdData) realCmd.cmd).realCmd;
+          while (realCmd.getCmd() instanceof ImportedCmdData) {
+            realCmd = ((ImportedCmdData) realCmd.getCmd()).realCmd;
             /* What's the name of realCmd in it's namespace?  We could try the obvious */
             String cmdPath = "";
-            WrappedCommand testcmd = realCmd.ns.getCmdTable().get(cmdName);
+            WrappedCommand testcmd = realCmd.getNs().getCmdTable().get(cmdName);
             if (testcmd != realCmd) {
               /* Need to actually search for it */
-              for (Map.Entry<String, WrappedCommand> entr : realCmd.ns.getCmdTable().entrySet()) {
+              for (Map.Entry<String, WrappedCommand> entr :
+                  realCmd.getNs().getCmdTable().entrySet()) {
                 if (entr.getValue() == realCmd) {
-                  cmdPath = realCmd.ns.fullName + "::" + entr.getKey();
+                  cmdPath = realCmd.getNs().fullName + "::" + entr.getKey();
                   break;
                 }
               }
             } else {
-              cmdPath = realCmd.ns.fullName + "::" + cmdName;
+              cmdPath = realCmd.getNs().fullName + "::" + cmdName;
             }
 
             if (importPath.contains(cmdPath)) {
@@ -1068,15 +1069,15 @@ public class Namespace {
 
           ref = new ImportRef();
           ref.importedCmd = importedCmd;
-          ref.next = cmd.importRef;
-          cmd.importRef = ref;
+          ref.next = cmd.getImportRef();
+          cmd.setImportRef(ref);
         } else {
           /* Don't throw exception if oldCommand that already exists
            * is simply this command, already imported into this namespace
            * We should be allowed to do 'namespace import exported::*' twice without error
            */
           boolean throwException = true;
-          if (oldCommand.cmd instanceof ImportedCmdData) {
+          if (oldCommand.getCmd() instanceof ImportedCmdData) {
             WrappedCommand realOldCmd = getOriginalCommand(oldCommand);
             cmd = importNs.getCmdTable().get(cmdName);
             if (realOldCmd == cmd) {
@@ -1163,15 +1164,16 @@ public class Namespace {
       for (Map.Entry<String, WrappedCommand> entry : ns.getCmdTable().entrySet()) {
         cmd = entry.getValue();
 
-        if (cmd.cmd instanceof ImportedCmdData) {
-          ImportedCmdData importedCmdData = (ImportedCmdData) cmd.cmd;
+        if (cmd.getCmd() instanceof ImportedCmdData) {
+          ImportedCmdData importedCmdData = (ImportedCmdData) cmd.getCmd();
           WrappedCommand originalCommand = getOriginalCommand(cmd);
           /* Delete command if the command was directly imported from importNs, or if the original command
            * exists in importNs
            */
-          if ((importedCmdData.realCmd.ns == importNs
+          if ((importedCmdData.realCmd.getNs() == importNs
                   && matchingCommands.contains(importedCmdData.realCmd))
-              || (originalCommand.ns == importNs && matchingCommands.contains(originalCommand))) {
+              || (originalCommand.getNs() == importNs
+                  && matchingCommands.contains(originalCommand))) {
 
             commandsToDelete.add(cmd);
           }
@@ -1201,12 +1203,12 @@ public class Namespace {
     WrappedCommand cmd = command;
     ImportedCmdData data;
 
-    if (!(cmd.cmd instanceof ImportedCmdData)) {
+    if (!(cmd.getCmd() instanceof ImportedCmdData)) {
       return null;
     }
 
-    while (cmd.cmd instanceof ImportedCmdData) {
-      data = (ImportedCmdData) cmd.cmd;
+    while (cmd.getCmd() instanceof ImportedCmdData) {
+      data = (ImportedCmdData) cmd.getCmd();
       cmd = data.realCmd;
     }
     return cmd;
@@ -1232,7 +1234,7 @@ public class Namespace {
       ) throws TclException {
     WrappedCommand realCmd = data.realCmd;
     if (realCmd.mustCallInvoke(interp)) realCmd.invoke(interp, objv);
-    else realCmd.cmd.cmdProc(interp, objv);
+    else realCmd.getCmd().cmdProc(interp, objv);
   }
 
   /**
@@ -1253,13 +1255,13 @@ public class Namespace {
     ImportRef ref, prev;
 
     prev = null;
-    for (ref = realCmd.importRef; ref != null; ref = ref.next) {
+    for (ref = realCmd.getImportRef(); ref != null; ref = ref.next) {
       if (ref.importedCmd == self) {
         // Remove ref from real command's list of imported commands
         // that refer to it.
 
         if (prev == null) { // ref is first in list
-          realCmd.importRef = ref.next;
+          realCmd.setImportRef(ref.next);
         } else {
           prev.next = ref.next;
         }
@@ -1919,8 +1921,8 @@ public class Namespace {
     // starting from :: (e.g. "::b") whose tail namespace contains a command
     // also named cmdName.
 
-    cmdName = newCmd.hashKey;
-    for (ns = newCmd.ns; (ns != null) && (ns != globalNs); ns = ns.parent) {
+    cmdName = newCmd.getHashKey();
+    for (ns = newCmd.getNs(); (ns != null) && (ns != globalNs); ns = ns.parent) {
       // Find the maximal sequence of child namespaces contained in ns
       // such that there is a identically-named sequence of child
       // namespaces starting from ::. shadowNs will be the tail of this

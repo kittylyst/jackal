@@ -130,7 +130,7 @@ public class CallFrame {
    * @exception TclException if wrong number of arguments.
    */
   void chain(Procedure proc, TclObject[] objv) throws TclException {
-    this.ns = proc.wcmd.ns;
+    this.ns = proc.wcmd.getNs();
     this.objv = objv;
     // FIXME : quick level hack : fix later
     level = (interp.varFrame == null) ? 1 : (interp.varFrame.level + 1);

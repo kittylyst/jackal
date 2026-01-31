@@ -1512,7 +1512,7 @@ public class BiCmds {
         throw new TclException(interp, result.toString());
       }
 
-      cmd = wcmd.cmd;
+      cmd = wcmd.getCmd();
 
       try {
         if (wcmd.mustCallInvoke(interp)) wcmd.invoke(interp, objv);

@@ -817,7 +817,7 @@ public class Parser {
       }
 
       if (cmd.mustCallInvoke(interp)) cmd.invoke(interp, objv);
-      else cmd.cmd.cmdProc(interp, objv);
+      else cmd.getCmd().cmdProc(interp, objv);
 
       // (TODO)
       //

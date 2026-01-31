@@ -78,8 +78,8 @@ public class TJC {
     // equal to a valid cmdEpoch for a command.
 
     INVALID_COMMAND_CACHE = new WrappedCommand();
-    INVALID_COMMAND_CACHE.deleted = true;
-    INVALID_COMMAND_CACHE.cmdEpoch = -1;
+    INVALID_COMMAND_CACHE.setDeleted(true);
+    INVALID_COMMAND_CACHE.setCmdEpoch(-1);
   }
 
   // Invoked to create and push a new CallFrame for local
@@ -217,7 +217,7 @@ public class TJC {
     // first invoked, it should not be a performance concern.
 
     protected void builtinCommandsCheck(Interp interp) throws TclException {
-      if (wcmd.ns.fullName.equals("::")) {
+      if (wcmd.getNs().fullName.equals("::")) {
         return; // loaded into global namespace
       }
       String[] containers = {
@@ -244,13 +244,13 @@ public class TJC {
       String cmdName;
       for (int i = 0; i < builtin.length; i++) {
         cmdName = builtin[i];
-        cmd = Namespace.findCommand(interp, cmdName, wcmd.ns, TCL.NAMESPACE_ONLY);
+        cmd = Namespace.findCommand(interp, cmdName, wcmd.getNs(), TCL.NAMESPACE_ONLY);
         if (cmd != null) {
           throw new TclException(
               interp,
               "TJC compiled command"
                   + " can't be loaded into the namespace "
-                  + wcmd.ns.fullName
+                  + wcmd.getNs().fullName
                   + " as it defines the builtin Tcl command \""
                   + cmdName
                   + "\" ("
@@ -770,7 +770,7 @@ public class TJC {
         // as well as invocations that source a file not in "files".
         WrappedCommand cmd = interp.getWrappedCommand("TJC::source");
         if (cmd.mustCallInvoke(interp)) cmd.invoke(interp, objv);
-        else cmd.cmd.cmdProc(interp, objv);
+        else cmd.getCmd().cmdProc(interp, objv);
       }
     }
   }
@@ -923,12 +923,12 @@ public class TJC {
       String cmdName = objv[0].toString();
       wcmd = Namespace.findCommand(interp, cmdName, null, fflags);
       if (wcmd != null) {
-        cmd = wcmd.cmd;
+        cmd = wcmd.getCmd();
       }
       if (cmd == null) {
         wcmd = Namespace.findCommand(interp, "unknown", null, TCL.GLOBAL_ONLY);
         if (wcmd != null) {
-          cmd = wcmd.cmd;
+          cmd = wcmd.getCmd();
         }
         if (cmd == null) {
           throw new TclException(interp, "invalid command name \"" + cmdName + "\"");

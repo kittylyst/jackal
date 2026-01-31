@@ -177,7 +177,7 @@ public final class InterpAliasCmd implements CommandWithDispose {
 
     /* Don't allow alias over an interpreter's own slave command - see test interp-14.4 */
     WrappedCommand slaveCmd = Namespace.findCommand(slaveInterp, name.toString(), null, 0);
-    if (slaveCmd != null && slaveInterp != null && slaveCmd.cmd == masterInterp.slave) {
+    if (slaveCmd != null && slaveInterp != null && slaveCmd.getCmd() == masterInterp.slave) {
       slaveInterp.deleteCommandFromToken(slaveCmd);
       throw new TclException(
           interp, "cannot define or rename alias \"" + name + "\": interpreter deleted");

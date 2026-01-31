@@ -185,7 +185,7 @@ public final class TJCCompileCmd implements Command {
       pname.append(cmd);
     } else {
       // make it fully qualified
-      String nsName = proc.wcmd.ns.fullName;
+      String nsName = proc.wcmd.getNs().fullName;
 
       if (nsName.equals("::")) {
         pname.append(nsName);
@@ -202,7 +202,7 @@ public final class TJCCompileCmd implements Command {
       String cns = interp.getResult().toString();
       System.out.println("current namespace is \"" + cns + "\"");
       System.out.println("looked up proc \"" + cmd + "\"");
-      System.out.println("found proc in namespace \"" + proc.wcmd.ns.fullName + "\"");
+      System.out.println("found proc in namespace \"" + proc.wcmd.getNs().fullName + "\"");
       System.out.println("fully qualified name is \"" + pname.toString());
     }
 

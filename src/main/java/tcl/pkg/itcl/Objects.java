@@ -158,7 +158,7 @@ public class Objects {
     interp.createCommand(objName.toString(), new HandleInstanceCmd(newObj));
     wcmd = Namespace.findCommand(interp, name, null, TCL.NAMESPACE_ONLY);
     newObj.w_accessCmd = wcmd;
-    newObj.accessCmd = wcmd.cmd;
+    newObj.accessCmd = wcmd.getCmd();
 
     Util.PreserveData(newObj); // while cmd exists in the interp
     // Itcl_EventuallyFree((ClientData)newObj, ItclFreeObject);
@@ -495,7 +495,7 @@ public class Objects {
 
   static boolean IsObject(WrappedCommand wcmd) // command being tested
       {
-    if (wcmd.cmd instanceof HandleInstanceCmd) {
+    if (wcmd.getCmd() instanceof HandleInstanceCmd) {
       return true;
     }
 
@@ -503,7 +503,7 @@ public class Objects {
     // command and see if it represents an object.
 
     wcmd = Namespace.getOriginalCommand(wcmd);
-    if ((wcmd != null) && (wcmd.cmd instanceof HandleInstanceCmd)) {
+    if ((wcmd != null) && (wcmd.getCmd() instanceof HandleInstanceCmd)) {
       return true;
     }
     return false;
@@ -522,7 +522,7 @@ public class Objects {
         // represents
         // the object
       {
-    return ((HandleInstanceCmd) wcmd.cmd).contextObj;
+    return ((HandleInstanceCmd) wcmd.getCmd()).contextObj;
   }
 
   /*

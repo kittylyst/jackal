@@ -671,8 +671,8 @@ public class Ensemble {
     // Install the passed in Command in the ensemble part.
 
     wcmd = new WrappedCommand();
-    wcmd.ns = ensData.wcmd.ns;
-    wcmd.cmd = objProc;
+    wcmd.setNs(ensData.wcmd.getNs());
+    wcmd.setCmd(objProc);
 
     EnsemblePart updatedPart =
         new EnsemblePart(
@@ -752,10 +752,10 @@ public class Ensemble {
 
     wcmd = Namespace.findCommand(interp, nameArgv[0], null, TCL.LEAVE_ERR_MSG);
 
-    if (wcmd == null || !(wcmd.cmd instanceof HandleEnsemble)) {
+    if (wcmd == null || !(wcmd.getCmd() instanceof HandleEnsemble)) {
       throw new TclException(interp, "command \"" + nameArgv[0] + "\" is not an ensemble");
     }
-    ensData = ((HandleEnsemble) wcmd.cmd).ensData;
+    ensData = ((HandleEnsemble) wcmd.getCmd()).ensData;
 
     // Follow the trail of sub-ensemble names.
 
@@ -1360,7 +1360,7 @@ public class Ensemble {
         if (wcmd == null) {
           cmd = null;
         } else {
-          cmd = wcmd.cmd;
+          cmd = wcmd.getCmd();
         }
 
         if (cmd == null || !(cmd instanceof HandleEnsemble)) {
@@ -1578,7 +1578,8 @@ public class Ensemble {
       partName = objv[1].toString();
       wcmd = ensData.wcmd;
 
-      proc = ItclAccess.newProcedure(interp, wcmd.ns, partName, objv[2], objv[3], "unknown", 0);
+      proc =
+          ItclAccess.newProcedure(interp, wcmd.getNs(), partName, objv[2], objv[3], "unknown", 0);
 
       // Deduce the usage information from the argument list.
       // We'll register this when we create the part, in a moment.

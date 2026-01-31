@@ -61,7 +61,7 @@ public class TclLambda implements InternalRep {
       throw new TclException(interp, interp.getResult().toString());
     }
     // Now attach the namespace to the procedure.
-    proc.wcmd.ns = ns;
+    proc.wcmd.setNs(ns);
 
     proc.cmdProc(interp, args);
   }
@@ -113,11 +113,11 @@ public class TclLambda implements InternalRep {
 
     // Initialise the WrappedCommand element of the procedure
     proc.wcmd = new WrappedCommand();
-    proc.wcmd.cmd = proc;
-    proc.wcmd.cmdEpoch = 1;
-    proc.wcmd.deleted = false;
-    proc.wcmd.hashKey = null;
-    proc.wcmd.ns = null; // will be filled in during [apply]
+    proc.wcmd.setCmd(proc);
+    proc.wcmd.setCmdEpoch(1);
+    proc.wcmd.setDeleted(false);
+    proc.wcmd.setHashKey(null);
+    proc.wcmd.setNs(null); // will be filled in during [apply]
 
     TclLambda lambda = new TclLambda(proc, ns);
 
