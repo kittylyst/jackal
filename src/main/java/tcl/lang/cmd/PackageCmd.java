@@ -695,30 +695,20 @@ public final class PackageCmd implements Command {
     }
   }
 
-  /*
-   * ----------------------------------------------------------------------
-   *
-   * compareVersions --
-   *
-   * This procedure compares two version numbers.
-   *
-   * Results: This function will return a -1 if v1 is less than v2, 0 if the
-   * two version numbers are the same, and 1 if v1 is greater than v2. If the
-   * sat argument is not null then then its VersionSatisfiesResult.satisifes
-   * field will be true if v2 >= v1 and both numbers have the same major
-   * number or false otherwise.
-   *
-   * Side effects: None.
-   *
-   * ----------------------------------------------------------------------
-   */
-
-  private static int compareVersions(
-      String v1, // Versions strings. (e.g.
-      // 2.1.3)
-      String v2,
-      VersionSatisfiesResult vsres) {
-
+    /**
+     *
+     * This function will return a -1 if v1 is less than v2, 0 if the
+     * two version numbers are the same, and 1 if v1 is greater than v2. If the
+     * sat argument is not null then then its VersionSatisfiesResult.satisifes
+     * field will be true if v2 >= v1 and both numbers have the same major
+     * number or false otherwise.
+     *
+     * @param v1     Versions string (e.g. 2.1.3)
+     * @param v2     Versions string (e.g. 2.1.3)
+     * @param vsres
+     * @return
+     */
+  static int compareVersions(String v1, String v2, VersionSatisfiesResult vsres) {
     int i;
     int max;
     int n1 = 0;
