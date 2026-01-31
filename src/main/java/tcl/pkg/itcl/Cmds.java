@@ -299,7 +299,7 @@ public class Cmds {
     // commands. Use FirstHashEntry to always reset the
     // search after deleteCommandFromToken() (Fix 227804).
 
-    while ((contextObj = (ItclObject) ItclAccess.FirstHashEntry(info.objects)) != null) {
+    while ((contextObj = (ItclObject) Namespace.FirstHashEntry(info.objects)) != null) {
       info.interp.deleteCommandFromToken(contextObj.w_accessCmd);
     }
     info.objects.clear();
@@ -392,7 +392,7 @@ public class Cmds {
           continue;
         }
 
-        for (Object o : ns.cmdTable.entrySet()) {
+        for (Object o : ns.getCmdTable().entrySet()) {
           Map.Entry entry = (Map.Entry) o;
           String key = (String) entry.getKey();
           cmd = (WrappedCommand) entry.getValue();
@@ -561,7 +561,7 @@ public class Cmds {
           continue;
         }
 
-        for (Object o : ns.cmdTable.entrySet()) {
+        for (Object o : ns.getCmdTable().entrySet()) {
           Map.Entry entry = (Map.Entry) o;
           String key = (String) entry.getKey();
           wcmd = (WrappedCommand) entry.getValue();

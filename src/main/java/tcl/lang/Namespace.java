@@ -74,19 +74,9 @@ public class Namespace {
    */
   public int refCount;
 
-  /**
-   * Contains all the commands currently registered in the namespace. Indexed by strings; values
-   * have type (WrappedCommand). Commands imported by Tcl_Import have Command structures that point
-   * (via an ImportedCmdRef structure) to the Command structure in the source namespace's command
-   * table.
-   */
-  public HashMap<String, WrappedCommand> cmdTable;
+  private final Map<String, WrappedCommand> cmdTable = new HashMap<>();
 
-  /**
-   * Contains all the (global) variables currently in this namespace. Indexed by strings; values
-   * have type (Var).
-   */
-  public HashMap<String, Var> varTable;
+  private final Map<String, Var> varTable = new HashMap<>();
 
   /**
    * Reference to an array of string patterns specifying which commands are exported. A pattern may
@@ -114,6 +104,24 @@ public class Namespace {
    */
   public String toString() {
     return fullName;
+  }
+
+  /**
+   * Contains all the (global) variables currently in this namespace. Indexed by strings; values
+   * have type (Var).
+   */
+  public Map<String, Var> getVarTable() {
+    return varTable;
+  }
+
+  /**
+   * Contains all the commands currently registered in the namespace. Indexed by strings; values
+   * have type (WrappedCommand). Commands imported by Tcl_Import have Command structures that point
+   * (via an ImportedCmdRef structure) to the Command structure in the source namespace's command
+   * table.
+   */
+  public Map<String, WrappedCommand> getCmdTable() {
+    return cmdTable;
   }
 
   /** This interface is used to provide a callback when a namespace is deleted */
@@ -455,8 +463,6 @@ public class Namespace {
     // We can do ignore the refCount because GC will reclaim mem.
     // ns.refCount = 0;
     ns.refCount = 1;
-    ns.cmdTable = new HashMap();
-    ns.varTable = new HashMap<>();
     ns.exportArray = null;
     ns.numExportPatterns = 0;
     ns.maxExportPatterns = 0;
@@ -543,10 +549,10 @@ public class Namespace {
         // occurred while it was being torn down. Try to clear the
         // variable list one last time.
 
-        Var.deleteVars(ns.interp, ns.varTable);
+        Var.deleteVars(ns.interp, ns.getVarTable());
 
         ns.childTable.clear();
-        ns.cmdTable.clear();
+        ns.getCmdTable().clear();
 
         // If the reference count is 0, then discard the namespace.
         // Otherwise, mark it as "dead" so that it can't be used.
@@ -591,13 +597,13 @@ public class Namespace {
      * execution.
      */
     ArrayList<String> tracedCommands = new ArrayList<String>();
-    for (Map.Entry<String, WrappedCommand> entry : ns.cmdTable.entrySet()) {
+    for (Map.Entry<String, WrappedCommand> entry : ns.getCmdTable().entrySet()) {
       if (entry.getValue().hasCommandTraces()) {
         tracedCommands.add(entry.getKey());
       }
     }
     for (String cmdName : tracedCommands) {
-      cmd = ns.cmdTable.get(cmdName);
+      cmd = ns.getCmdTable().get(cmdName);
       if (cmd != null) {
         cmd.callCommandTraces(CommandTrace.DELETE, "");
         cmd.removeAllCommandTraces();
@@ -626,7 +632,7 @@ public class Namespace {
         errorCodeStr = null;
       }
 
-      Var.deleteVars(interp, ns.varTable);
+      Var.deleteVars(interp, ns.getVarTable());
 
       if (errorInfoStr != null) {
         try {
@@ -644,7 +650,7 @@ public class Namespace {
       }
     } else {
       // Variable table should be cleared.
-      Var.deleteVars(interp, ns.varTable);
+      Var.deleteVars(interp, ns.getVarTable());
     }
 
     // Remove the namespace from its parent's child hashtable.
@@ -669,7 +675,7 @@ public class Namespace {
     // hash table: when each command is deleted, it removes itself from the
     // command table.
 
-    while ((cmd = (WrappedCommand) FirstHashEntry(ns.cmdTable)) != null) {
+    while ((cmd = (WrappedCommand) FirstHashEntry(ns.getCmdTable())) != null) {
       interp.deleteCommandFromToken(cmd);
     }
 
@@ -945,10 +951,10 @@ public class Namespace {
      * commands that should be loaded before we import
      */
     HashMap<String, AutoloadStub> toBeLoaded = new HashMap<String, AutoloadStub>();
-    for (Map.Entry<String, WrappedCommand> entry : importNs.cmdTable.entrySet()) {
+    for (Map.Entry<String, WrappedCommand> entry : importNs.getCmdTable().entrySet()) {
       cmdName = entry.getKey();
       if (Util.stringMatch(cmdName, simplePattern)) {
-        cmd = (WrappedCommand) importNs.cmdTable.get(cmdName);
+        cmd = (WrappedCommand) importNs.getCmdTable().get(cmdName);
         if (cmd.cmd instanceof AutoloadStub) {
           AutoloadStub autoloadCmd = (AutoloadStub) cmd.cmd;
           toBeLoaded.put(cmdName, autoloadCmd);
@@ -967,7 +973,7 @@ public class Namespace {
     // exported commands that match the string pattern. Create an "imported
     // command" in the current namespace for each imported command; these
     // commands redirect their invocations to the "real" command.
-    for (Map.Entry<String, WrappedCommand> entry : importNs.cmdTable.entrySet()) {
+    for (Map.Entry<String, WrappedCommand> entry : importNs.getCmdTable().entrySet()) {
       cmdName = entry.getKey();
 
       if (Util.stringMatch(cmdName, simplePattern)) {
@@ -988,7 +994,7 @@ public class Namespace {
 
         // Unless there is a name clash, create an imported command
         // in the current namespace that refers to cmdPtr.
-        WrappedCommand oldCommand = ns.cmdTable.get(cmdName);
+        WrappedCommand oldCommand = ns.getCmdTable().get(cmdName);
         if (oldCommand == null || allowOverwrite) {
 
           // Create the imported command and its client data.
@@ -1004,7 +1010,7 @@ public class Namespace {
           }
           ds.append(cmdName);
 
-          cmd = (WrappedCommand) importNs.cmdTable.get(cmdName);
+          cmd = (WrappedCommand) importNs.getCmdTable().get(cmdName);
 
           // Check whether creating the new imported command in the
           // current namespace would create a cycle of imported->real
@@ -1017,10 +1023,10 @@ public class Namespace {
             realCmd = ((ImportedCmdData) realCmd.cmd).realCmd;
             /* What's the name of realCmd in it's namespace?  We could try the obvious */
             String cmdPath = "";
-            WrappedCommand testcmd = realCmd.ns.cmdTable.get(cmdName);
+            WrappedCommand testcmd = realCmd.ns.getCmdTable().get(cmdName);
             if (testcmd != realCmd) {
               /* Need to actually search for it */
-              for (Map.Entry<String, WrappedCommand> entr : realCmd.ns.cmdTable.entrySet()) {
+              for (Map.Entry<String, WrappedCommand> entr : realCmd.ns.getCmdTable().entrySet()) {
                 if (entr.getValue() == realCmd) {
                   cmdPath = realCmd.ns.fullName + "::" + entr.getKey();
                   break;
@@ -1070,7 +1076,7 @@ public class Namespace {
           boolean throwException = true;
           if (oldCommand.cmd instanceof ImportedCmdData) {
             WrappedCommand realOldCmd = getOriginalCommand(oldCommand);
-            cmd = importNs.cmdTable.get(cmdName);
+            cmd = importNs.getCmdTable().get(cmdName);
             if (realOldCmd == cmd) {
               throwException = false;
             }
@@ -1129,7 +1135,7 @@ public class Namespace {
 
     ArrayList<WrappedCommand> matchingCommands = new ArrayList<WrappedCommand>();
 
-    for (Map.Entry<String, WrappedCommand> entry : importNs.cmdTable.entrySet()) {
+    for (Map.Entry<String, WrappedCommand> entry : importNs.getCmdTable().entrySet()) {
       cmdName = entry.getKey();
       cmd = entry.getValue();
 
@@ -1152,7 +1158,7 @@ public class Namespace {
        */
       ArrayList<WrappedCommand> commandsToDelete =
           new ArrayList<WrappedCommand>(matchingCommands.size());
-      for (Map.Entry<String, WrappedCommand> entry : ns.cmdTable.entrySet()) {
+      for (Map.Entry<String, WrappedCommand> entry : ns.getCmdTable().entrySet()) {
         cmd = entry.getValue();
 
         if (cmd.cmd instanceof ImportedCmdData) {
@@ -1712,7 +1718,7 @@ public class Namespace {
         throw new TclRuntimeError("bad search value" + search);
       }
       if ((ns != null) && (simpleName != null)) {
-        cmd = (WrappedCommand) ns.cmdTable.get(simpleName);
+        cmd = (WrappedCommand) ns.getCmdTable().get(simpleName);
       }
     }
     if (cmd != null) {
@@ -1833,7 +1839,7 @@ public class Namespace {
         throw new TclRuntimeError("bad search value" + search);
       }
       if ((ns != null) && (simpleName != null)) {
-        var = ns.varTable.get(simpleName);
+        var = ns.getVarTable().get(simpleName);
       }
     }
     if (var != null) {
@@ -1925,7 +1931,7 @@ public class Namespace {
 
       for (i = trailFront; i >= 0; i--) {
         trailNs = trailArray[i];
-        tmpNs = (Namespace) shadowNs.childTable.get(trailNs.name);
+        tmpNs = shadowNs.childTable.get(trailNs.name);
         if (tmpNs != null) {
           shadowNs = tmpNs;
         } else {
@@ -1939,16 +1945,15 @@ public class Namespace {
       // shadowNs is initially :: and we check for case 1. above.
 
       if (found) {
-        wcmd = (WrappedCommand) shadowNs.cmdTable.get(cmdName);
+        wcmd = shadowNs.getCmdTable().get(cmdName);
         if (wcmd != null) {
           // Invalidate cached command ref in each command
           // defined in this namespace.
 
           // nsPtr->cmdRefEpoch++;
 
-          for (Object o : ns.cmdTable.entrySet()) {
-            Map.Entry entry = (Map.Entry) o;
-            wcmd = (WrappedCommand) entry.getValue();
+          for (var entry : ns.getCmdTable().entrySet()) {
+            wcmd = entry.getValue();
             wcmd.incrEpoch();
           }
         }
@@ -2054,7 +2059,7 @@ public class Namespace {
    * @param table a hash table
    * @return first element in the hash table
    */
-  public static Object FirstHashEntry(HashMap<?, ?> table) {
+  public static Object FirstHashEntry(Map<?, ?> table) {
     Set eset = table.entrySet();
     if (eset.size() == 0) {
       return null;

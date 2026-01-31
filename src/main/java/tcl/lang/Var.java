@@ -582,13 +582,13 @@ public class Var {
             return null;
           }
           var = new Var();
-          varNs.varTable.put(tail, var);
+          varNs.getVarTable().put(tail, var);
 
           // There is no hPtr member in Jacl, The hPtr combines the
           // table
           // and the key used in a table lookup.
           var.hashKey = tail;
-          var.table = varNs.varTable;
+          var.table = varNs.getVarTable();
 
           var.ns = varNs;
         } else { // var wasn't found and not to create it
@@ -2197,16 +2197,16 @@ public class Var {
                 + "\": upvar won't create namespace variable that refers to procedure variable");
       }
 
-      var = ns.varTable.get(tail);
+      var = ns.getVarTable().get(tail);
       if (var == null) { // we are adding a new entry
         newvar = true;
         var = new Var();
-        ns.varTable.put(tail, var);
+        ns.getVarTable().put(tail, var);
 
         // There is no hPtr member in Jacl, The hPtr combines the table
         // and the key used in a table lookup.
         var.hashKey = tail;
-        var.table = ns.varTable;
+        var.table = ns.getVarTable();
 
         var.ns = ns; // Namespace var
       }
@@ -2537,16 +2537,16 @@ public class Var {
    * @param interp Interpreter containing array.
    * @param table HashMap that holds the Vars to delete
    */
-  public static void deleteVars(Interp interp, HashMap<String, Var> table) {
+  public static void deleteVars(Interp interp, Map<String, Var> table) {
     int flags;
     Namespace currNs = Namespace.getCurrentNamespace(interp);
 
     // Determine what flags to pass to the trace callback procedures.
 
     flags = TCL.TRACE_UNSETS;
-    if (table == interp.globalNs.varTable) {
+    if (table == interp.globalNs.getVarTable()) {
       flags |= (TCL.INTERP_DESTROYED | TCL.GLOBAL_ONLY);
-    } else if (table == currNs.varTable) {
+    } else if (table == currNs.getVarTable()) {
       flags |= TCL.NAMESPACE_ONLY;
     }
 

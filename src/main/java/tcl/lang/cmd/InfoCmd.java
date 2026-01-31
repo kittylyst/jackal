@@ -310,7 +310,7 @@ public final class InfoCmd implements Command {
     list = TclList.newInstance();
 
     if (ns != null) {
-      for (Object o : ns.cmdTable.entrySet()) {
+      for (Object o : ns.getCmdTable().entrySet()) {
         Map.Entry entry = (Map.Entry) o;
         cmdName = (String) entry.getKey();
 
@@ -332,11 +332,11 @@ public final class InfoCmd implements Command {
       // the effective namespace.
 
       if ((ns != globalNs) && !specificNsInPattern) {
-        for (Object o : globalNs.cmdTable.entrySet()) {
+        for (Object o : globalNs.getCmdTable().entrySet()) {
           Map.Entry entry = (Map.Entry) o;
           cmdName = (String) entry.getKey();
           if ((simplePattern == null) || Util.stringMatch(cmdName, simplePattern)) {
-            if (ns.cmdTable.get(cmdName) == null) {
+            if (ns.getCmdTable().get(cmdName) == null) {
               TclList.append(interp, list, TclString.newInstance(cmdName));
             }
           }
@@ -518,7 +518,7 @@ public final class InfoCmd implements Command {
 
     list = TclList.newInstance();
 
-    for (Object o : globalNs.varTable.entrySet()) {
+    for (Object o : globalNs.getVarTable().entrySet()) {
       Map.Entry entry = (Map.Entry) o;
       varName = (String) entry.getKey();
       var = (Var) entry.getValue();
@@ -865,7 +865,7 @@ public final class InfoCmd implements Command {
 
     list = TclList.newInstance();
     if (namespace != null) {
-      for (Map.Entry<String, WrappedCommand> entry : namespace.cmdTable.entrySet()) {
+      for (Map.Entry<String, WrappedCommand> entry : namespace.getCmdTable().entrySet()) {
         cmdName = entry.getKey();
         cmd = entry.getValue();
 
@@ -1016,7 +1016,7 @@ public final class InfoCmd implements Command {
       // but a specific namespace was specified. Create a list containing
       // only the variables in the effective namespace's variable table.
 
-      for (Object o : ns.varTable.entrySet()) {
+      for (Object o : ns.getVarTable().entrySet()) {
         Map.Entry entry = (Map.Entry) o;
         varName = (String) entry.getKey();
         var = (Var) entry.getValue();
@@ -1041,7 +1041,7 @@ public final class InfoCmd implements Command {
       // namespace.
 
       if ((ns != globalNs) && !specificNsInPattern) {
-        for (Object o : globalNs.varTable.entrySet()) {
+        for (Object o : globalNs.getVarTable().entrySet()) {
           Map.Entry entry = (Map.Entry) o;
           varName = (String) entry.getKey();
           var = (Var) entry.getValue();
@@ -1050,7 +1050,7 @@ public final class InfoCmd implements Command {
             if ((simplePattern == null) || Util.stringMatch(varName, simplePattern)) {
 
               // Skip vars defined in current namespace
-              if (ns.varTable.get(varName) == null) {
+              if (ns.getVarTable().get(varName) == null) {
                 TclList.append(interp, list, TclString.newInstance(varName));
               }
             }

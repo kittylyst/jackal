@@ -1433,7 +1433,7 @@ public class Interp extends EventuallyFreed {
       tail = cmdName;
     }
 
-    cmd = (WrappedCommand) ns.cmdTable.get(tail);
+    cmd = (WrappedCommand) ns.getCmdTable().get(tail);
     if (cmd != null) {
       // Command already exists. Delete the old one.
       // Be careful to preserve any existing import links so we can
@@ -1447,7 +1447,7 @@ public class Interp extends EventuallyFreed {
 
       // FIXME : create a test case for this condition!
 
-      cmd = (WrappedCommand) ns.cmdTable.get(tail);
+      cmd = (WrappedCommand) ns.getCmdTable().get(tail);
       if (cmd != null) {
         // If the deletion callback recreated the command, just throw
         // away the new command (if we try to delete it again, we
@@ -1458,8 +1458,8 @@ public class Interp extends EventuallyFreed {
     }
 
     cmd = new WrappedCommand();
-    ns.cmdTable.put(tail, cmd);
-    cmd.table = ns.cmdTable;
+    ns.getCmdTable().put(tail, cmd);
+    cmd.table = ns.getCmdTable();
     cmd.hashKey = tail;
     cmd.ns = ns;
     cmd.cmd = cmdImpl;
@@ -1664,7 +1664,8 @@ public class Interp extends EventuallyFreed {
     String newTail;
     Namespace cmdNs, newNs;
     WrappedCommand cmd;
-    HashMap table, oldTable;
+    HashMap table;
+    Map oldTable;
     String hashKey, oldHashKey;
 
     // Find the existing command. An error is returned if cmdName can't
@@ -1704,7 +1705,7 @@ public class Interp extends EventuallyFreed {
     if ((newNs == null) || (newTail == null)) {
       throw new TclException(interp, "can't rename to \"" + newName + "\": bad command name");
     }
-    if (newNs.cmdTable.get(newTail) != null) {
+    if (newNs.getCmdTable().get(newTail) != null) {
       throw new TclException(interp, "can't rename to \"" + newName + "\": command already exists");
     }
 
@@ -1725,8 +1726,8 @@ public class Interp extends EventuallyFreed {
 
     oldTable = cmd.table;
     oldHashKey = cmd.hashKey;
-    newNs.cmdTable.put(newTail, cmd);
-    cmd.table = newNs.cmdTable;
+    newNs.getCmdTable().put(newTail, cmd);
+    cmd.table = newNs.getCmdTable();
     cmd.hashKey = newTail;
     cmd.ns = newNs;
     Namespace.resetShadowedCmdRefs(this, cmd);
@@ -1737,7 +1738,7 @@ public class Interp extends EventuallyFreed {
     try {
       interp.preventAliasLoop(interp, cmd);
     } catch (TclException e) {
-      newNs.cmdTable.remove(newTail);
+      newNs.getCmdTable().remove(newTail);
       cmd.table = oldTable;
       cmd.hashKey = oldHashKey;
       cmd.ns = cmdNs;
@@ -3338,7 +3339,7 @@ public class Interp extends EventuallyFreed {
     // It is an error to overwrite an existing exposed command as a result
     // of exposing a previously hidden command.
 
-    if (ns.cmdTable.containsKey(cmdName)) {
+    if (ns.getCmdTable().containsKey(cmdName)) {
       throw new TclException(this, "exposed command \"" + cmdName + "\" already exists");
     }
 
@@ -3347,7 +3348,7 @@ public class Interp extends EventuallyFreed {
 
     if (cmd.hashKey != null) {
       cmd.table.remove(cmd.hashKey);
-      cmd.table = ns.cmdTable;
+      cmd.table = ns.getCmdTable();
       cmd.hashKey = cmdName;
     }
 
@@ -3355,7 +3356,7 @@ public class Interp extends EventuallyFreed {
     // This is like creating a new command, so deal with any shadowing
     // of commands in the global namespace.
 
-    ns.cmdTable.put(cmdName, cmd);
+    ns.getCmdTable().put(cmdName, cmd);
 
     // Not needed as we are only in the global namespace
     // (but would be needed again if we supported namespace command hiding)

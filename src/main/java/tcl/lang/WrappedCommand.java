@@ -15,7 +15,7 @@
 package tcl.lang;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A Wrapped Command is like the Command struct defined in the C version in the file
@@ -31,7 +31,7 @@ public class WrappedCommand {
    * lookup this WrappedCommand instance in the table of WrappedCommands. The table member combined
    * with the hashKey member are are equivilent to the C version's Command->hPtr.
    */
-  public HashMap<String, WrappedCommand> table;
+  public Map<String, WrappedCommand> table;
 
   /** A string that stores the name of the command. This name is NOT fully qualified. */
   public String hashKey;

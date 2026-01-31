@@ -1204,7 +1204,7 @@ public class Class {
 
         if ((vdefn.member.flags & ItclInt.COMMON) != 0) {
           ns = cd.namesp;
-          vlookup.common = (Var) ns.varTable.get(vdefn.member.name);
+          vlookup.common = (Var) ns.getVarTable().get(vdefn.member.name);
           Util.Assert(vlookup.common != null, "vlookup.common != null");
         } else {
           // If this is a reference to the built-in "this"

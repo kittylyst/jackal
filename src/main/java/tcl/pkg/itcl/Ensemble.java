@@ -1470,11 +1470,11 @@ public class Ensemble {
 
     ns = Namespace.getGlobalNamespace(ensInfo.parser);
 
-    while ((childNs = (Namespace) ItclAccess.FirstHashEntry(ns.childTable)) != null) {
+    while ((childNs = (Namespace) Namespace.FirstHashEntry(ns.childTable)) != null) {
       Namespace.deleteNamespace(childNs);
     }
 
-    while ((wcmd = (WrappedCommand) ItclAccess.FirstHashEntry(ns.cmdTable)) != null) {
+    while ((wcmd = (WrappedCommand) Namespace.FirstHashEntry(ns.getCmdTable())) != null) {
       ensInfo.parser.deleteCommandFromToken(wcmd);
     }
 

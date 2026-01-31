@@ -838,9 +838,9 @@ public class Parse {
       ns = cdefn.namesp;
 
       var = Migrate.NewVar();
-      ItclAccess.createCommonVar(var, vdefn.member.name, ns, ns.varTable);
+      ItclAccess.createCommonVar(var, vdefn.member.name, ns, ns.getVarTable());
 
-      ns.varTable.put(vdefn.member.name, var);
+      ns.getVarTable().put(vdefn.member.name, var);
 
       // TRICKY NOTE: Make sure to rebuild the virtual tables for this
       // class so that this variable is ready to access. The variable

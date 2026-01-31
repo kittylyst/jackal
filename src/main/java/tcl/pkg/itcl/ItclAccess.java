@@ -25,6 +25,7 @@
 package tcl.pkg.itcl;
 
 import java.util.HashMap;
+import java.util.Map;
 import tcl.lang.CallFrame;
 import tcl.lang.Interp;
 import tcl.lang.Namespace;
@@ -155,8 +156,7 @@ public class ItclAccess {
     var.refCount = 1; // protect from being deleted
   }
 
-  public static void createCommonVar(
-      Var var, String key, Namespace ns, HashMap<String, Var> table) {
+  public static void createCommonVar(Var var, String key, Namespace ns, Map<String, Var> table) {
     var.table = table;
     var.hashKey = key;
     var.ns = ns;
@@ -164,9 +164,5 @@ public class ItclAccess {
     var.setVarNamespace();
     var.refCount++; // one use by namespace
     var.refCount++; // another use by class
-  }
-
-  public static Object FirstHashEntry(HashMap<?, ?> table) {
-    return Namespace.FirstHashEntry(table);
   }
 }
