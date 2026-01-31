@@ -645,7 +645,7 @@ public final class PackageCmd implements Command {
     if (pkg == null) {
       // We should add a package with this name.
 
-      pkg = new Package(null, new PkgAvail());
+      pkg = new Package(null, null);
       interp.getPackageTable().put(pkgName, pkg);
     }
     return pkg;

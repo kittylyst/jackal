@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /*
  * Implements variables in Tcl. The Var class encapsulates most of the functionality
@@ -178,7 +179,7 @@ public class Var {
   private TclObject tobj;
 
   /** Key/value pairs in array, if this is an array variable. Always use getArrayMap() */
-  private Map<String, Var> arraymap;
+  private final Map<String, Var> arraymap = new ConcurrentHashMap<>();
 
   /** Reference to a linkto variable associated by this upvar */
   Var linkto;
@@ -272,12 +273,12 @@ public class Var {
 
   /** Create a new array map in this Var */
   public void createArrayMap() {
-    this.arraymap = new HashMap<String, Var>();
+    this.arraymap.clear();
   }
 
   /** Remove the existing array map in this var */
   public void deleteArrayMap() {
-    this.arraymap = null;
+    arraymap.clear();
   }
 
   /** Used to create a String that describes this variable. */
