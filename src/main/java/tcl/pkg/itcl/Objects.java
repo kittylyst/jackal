@@ -112,8 +112,8 @@ public class Objects {
     // name for the new object.
 
     Util.ParseNamespPathResult res = Util.ParseNamespPath(name);
-    head = res.head;
-    tail = res.tail;
+    head = res.head();
+    tail = res.tail();
 
     if (head != null) {
       parentNs = Class.FindClassNamespace(interp, head);

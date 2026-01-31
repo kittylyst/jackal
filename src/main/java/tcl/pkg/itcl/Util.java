@@ -1131,15 +1131,7 @@ class Util {
     return new ParseNamespPathResult(head, tail);
   }
 
-  static class ParseNamespPathResult {
-    String head;
-    String tail;
-
-    ParseNamespPathResult(String head, String tail) {
-      this.head = head;
-      this.tail = tail;
-    }
-  }
+  static record ParseNamespPathResult(String head, String tail) {}
 
   /*
    * ------------------------------------------------------------------------

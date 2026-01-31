@@ -682,9 +682,9 @@ public class TJC {
       throws TclException {
     ProcCmd.FindCommandNamespaceResult result = ProcCmd.FindCommandNamespace(interp, cmdName);
 
-    interp.createCommand(result.cmdFullName, cmd);
+    interp.createCommand(result.cmdFullName(), cmd);
 
-    cmd.wcmd = Namespace.findCommand(interp, result.cmdName, result.ns, TCL.NAMESPACE_ONLY);
+    cmd.wcmd = Namespace.findCommand(interp, result.cmdName(), result.ns(), TCL.NAMESPACE_ONLY);
   }
 
   // Used to load an init file from the package JAR file.

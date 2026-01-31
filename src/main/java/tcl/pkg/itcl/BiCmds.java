@@ -218,8 +218,8 @@ public class BiCmds {
       // context.
 
       Methods.GetContextResult gcr = Methods.GetContext(interp);
-      contextClass = gcr.cdefn;
-      contextObj = gcr.odefn;
+      contextClass = gcr.cdefn();
+      contextObj = gcr.odefn();
 
       if (contextObj == null) {
         throw new TclException(interp, "improper usage: should be \"object isa className\"");
@@ -297,8 +297,8 @@ public class BiCmds {
       // context.
 
       Methods.GetContextResult gcr = Methods.GetContext(interp);
-      contextClass = gcr.cdefn;
-      contextObj = gcr.odefn;
+      contextClass = gcr.cdefn();
+      contextObj = gcr.odefn();
 
       if (contextObj == null) {
         throw new TclException(
@@ -477,8 +477,8 @@ public class BiCmds {
       // context.
 
       Methods.GetContextResult gcr = Methods.GetContext(interp);
-      contextClass = gcr.cdefn;
-      contextObj = gcr.odefn;
+      contextClass = gcr.cdefn();
+      contextObj = gcr.odefn();
 
       if (contextObj == null || objv.length != 2) {
         throw new TclException(interp, "improper usage: should be \"object cget -option\"");
@@ -627,8 +627,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         interp.resetResult();
         throw new TclException(interp, "cannot chain functions outside of a class context");
@@ -645,8 +645,8 @@ public class BiCmds {
       }
       cmd = fobjv[0].toString();
       Util.ParseNamespPathResult res = Util.ParseNamespPath(cmd);
-      head = res.head;
-      cmd = res.tail;
+      head = res.head();
+      cmd = res.tail();
 
       // Look for the specified command in one of the base classes.
       // If we have an object context, then start from the most-specific
@@ -736,8 +736,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         throw new TclException(
             interp,
@@ -805,8 +805,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         String name = objv[0].toString();
         throw new TclException(
@@ -874,8 +874,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         String name = objv[0].toString();
         throw new TclException(
@@ -962,8 +962,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         name = objv[0].toString();
         interp.resetResult();
@@ -1154,8 +1154,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         name = objv[0].toString();
         interp.resetResult();
@@ -1367,8 +1367,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         name = objv[0].toString();
         interp.resetResult();
@@ -1442,8 +1442,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         name = objv[0].toString();
         interp.resetResult();

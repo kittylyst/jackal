@@ -960,7 +960,7 @@ public final class ScanCmd implements Command {
       if (chars != null) sb.append(chars);
       if (ranges != null) {
         for (Range r : ranges) {
-          if (r != null) sb.append(r.start).append('-').append(r.end);
+          if (r != null) sb.append(r.start()).append('-').append(r.end());
         }
       }
       sb.append(']');
@@ -969,23 +969,12 @@ public final class ScanCmd implements Command {
   }
 
   /** Represents a range of characters, such as [a-z] */
-  private static class Range {
-    char start;
-    char end;
-
-    /**
-     * Create a new Range of characters
-     *
-     * @param a one character in range
-     * @param b other character in range
-     */
-    Range(char a, char b) {
-      if (a < b) {
-        start = a;
-        end = b;
-      } else {
-        start = b;
-        end = a;
+  private static record Range(char start, char end) {
+    Range {
+      if (start > end) {
+        char tmp = start;
+        start = end;
+        end = tmp;
       }
     }
 
@@ -995,8 +984,8 @@ public final class ScanCmd implements Command {
      * @param c character to test
      * @return true if character is inclusively within this Range
      */
-    final boolean isInRange(char c) {
-      return (c >= start && c <= end);
+    boolean isInRange(char c) {
+      return c >= start && c <= end;
     }
   }
 }

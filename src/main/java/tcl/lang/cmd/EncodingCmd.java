@@ -52,17 +52,7 @@ public final class EncodingCmd implements Command {
   public static String systemJavaEncoding = null;
 
   /** Encapsulates both the tcl and the java name for an encoding */
-  static class EncodingMap {
-    String tclName;
-    String javaName;
-    int bytesPerChar;
-
-    public EncodingMap(String tclName, String javaName, int bytesPerChar) {
-      this.tclName = tclName;
-      this.javaName = javaName;
-      this.bytesPerChar = bytesPerChar;
-    }
-  }
+  record EncodingMap(String tclName, String javaName, int bytesPerChar) {}
 
   /**
    * Hashtable of all supported encodings, containing both java names and tcl names. "tcl," is
@@ -165,8 +155,8 @@ public final class EncodingCmd implements Command {
     for (int i = 0; i < encodings.length; i++) {
       EncodingMap map = encodings[i];
 
-      String tclKey = "tcl," + map.tclName;
-      String javaKey = "java," + map.javaName;
+      String tclKey = "tcl," + map.tclName();
+      String javaKey = "java," + map.javaName();
 
       encodeHash.put(tclKey, map);
       encodeHash.put(javaKey, map);
@@ -194,8 +184,8 @@ public final class EncodingCmd implements Command {
       if (map == null) {
         enc = null;
       } else {
-        systemTclEncoding = map.tclName;
-        systemJavaEncoding = map.javaName;
+        systemTclEncoding = map.tclName();
+        systemJavaEncoding = map.javaName();
         break;
       }
     }
@@ -354,8 +344,8 @@ public final class EncodingCmd implements Command {
             // is not supported by the runtime should
             // not be returned.
 
-            if (isSupported(map.javaName)) {
-              TclList.append(interp, list, TclString.newInstance(map.tclName));
+            if (isSupported(map.javaName())) {
+              TclList.append(interp, list, TclString.newInstance(map.tclName()));
             }
           }
           interp.setResult(list);
@@ -420,7 +410,7 @@ public final class EncodingCmd implements Command {
     if (map == null) {
       throw new RuntimeException("Invalid encoding \"" + name + "\"");
     }
-    return map.bytesPerChar;
+    return map.bytesPerChar();
   }
 
   /**
@@ -436,7 +426,7 @@ public final class EncodingCmd implements Command {
     if (map == null) {
       return null;
     }
-    return map.javaName;
+    return map.javaName();
   }
 
   /**
@@ -451,7 +441,7 @@ public final class EncodingCmd implements Command {
     if (map == null) {
       return null;
     }
-    return map.tclName;
+    return map.tclName();
   }
 
   /**

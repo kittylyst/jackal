@@ -117,8 +117,8 @@ public class Class {
     // . => reserved for member access like: class.publicVar
 
     Util.ParseNamespPathResult res = Util.ParseNamespPath(path);
-    head = res.head;
-    tail = res.tail;
+    head = res.head();
+    tail = res.tail();
 
     if (tail.indexOf(".") != -1) {
       throw new TclException(interp, "bad class name \"" + tail + "\"");

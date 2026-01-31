@@ -89,8 +89,8 @@ public class Methods {
 
       token = objv[1].toString();
       Util.ParseNamespPathResult res = Util.ParseNamespPath(token);
-      head = res.head;
-      tail = res.tail;
+      head = res.head();
+      tail = res.tail();
 
       if (head == null || head.length() == 0) {
         throw new TclException(
@@ -165,8 +165,8 @@ public class Methods {
 
       token = objv[1].toString();
       Util.ParseNamespPathResult res = Util.ParseNamespPath(token);
-      head = res.head;
-      tail = res.tail;
+      head = res.head();
+      tail = res.tail();
 
       if (head == null || head.length() == 0) {
         throw new TclException(
@@ -384,8 +384,8 @@ public class Methods {
     }
     if (mcode.arglist != null) {
       CreateArgListResult cr = Methods.CreateArgList(interp, arglist);
-      mfunc.arglist = cr.arglist;
-      mfunc.argcount = cr.argcount;
+      mfunc.arglist = cr.arglist();
+      mfunc.argcount = cr.argcount();
     }
 
     if (name.equals("constructor")) {
@@ -529,8 +529,8 @@ public class Methods {
         Methods.DeleteMemberCode(mcode);
         throw ex;
       }
-      mcode.argcount = cr.argcount;
-      mcode.arglist = cr.arglist;
+      mcode.argcount = cr.argcount();
+      mcode.arglist = cr.arglist();
       mcode.flags |= ItclInt.ARG_SPEC;
     } else {
       // No-op
@@ -879,17 +879,10 @@ public class Methods {
       throw ex;
     }
 
-    CreateArgListResult res = new CreateArgListResult();
-    res.arglist = retLocal;
-    res.argcount = argc;
-
-    return res;
+    return new CreateArgListResult(argc, retLocal);
   }
 
-  public static class CreateArgListResult {
-    int argcount;
-    CompiledLocal arglist;
-  }
+  public static record CreateArgListResult(int argcount, CompiledLocal arglist) {}
 
   /*
    * ------------------------------------------------------------------------
@@ -1172,8 +1165,8 @@ public class Methods {
       // only if an object context exists.
 
       Methods.GetContextResult gcr = Methods.GetContext(interp);
-      contextClass = gcr.cdefn;
-      contextObj = gcr.odefn;
+      contextClass = gcr.cdefn();
+      contextObj = gcr.odefn();
 
       if (contextObj == null) {
         throw new TclException(
@@ -1465,15 +1458,7 @@ public class Methods {
         interp, "namespace \"" + activeNs.fullName + "\" is not a class namespace");
   }
 
-  public static class GetContextResult {
-    ItclClass cdefn;
-    ItclObject odefn;
-
-    public GetContextResult(ItclClass cdefn, ItclObject odefn) {
-      this.cdefn = cdefn;
-      this.odefn = odefn;
-    }
-  }
+  public static record GetContextResult(ItclClass cdefn, ItclObject odefn) {}
 
   /*
    * ------------------------------------------------------------------------
@@ -1523,8 +1508,8 @@ public class Methods {
 
     try {
       Methods.GetContextResult gcr = Methods.GetContext(interp);
-      contextClass = gcr.cdefn;
-      contextObj = gcr.odefn;
+      contextClass = gcr.cdefn();
+      contextObj = gcr.odefn();
     } catch (TclException ex) {
       contextClass = null;
       contextObj = null;
@@ -1603,9 +1588,9 @@ public class Methods {
           if (objc > 0) { // still have some arguments left?
 
             pcr = ParseConfig(interp, objc, objv, objvi, contextObj);
-            configc = pcr.num_variables;
-            configVars = pcr.variables;
-            configVals = pcr.values;
+            configc = pcr.num_variables();
+            configVars = pcr.variables();
+            configVals = pcr.values();
 
             list = TclList.newInstance();
             for (vi = 0; vi < configc; vi++) {
@@ -1637,9 +1622,9 @@ public class Methods {
             }
 
             pcr = ParseConfig(interp, defargc, defobjv, 0, contextObj);
-            configc = pcr.num_variables;
-            configVars = pcr.variables;
-            configVals = pcr.values;
+            configc = pcr.num_variables();
+            configVars = pcr.variables();
+            configVals = pcr.values();
 
             list = TclList.newInstance();
             for (vi = 0; vi < configc; vi++) {
@@ -1807,18 +1792,11 @@ public class Methods {
       }
     }
 
-    ParseConfigResult pcr = new ParseConfigResult();
-    pcr.num_variables = rargc;
-    pcr.variables = rvars;
-    pcr.values = rvals;
-    return pcr;
+    return new ParseConfigResult(rargc, rvars, rvals);
   }
 
-  public static class ParseConfigResult {
-    int num_variables;
-    ItclVarDefn[] variables;
-    String[] values;
-  }
+  public static record ParseConfigResult(
+      int num_variables, ItclVarDefn[] variables, String[] values) {}
 
   /*
    * ------------------------------------------------------------------------
@@ -1847,9 +1825,9 @@ public class Methods {
     ItclContext context;
     CallFrame oldFrame, uplevelFrame;
 
-    int argc = pres.num_variables;
-    ItclVarDefn[] vars = pres.variables;
-    String[] vals = pres.values;
+    int argc = pres.num_variables();
+    ItclVarDefn[] vars = pres.variables();
+    String[] vals = pres.values();
 
     lastval = new StringBuffer(64);
 

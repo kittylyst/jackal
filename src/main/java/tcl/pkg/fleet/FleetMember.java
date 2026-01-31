@@ -40,14 +40,7 @@ public class FleetMember implements Runnable {
         final int status, final FleetCmd fleet, final FleetMember member, final TclObject result);
   }
 
-  private static class ExecEvent {
-
-    final Message callback;
-
-    ExecEvent(final Message callback) {
-      this.callback = callback;
-    }
-  }
+  private static record ExecEvent(Message callback) {}
 
   FleetMember(final FleetCmd fleet, final String name) {
     this.name = name;
@@ -106,7 +99,7 @@ public class FleetMember implements Runnable {
       while (true) {
         long startTime = System.nanoTime();
         ExecEvent event = (ExecEvent) queue.take();
-        if (event.callback == null) {
+        if (event.callback() == null) {
           break;
         }
         waitingTime = waitingTime + (System.nanoTime() - startTime);
@@ -148,7 +141,7 @@ public class FleetMember implements Runnable {
         }
         interp = new Interp();
       }
-      evalScript(event.callback);
+      evalScript(event.callback());
 
     } catch (TclException te) {
       StringBuffer msg = new StringBuffer(128);
@@ -168,10 +161,10 @@ public class FleetMember implements Runnable {
 
       // Invoke callback to report error
 
-      event.callback.completed(1, fleet, this, TclString.newInstance(msg.toString()));
+      event.callback().completed(1, fleet, this, TclString.newInstance(msg.toString()));
     } finally {
       try {
-        TclObject[] cmdArgs = TclList.getElements(interp, event.callback.messageList);
+        TclObject[] cmdArgs = TclList.getElements(interp, event.callback().messageList);
         for (TclObject cmdArg : cmdArgs) {
           cmdArg.release();
         }
