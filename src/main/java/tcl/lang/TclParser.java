@@ -125,10 +125,10 @@ public final class TclParser implements Command {
           if (objv.length != 4) {
             throw new TclNumArgsException(interp, 2, objv, "string range");
           }
-          ParseGetIndexAndLengthResult result = new ParseGetIndexAndLengthResult();
-          ParseGetIndexAndLength(interp, objv[3], scriptLength, result);
-          index = result.indexPtr;
-          length = result.lengthPtr;
+          ParseGetIndexAndLengthResult result =
+              ParseGetIndexAndLength(interp, objv[3], scriptLength);
+          index = result.indexPtr();
+          length = result.lengthPtr();
 
           switch (option) {
             case PARSE_COMMAND:
@@ -236,11 +236,11 @@ public final class TclParser implements Command {
         ParseMakeByteRange(script, endCharIndex, (charLength - (endCharIndex - charIndex))));
 
     listPtr = TclList.newInstance();
-    ParseMakeTokenListResult result = new ParseMakeTokenListResult();
     i = 0;
     while (i < parse.numTokens) {
-      i = ParseMakeTokenList(script, parse, i, result);
-      tokenPtr = result.newList;
+      ParseMakeTokenListResult result = ParseMakeTokenList(script, parse, i);
+      i = result.nextIndex();
+      tokenPtr = result.newList();
       TclList.append(null, listPtr, tokenPtr);
     }
     TclList.append(interp, resultPtr, listPtr);
@@ -282,9 +282,8 @@ public final class TclParser implements Command {
 
     // There is only one top level token, so just return it.
 
-    ParseMakeTokenListResult lresult = new ParseMakeTokenListResult();
-    ParseMakeTokenList(script, parse, 0, lresult);
-    interp.setResult(lresult.newList);
+    ParseMakeTokenListResult lresult = ParseMakeTokenList(script, parse, 0);
+    interp.setResult(lresult.newList());
   }
 
   /*
@@ -406,9 +405,8 @@ public final class TclParser implements Command {
 
     // There is only one top level token, so just return it.
 
-    ParseMakeTokenListResult lresult = new ParseMakeTokenListResult();
-    ParseMakeTokenList(script, parse, 0, lresult);
-    interp.setResult(lresult.newList);
+    ParseMakeTokenListResult lresult = ParseMakeTokenList(script, parse, 0);
+    interp.setResult(lresult.newList());
   }
 
   /*
@@ -498,19 +496,14 @@ public final class TclParser implements Command {
    * ----------------------------------------------------------------------
    */
 
-  static class ParseMakeTokenListResult {
-    TclObject newList;
-  }
+  static record ParseMakeTokenListResult(TclObject newList, int nextIndex) {}
 
-  static int ParseMakeTokenList(
+  static ParseMakeTokenListResult ParseMakeTokenList(
       UTF8CharPointer script, // Pointer to start of
       // script being
       // parsed.
       TclParse parse, // Parse information.
-      int index, // Index of token to append.
-      ParseMakeTokenListResult result)
-      // Location where resulting list
-      // object is to be stored.
+      int index) // Index of token to append.
       throws TclException {
     TclToken token = parse.tokenList[index];
     TclObject resultList, resultIndexList;
@@ -553,14 +546,13 @@ public final class TclParser implements Command {
     TclList.append(null, resultList, resultIndexList);
     start = index;
     index++;
-    ParseMakeTokenListResult lresult = new ParseMakeTokenListResult();
     while (index <= start + token.numComponents) {
-      index = ParseMakeTokenList(script, parse, index, lresult);
-      TclList.append(null, resultIndexList, lresult.newList);
+      ParseMakeTokenListResult lresult = ParseMakeTokenList(script, parse, index);
+      index = lresult.nextIndex();
+      TclList.append(null, resultIndexList, lresult.newList());
     }
 
-    result.newList = resultList;
-    return index;
+    return new ParseMakeTokenListResult(resultList, index);
   }
 
   /*
@@ -747,16 +739,15 @@ public final class TclParser implements Command {
     int numNewline;
 
     listLen1 = TclList.getLength(interp, rangePtr1);
-    ParseGetIndexAndLengthResult result = new ParseGetIndexAndLengthResult();
-    ParseGetIndexAndLength(interp, rangePtr1, scriptLength, result);
-    index1 = result.indexPtr;
-    length1 = result.lengthPtr;
+    ParseGetIndexAndLengthResult result = ParseGetIndexAndLength(interp, rangePtr1, scriptLength);
+    index1 = result.indexPtr();
+    length1 = result.lengthPtr();
 
     if (rangePtr2 != null) {
       listLen2 = TclList.getLength(interp, rangePtr2);
-      ParseGetIndexAndLength(interp, rangePtr2, scriptLength, result);
-      index2 = result.indexPtr;
-      length2 = result.lengthPtr;
+      result = ParseGetIndexAndLength(interp, rangePtr2, scriptLength);
+      index2 = result.indexPtr();
+      length2 = result.lengthPtr();
     } else {
       listLen2 = 0;
     }
@@ -828,23 +819,20 @@ public final class TclParser implements Command {
    * ----------------------------------------------------------------------
    */
 
-  static class ParseGetIndexAndLengthResult {
-    int indexPtr; // Index to the starting point of the
-    // script.
-    int lengthPtr; // Byte length of script be parsed.
-  }
+  static record ParseGetIndexAndLengthResult(int indexPtr, int lengthPtr) {}
 
-  static void ParseGetIndexAndLength(
+  static ParseGetIndexAndLengthResult ParseGetIndexAndLength(
       Interp interp, // Current interpreter.
       TclObject rangePtr,
-      int scriptLen, // Length of script in bytes. If
+      int scriptLen) // Length of script in bytes. If
       // >= 0, then try
       // to normalize index and length based
       // on the length of the script.
-      ParseGetIndexAndLengthResult result)
       throws TclException {
     TclObject itemPtr;
     int listLen;
+    int indexPtr;
+    int lengthPtr;
 
     listLen = TclList.getLength(interp, rangePtr);
     if ((listLen != 0) && (listLen != 2)) {
@@ -861,38 +849,36 @@ public final class TclParser implements Command {
     // length, set it to the end of the script.
 
     if (listLen == 0) {
-      result.indexPtr = 0;
-      result.lengthPtr = scriptLen;
+      indexPtr = 0;
+      lengthPtr = scriptLen;
     } else {
-      int len;
       String bytes;
       itemPtr = TclList.index(interp, rangePtr, 0);
-      result.indexPtr = TclInteger.getInt(interp, itemPtr);
+      indexPtr = TclInteger.getInt(interp, itemPtr);
       itemPtr = TclList.index(interp, rangePtr, 1);
       bytes = itemPtr.toString();
-      len = bytes.length();
 
       if (bytes.equals("end")) {
-        result.lengthPtr = scriptLen;
+        lengthPtr = scriptLen;
       } else {
-        result.lengthPtr = TclInteger.getInt(interp, itemPtr);
+        lengthPtr = TclInteger.getInt(interp, itemPtr);
       }
       if (scriptLen >= 0) {
-        if (result.indexPtr < 0) {
-          result.indexPtr = 0;
+        if (indexPtr < 0) {
+          indexPtr = 0;
         }
-        if (result.lengthPtr < 0) {
-          result.lengthPtr = 0;
+        if (lengthPtr < 0) {
+          lengthPtr = 0;
         }
-        if (result.indexPtr >= scriptLen) {
-          result.indexPtr = scriptLen;
+        if (indexPtr >= scriptLen) {
+          indexPtr = scriptLen;
         }
-        if (result.indexPtr + result.lengthPtr >= scriptLen) {
-          result.lengthPtr = scriptLen - result.indexPtr;
+        if (indexPtr + lengthPtr >= scriptLen) {
+          lengthPtr = scriptLen - indexPtr;
         }
       }
     }
-    return;
+    return new ParseGetIndexAndLengthResult(indexPtr, lengthPtr);
   }
 } // end class TclParser
 

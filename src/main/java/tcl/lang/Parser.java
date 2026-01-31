@@ -358,8 +358,8 @@ public class Parser {
 
         numChars = endIndex - script_index;
         pwsr = ParseWhiteSpace(script_array, script_index, numChars, parse);
-        scanned = pwsr.numScanned;
-        type = pwsr.type;
+        scanned = pwsr.numScanned();
+        type = pwsr.type();
 
         if (scanned > 0) {
           script_index += scanned;
@@ -1681,31 +1681,31 @@ public class Parser {
         {
           script_index++;
           ParseHexResult pr = ParseHex(script_array, script_index, numChars - 1);
-          count += pr.numScanned;
+          count += pr.numScanned();
 
           if (count == 2) {
             // No hexadigits -> This is just "x".
             c = 'x';
           } else {
             // Keep only the last byte (2 hex digits)
-            c = (char) (pr.result & 0xff);
+            c = (char) (pr.result() & 0xff);
           }
-          return new BackSlashResult(c, script_index + pr.numScanned, count);
+          return new BackSlashResult(c, script_index + pr.numScanned(), count);
         }
       case 'u':
         {
           script_index++;
           ParseHexResult pr =
               ParseHex(script_array, script_index, (numChars > 5) ? 4 : numChars - 1);
-          count += pr.numScanned;
+          count += pr.numScanned();
 
           if (count == 2) {
             // No hexadigits -> This is just "u".
             c = 'u';
           } else {
-            c = (char) pr.result;
+            c = (char) pr.result();
           }
-          return new BackSlashResult(c, script_index + pr.numScanned, count);
+          return new BackSlashResult(c, script_index + pr.numScanned(), count);
         }
       case '\r':
       case '\n':
@@ -2085,10 +2085,7 @@ public class Parser {
   // result an interp member so that an allocation is not needed
   // for each parse operation.
 
-  static class ParseWhitespaceResult {
-    int numScanned;
-    int type;
-  }
+  static record ParseWhitespaceResult(int numScanned, int type) {}
 
   static ParseWhitespaceResult ParseWhiteSpace(
       char[] script_array, // Array
@@ -2136,10 +2133,7 @@ public class Parser {
       }
       break;
     }
-    ParseWhitespaceResult pwsr = new ParseWhitespaceResult();
-    pwsr.type = type;
-    pwsr.numScanned = (p - script_index);
-    return pwsr;
+    return new ParseWhitespaceResult(p - script_index, type);
   }
 
   /*
@@ -2162,10 +2156,7 @@ public class Parser {
    * ----------------------------------------------------------------------
    */
 
-  static class ParseHexResult {
-    int result;
-    int numScanned;
-  }
+  static record ParseHexResult(int result, int numScanned) {}
 
   static ParseHexResult ParseHex(
       char[] script_array, // Array of characters
@@ -2200,10 +2191,7 @@ public class Parser {
       }
     }
 
-    ParseHexResult pr = new ParseHexResult();
-    pr.result = result;
-    pr.numScanned = p - script_index;
-    return pr;
+    return new ParseHexResult(result, p - script_index);
   }
 
   /*

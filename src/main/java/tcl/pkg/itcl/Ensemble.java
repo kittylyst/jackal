@@ -624,8 +624,8 @@ public class Ensemble {
             ensPart.usage(),
             ensPart.ensemble());
     FindEnsemblePartIndexResult partRes = FindEnsemblePartIndex(parentEnsData, ensName);
-    if (partRes.status) {
-      parentEnsData.parts[partRes.pos] = updatedPart;
+    if (partRes.status()) {
+      parentEnsData.parts[partRes.pos()] = updatedPart;
     }
     ensData.parent = updatedPart;
   }
@@ -683,8 +683,8 @@ public class Ensemble {
             usageInfo != null ? usageInfo : ensPart.usage(),
             ensPart.ensemble());
     FindEnsemblePartIndexResult partRes = FindEnsemblePartIndex(ensData, partName);
-    if (partRes.status) {
-      ensData.parts[partRes.pos] = updatedPart;
+    if (partRes.status()) {
+      ensData.parts[partRes.pos()] = updatedPart;
     }
 
     return updatedPart;
@@ -805,10 +805,10 @@ public class Ensemble {
 
     FindEnsemblePartIndexResult res = FindEnsemblePartIndex(ensData, partName);
 
-    if (res.status) {
+    if (res.status()) {
       throw new TclException(interp, "part \"" + partName + "\" already exists in ensemble");
     }
-    pos = res.pos;
+    pos = res.pos();
 
     // Otherwise, make room for a new entry. Keep the parts in
     // lexicographical order, so we can search them quickly
@@ -881,8 +881,8 @@ public class Ensemble {
 
     FindEnsemblePartIndexResult res = FindEnsemblePartIndex(ensPart.ensemble(), ensPart.name());
 
-    if (res.status) {
-      pos = res.pos;
+    if (res.status()) {
+      pos = res.pos();
       ensData = ensPart.ensemble();
       for (i = pos; i < ensData.numParts - 1; i++) {
         ensData.parts[i] = ensData.parts[i + 1];
@@ -1049,22 +1049,13 @@ public class Ensemble {
       }
     }
 
-    FindEnsemblePartIndexResult res = new FindEnsemblePartIndexResult();
-
     if (last >= first) {
-      res.status = true;
-      res.pos = pos;
-      return res;
+      return new FindEnsemblePartIndexResult(true, pos);
     }
-    res.status = false;
-    res.pos = first;
-    return res;
+    return new FindEnsemblePartIndexResult(false, first);
   }
 
-  static class FindEnsemblePartIndexResult {
-    boolean status;
-    int pos;
-  }
+  static record FindEnsemblePartIndexResult(boolean status, int pos) {}
 
   /*
    * ----------------------------------------------------------------------
