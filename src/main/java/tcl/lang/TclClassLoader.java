@@ -2,7 +2,6 @@ package tcl.lang;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -660,8 +659,6 @@ public class TclClassLoader extends ClassLoader {
 
     byte[] result = null; // The bytes that compose the class file.
     String[] jarFiles; // The list of files in the curDir.
-    JarFilenameFilter jarFilter; // Filter the jarFiles list by only
-    // accepting ".jar" or ".zip"
 
     File file = new File(curDir);
 
@@ -669,8 +666,7 @@ public class TclClassLoader extends ClassLoader {
       return null;
     }
 
-    jarFilter = new JarFilenameFilter();
-    jarFiles = file.list(jarFilter);
+    jarFiles = file.list((dir, name) -> name.endsWith(".jar") || name.endsWith(".zip"));
 
     if (jarFiles == null) {
       return null;
@@ -903,11 +899,9 @@ public class TclClassLoader extends ClassLoader {
   private URL getURLFromJar(String curDir, String resName) throws IOException {
     URL result = null;
     String[] jarFiles; // The list of files in the curDir.
-    JarFilenameFilter jarFilter; // Filter the jarFiles list by only
-    // accepting ".jar" or ".zip"
 
-    jarFilter = new JarFilenameFilter();
-    jarFiles = (new File(curDir)).list(jarFilter);
+    jarFiles =
+        (new File(curDir)).list((dir, name) -> name.endsWith(".jar") || name.endsWith(".zip"));
 
     for (int i = 0; i < jarFiles.length; i++) {
       result = extractURLFromJar(curDir + File.separatorChar + jarFiles[i], resName);
@@ -948,31 +942,6 @@ public class TclClassLoader extends ClassLoader {
         }
       }
       return null;
-    }
-  }
-}
-
-/**
- * A class that helps filter directory listings when for jar/zip files during the class resolution
- * stage.
- */
-class JarFilenameFilter implements FilenameFilter {
-
-  /**
-   * Used by the getClassFromJar method. When list returns a list of files in a directory, the list
-   * will only be of jar or zip files.
-   *
-   * <p>Results: True if the file ends with .jar or .zip
-   *
-   * <p>Side effects: None.
-   *
-   * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
-   */
-  public boolean accept(File dir, String name) {
-    if (name.endsWith(".jar") || name.endsWith(".zip")) {
-      return (true);
-    } else {
-      return (false);
     }
   }
 }

@@ -118,6 +118,7 @@ public class Namespace {
   }
 
   /** This interface is used to provide a callback when a namespace is deleted */
+  @FunctionalInterface
   public static interface DeleteProc {
     public void delete();
   }

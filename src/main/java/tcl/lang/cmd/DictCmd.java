@@ -227,14 +227,11 @@ public final class DictCmd implements Command {
           interp,
           null,
           srcDict,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              if (Util.stringMatch(key.toString(), glob)) {
-                TclDict.put(interp, retDict, key, val);
-              }
-              return null;
+          (i, accum, key, val) -> {
+            if (Util.stringMatch(key.toString(), glob)) {
+              TclDict.put(interp, retDict, key, val);
             }
+            return null;
           });
       interp.setResult(retDict);
     }
@@ -251,29 +248,26 @@ public final class DictCmd implements Command {
           interp,
           null,
           srcDict,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              interp.setVar(vars[0], key, 0);
-              interp.setVar(vars[1], val, 0);
+          (i, accum, key, val) -> {
+            interp.setVar(vars[0], key, 0);
+            interp.setVar(vars[1], val, 0);
 
-              try {
-                interp.eval(script, 0);
-              } catch (TclException e) {
-                if (e.getCompletionCode() == TCL.ERROR) {
-                  interp.addErrorInfo(
-                      "\n    (\"dict filter\" script line " + interp.errorLine + ")");
-                }
-                throw e;
+            try {
+              interp.eval(script, 0);
+            } catch (TclException e) {
+              if (e.getCompletionCode() == TCL.ERROR) {
+                interp.addErrorInfo(
+                    "\n    (\"dict filter\" script line " + interp.getErrorLine() + ")");
               }
-
-              // If the script evaluated to true then store this
-              // key/value pair in the result.
-              if (TclBoolean.get(interp, interp.getResult())) {
-                TclDict.put(interp, retDict, key, val);
-              }
-              return null;
+              throw e;
             }
+
+            // If the script evaluated to true then store this
+            // key/value pair in the result.
+            if (TclBoolean.get(interp, interp.getResult())) {
+              TclDict.put(interp, retDict, key, val);
+            }
+            return null;
           });
       interp.setResult(retDict);
     }
@@ -286,14 +280,11 @@ public final class DictCmd implements Command {
           interp,
           null,
           srcDict,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              if (Util.stringMatch(val.toString(), glob)) {
-                TclDict.put(interp, retDict, key, val);
-              }
-              return null;
+          (i, accum, key, val) -> {
+            if (Util.stringMatch(val.toString(), glob)) {
+              TclDict.put(interp, retDict, key, val);
             }
+            return null;
           });
       interp.setResult(retDict);
     }
@@ -327,23 +318,20 @@ public final class DictCmd implements Command {
           interp,
           null,
           dict,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              interp.setVar(vars[0], key, 0);
-              interp.setVar(vars[1], val, 0);
+          (i, accum, key, val) -> {
+            interp.setVar(vars[0], key, 0);
+            interp.setVar(vars[1], val, 0);
 
-              // Evaluate script
-              try {
-                interp.eval(script, 0);
-              } catch (TclException e) {
-                if (e.getCompletionCode() == TCL.ERROR) {
-                  interp.addErrorInfo("\n    (\"dict for\" body line " + interp.errorLine + ")");
-                }
-                throw e;
+            // Evaluate script
+            try {
+              interp.eval(script, 0);
+            } catch (TclException e) {
+              if (e.getCompletionCode() == TCL.ERROR) {
+                interp.addErrorInfo("\n    (\"dict for\" body line " + interp.getErrorLine() + ")");
               }
-              return null;
+              throw e;
             }
+            return null;
           });
     }
   }
@@ -454,20 +442,17 @@ public final class DictCmd implements Command {
           interp,
           null,
           objv[2],
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              buf.append(
-                  key.toString()
-                      + "("
-                      + key.getRefCount()
-                      + ") = "
-                      + val.toString()
-                      + "("
-                      + val.getRefCount()
-                      + ")\n");
-              return null;
-            }
+          (i, accum, key, val) -> {
+            buf.append(
+                key.toString()
+                    + "("
+                    + key.getRefCount()
+                    + ") = "
+                    + val.toString()
+                    + "("
+                    + val.getRefCount()
+                    + ")\n");
+            return null;
           });
       interp.setResult(buf.toString());
       // That's all we can get from Java's HashMap implementation
@@ -495,14 +480,11 @@ public final class DictCmd implements Command {
           interp,
           null,
           dict,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              if (glob == null || Util.stringMatch(key.toString(), glob)) {
-                TclList.append(interp, result, key);
-              }
-              return null;
+          (i, accum, key, val) -> {
+            if (glob == null || Util.stringMatch(key.toString(), glob)) {
+              TclList.append(interp, result, key);
             }
+            return null;
           });
       interp.setResult(result);
     }
@@ -574,12 +556,9 @@ public final class DictCmd implements Command {
             interp,
             null,
             objv[i],
-            new TclDict.Visitor() {
-              public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                  throws TclException {
-                TclDict.put(interp, retDict, key, val);
-                return null;
-              }
+            (ix, accum, key, val) -> {
+              TclDict.put(interp, retDict, key, val);
+              return null;
             });
       }
       interp.setResult(retDict);
@@ -820,14 +799,11 @@ public final class DictCmd implements Command {
           interp,
           null,
           dict,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              if (glob == null || Util.stringMatch(val.toString(), glob)) {
-                TclList.append(interp, result, val);
-              }
-              return null;
+          (i, accum, key, val) -> {
+            if (glob == null || Util.stringMatch(val.toString(), glob)) {
+              TclList.append(interp, result, val);
             }
+            return null;
           });
       interp.setResult(result);
     }
@@ -873,13 +849,10 @@ public final class DictCmd implements Command {
           interp,
           null,
           current,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              interp.setVar(key, val, 0);
-              keyList.add(key);
-              return null;
-            }
+          (i, accum, key, val) -> {
+            interp.setVar(key, val, 0);
+            keyList.add(key);
+            return null;
           });
 
       // Evaluate the script

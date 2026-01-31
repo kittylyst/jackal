@@ -289,6 +289,7 @@ public class TclDict implements InternalRep {
    * implementation of the standard Visitor Pattern, with added parameters for an <code>Interp
    * </code> object and some arbitrary threaded state.
    */
+  @FunctionalInterface
   public static interface Visitor {
     /** Called for each element in a TclDict. */
     public Object visit(Interp interp, Object accum, TclObject key, TclObject value)
