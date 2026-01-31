@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.Set;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /**
  * This structure contains a cached pointer to a namespace that is the result of resolving the

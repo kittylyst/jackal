@@ -7,6 +7,10 @@ package tcl.pkg.fleet;
 import java.util.ArrayList;
 import tcl.lang.*;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclDouble;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /**
  * @author brucejohnson

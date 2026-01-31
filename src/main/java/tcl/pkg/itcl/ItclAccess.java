@@ -30,10 +30,10 @@ import tcl.lang.CallFrame;
 import tcl.lang.Interp;
 import tcl.lang.Namespace;
 import tcl.lang.Procedure;
-import tcl.lang.TclObject;
 import tcl.lang.Var;
 import tcl.lang.WrappedCommand;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclObject;
 
 public class ItclAccess {
   public static boolean isProcCallFrame(CallFrame frame) {

@@ -18,10 +18,10 @@ package tcl.pkg.java;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
 import tcl.lang.TclEvent;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /** This class handles JavaBean events in Tcl. */
 class BeanEvent extends TclEvent {

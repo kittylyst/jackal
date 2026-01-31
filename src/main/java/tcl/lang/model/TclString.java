@@ -11,11 +11,13 @@
  *
  */
 
-package tcl.lang;
+package tcl.lang.model;
 
 // This class implements the string object type in Tcl.
 
-public class TclString implements InternalRep {
+import tcl.lang.InternalRep;
+
+public final class TclString implements InternalRep {
 
   // This dummy field is used as the internal rep for every
   // TclString that has not been modified via an append
@@ -118,7 +120,7 @@ public class TclString implements InternalRep {
     return new TclObject(new TclString(sb));
   }
 
-  public static final TclObject newInstance(Object o) {
+  public static TclObject newInstance(Object o) {
     return newInstance(o.toString());
   }
 
@@ -128,7 +130,7 @@ public class TclString implements InternalRep {
    *
    * @param c initial value of the string.
    */
-  public static final TclObject newInstance(char c) {
+  public static TclObject newInstance(char c) {
     char charArray[] = new char[1];
     charArray[0] = c;
     return newInstance(new String(charArray));
@@ -174,7 +176,7 @@ public class TclString implements InternalRep {
    * @param tobj the TclObject to append a string to.
    * @param string the string to append to the object.
    */
-  public static final void append(TclObject tobj, String string) {
+  public static void append(TclObject tobj, String string) {
     if (!tobj.isStringType()) {
       setStringFromAny(tobj);
     }
@@ -199,7 +201,7 @@ public class TclString implements InternalRep {
    * @param offset index of first character to append.
    * @param length number of characters to append.
    */
-  public static final void append(TclObject tobj, char[] charArr, int offset, int length) {
+  public static void append(TclObject tobj, char[] charArr, int offset, int length) {
     if (!tobj.isStringType()) {
       setStringFromAny(tobj);
     }
@@ -222,7 +224,7 @@ public class TclString implements InternalRep {
    * <p>The type of the TclObject will be a TclString that contains the string value:
    * tobj.toString() + tobj2.toString();
    */
-  public static final void append(TclObject tobj, TclObject tobj2) {
+  public static void append(TclObject tobj, TclObject tobj2) {
     append(tobj, tobj2.toString());
   }
 
@@ -236,7 +238,7 @@ public class TclString implements InternalRep {
    * @param startIdx index to start appending values from
    * @param endIdx index to stop appending values at
    */
-  public static final void append(
+  public static void append(
       TclObject tobj, TclObject[] objv, final int startIdx, final int endIdx) {
     if (!tobj.isStringType()) {
       setStringFromAny(tobj);

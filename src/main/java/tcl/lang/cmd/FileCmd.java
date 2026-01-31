@@ -27,18 +27,18 @@ import tcl.lang.Command;
 import tcl.lang.FileUtil;
 import tcl.lang.Interp;
 import tcl.lang.JACL;
-import tcl.lang.TclBoolean;
 import tcl.lang.TclIO;
-import tcl.lang.TclIndex;
-import tcl.lang.TclInteger;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.Util;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
 import tcl.lang.exception.TclPosixException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclBoolean;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /** This class implements the built-in "file" command in Tcl. */
 public final class FileCmd implements Command {
@@ -122,7 +122,7 @@ public final class FileCmd implements Command {
    * This procedure is invoked to process the "file" Tcl command. See the user documentation for
    * details on what it does.
    *
-   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
+   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, TclObject[])
    */
   public void cmdProc(Interp interp, TclObject argv[]) throws TclException {
     if (argv.length < 2) {

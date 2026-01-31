@@ -19,13 +19,13 @@ import java.io.IOException;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.Pipeline;
-import tcl.lang.TclInteger;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.channel.TclByteArrayChannel;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 import tcl.lang.process.Redirect;
 
 /** This class implements the built-in "exec" command in Tcl. */

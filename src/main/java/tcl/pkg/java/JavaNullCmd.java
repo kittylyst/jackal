@@ -17,8 +17,8 @@ package tcl.pkg.java;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclObject;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclObject;
 
 /** Implements the built-in "java::null" command. */
 public final class JavaNullCmd implements Command {

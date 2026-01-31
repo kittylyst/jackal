@@ -13,9 +13,9 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import tcl.lang.Interp;
 import tcl.lang.TclIO;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /**
  * The SocketChannel class implements a channel object for Socket connections, created using the

@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /**
  * This class implements a frame in the call stack.

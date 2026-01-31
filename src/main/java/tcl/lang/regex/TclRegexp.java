@@ -14,8 +14,8 @@ package tcl.lang.regex;
 
 import java.util.regex.PatternSyntaxException;
 import tcl.lang.Interp;
-import tcl.lang.TclObject;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclObject;
 
 public class TclRegexp {
   private TclRegexp() {}

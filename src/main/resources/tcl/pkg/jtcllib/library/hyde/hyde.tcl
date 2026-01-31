@@ -642,7 +642,7 @@ proc hyde::compileWith_janino {name codeStr {keepClass 0}} {
 	set tclobj [java::call $tcl.TclByteArray {newInstance byte[]} $rawByteCode]
 
 	# ...and now make it into a Tcl variable
-	[java::getinterp] {setVar java.lang.String tcl.lang.TclObject int} byteCode $tclobj 0
+	[java::getinterp] {setVar java.lang.String tcl.lang.model.TclObject int} byteCode $tclobj 0
 
 	if {[string first "\$" $class_name] == -1} {
 	    set inner($class_name) $byteCode
@@ -761,7 +761,7 @@ proc hyde::compileWith_janinocp {name codeStr {keepClass 0}} {
 	set tclobj [java::call $tcl.TclByteArray {newInstance byte[]} $rawByteCode]
 
 	# ...and now make it into a Tcl variable
-	[java::getinterp] {setVar java.lang.String tcl.lang.TclObject int} byteCode $tclobj 0
+	[java::getinterp] {setVar java.lang.String tcl.lang.model.TclObject int} byteCode $tclobj 0
 
 	if {[string first "\$" $class_name] == -1} {
 	    set inner($class_name) $byteCode
@@ -1425,34 +1425,34 @@ proc hyde::jclass {name args} {
 	}
 	set listcont "   \n\t\t\t + \" "
 
-	append toObjListMethod "\t\ttcl.lang.TclList.append(interp, list, tcl.lang.TclString.newInstance(\"$prop\"));\n"
+	append toObjListMethod "\t\ttcl.lang.TclList.append(interp, list, tcl.lang.model.TclString.newInstance(\"$prop\"));\n"
 	if {[lsearch $primList $propType($prop)] >= 0 } {
-	    append toObjListMethod "\t\ttcl.lang.TclList.append(interp, list, tcl.lang.TclString.newInstance(\"\"+$prop));\n"
+	    append toObjListMethod "\t\ttcl.lang.TclList.append(interp, list, tcl.lang.model.TclString.newInstance(\"\"+$prop));\n"
 	} elseif {[lsearch $wrappedList $propType($prop)] >= 0 } {
 	    append toObjListMethod "\t\tif ($prop == null) {\n"
-	    append toObjListMethod "\t\t\ttcl.lang.TclList.append(interp, list, tcl.lang.TclString.newInstance(\"java0x0\"));\n"
+	    append toObjListMethod "\t\t\ttcl.lang.TclList.append(interp, list, tcl.lang.model.TclString.newInstance(\"java0x0\"));\n"
 	    append toObjListMethod "\t\t} else {\n"
-	    append toObjListMethod "\t\t\ttcl.lang.TclList.append(interp, list, tcl.lang.TclString.newInstance(\"\"+$prop));\n"
+	    append toObjListMethod "\t\t\ttcl.lang.TclList.append(interp, list, tcl.lang.model.TclString.newInstance(\"\"+$prop));\n"
 	    append toObjListMethod "\t\t}\n"
 	} else {
 	    append toObjListMethod "\t\tif ($prop == null) {\n"
-	    append toObjListMethod "\t\t\ttcl.lang.TclList.append(interp, list, tcl.lang.TclString.newInstance(\"java0x0\"));\n"
+	    append toObjListMethod "\t\t\ttcl.lang.TclList.append(interp, list, tcl.lang.model.TclString.newInstance(\"java0x0\"));\n"
 	    append toObjListMethod "\t\t} else {\n"
 	    append toObjListMethod "\t\t\ttcl.lang.TclList.append(interp, list, tcl.pkg.java.ReflectObject.newInstance(interp, $prop.getClass(), $prop));\n"
 	    append toObjListMethod "\t\t}\n"
 	}
 
 	if {[lsearch $primList $propType($prop)] >= 0 } {
-	    append toObjArrayMethod "\t\tinterp.setVar(arrName, \"$prop\", tcl.lang.TclString.newInstance(\"\"+$prop), 0);\n"
+	    append toObjArrayMethod "\t\tinterp.setVar(arrName, \"$prop\", tcl.lang.model.TclString.newInstance(\"\"+$prop), 0);\n"
 	} elseif {[lsearch $wrappedList $propType($prop)] >= 0 } {
 	    append toObjArrayMethod "\t\tif ($prop == null) {\n"
-	    append toObjArrayMethod "\t\t\tinterp.setVar(arrName, \"$prop\", tcl.lang.TclString.newInstance(\"java0x0\"), 0);\n"
+	    append toObjArrayMethod "\t\t\tinterp.setVar(arrName, \"$prop\", tcl.lang.model.TclString.newInstance(\"java0x0\"), 0);\n"
 	    append toObjArrayMethod "\t\t} else {\n"
-	    append toObjArrayMethod "\t\t\tinterp.setVar(arrName, \"$prop\", tcl.lang.TclString.newInstance(\"\"+$prop), 0);\n"
+	    append toObjArrayMethod "\t\t\tinterp.setVar(arrName, \"$prop\", tcl.lang.model.TclString.newInstance(\"\"+$prop), 0);\n"
 	    append toObjArrayMethod "\t\t}\n"
 	} else {
 	    append toObjArrayMethod "\t\tif ($prop == null) {\n"
-	    append toObjArrayMethod "\t\t\tinterp.setVar(arrName, \"$prop\", tcl.lang.TclString.newInstance(\"java0x0\"), 0);\n"
+	    append toObjArrayMethod "\t\t\tinterp.setVar(arrName, \"$prop\", tcl.lang.model.TclString.newInstance(\"java0x0\"), 0);\n"
 	    append toObjArrayMethod "\t\t} else {\n"
 	    append toObjArrayMethod "\t\t\tinterp.setVar(arrName, \"$prop\", tcl.pkg.java.ReflectObject.newInstance(interp, $prop.getClass(), $prop), 0);\n"
 	    append toObjArrayMethod "\t\t}\n"
@@ -1470,7 +1470,7 @@ proc hyde::jclass {name args} {
 	append codeStr "\t}\n\n"
 
 	append codeStr "\n\n\tpublic void toList(tcl.lang.Interp interp, String varName) throws tcl.lang.TclException {\n"
-	append codeStr "\t\ttcl.lang.TclObject list = tcl.lang.TclList.newInstance();\n"
+	append codeStr "\t\ttcl.lang.TclObject list = tcl.lang.model.TclList.newInstance();\n"
 	append codeStr "\t\tlist.preserve();\n"
 	append codeStr "$toObjListMethod\n"
 	append codeStr "\t\tinterp.setVar(varName, list, 0);\n"

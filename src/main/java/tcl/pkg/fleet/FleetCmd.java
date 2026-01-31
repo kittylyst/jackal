@@ -6,6 +6,7 @@ import java.util.HashMap;
 import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.*;
 
 public final class FleetCmd implements Command {
 

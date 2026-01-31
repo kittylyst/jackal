@@ -11,10 +11,11 @@
  *
  */
 
-package tcl.lang;
+package tcl.lang.model;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import tcl.lang.InternalRep;
 import tcl.lang.exception.TclRuntimeError;
 
 /**

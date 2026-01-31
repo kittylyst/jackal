@@ -29,41 +29,33 @@ import tcl.lang.exception.TclRuntimeError;
  */
 public abstract class TclEvent {
 
-  /** The notifier in which this event is queued. */
-  Notifier notifier = null;
+  private Notifier notifier = null;
 
-  /** This flag is true if sync() has been called on this object. */
-  boolean needsNotify = false;
+  private boolean needsNotify = false;
 
-  /**
-   * True if this event is current being processing. This flag provents an event to be processed
-   * twice when the event loop is entered recursively.
-   */
-  boolean isProcessing = false;
+  private boolean isProcessing = false;
 
-  /** True if this event has been processed. */
-  boolean isProcessed = false;
+  private boolean isProcessed = false;
 
-  /** Links to the next event in the event queue. */
-  TclEvent next;
+  private TclEvent next;
 
   /** Process the event. Override this method to implement new types of events. */
   public abstract int processEvent(int flags);
 
   /** Wait until this event has been processed. */
   public final void sync() {
-    if (notifier == null) {
+    if (getNotifier() == null) {
       throw new TclRuntimeError("TclEvent is not queued when sync() is called");
     }
 
-    if (Thread.currentThread() == notifier.primaryThread) {
-      while (!isProcessed) {
-        notifier.serviceEvent(0);
+    if (Thread.currentThread() == getNotifier().primaryThread) {
+      while (!isProcessed()) {
+        getNotifier().serviceEvent(0);
       }
     } else {
       synchronized (this) {
-        needsNotify = true;
-        while (!isProcessed) {
+        setNeedsNotify(true);
+        while (!isProcessed()) {
           try {
             wait(0);
           } catch (InterruptedException e) {
@@ -72,5 +64,53 @@ public abstract class TclEvent {
         }
       }
     }
+  }
+
+  /** The notifier in which this event is queued. */
+  public Notifier getNotifier() {
+    return notifier;
+  }
+
+  public void setNotifier(Notifier notifier) {
+    this.notifier = notifier;
+  }
+
+  /** This flag is true if sync() has been called on this object. */
+  public boolean isNeedsNotify() {
+    return needsNotify;
+  }
+
+  public void setNeedsNotify(boolean needsNotify) {
+    this.needsNotify = needsNotify;
+  }
+
+  /**
+   * True if this event is current being processing. This flag provents an event to be processed
+   * twice when the event loop is entered recursively.
+   */
+  public boolean isProcessing() {
+    return isProcessing;
+  }
+
+  public void setProcessing(boolean processing) {
+    isProcessing = processing;
+  }
+
+  /** True if this event has been processed. */
+  public boolean isProcessed() {
+    return isProcessed;
+  }
+
+  public void setProcessed(boolean processed) {
+    isProcessed = processed;
+  }
+
+  /** Links to the next event in the event queue. */
+  public TclEvent getNext() {
+    return next;
+  }
+
+  public void setNext(TclEvent next) {
+    this.next = next;
   }
 } // end TclEvent

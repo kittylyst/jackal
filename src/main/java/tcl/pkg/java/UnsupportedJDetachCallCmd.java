@@ -3,9 +3,9 @@ package tcl.pkg.java;
 import java.lang.reflect.Method;
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclObject;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclObject;
 
 /**
  * This command is the only means to safely call a blocking Java method like a modal AWT dialog box.

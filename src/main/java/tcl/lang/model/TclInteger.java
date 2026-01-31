@@ -11,13 +11,16 @@
  *
  */
 
-package tcl.lang;
+package tcl.lang.model;
 
+import tcl.lang.InternalRep;
+import tcl.lang.Interp;
+import tcl.lang.Util;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
 
 /** This class implements the integer object type in Tcl. */
-public class TclInteger implements InternalRep {
+public final class TclInteger implements InternalRep {
 
   // The int value for a TclInteger type is stored
   // in the TclObject instance. The TclObject API
@@ -30,7 +33,7 @@ public class TclInteger implements InternalRep {
   //
   // if (tobj.getInternalRep() instanceof TclInteger) {...}
 
-  static final TclInteger dummy = new TclInteger();
+  public static final TclInteger dummy = new TclInteger();
 
   // Extra debug checking
   private static final boolean validate = false;
@@ -228,7 +231,7 @@ public class TclInteger implements InternalRep {
    * @param tobj the object to operate on.
    * @param i the new int value.
    */
-  static void exprSetInternalRep(final TclObject tobj, final long i) {
+  public static void exprSetInternalRep(final TclObject tobj, final long i) {
     if (validate) {
 
       // Double check that the internal rep is not

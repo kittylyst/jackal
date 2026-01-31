@@ -26,12 +26,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclIndex;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 /** This class implements the built-in "java::info" command in Tcl. */

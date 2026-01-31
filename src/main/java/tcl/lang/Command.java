@@ -14,10 +14,8 @@
 
 package tcl.lang;
 
-import tcl.lang.cmd.*;
 import tcl.lang.exception.TclException;
-import tcl.pkg.java.*;
-import tcl.pkg.tjc.*;
+import tcl.lang.model.TclObject;
 
 /**
  * The Command interface specifies the method that a new Tcl command must implement. See the

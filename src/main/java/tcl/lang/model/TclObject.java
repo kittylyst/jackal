@@ -11,9 +11,10 @@
  *
  */
 
-package tcl.lang;
+package tcl.lang.model;
 
 import java.util.Hashtable;
+import tcl.lang.InternalRep;
 import tcl.lang.exception.TclRuntimeError;
 
 /** This class extends TclObjectBase to implement the basic notion of an object in Tcl. */
@@ -101,7 +102,7 @@ public final class TclObject extends TclObjectBase {
    * normally raise an exception in invalidateStringRep, but this optimized case is worth it for
    * this common case.
    */
-  final void setRecycledIntValue(long i) {
+  public final void setRecycledIntValue(long i) {
     if (validate) {
       if ((refCount != 1) && (refCount != 2)) {
         throw new TclRuntimeError("Invalid refCount " + refCount);
@@ -123,7 +124,7 @@ public final class TclObject extends TclObjectBase {
    * would normally raise an exception in invalidateStringRep, but this optimized case is worth it
    * for this common case.
    */
-  final void setRecycledDoubleValue(double d) {
+  public final void setRecycledDoubleValue(double d) {
     if (validate) {
       if ((refCount != 1) && (refCount != 2)) {
         throw new TclRuntimeError("Invalid refCount " + refCount);

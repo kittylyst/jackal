@@ -19,10 +19,10 @@ import tcl.lang.Interp;
 import tcl.lang.ParseResult;
 import tcl.lang.Parser;
 import tcl.lang.TCL;
-import tcl.lang.TclIndex;
-import tcl.lang.TclObject;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "subst" command in Tcl. */
 public final class SubstCmd implements Command {

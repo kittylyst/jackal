@@ -13,6 +13,8 @@ package tcl.lang;
 
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /**
  * Lambda internal rep.
@@ -20,7 +22,7 @@ import tcl.lang.exception.TclRuntimeError;
  * @author Neil Madden &lt;nem@cs.nott.ac.uk&gt;
  * @version $Revision$
  */
-public class TclLambda implements InternalRep {
+public final class TclLambda implements InternalRep {
   private final Procedure procedure;
   private final String namespaceName;
 

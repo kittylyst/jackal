@@ -14,6 +14,7 @@ package tcl.lang.cmd;
 import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclObject;
 
 /**
  * Implementation of the [apply] command.

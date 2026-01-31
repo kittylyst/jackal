@@ -11,15 +11,16 @@
  *
  */
 
-package tcl.lang;
+package tcl.lang.model;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
 
 /** This class implements the dict object type in Tcl. */
-public class TclDict implements InternalRep {
+public final class TclDict implements InternalRep {
 
   /** Internal representation of a dict value (key -> value) */
   private final Map<TclObject, TclObject> map;
@@ -184,8 +185,7 @@ public class TclDict implements InternalRep {
    * @param s the string to convert into a dict.
    * @exception TclException if the object doesn't contain a valid dict.
    */
-  private static final void splitDict(Interp interp, Map map, Map keymap, String s)
-      throws TclException {
+  private static void splitDict(Interp interp, Map map, Map keymap, String s) throws TclException {
     int len = s.length();
     int i = 0;
     FindElemResult res = new FindElemResult();
@@ -197,25 +197,24 @@ public class TclDict implements InternalRep {
       if (!Util.findElement(interp, s, i, len, res)) {
         break;
       } else {
-        key = TclString.newInstance(res.elem);
+        key = TclString.newInstance(res.getElem());
       }
-      i = res.elemEnd;
+      i = res.getElemEnd();
       if (!Util.findElement(interp, s, i, len, res)) {
         throw new TclException(interp, "missing value to go with key");
       } else {
-        val = TclString.newInstance(res.elem);
+        val = TclString.newInstance(res.getElem());
       }
       key.preserve();
       val.preserve();
       map.put(key, val);
       keymap.put(key, key);
-      i = res.elemEnd;
+      i = res.getElemEnd();
     }
   }
 
   /** Tcl_DictObjGet. */
-  public static final TclObject get(Interp interp, TclObject dict, TclObject key)
-      throws TclException {
+  public static TclObject get(Interp interp, TclObject dict, TclObject key) throws TclException {
     if (!(dict.getInternalRep() instanceof TclDict)) {
       setDictFromAny(interp, dict);
     }
@@ -224,7 +223,7 @@ public class TclDict implements InternalRep {
   }
 
   /** Tcl_DictObjPut. */
-  public static final void put(Interp interp, TclObject dict, TclObject key, TclObject value)
+  public static void put(Interp interp, TclObject dict, TclObject key, TclObject value)
       throws TclException {
     if (dict.isShared()) {
       throw new TclRuntimeError("TclDict.put() called with shared object");
@@ -251,8 +250,7 @@ public class TclDict implements InternalRep {
   }
 
   /** Tcl_DictObjRemove. */
-  public static final void remove(Interp interp, TclObject dict, TclObject key)
-      throws TclException {
+  public static void remove(Interp interp, TclObject dict, TclObject key) throws TclException {
     if (dict.isShared()) {
       throw new TclRuntimeError("TclDict.remove() called with shared object");
     }
@@ -271,7 +269,7 @@ public class TclDict implements InternalRep {
   }
 
   /** Tcl_DictObjSize. */
-  public static final int size(Interp interp, TclObject dict) throws TclException {
+  public static int size(Interp interp, TclObject dict) throws TclException {
     if (!(dict.getInternalRep() instanceof TclDict)) {
       setDictFromAny(interp, dict);
     }
@@ -312,8 +310,8 @@ public class TclDict implements InternalRep {
    * @return The final accumulator value.
    * @throws TclException if the visitor object throws one.
    */
-  public static final Object foreach(
-      Interp interp, Object accum, TclObject dict, TclDict.Visitor body) throws TclException {
+  public static Object foreach(Interp interp, Object accum, TclObject dict, TclDict.Visitor body)
+      throws TclException {
     if (!(dict.getInternalRep() instanceof TclDict)) {
       setDictFromAny(interp, dict);
     }
@@ -363,7 +361,7 @@ public class TclDict implements InternalRep {
   }
 
   /** Tcl_DictObjPutKeyList. */
-  public static final void putKeyList(
+  public static void putKeyList(
       Interp interp, TclObject dict, TclObject[] keys, int start, int length, TclObject value)
       throws TclException {
     int end = start + length - 1;
@@ -420,7 +418,7 @@ public class TclDict implements InternalRep {
   }
 
   /** Tcl_DictObjRemoveKeyList. */
-  public static final void removeKeyList(
+  public static void removeKeyList(
       Interp interp, TclObject dict, TclObject[] keys, int start, int length) throws TclException {
     int end = start + length - 1;
     TclObject current = dict;
@@ -468,7 +466,7 @@ public class TclDict implements InternalRep {
   }
 
   /** Appends the given strings to the given key in the given dictionary object. */
-  public static final void appendToKey(
+  public static void appendToKey(
       Interp interp, TclObject dict, TclObject key, TclObject[] objv, int start, int end)
       throws TclException {
     if (dict.isShared()) {

@@ -17,11 +17,11 @@ import java.io.IOException;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclIO;
-import tcl.lang.TclObject;
 import tcl.lang.channel.Channel;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
 import tcl.lang.exception.TclPosixException;
+import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "flush" command in Tcl. */
 public final class FlushCmd implements Command {

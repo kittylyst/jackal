@@ -19,4 +19,5 @@ module jackal {
   exports tcl.pkg.java;
   exports tcl.pkg.java.reflect;
   exports tcl.pkg.itcl;
+  exports tcl.lang.model;
 }

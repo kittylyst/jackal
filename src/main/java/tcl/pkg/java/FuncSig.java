@@ -25,10 +25,10 @@ import java.util.Hashtable;
 import java.util.Map.Entry;
 import tcl.lang.InternalRep;
 import tcl.lang.Interp;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 /**
@@ -36,7 +36,7 @@ import tcl.pkg.java.reflect.PkgInvoker;
  * Because methods and constructors are very similar to each other, the operations on method
  * signatures and constructor signatures are limped in this class of "function signature."
  */
-class FuncSig implements InternalRep {
+public final class FuncSig implements InternalRep {
 
   // The class that a method signature is used against. In the case of a
   // static method call by java::call, targetCls is given by the <class>

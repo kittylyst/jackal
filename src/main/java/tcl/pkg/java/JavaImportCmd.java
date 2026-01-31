@@ -22,12 +22,12 @@ import java.util.*;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclClassLoader;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.exception.PackageNameException;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 public final class JavaImportCmd implements Command {
@@ -36,7 +36,7 @@ public final class JavaImportCmd implements Command {
    * This procedure is invoked to process the "java::import" Tcl comamnd. See the user documentation
    * for details on what it does.
    *
-   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
+   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.model.TclObject[])
    */
   public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
 

@@ -16,6 +16,7 @@
 package tcl.lang;
 
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclObject;
 
 /**
  * Class which is used as the Command implementation inside a WrappedCommand that has been imported

@@ -19,9 +19,9 @@ package tcl.lang.exception;
 import java.io.IOException;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /*
  * This class implements exceptions used to report posix errors in Tcl scripts.

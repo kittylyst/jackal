@@ -18,52 +18,71 @@ package tcl.lang;
 
 // Result returned by Util.findElement().
 
-class FindElemResult {
+public final class FindElemResult {
 
   // The start index of the element in the original string -- the index of the
   // first character in the element.
 
-  int elemStart;
+  private int elemStart;
 
   // The end index of the element in the original string -- the index of the
   // character immediately behind the element.
 
-  int elemEnd;
+  private int elemEnd;
 
   // The number of characters parsed from the original string, this can be
   // different than the length of the elem string when two characters
   // are collapsed into one in the case of a backslash.
 
-  int size;
+  private int size;
 
   // The element itself.
+  private String elem;
 
-  String elem;
-
-  /*
-   * ----------------------------------------------------------------------
+  /**
+   * Update a FindElemResult, this method is used only in the Util.findElement() API.
    *
-   * update --
-   *
-   * Update a FindElemResult, this method is used only in the
-   * Util.findElement() API.
-   *
-   * Results: None.
-   *
-   * Side effects: The member fields are updated.
-   *
-   * ----------------------------------------------------------------------
+   * @param start Initial value for elemStart.
+   * @param end Initial value for elemEnd.
+   * @param elem Initial value for elem.
+   * @param size Initial value for size.
    */
+  void update(int start, int end, String elem, int size) {
+    this.setElemStart(start);
+    this.setElemEnd(end);
+    this.setElem(elem);
+    this.setSize(size);
+  }
 
-  void update(
-      int start, // Initial value for elemStart.
-      int end, // Initial value for elemEnd.
-      String elem, // Initial value for elem.
-      int size) // Initial value for size.
-      {
-    this.elemStart = start;
-    this.elemEnd = end;
-    this.elem = elem;
+  public int getElemStart() {
+    return elemStart;
+  }
+
+  public void setElemStart(int elemStart) {
+    this.elemStart = elemStart;
+  }
+
+  public int getElemEnd() {
+    return elemEnd;
+  }
+
+  public void setElemEnd(int elemEnd) {
+    this.elemEnd = elemEnd;
+  }
+
+  public int getSize() {
+    return size;
+  }
+
+  public void setSize(int size) {
     this.size = size;
   }
-} // end FindElemResult
+
+  public String getElem() {
+    return elem;
+  }
+
+  public void setElem(String elem) {
+    this.elem = elem;
+  }
+}

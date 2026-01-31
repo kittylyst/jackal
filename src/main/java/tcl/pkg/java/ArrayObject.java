@@ -17,12 +17,12 @@ package tcl.pkg.java;
 import java.lang.reflect.Array;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclIndex;
-import tcl.lang.TclInteger;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /*
  * An ArrayObject is used to create and access Java Array objects

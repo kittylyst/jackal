@@ -19,14 +19,14 @@ package tcl.lang.cmd;
 import java.util.regex.PatternSyntaxException;
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclDouble;
-import tcl.lang.TclIndex;
-import tcl.lang.TclInteger;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
 import tcl.lang.Util;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclDouble;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 import tcl.lang.regex.Regex;
 
 /*
@@ -84,7 +84,7 @@ public final class LsearchCmd implements Command {
    *
    * <p>Side effects: See the user documentation.
    *
-   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
+   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.model.TclObject[])
    */
   public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
     int mode = GLOB;

@@ -14,6 +14,9 @@ package tcl.lang;
 import java.util.Arrays;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.CharPointer;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /**
  * This class contains methods that parse Tcl scripts. They do so in a general-purpose fashion that
@@ -445,11 +448,11 @@ public class Parser {
     int parseError = Parser.TCL_PARSE_SUCCESS;
 
     do {
-      parse = parseCommand(null, src.array, src.index, len, null, 0, nested);
+      parse = parseCommand(null, src.getArray(), src.getIndex(), len, null, 0, nested);
       parseError = parse.errorType;
-      src.index = parse.commandStart + parse.commandSize;
+      src.setIndex(parse.commandStart + parse.commandSize);
       parse.release(); // Release parser resources
-      if (src.index >= len) {
+      if (src.getIndex() >= len) {
         break;
       }
     } while (parseError == Parser.TCL_PARSE_SUCCESS);
@@ -1521,7 +1524,7 @@ public class Parser {
     }
 
     CharPointer src = new CharPointer(string);
-    parse = parseVarName(interp, src.array, src.index, -1, null, false);
+    parse = parseVarName(interp, src.getArray(), src.getIndex(), -1, null, false);
     if (parse.result != TCL.OK) {
       throw new TclException(interp, interp.getResult().toString());
     }
@@ -1574,13 +1577,13 @@ public class Parser {
     CharPointer src = new CharPointer(string);
 
     do {
-      parse = parseCommand(null, src.array, src.index, charLength, null, 0, false);
+      parse = parseCommand(null, src.getArray(), src.getIndex(), charLength, null, 0, false);
 
-      src.index = parse.commandStart + parse.commandSize;
+      src.setIndex(parse.commandStart + parse.commandSize);
 
       parse.release(); // Release parser resources
 
-      if (src.index >= charLength) {
+      if (src.getIndex() >= charLength) {
         break;
       }
     } while (parse.result == TCL.OK);

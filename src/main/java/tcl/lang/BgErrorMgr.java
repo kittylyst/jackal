@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import tcl.lang.channel.Channel;
 import tcl.lang.channel.StdChannel;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /*
  * This class manages the background errors for a Tcl interpreter. It

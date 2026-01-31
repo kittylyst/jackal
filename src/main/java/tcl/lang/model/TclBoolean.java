@@ -11,12 +11,13 @@
  *
  */
 
-package tcl.lang;
+package tcl.lang.model;
 
+import tcl.lang.*;
 import tcl.lang.exception.TclException;
 
 /** This class implements the boolean object type in Tcl. */
-public class TclBoolean implements InternalRep {
+public final class TclBoolean implements InternalRep {
   /** Internal representations for all TclBooleans. */
   private static final TclBoolean trueRep = new TclBoolean(true);
 

@@ -18,16 +18,16 @@ import java.util.List;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclBoolean;
-import tcl.lang.TclDict;
-import tcl.lang.TclIndex;
-import tcl.lang.TclInteger;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
 import tcl.lang.Util;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclBoolean;
+import tcl.lang.model.TclDict;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "dict" command in Tcl. */
 public final class DictCmd implements Command {
@@ -63,7 +63,7 @@ public final class DictCmd implements Command {
    * This procedure is invoked to process the "dict" Tcl command. See the user documentation for
    * details on what it does.
    *
-   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
+   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, TclObject[])
    */
   public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
     if (objv.length < 2) {

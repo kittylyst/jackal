@@ -14,6 +14,9 @@
 
 package tcl.lang;
 
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
+
 /**
  * This class stores a single word that's generated inside the Tcl parser inside the Interp class.
  */

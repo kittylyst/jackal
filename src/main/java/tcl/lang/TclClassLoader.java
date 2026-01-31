@@ -12,6 +12,8 @@ import java.util.zip.ZipInputStream;
 import tcl.lang.exception.PackageNameException;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /**
  * TclClassLoader.java --

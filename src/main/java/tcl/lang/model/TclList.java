@@ -11,14 +11,15 @@
  *
  */
 
-package tcl.lang;
+package tcl.lang.model;
 
 import java.util.ArrayList;
+import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
 
 /** This class implements the list object type in Tcl. */
-public class TclList implements InternalRep {
+public final class TclList implements InternalRep {
 
   /** Internal representation of a list value. */
   private ArrayList<TclObject> alist;
@@ -199,7 +200,7 @@ public class TclList implements InternalRep {
    * @param s the string to convert into a list.
    * @exception TclException if the object doesn't contain a valid list.
    */
-  private static final void splitList(Interp interp, ArrayList<TclObject> alist, String s)
+  private static void splitList(Interp interp, ArrayList<TclObject> alist, String s)
       throws TclException {
     int len = s.length();
     int i = 0;
@@ -209,11 +210,11 @@ public class TclList implements InternalRep {
       if (!Util.findElement(interp, s, i, len, res)) {
         break;
       } else {
-        TclObject tobj = TclString.newInstance(res.elem);
+        TclObject tobj = TclString.newInstance(res.getElem());
         tobj.preserve();
         alist.add(tobj);
       }
-      i = res.elemEnd;
+      i = res.getElemEnd();
     }
   }
 
@@ -227,8 +228,7 @@ public class TclList implements InternalRep {
    * @param elemObj the element to append to the object.
    * @exception TclException if tobj cannot be converted into a list.
    */
-  public static final void append(Interp interp, TclObject tobj, TclObject elemObj)
-      throws TclException {
+  public static void append(Interp interp, TclObject tobj, TclObject elemObj) throws TclException {
     if (tobj.isShared()) {
       throw new TclRuntimeError("TclList.append() called with shared object");
     }
@@ -253,7 +253,7 @@ public class TclList implements InternalRep {
    * @param endIdx index to stop appending values at
    * @exception TclException if tobj cannot be converted into a list.
    */
-  public static final void append(
+  public static void append(
       Interp interp, TclObject tobj, TclObject[] objv, final int startIdx, final int endIdx)
       throws TclException {
     if (tobj.isShared()) {
@@ -282,7 +282,7 @@ public class TclList implements InternalRep {
    * @return the length of the list.
    * @exception TclException if tobj is not a valid list.
    */
-  public static final int getLength(Interp interp, TclObject tobj) throws TclException {
+  public static int getLength(Interp interp, TclObject tobj) throws TclException {
     if (!tobj.isListType()) {
       setListFromAny(interp, tobj);
     }
@@ -536,8 +536,7 @@ public class TclList implements InternalRep {
    * @return the the requested element.
    * @exception TclException if tobj is not a valid list.
    */
-  public static final TclObject index(Interp interp, TclObject tobj, int index)
-      throws TclException {
+  public static TclObject index(Interp interp, TclObject tobj, int index) throws TclException {
     if (!tobj.isListType()) {
       setListFromAny(interp, tobj);
     }
@@ -563,7 +562,7 @@ public class TclList implements InternalRep {
    * @param to insert elements up to elements[to] (inclusive)
    * @exception TclException if tobj is not a valid list.
    */
-  public static final void insert(
+  public static void insert(
       Interp interp, TclObject tobj, int index, TclObject elements[], int from, int to)
       throws TclException {
     if (tobj.isShared()) {
@@ -588,7 +587,7 @@ public class TclList implements InternalRep {
    * @param to insert elements up to elements[to] (inclusive)
    * @exception TclException if tobj is not a valid list.
    */
-  public static final void replace(
+  public static void replace(
       Interp interp, TclObject tobj, int index, int count, TclObject elements[], int from, int to)
       throws TclException {
     if (tobj.isShared()) {

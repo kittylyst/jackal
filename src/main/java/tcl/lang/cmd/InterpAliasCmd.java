@@ -19,10 +19,10 @@ import tcl.lang.CommandWithDispose;
 import tcl.lang.Interp;
 import tcl.lang.Namespace;
 import tcl.lang.TCL;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
 import tcl.lang.WrappedCommand;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /**
  * This class implements the alias commands, which are created in response to the built-in "interp

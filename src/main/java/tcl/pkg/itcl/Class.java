@@ -39,6 +39,8 @@ import java.util.Map;
 import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 // Note: ItclResolvedVarInfo structure not ported since it seems
 // to be used only in the bytecode compiler implementation.

@@ -24,9 +24,9 @@ import java.util.Hashtable;
 import java.util.Stack;
 import tcl.lang.AssocData;
 import tcl.lang.Interp;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /*
  * This class manages beans event handlers for a Tcl interpreter:

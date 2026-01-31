@@ -16,8 +16,13 @@ package tcl.lang;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclDouble;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /** This class handles Tcl expressions. */
 public class Expression {
@@ -113,7 +118,7 @@ public class Expression {
   };
 
   /** Maps name of function to its implementation */
-  public HashMap<String, MathFunction> mathFuncTable;
+  public Map<String, MathFunction> mathFuncTable;
 
   /** The entire expression, as originally passed to eval et al. */
   private String m_expr;
@@ -411,7 +416,7 @@ public class Expression {
             case '7':
             case '8':
             case '9':
-              ival = (long) (c - '0');
+              ival = c - '0';
               value.setIntValue(ival, s);
               TclInteger.exprSetInternalRep(obj, ival);
               return;

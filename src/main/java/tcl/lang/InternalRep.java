@@ -16,6 +16,8 @@
 
 package tcl.lang;
 
+import tcl.lang.model.*;
+
 /**
  * This is the interface for implementing internal representation of Tcl objects. A class that
  * implements InternalRep should define the following:
@@ -30,7 +32,25 @@ package tcl.lang;
  *
  * <p>(5) class method get() if appropriate
  */
-public interface InternalRep {
+public sealed interface InternalRep
+    permits TclBoolean,
+        TclByteArray,
+        TclDict,
+        TclDouble,
+        TclIndex,
+        TclInteger,
+        TclLambda,
+        TclList,
+        TclString,
+        UTF8CharPointer,
+        tcl.lang.cmd.NamespaceCmd,
+        tcl.pkg.itcl.ItclEnsInvoc,
+        tcl.pkg.java.ArraySig,
+        tcl.pkg.java.ClassRep,
+        tcl.pkg.java.FieldSig,
+        tcl.pkg.java.FuncSig,
+        tcl.pkg.java.PropertySig,
+        tcl.pkg.java.ReflectObject {
 
   /*
    * ----------------------------------------------------------------------
@@ -47,7 +67,7 @@ public interface InternalRep {
    * ----------------------------------------------------------------------
    */
 
-  public void dispose();
+  void dispose();
 
   /*
    * ----------------------------------------------------------------------
@@ -64,5 +84,5 @@ public interface InternalRep {
    * ----------------------------------------------------------------------
    */
 
-  public InternalRep duplicate();
+  InternalRep duplicate();
 } // end InternalRep

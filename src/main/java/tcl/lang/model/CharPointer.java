@@ -14,7 +14,7 @@
  * RCS: @(#) $Id: CharPointer.java,v 1.5 2005/10/19 23:37:38 mdejong Exp $
  */
 
-package tcl.lang;
+package tcl.lang.model;
 
 /**
  * Used in the Parser, this class implements the functionality of a C character pointer.
@@ -23,37 +23,35 @@ package tcl.lang;
  */
 public class CharPointer {
 
-  /** A string of characters. */
-  char[] array;
+  private char[] array;
 
-  /** The current index into the array. */
-  int index;
+  private int index;
 
   /** Default initialization. */
-  CharPointer() {
-    this.array = null;
-    this.index = -1;
-  }
+  //  CharPointer() {
+  //    this.array = null;
+  //    this.index = -1;
+  //  }
 
   /**
    * Make a "copy" of the argument. This is used when the index of the original CharPointer
    * shouldn't change.
    */
-  CharPointer(CharPointer c) {
-    this.array = c.array;
-    this.index = c.index;
+  public CharPointer(CharPointer c) {
+    this.setArray(c.getArray());
+    this.setIndex(c.getIndex());
   }
 
   /**
    * Create an array of chars that is one char more than the length of str. This is used to store \0
    * after the last char in the string without causing exceptions.
    */
-  CharPointer(String str) {
+  public CharPointer(String str) {
     int len = str.length();
-    this.array = new char[len + 1];
-    str.getChars(0, len, this.array, 0);
-    this.array[len] = '\0';
-    this.index = 0;
+    this.setArray(new char[len + 1]);
+    str.getChars(0, len, this.getArray(), 0);
+    this.getArray()[len] = '\0';
+    this.setIndex(0);
   }
 
   /**
@@ -61,8 +59,8 @@ public class CharPointer {
    *
    * @return character at the current index
    */
-  char charAt() {
-    return (array[index]);
+  public char charAt() {
+    return (getArray()[getIndex()]);
   }
 
   /**
@@ -71,8 +69,8 @@ public class CharPointer {
    * @param x offset from current index of character to return
    * @return character at the current index plus some value.
    */
-  char charAt(int x) {
-    return (array[index + x]);
+  public char charAt(int x) {
+    return (getArray()[getIndex() + x]);
   }
 
   /**
@@ -81,8 +79,8 @@ public class CharPointer {
    *
    * @return The true size of the string.
    */
-  int length() {
-    return (array.length - 1);
+  public int length() {
+    return (getArray().length - 1);
   }
 
   /**
@@ -90,7 +88,26 @@ public class CharPointer {
    *
    * @return A String used for debug.
    */
+  @Override
   public String toString() {
-    return new String(array, 0, array.length - 1);
+    return new String(getArray(), 0, getArray().length - 1);
   }
-} // end CharPointer
+
+  /** A string of characters. */
+  public char[] getArray() {
+    return array;
+  }
+
+  public void setArray(char[] array) {
+    this.array = array;
+  }
+
+  /** The current index into the array. */
+  public int getIndex() {
+    return index;
+  }
+
+  public void setIndex(int index) {
+    this.index = index;
+  }
+}

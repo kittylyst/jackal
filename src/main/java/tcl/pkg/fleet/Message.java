@@ -2,6 +2,7 @@ package tcl.pkg.fleet;
 
 import tcl.lang.*;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.*;
 
 class Message extends TclEvent implements FleetMember.MessageResult {
 

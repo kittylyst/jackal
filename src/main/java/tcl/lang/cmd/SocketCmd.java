@@ -17,13 +17,13 @@ import java.io.IOException;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclIO;
-import tcl.lang.TclIndex;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.Util;
 import tcl.lang.channel.ServerSocketChannel;
 import tcl.lang.channel.SocketChannel;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /** This class implements the built-in "socket" command in Tcl. */
 public final class SocketCmd implements Command {

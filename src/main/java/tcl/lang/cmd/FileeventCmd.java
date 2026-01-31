@@ -3,13 +3,13 @@ package tcl.lang.cmd;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclIO;
-import tcl.lang.TclIndex;
-import tcl.lang.TclObject;
 import tcl.lang.channel.Channel;
 import tcl.lang.channel.FileEvent;
 import tcl.lang.channel.FileEventScript;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclObject;
 
 /**
  * This class implements Tcl's 'fileevent' command. Most of the work is done by FileEvent and

@@ -17,12 +17,12 @@ import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.Pipeline;
 import tcl.lang.TclIO;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.channel.Channel;
 import tcl.lang.channel.PipelineChannel;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /** This class implements the built-in "close" command in Tcl. */
 public final class CloseCmd implements Command {

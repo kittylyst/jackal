@@ -16,6 +16,10 @@ package tcl.lang;
 
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclDouble;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /*
  * This file is adapted from the JDK 1.0 QSortAlgorithm.java demo program.
@@ -79,7 +83,7 @@ public final class QSort {
    * @param lo0 left boundary of array partition
    * @param hi0 right boundary of array partition
    */
-  private final void quickSort(TclObject a[], int lo0, int hi0) throws TclException {
+  private void quickSort(TclObject a[], int lo0, int hi0) throws TclException {
     int lo = lo0;
     int hi = hi0;
     TclObject mid;
@@ -138,7 +142,7 @@ public final class QSort {
    * @param i index of first item.
    * @param j index of first item.
    */
-  private static final void swap(TclObject a[], int i, int j) {
+  private static void swap(TclObject a[], int i, int j) {
     TclObject T;
     T = a[i];
     a[i] = a[j];
@@ -157,7 +161,8 @@ public final class QSort {
    * @param cmd the command to use for comparing items. It is used only if sortMode is COMMAND.
    * @exception TclException if an error occurs during sorting.
    */
-  final void sort(Interp interp, TclObject a[], int mode, int index, boolean increasing, String cmd)
+  public void sort(
+      Interp interp, TclObject a[], int mode, int index, boolean increasing, String cmd)
       throws TclException {
     sortInterp = interp;
     sortMode = mode;
@@ -175,7 +180,7 @@ public final class QSort {
    * @return 0 if they are equal, 1 if obj1 > obj2, -1 otherwise.
    * @exception TclException if an error occurs during sorting.
    */
-  final int compare(TclObject obj1, TclObject obj2) throws TclException {
+  public int compare(TclObject obj1, TclObject obj2) throws TclException {
 
     int index;
     int code = 0;
@@ -294,7 +299,7 @@ public final class QSort {
    * @param str2 second item.
    * @return 0 if they are equal, 1 if obj1 > obj2, -1 otherwise.
    */
-  private final int doDictionary(String str1, String str2) {
+  int doDictionary(String str1, String str2) {
     int index1 = 0;
     int index2 = 0;
     final int len1 = str1.length();

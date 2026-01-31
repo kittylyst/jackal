@@ -40,13 +40,13 @@ import tcl.lang.Interp;
 import tcl.lang.Namespace;
 import tcl.lang.Resolver;
 import tcl.lang.TCL;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.Var;
 import tcl.lang.WrappedCommand;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 public class Objects {
   static HashMap<String, Var> dangleTable = new HashMap<>();

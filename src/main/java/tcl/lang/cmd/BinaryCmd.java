@@ -19,15 +19,12 @@ package tcl.lang.cmd;
 import java.text.ParsePosition;
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclByteArray;
-import tcl.lang.TclDouble;
-import tcl.lang.TclIndex;
-import tcl.lang.TclInteger;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.*;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /** This class implements the built-in "binary" command in Tcl. */
 public final class BinaryCmd implements Command {
@@ -55,7 +52,7 @@ public final class BinaryCmd implements Command {
    * This procedure is invoked as part of the Command interface to process the "binary" Tcl command.
    * See the user documentation for details on what it does.
    *
-   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
+   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.model.TclObject[])
    */
   public void cmdProc(Interp interp, TclObject[] argv) throws TclException {
     int arg; // Index of next argument to consume.

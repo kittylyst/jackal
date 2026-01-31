@@ -18,14 +18,14 @@ import tcl.lang.Procedure;
 import tcl.lang.TCL;
 import tcl.lang.TclClassLoader;
 import tcl.lang.TclEvent;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.cmd.NamespaceCmd;
 import tcl.lang.exception.PackageNameException;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 public final class TJCCompileCmd implements Command {
 

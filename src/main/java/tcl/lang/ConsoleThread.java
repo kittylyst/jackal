@@ -5,6 +5,9 @@ import tcl.lang.channel.Channel;
 import tcl.lang.channel.FileEvent;
 import tcl.lang.channel.StdChannel;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclBoolean;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /**
  * This class implements the Console Thread: it is started by tcl.lang.Shell if the user gives no

@@ -12,8 +12,8 @@ package tcl.lang.exception;
 
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclIndex;
-import tcl.lang.TclObject;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclObject;
 
 /** This exception is used to report wrong number of arguments in Tcl scripts. */
 public class TclNumArgsException extends TclException {

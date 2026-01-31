@@ -14,8 +14,9 @@
  *
  */
 
-package tcl.lang;
+package tcl.lang.model;
 
+import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
 
@@ -23,7 +24,7 @@ import tcl.lang.exception.TclRuntimeError;
  * This class implements the double object type in Tcl.
  */
 
-public class TclDouble implements InternalRep {
+public final class TclDouble implements InternalRep {
 
   /*
    * Internal representation of a double value. This field is package scoped
@@ -350,7 +351,7 @@ public class TclDouble implements InternalRep {
    * @param tobj the object to operate on.
    * @param d the new double value.
    */
-  static void exprSetInternalRep(TclObject tobj, double d) {
+  public static void exprSetInternalRep(TclObject tobj, double d) {
     if (validate) {
 
       // Double check that the internal rep is not
@@ -402,13 +403,14 @@ public class TclDouble implements InternalRep {
     tobj.setInternalRep(new TclDouble(d));
   }
 
-  // This method is used to set the internal rep for a recycled
-  // object to TclDouble, in the edge case where it might have
-  // been changed. This method exists only because the
-  // TclDouble ctor can't be made package access without
-  // changing signature regression tests.
-
-  static void setRecycledInternalRep(TclObject tobj) {
+  /**
+   * // This method is used to set the internal rep for a recycled // object to TclDouble, in the
+   * edge case where it might have // been changed. This method exists only because the // TclDouble
+   * ctor can't be made package access without // changing signature regression tests.
+   *
+   * @param tobj
+   */
+  public static void setRecycledInternalRep(TclObject tobj) {
     tobj.setInternalRep(new TclDouble(0.0));
   }
-} // end TclDouble
+}

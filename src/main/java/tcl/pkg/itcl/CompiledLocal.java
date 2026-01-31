@@ -1,6 +1,6 @@
 package tcl.pkg.itcl;
 
-import tcl.lang.TclObject;
+import tcl.lang.model.TclObject;
 
 // Next local var or null for last local.
 

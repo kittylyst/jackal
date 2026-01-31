@@ -18,6 +18,9 @@ package tcl.lang;
 
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.CharPointer;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /** This class implements the body of a Tcl procedure. */
 public final class Procedure implements Command, CommandWithDispose {
@@ -159,7 +162,7 @@ public final class Procedure implements Command, CommandWithDispose {
 
     interp.pushDebugStack(srcFileName, srcLineNumber);
     try {
-      Parser.eval2(interp, body.array, body.index, body_length, 0);
+      Parser.eval2(interp, body.getArray(), body.getIndex(), body_length, 0);
     } catch (TclException e) {
       int code = e.getCompletionCode();
       if (code == TCL.RETURN) {

@@ -14,7 +14,7 @@
  *
  */
 
-package tcl.lang;
+package tcl.lang.model;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -22,11 +22,13 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
+import tcl.lang.InternalRep;
+import tcl.lang.Interp;
 import tcl.lang.cmd.EncodingCmd;
 import tcl.lang.exception.TclRuntimeError;
 
 /** This class implements the binary data object type in Tcl. */
-public class TclByteArray implements InternalRep {
+public final class TclByteArray implements InternalRep {
 
   /**
    * The number of bytes used in the byte array. The following structure is the internal rep for a
@@ -178,7 +180,7 @@ public class TclByteArray implements InternalRep {
    * @return the length of the byte array.
    * @exception TclException if tobj is not a valid byte array.
    */
-  public static final int getLength(Interp interp, TclObject tobj) {
+  public static int getLength(Interp interp, TclObject tobj) {
     setByteArrayFromAny(interp, tobj);
 
     TclByteArray tbyteArray = (TclByteArray) tobj.getInternalRep();

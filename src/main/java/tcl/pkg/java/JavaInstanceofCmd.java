@@ -15,9 +15,9 @@ package tcl.pkg.java;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclObject;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclObject;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 public final class JavaInstanceofCmd implements Command {

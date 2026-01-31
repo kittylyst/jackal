@@ -41,11 +41,11 @@ import tcl.lang.Interp;
 import tcl.lang.Namespace;
 import tcl.lang.Procedure;
 import tcl.lang.TCL;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.WrappedCommand;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 //  Data used to represent an ensemble:
 
@@ -59,45 +59,6 @@ class EnsembleParser implements AssocData {
   public void disposeAssocData(Interp interp) {
     Ensemble.DeleteEnsParser(this, this.master);
   }
-}
-
-// This class defines a Tcl object type that takes the
-// place of a part name during ensemble invocations. When an
-// error occurs and the caller tries to print objv[0], it will
-// get a string that contains a complete path to the ensemble
-// part.
-
-class ItclEnsInvoc implements InternalRep /* , CommandWithDispose */ {
-  EnsemblePart ensPart;
-  TclObject chainObj;
-
-  // Implement InternalRep interface
-  // Note: SetEnsInvocFromAny is not used
-
-  public InternalRep duplicate() {
-    return Ensemble.DupEnsInvocInternalRep(this);
-  }
-
-  public void dispose() {
-    Ensemble.FreeEnsInvocInternalRep(this);
-  }
-
-  public String toString() {
-    return Ensemble.UpdateStringOfEnsInvoc(this);
-  }
-
-  public static TclObject newInstance() {
-    return new TclObject(new ItclEnsInvoc());
-  }
-
-  /*
-   * // Implement CommandWithDispose interface
-   *
-   * public void cmdProc(Interp interp, TclObject argv[]) throws TclException
-   * {}
-   *
-   * public void disposeCmd() {}
-   */
 }
 
 // Data/Methods in Ensemble class

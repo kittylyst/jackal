@@ -9,11 +9,11 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import tcl.lang.Interp;
-import tcl.lang.TclByteArray;
 import tcl.lang.TclIO;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.cmd.EncodingCmd;
+import tcl.lang.model.TclByteArray;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /** Read and write channel for byte arrays, in the form of TclObjects */
 public final class TclByteArrayChannel extends Channel {

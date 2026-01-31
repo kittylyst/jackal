@@ -14,11 +14,14 @@
  * RCS: @(#) $Id: TclIndex.java,v 1.6 2005/10/11 20:03:23 mdejong Exp $
  */
 
-package tcl.lang;
+package tcl.lang.model;
 
+import tcl.lang.InternalRep;
+import tcl.lang.Interp;
+import tcl.lang.TCL;
 import tcl.lang.exception.TclException;
 
-public class TclIndex implements InternalRep {
+public final class TclIndex implements InternalRep {
 
   /** The variable slots for this object. */
   private int index;

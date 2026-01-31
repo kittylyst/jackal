@@ -13,8 +13,8 @@ import tcl.lang.Interp;
 import tcl.lang.TCL;
 import tcl.lang.TclEvent;
 import tcl.lang.TclIO;
-import tcl.lang.TclObject;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.TclObject;
 
 /** A subclass of TclEvent used to indicate that a connection has been made to a server socket. */
 public class SocketConnectionEvent extends TclEvent {

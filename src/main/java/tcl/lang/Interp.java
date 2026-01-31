@@ -20,6 +20,7 @@ import tcl.lang.exception.PackageNameException;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclPosixException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.*;
 import tcl.pkg.java.ReflectObject;
 
 /**
@@ -2161,7 +2162,7 @@ public class Interp extends EventuallyFreed {
 
     CharPointer script = new CharPointer(string);
     try {
-      Parser.eval2(this, script.array, script.index, script.length(), flags);
+      Parser.eval2(this, script.getArray(), script.getIndex(), script.length(), flags);
     } catch (TclException e) {
 
       if (nestLevel != 0) {
@@ -2789,8 +2790,8 @@ public class Interp extends EventuallyFreed {
    */
   public static BackSlashResult backslash(String s, int i, int len) {
     CharPointer script = new CharPointer(s.substring(0, len));
-    script.index = i;
-    return Parser.backslash(script.array, script.index);
+    script.setIndex(i);
+    return Parser.backslash(script.getArray(), script.getIndex());
   }
 
   /**
