@@ -16,9 +16,7 @@ package tcl.pkg.java;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.ListIterator;
-import java.util.Map;
 import tcl.lang.Command;
 import tcl.lang.CommandWithDispose;
 import tcl.lang.InternalRep;
@@ -157,7 +155,7 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
     String id = roRep.refID;
 
     String hash = getHashString(cl, obj);
-    ReflectObject found = (ReflectObject) interp.reflectObjTable.get(hash);
+    ReflectObject found = (ReflectObject) interp.getReflectObjTable().get(hash);
 
     if (found == null) {
       // There was no mapping for this hash value, add one now.
@@ -166,7 +164,7 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
         System.out.println("new reflect table entry for " + id + " with hash \"" + hash + "\"");
       }
 
-      interp.reflectObjTable.put(hash, roRep);
+      interp.getReflectObjTable().put(hash, roRep);
     } else {
       // If there is already an entry for this hash value, it means
       // that there are two different objects of the same class that
@@ -180,11 +178,11 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
             "hash conflict in reflect table for " + id + " with hash \"" + hash + "\"");
       }
 
-      ArrayList conflicts = (ArrayList) interp.reflectConflictTable.get(hash);
+      ArrayList conflicts = (ArrayList) interp.getReflectConflictTable().get(hash);
 
       if (conflicts == null) {
         conflicts = new ArrayList();
-        interp.reflectConflictTable.put(hash, conflicts);
+        interp.getReflectConflictTable().put(hash, conflicts);
       }
 
       if (debug) {
@@ -206,7 +204,7 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
     String id = roRep.refID;
 
     String hash = getHashString(cl, obj);
-    ReflectObject found = (ReflectObject) interp.reflectObjTable.get(hash);
+    ReflectObject found = (ReflectObject) interp.getReflectObjTable().get(hash);
 
     // This should never happen
     if (found == null) {
@@ -225,22 +223,22 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
       // table.
 
       if (found == roRep) {
-        interp.reflectObjTable.remove(hash);
+        interp.getReflectObjTable().remove(hash);
 
         if (debug) {
           System.out.println("removing reflect table entry " + hash);
         }
 
-        ArrayList conflicts = (ArrayList) interp.reflectConflictTable.get(hash);
+        var conflicts = interp.getReflectConflictTable().get(hash);
 
         if (conflicts != null) {
-          Object first = conflicts.remove(0);
+          var first = conflicts.remove(0);
 
           if (conflicts.isEmpty()) {
-            interp.reflectConflictTable.remove(hash);
+            interp.getReflectConflictTable().remove(hash);
           }
 
-          interp.reflectObjTable.put(hash, first);
+          interp.getReflectObjTable().put(hash, first);
 
           if (debug) {
             System.out.println("replaced reflect table entry from conflict " + hash);
@@ -254,7 +252,7 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
         // conflict table so remove it from there. Be sure to remove the
         // conflict table mapping if we are removing the last conflict!
 
-        ArrayList conflicts = (ArrayList) interp.reflectConflictTable.get(hash);
+        ArrayList conflicts = (ArrayList) interp.getReflectConflictTable().get(hash);
 
         // This should never happen!
 
@@ -279,7 +277,7 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
         conflicts.remove(index);
 
         if (conflicts.isEmpty()) {
-          interp.reflectConflictTable.remove(hash);
+          interp.getReflectConflictTable().remove(hash);
         }
       }
     }
@@ -292,7 +290,7 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
   // exists yet so we can't find a match.
 
   private static ReflectObject findInConflictTable(Interp interp, Object obj, String hash) {
-    ArrayList conflicts = (ArrayList) interp.reflectConflictTable.get(hash);
+    ArrayList conflicts = (ArrayList) interp.getReflectConflictTable().get(hash);
 
     if (conflicts == null) {
       return null;
@@ -318,7 +316,7 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
 
   private static ReflectObject findInReflectTable(Interp interp, Class cl, Object obj) {
     String hash = getHashString(cl, obj);
-    ReflectObject found = (ReflectObject) interp.reflectObjTable.get(hash);
+    ReflectObject found = interp.getReflectObjTable().get(hash);
 
     // If there is no mapping in the reflect table for this object, return
     // null
@@ -360,18 +358,16 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
     try {
       System.out.println("BEGIN DUMP -------------------------------");
       System.out.println("interp.reflectObjCount = " + interp.reflectObjCount);
-      System.out.println("interp.reflectObjTable.size() = " + interp.reflectObjTable.size());
+      System.out.println("interp.reflectObjTable.size() = " + interp.getReflectObjTable().size());
       System.out.println(
-          "interp.reflectConflictTable.size() = " + interp.reflectConflictTable.size());
+          "interp.reflectConflictTable.size() = " + interp.getReflectConflictTable().size());
 
       // Loop over the entries in the reflectObjTable and dump them out.
 
-      for (Iterator iter = interp.reflectObjTable.entrySet().iterator(); iter.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iter.next();
-
+      for (var entry : interp.getReflectObjTable().entrySet()) {
         System.out.println();
-        String hash = (String) entry.getKey();
-        ReflectObject roRep = (ReflectObject) entry.getValue();
+        String hash = entry.getKey();
+        ReflectObject roRep = entry.getValue();
 
         if (roRep == null) {
           throw new RuntimeException("Reflect table entry \"" + hash + "\" hashed to null");
@@ -412,13 +408,12 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
                 + System.identityHashCode(roRep.javaObj)
                 + "\"");
 
-        ArrayList conflicts = (ArrayList) interp.reflectConflictTable.get(hash);
+        var conflicts = interp.getReflectConflictTable().get(hash);
 
         if (conflicts != null) {
           System.out.println("Found conflict table for hash " + hash);
 
-          for (ListIterator iter2 = conflicts.listIterator(); iter.hasNext(); ) {
-            ReflectObject found = (ReflectObject) iter2.next();
+          for (var found : conflicts) {
 
             System.out.println(
                 "hash conflict for \""

@@ -112,7 +112,7 @@ public final class JavaNewCmd implements Command {
 // array signature used for creating Java arrays. Examples or array
 // signatures are "int[][]", "java.lang.Object[]" or "[[D".
 
-class ArraySig implements InternalRep {
+final class ArraySig implements InternalRep {
 
   // The Class object for the array (for example int[][][])
   Class arrayType;

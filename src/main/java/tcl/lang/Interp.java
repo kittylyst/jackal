@@ -7,12 +7,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownServiceException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 import tcl.lang.channel.Channel;
 import tcl.lang.channel.FileChannel;
 import tcl.lang.channel.ReadInputStreamChannel;
@@ -21,6 +16,7 @@ import tcl.lang.cmd.InterpAliasCmd;
 import tcl.lang.cmd.InterpSlaveCmd;
 import tcl.lang.cmd.PackageCmd;
 import tcl.lang.cmd.RegexpCmd;
+import tcl.pkg.java.ReflectObject;
 
 /**
  * Implements the core Tcl interpreter.
@@ -41,7 +37,7 @@ public class Interp extends EventuallyFreed {
    * Translates Object to ReflectObject. This makes sure we have only one ReflectObject internalRep
    * for the same Object -- this way Object identity can be done by string comparison.
    */
-  public HashMap reflectObjTable = new HashMap();
+  private final HashMap<String, ReflectObject> reflectObjTable = new HashMap<>();
 
   /**
    * Number of reflect objects created so far inside this Interp (including those that have be
@@ -49,11 +45,7 @@ public class Interp extends EventuallyFreed {
    */
   public long reflectObjCount = 0;
 
-  /**
-   * Table used to store reflect hash index conflicts, see ReflectObject implementation for more
-   * details
-   */
-  public HashMap reflectConflictTable = new HashMap();
+  private final HashMap<String, List<ReflectObject>> reflectConflictTable = new HashMap<>();
 
   /** The number of chars to copy from an offending command into error message. */
   private static final int MAX_ERR_LENGTH = 200;
@@ -3565,6 +3557,18 @@ public class Interp extends EventuallyFreed {
    */
   public void allowExceptions() {
     evalFlags |= Parser.TCL_ALLOW_EXCEPTIONS;
+  }
+
+  public HashMap<String, ReflectObject> getReflectObjTable() {
+    return reflectObjTable;
+  }
+
+  /**
+   * Table used to store reflect hash index conflicts, see ReflectObject implementation for more
+   * details
+   */
+  public HashMap<String, List<ReflectObject>> getReflectConflictTable() {
+    return reflectConflictTable;
   }
 
   class ResolverScheme {
