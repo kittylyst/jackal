@@ -53,7 +53,7 @@ public final class ForCmd implements Command {
     }
 
     while (!done) {
-      if (!interp.expr.evalBoolean(interp, test)) {
+      if (!interp.getExpr().evalBoolean(interp, test)) {
         break;
       }
 

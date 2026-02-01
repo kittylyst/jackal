@@ -19,7 +19,7 @@ Produces compiled classes under `target/classes`. The main JAR is built with:
 mvn clean package
 ```
 
-The JAR is created in `target/` and includes the main manifest entry `Main-Class: tcl.lang.Shell` so it can be run with `java -jar target/jackal-3.0.0-SNAPSHOT.jar` (plus any script or arguments).
+The JAR is created in `target/` and includes the main manifest entry `Main-Class: tcl.tools.Shell` so it can be run with `java -jar target/jackal-3.0.0-SNAPSHOT.jar` (plus any script or arguments).
 
 ## Running the shell
 
@@ -32,7 +32,7 @@ java -jar target/jackal-3.0.0-SNAPSHOT.jar
 Or run the main class with the classpath:
 
 ```bash
-mvn exec:java -Dexec.mainClass="tcl.lang.Shell"
+mvn exec:java -Dexec.mainClass="tcl.tools.Shell"
 ```
 
 The Tcl library scripts are loaded from the JAR (from `src/main/resources/tcl/`).

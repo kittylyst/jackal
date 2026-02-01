@@ -21,10 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
 import tcl.lang.exception.TclVarException;
-import tcl.lang.model.TclInteger;
-import tcl.lang.model.TclList;
-import tcl.lang.model.TclObject;
-import tcl.lang.model.TclString;
+import tcl.lang.model.*;
 
 /*
  * Implements variables in Tcl. The Var class encapsulates most of the functionality
@@ -517,7 +514,7 @@ public class Var {
       cxtNs = interp.varFrame.ns;
     }
 
-    if (cxtNs.resolver != null || interp.resolvers != null) {
+    if (cxtNs.resolver != null || interp.getResolvers() != null) {
       try {
         if (cxtNs.resolver != null) {
           var = cxtNs.resolver.resolveVar(interp, part1, cxtNs, flags);
@@ -528,11 +525,11 @@ public class Var {
           var = null;
         }
 
-        if (var == null && interp.resolvers != null) {
-          for (ListIterator<Interp.ResolverScheme> iter = interp.resolvers.listIterator();
+        if (var == null && interp.getResolvers() != null) {
+          for (ListIterator<Interp.ResolverScheme> iter = interp.getResolvers().listIterator();
               var == null && iter.hasNext(); ) {
             res = iter.next();
-            var = res.resolver.resolveVar(interp, part1, cxtNs, flags);
+            var = res.resolver().resolveVar(interp, part1, cxtNs, flags);
             if (var != null) {
               var.setVarNoCache();
             }

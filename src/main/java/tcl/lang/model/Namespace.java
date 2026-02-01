@@ -19,7 +19,7 @@
 * RCS: @(#) $Id: Namespace.java,v 1.7 2009/07/10 13:18:39 rszulgo Exp $
 */
 
-package tcl.lang;
+package tcl.lang.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,11 +27,9 @@ import java.util.HashSet;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
-import tcl.lang.model.TclList;
-import tcl.lang.model.TclObject;
-import tcl.lang.model.TclString;
 
 /**
  * This structure contains a cached pointer to a namespace that is the result of resolving the
@@ -39,7 +37,7 @@ import tcl.lang.model.TclString;
  * It contains the pointer along with some information that is used to check the cached pointer's
  * validity. (ported Tcl_Namespace to Namespace)
  */
-public class Namespace {
+public final class Namespace {
   /**
    * /The namespace's simple (unqualified) name. This contains no ::'s. The name of the global
    * namespace is "" although "::" is an synonym.
@@ -587,7 +585,7 @@ public class Namespace {
    *
    * @param ns namespace to tear down
    */
-  static void teardownNamespace(Namespace ns) {
+  public static void teardownNamespace(Namespace ns) {
     Interp interp = ns.interp;
     Namespace childNs;
     WrappedCommand cmd;
@@ -1025,7 +1023,7 @@ public class Namespace {
           ArrayList<String> importPath = new ArrayList<String>();
           importPath.add(ns.fullName + "::" + cmdName);
           while (realCmd.getCmd() instanceof ImportedCmdData) {
-            realCmd = ((ImportedCmdData) realCmd.getCmd()).realCmd;
+            realCmd = ((ImportedCmdData) realCmd.getCmd()).getRealCmd();
             /* What's the name of realCmd in it's namespace?  We could try the obvious */
             String cmdPath = "";
             WrappedCommand testcmd = realCmd.getNs().getCmdTable().get(cmdName);
@@ -1063,8 +1061,8 @@ public class Namespace {
           importedCmd =
               findCommand(interp, ds.toString(), ns, (TCL.NAMESPACE_ONLY | TCL.LEAVE_ERR_MSG));
 
-          data.realCmd = cmd;
-          data.self = importedCmd;
+          data.setRealCmd(cmd);
+          data.setSelf(importedCmd);
 
           // Create an ImportRef structure describing this new import
           // command and add it to the import ref list in the "real"
@@ -1173,8 +1171,8 @@ public class Namespace {
           /* Delete command if the command was directly imported from importNs, or if the original command
            * exists in importNs
            */
-          if ((importedCmdData.realCmd.getNs() == importNs
-                  && matchingCommands.contains(importedCmdData.realCmd))
+          if ((importedCmdData.getRealCmd().getNs() == importNs
+                  && matchingCommands.contains(importedCmdData.getRealCmd()))
               || (originalCommand.getNs() == importNs
                   && matchingCommands.contains(originalCommand))) {
 
@@ -1212,7 +1210,7 @@ public class Namespace {
 
     while (cmd.getCmd() instanceof ImportedCmdData) {
       data = (ImportedCmdData) cmd.getCmd();
-      cmd = data.realCmd;
+      cmd = data.getRealCmd();
     }
     return cmd;
   }
@@ -1230,12 +1228,12 @@ public class Namespace {
    * @param data the data object for this imported command
    * @param objv argument objects
    */
-  static void invokeImportedCmd(
+  public static void invokeImportedCmd(
       Interp interp, // Current interpreter.
       ImportedCmdData data, // The data object for this imported command
       TclObject[] objv // Argument objects
       ) throws TclException {
-    WrappedCommand realCmd = data.realCmd;
+    WrappedCommand realCmd = data.getRealCmd();
     if (realCmd.mustCallInvoke(interp)) realCmd.invoke(interp, objv);
     else realCmd.getCmd().cmdProc(interp, objv);
   }
@@ -1252,9 +1250,9 @@ public class Namespace {
    *
    * @param data the data object for the imported command
    */
-  static void deleteImportedCmd(ImportedCmdData data) {
-    WrappedCommand realCmd = data.realCmd;
-    WrappedCommand self = data.self;
+  public static void deleteImportedCmd(ImportedCmdData data) {
+    WrappedCommand realCmd = data.getRealCmd();
+    WrappedCommand self = data.getSelf();
     ImportRef ref, prev;
 
     prev = null;
@@ -1677,7 +1675,7 @@ public class Namespace {
       cxtNs = getCurrentNamespace(interp);
     }
 
-    if (cxtNs.resolver != null || interp.resolvers != null) {
+    if (cxtNs.resolver != null || interp.getResolvers() != null) {
       try {
         if (cxtNs.resolver != null) {
           cmd = cxtNs.resolver.resolveCmd(interp, name, cxtNs, flags);
@@ -1685,11 +1683,11 @@ public class Namespace {
           cmd = null;
         }
 
-        if (cmd == null && interp.resolvers != null) {
-          for (ListIterator<Interp.ResolverScheme> iter = interp.resolvers.listIterator();
+        if (cmd == null && interp.getResolvers() != null) {
+          for (ListIterator<Interp.ResolverScheme> iter = interp.getResolvers().listIterator();
               cmd == null && iter.hasNext(); ) {
             res = iter.next();
-            cmd = res.resolver.resolveCmd(interp, name, cxtNs, flags);
+            cmd = res.resolver().resolveCmd(interp, name, cxtNs, flags);
           }
         }
 
@@ -1798,7 +1796,7 @@ public class Namespace {
       cxtNs = getCurrentNamespace(interp);
     }
 
-    if (cxtNs.resolver != null || interp.resolvers != null) {
+    if (cxtNs.resolver != null || interp.getResolvers() != null) {
       try {
         if (cxtNs.resolver != null) {
           var = cxtNs.resolver.resolveVar(interp, name, cxtNs, flags);
@@ -1806,11 +1804,11 @@ public class Namespace {
           var = null;
         }
 
-        if (var == null && interp.resolvers != null) {
-          for (ListIterator<Interp.ResolverScheme> iter = interp.resolvers.listIterator();
+        if (var == null && interp.getResolvers() != null) {
+          for (ListIterator<Interp.ResolverScheme> iter = interp.getResolvers().listIterator();
               var == null && iter.hasNext(); ) {
             res = iter.next();
-            var = res.resolver.resolveVar(interp, name, cxtNs, flags);
+            var = res.resolver().resolveVar(interp, name, cxtNs, flags);
           }
         }
 
@@ -1890,7 +1888,7 @@ public class Namespace {
    * ----------------------------------------------------------------------
    */
 
-  static void resetShadowedCmdRefs(
+  public static void resetShadowedCmdRefs(
       Interp interp, // Interpreter containing
       // the new command
       WrappedCommand newCmd) // Command added to a namespace

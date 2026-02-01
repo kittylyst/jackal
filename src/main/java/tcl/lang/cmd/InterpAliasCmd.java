@@ -17,10 +17,10 @@ package tcl.lang.cmd;
 
 import tcl.lang.CommandWithDispose;
 import tcl.lang.Interp;
-import tcl.lang.Namespace;
 import tcl.lang.TCL;
 import tcl.lang.WrappedCommand;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.Namespace;
 import tcl.lang.model.TclList;
 import tcl.lang.model.TclObject;
 

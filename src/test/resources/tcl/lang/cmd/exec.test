@@ -78,7 +78,7 @@ set path(sh) [makeFile {
     set nameofexecutable [info nameofexecutable]
     if { [string first "java " nameofexecutable] >= 0 &&
          [llength nameofexecutable] == 4 } {
-        lset nameofexecutable 3 "tcl.lang.NonInteractiveShell"
+        lset nameofexecutable 3 "tcl.tools.NonInteractiveShell"
     }
     
     foreach arg $cmd {

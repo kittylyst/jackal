@@ -103,11 +103,11 @@ JTcl Differences from Tcl 8.4
 
   []
 
-  * The standard shell, <tcl.lang.Shell>, always sets the <<tcl_interactive>> variable to 1 unless a JTcl script
+  * The standard shell, <tcl.tools.Shell>, always sets the <<tcl_interactive>> variable to 1 unless a JTcl script
     is specified as an argument.  It cannot differentiate true terminal interaction and a stdin input redirection.  Therefore,
-    if a script is sent to <tcl.lang.Shell> via stdin redirection, the shell will print the <%> prompt as if it were
+    if a script is sent to <tcl.tools.Shell> via stdin redirection, the shell will print the <%> prompt as if it were
     interacting with a terminal.  As a workaround, either explicitly set <<tcl_interactive>> to 0 to suppress the
-    prompt, or use <tcl.lang.NonInteractiveShell> which sets <<tcl_interactive>> to 0 prior to any command processing.
+    prompt, or use <tcl.tools.NonInteractiveShell> which sets <<tcl_interactive>> to 0 prior to any command processing.
 
   []
 

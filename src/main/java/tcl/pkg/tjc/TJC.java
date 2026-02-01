@@ -18,7 +18,6 @@ import tcl.lang.Command;
 import tcl.lang.ExprValue;
 import tcl.lang.Expression;
 import tcl.lang.Interp;
-import tcl.lang.Namespace;
 import tcl.lang.Parser;
 import tcl.lang.TCL;
 import tcl.lang.Util;
@@ -31,6 +30,7 @@ import tcl.lang.cmd.SwitchCmd;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.Namespace;
 import tcl.lang.model.TclDouble;
 import tcl.lang.model.TclInteger;
 import tcl.lang.model.TclList;
@@ -1016,7 +1016,7 @@ public class TJC {
 
     ExprValue value;
     if (USE_EXPR_CACHE) {
-      value = interp.expr.grabExprValue();
+      value = interp.getExpr().grabExprValue();
     } else {
       value = new ExprValue(0, null);
     }
@@ -1026,7 +1026,7 @@ public class TJC {
     Expression.ExprParseString(interp, obj, value);
     boolean b = value.getBooleanValue(interp);
     if (USE_EXPR_CACHE) {
-      interp.expr.releaseExprValue(value);
+      interp.getExpr().releaseExprValue(value);
     }
     return b;
   }
@@ -1090,7 +1090,7 @@ public class TJC {
 
   public static void exprReleaseValue(Interp interp, ExprValue value) {
     if (USE_EXPR_CACHE) {
-      interp.expr.releaseExprValue(value);
+      interp.getExpr().releaseExprValue(value);
     }
   }
 
@@ -1101,7 +1101,7 @@ public class TJC {
 
   public static ExprValue exprGetValue(Interp interp, long ival, String srep) throws TclException {
     if (USE_EXPR_CACHE) {
-      ExprValue value = interp.expr.grabExprValue();
+      ExprValue value = interp.getExpr().grabExprValue();
       value.setIntValue(ival, srep);
       return value;
     } else {
@@ -1114,7 +1114,7 @@ public class TJC {
   public static ExprValue exprGetValue(Interp interp, double dval, String srep)
       throws TclException {
     if (USE_EXPR_CACHE) {
-      ExprValue value = interp.expr.grabExprValue();
+      ExprValue value = interp.getExpr().grabExprValue();
       value.setDoubleValue(dval, srep);
       return value;
     } else {
@@ -1126,7 +1126,7 @@ public class TJC {
 
   public static ExprValue exprGetValue(Interp interp, String srep) throws TclException {
     if (USE_EXPR_CACHE) {
-      ExprValue value = interp.expr.grabExprValue();
+      ExprValue value = interp.getExpr().grabExprValue();
       value.setStringValue(srep);
       return value;
     } else {
@@ -1140,7 +1140,7 @@ public class TJC {
 
   public static ExprValue exprGetValue(Interp interp, boolean bval) throws TclException {
     if (USE_EXPR_CACHE) {
-      ExprValue value = interp.expr.grabExprValue();
+      ExprValue value = interp.getExpr().grabExprValue();
       value.setIntValue(bval);
       return value;
     } else {
@@ -1152,7 +1152,7 @@ public class TJC {
 
   public static ExprValue exprGetValue(Interp interp, TclObject tobj) throws TclException {
     if (USE_EXPR_CACHE) {
-      ExprValue value = interp.expr.grabExprValue();
+      ExprValue value = interp.getExpr().grabExprValue();
       Expression.ExprParseObject(interp, tobj, value);
       return value;
     } else {
@@ -1173,7 +1173,7 @@ public class TJC {
 
   public static ExprValue exprGetValue(Interp interp) {
     if (USE_EXPR_CACHE) {
-      return interp.expr.grabExprValue();
+      return interp.getExpr().grabExprValue();
     } else {
       return new ExprValue(0, null);
     }
@@ -1236,7 +1236,7 @@ public class TJC {
       ExprValue[] values, // Array of arguments, can be null
       ExprValue result) // Location to store result
       throws TclException {
-    interp.expr.evalMathFunction(interp, funcName, values, false, result);
+    interp.getExpr().evalMathFunction(interp, funcName, values, false, result);
   }
 
   // Set the interp result to the given expr value. This

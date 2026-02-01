@@ -50,7 +50,7 @@ proc mkJar {app srcdir start libdir} {
     ziplib::mkZipFile $appjar META-INF/MANIFEST.MF
     set mf [list \
         "Manifest-Version: 1.0\n" \
-        "Main-Class: tcl.lang.AppShell\n" \
+        "Main-Class: tcl.tools.AppShell\n" \
         "JTcl-Main: $::appDir/$start\n" \
     ]
     foreach line $mf {

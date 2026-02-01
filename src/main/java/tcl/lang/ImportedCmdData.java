@@ -16,6 +16,7 @@
 package tcl.lang;
 
 import tcl.lang.exception.TclException;
+import tcl.lang.model.Namespace;
 import tcl.lang.model.TclObject;
 
 /**
@@ -24,18 +25,13 @@ import tcl.lang.model.TclObject;
  * class when a command is imported. From this ImportedCmdData reference, we can find the "real"
  * command from another namespace.
  */
-final class ImportedCmdData implements Command, CommandWithDispose {
-  /** "Real" command that this imported command refers to. */
-  WrappedCommand realCmd;
+public final class ImportedCmdData implements Command, CommandWithDispose {
+  private WrappedCommand realCmd;
 
-  /**
-   * Pointer to this imported WrappedCommand. Needed only when deleting it in order to remove it
-   * from the real command's linked list of imported commands that refer to it.
-   */
-  WrappedCommand self;
+  private WrappedCommand self;
 
   public String toString() {
-    return "ImportedCmd for " + realCmd;
+    return "ImportedCmd for " + getRealCmd();
   }
 
   /** Called when the command is invoked in the interp. */
@@ -50,5 +46,26 @@ final class ImportedCmdData implements Command, CommandWithDispose {
   /** Called when the command is deleted from the interp. */
   public void disposeCmd() {
     Namespace.deleteImportedCmd(this);
+  }
+
+  /** "Real" command that this imported command refers to. */
+  public WrappedCommand getRealCmd() {
+    return realCmd;
+  }
+
+  public void setRealCmd(WrappedCommand realCmd) {
+    this.realCmd = realCmd;
+  }
+
+  /**
+   * Pointer to this imported WrappedCommand. Needed only when deleting it in order to remove it
+   * from the real command's linked list of imported commands that refer to it.
+   */
+  public WrappedCommand getSelf() {
+    return self;
+  }
+
+  public void setSelf(WrappedCommand self) {
+    this.self = self;
   }
 }

@@ -13,8 +13,12 @@
  * RCS: @(#) $Id: Shell.java,v 1.16 2006/04/27 02:16:13 mdejong Exp $
  */
 
-package tcl.lang;
+package tcl.tools;
 
+import tcl.lang.ConsoleThread;
+import tcl.lang.Interp;
+import tcl.lang.Notifier;
+import tcl.lang.TCL;
 import tcl.lang.cmd.EncodingCmd;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
@@ -71,7 +75,7 @@ public class Shell {
     try {
       int argc = 0;
       if (fileName == null) {
-        interp.setVar("argv0", "tcl.lang.Shell", TCL.GLOBAL_ONLY);
+        interp.setVar("argv0", "tcl.tools.Shell", TCL.GLOBAL_ONLY);
         interp.setVar("tcl_interactive", forceNonInteractive ? "0" : "1", TCL.GLOBAL_ONLY);
       } else {
         interp.setVar("argv0", fileName, TCL.GLOBAL_ONLY);

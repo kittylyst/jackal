@@ -2533,15 +2533,15 @@ public class Parser {
   // Tcl_EvalDirect. Used primarily for testing the
   // new parser.
 
-  static final int DELETED = 1;
-  static final int ERR_IN_PROGRESS = 2;
-  static final int ERR_ALREADY_LOGGED = 4;
-  static final int ERROR_CODE_SET = 8;
-  static final int EXPR_INITIALIZED = 0x10;
-  static final int DONT_COMPILE_CMDS_INLINE = 0x20;
-  static final int RAND_SEED_INITIALIZED = 0x40;
-  static final int SAFE_INTERP = 0x80;
-  static final int USE_EVAL_DIRECT = 0x100;
+  public static int DELETED = 1;
+  public static int ERR_IN_PROGRESS = 2;
+  public static int ERR_ALREADY_LOGGED = 4;
+  public static int ERROR_CODE_SET = 8;
+  public static int EXPR_INITIALIZED = 0x10;
+  public static int DONT_COMPILE_CMDS_INLINE = 0x20;
+  public static final int RAND_SEED_INITIALIZED = 0x40;
+  public static final int SAFE_INTERP = 0x80;
+  public static final int USE_EVAL_DIRECT = 0x100;
 
   // These are private read only values that are used by the parser
   // class to implement a TclObject[] cache

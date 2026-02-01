@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.Namespace;
 import tcl.lang.model.TclList;
 import tcl.lang.model.TclObject;
 

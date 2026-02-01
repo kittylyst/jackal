@@ -13,6 +13,7 @@
 package tcl.lang;
 
 import tcl.lang.exception.TclException;
+import tcl.lang.model.Namespace;
 
 /**
  * The Resolver interface specifies the methods that a new Tcl resolver must implement. See the

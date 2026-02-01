@@ -1,4 +1,4 @@
-package tcl.lang;
+package tcl.tools;
 
 /**
  * This class creates a Shell that has tcl_interactive set to 0. This shell will not print the
@@ -9,7 +9,7 @@ package tcl.lang;
  * non-interactive shell when stdin is not from a terminal. Since the Java VM can't detect where
  * stdin comes from, this NonInteractiveShell class can be used instead.
  */
-public class NonInteractiveShell {
+public final class NonInteractiveShell {
   public static void main(String args[]) {
     Shell.forceNonInteractive = true;
     Shell.main(args);

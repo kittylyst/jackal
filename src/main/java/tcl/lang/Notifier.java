@@ -17,6 +17,7 @@ package tcl.lang;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import tcl.lang.exception.TclInterruptedException;
 import tcl.lang.exception.TclRuntimeError;
 
 /**

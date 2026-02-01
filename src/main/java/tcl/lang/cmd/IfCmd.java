@@ -43,7 +43,7 @@ public final class IfCmd implements Command {
             interp, "wrong # args: no expression after \"" + objv[i - 1] + "\" argument");
       }
       try {
-        if (!executedBody) value = interp.expr.evalBoolean(interp, objv[i].toString());
+        if (!executedBody) value = interp.getExpr().evalBoolean(interp, objv[i].toString());
       } catch (TclException e) {
         switch (e.getCompletionCode()) {
           case TCL.ERROR:

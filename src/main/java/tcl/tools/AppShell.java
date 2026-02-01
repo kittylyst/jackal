@@ -12,12 +12,12 @@
  *
  */
 
-package tcl.lang;
+package tcl.tools;
 
 import java.io.InputStream;
 import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import tcl.lang.Interp;
+import tcl.lang.TCL;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
 import tcl.lang.model.TclList;
@@ -57,32 +57,7 @@ public class AppShell {
           "META-INF/MANIFEST.MF does not exist or not running from a .jar file: " + e);
     }
 
-    String fileName = mf.getMainAttributes().getValue(JTCL_MAIN); // only in
-    // 1.6+
-
-    if (fileName == null) {
-      // java 1.5 - have to read the app jar file directly
-      try (InputStream inputStream =
-              AppShell.class
-                  .getProtectionDomain()
-                  .getCodeSource()
-                  .getLocation()
-                  .openConnection()
-                  .getInputStream();
-          ZipInputStream zipin = new ZipInputStream(inputStream)) {
-        ZipEntry entry = zipin.getNextEntry();
-        while (entry != null) {
-          if ("META-INF/MANIFEST.MF".equals(entry.getName())) {
-            mf = new Manifest(zipin);
-            break;
-          }
-          entry = zipin.getNextEntry();
-        }
-      } catch (Exception e) {
-        // ignore
-      }
-      fileName = mf.getMainAttributes().getValue(JTCL_MAIN);
-    }
+    String fileName = mf.getMainAttributes().getValue(JTCL_MAIN); // only in 1.6+
 
     if (fileName == null) {
       throw new TclRuntimeError("META-INF/MANIFEST.MF does not contain \"JTcl-Main\" attribute");
@@ -97,7 +72,6 @@ public class AppShell {
 
     // Create the interpreter. This will also create the built-in
     // Tcl commands.
-
     Interp interp = new Interp();
 
     TclObject argv = TclList.newInstance();

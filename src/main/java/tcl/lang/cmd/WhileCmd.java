@@ -43,7 +43,7 @@ public final class WhileCmd implements Command {
       while (true) {
         boolean exprTest;
         try {
-          exprTest = interp.expr.evalBoolean(interp, test);
+          exprTest = interp.getExpr().evalBoolean(interp, test);
           if (!exprTest) break loop;
         } catch (TclException e1) {
           if (e1.getCompletionCode() == TCL.ERROR) {

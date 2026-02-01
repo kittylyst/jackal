@@ -19,6 +19,7 @@ package tcl.lang;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
 import tcl.lang.model.CharPointer;
+import tcl.lang.model.Namespace;
 import tcl.lang.model.TclList;
 import tcl.lang.model.TclObject;
 

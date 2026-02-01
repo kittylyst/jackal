@@ -181,10 +181,10 @@ public final class JavaTryCmd implements Command {
         // raised to unwind the stack and terminate execution.
 
         if (type_name.equals("TclInterruptedException")
-            || type_name.equals("tcl.lang.TclInterruptedException")) {
+            || type_name.equals("tcl.lang.exception.TclInterruptedException")) {
           throw new TclException(interp, "can't catch TclInterruptedException");
         } else if ((exrec.runtime_exception != null)
-            && ex_type.getName().equals("tcl.lang.TclInterruptedException")) {
+            && ex_type.getName().equals("tcl.lang.exception.TclInterruptedException")) {
 
           // Scripts can't be allowed to catch TclInterruptedException
           // since this is raised when interp is being taken down.
@@ -406,7 +406,7 @@ public final class JavaTryCmd implements Command {
                   .runtime_exception
                   .getClass()
                   .getName()
-                  .equals("tcl.lang.TclInterruptedException"))) {
+                  .equals("tcl.lang.exception.TclInterruptedException"))) {
 
         if (debug) {
           System.out.println("resetting result and exception record");

@@ -10,7 +10,7 @@ import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
 
 /**
- * This class implements the Console Thread: it is started by tcl.lang.Shell if the user gives no
+ * This class implements the Console Thread: it is started by tcl.tools.Shell if the user gives no
  * initial script to evaluate, or when the -console option is specified. The console thread loops
  * forever, reading from the standard input, executing the user input and writing the result to the
  * standard output.

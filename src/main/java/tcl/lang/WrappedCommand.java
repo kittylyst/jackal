@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import tcl.lang.exception.TclException;
+import tcl.lang.model.Namespace;
 import tcl.lang.model.TclList;
 import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
@@ -162,7 +163,7 @@ public final class WrappedCommand {
    * @param type either CommandTrace.DELETE or CommandTrace.RENAME
    * @param newName qualified new name of command, if this is a RENAME
    */
-  void callCommandTraces(int type, String newName) {
+  public void callCommandTraces(int type, String newName) {
     boolean inProgress = false;
     switch (type) {
       case CommandTrace.DELETE:
@@ -460,7 +461,7 @@ public final class WrappedCommand {
    * Increment the cmdProch field. This method is used by the interpreter to indicate that a command
    * was hidden, renamed, or deleted.
    */
-  void incrEpoch() {
+  public void incrEpoch() {
     setCmdEpoch(getCmdEpoch() + 1);
     if (getCmdEpoch() == Integer.MIN_VALUE) {
       // Integer overflow, really unlikely but possible.

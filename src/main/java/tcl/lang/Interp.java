@@ -16,10 +16,7 @@ import tcl.lang.cmd.InterpAliasCmd;
 import tcl.lang.cmd.InterpSlaveCmd;
 import tcl.lang.cmd.PackageCmd;
 import tcl.lang.cmd.RegexpCmd;
-import tcl.lang.exception.PackageNameException;
-import tcl.lang.exception.TclException;
-import tcl.lang.exception.TclPosixException;
-import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.exception.*;
 import tcl.lang.model.*;
 import tcl.pkg.java.ReflectObject;
 
@@ -99,7 +96,7 @@ public class Interp extends EventuallyFreed {
   public CallFrame varFrame;
 
   /** The interpreter's global namespace. */
-  Namespace globalNs;
+  public Namespace globalNs;
 
   private final HashMap<String, WrappedCommand> hiddenCmdTable = new HashMap<>();
 
@@ -139,7 +136,7 @@ public class Interp extends EventuallyFreed {
   public int evalFlags;
 
   /** Flags used when evaluating a command. */
-  int flags;
+  public int flags;
 
   /** Is this interpreted marked as safe? */
   public boolean isSafe;
@@ -151,10 +148,9 @@ public class Interp extends EventuallyFreed {
   // Schemes are added/removed by calling addInterpResolver and
   // removeInterpResolver.
 
-  ArrayList<ResolverScheme> resolvers;
+  private final List<ResolverScheme> resolvers = new ArrayList<>();
 
-  /** The expression parser for this interp. */
-  public Expression expr;
+  private Expression expr;
 
   /**
    * Used by the Expression class. If it is equal to zero, then the parser will evaluate commands
@@ -496,7 +492,7 @@ public class Interp extends EventuallyFreed {
     recycledD = TclDouble.newInstance(0);
     recycledD.preserve(); // refCount is 1 when unused
 
-    expr = new Expression();
+    setExpr(new Expression());
     nestLevel = 0;
 
     frame = null;
@@ -509,7 +505,6 @@ public class Interp extends EventuallyFreed {
     packageUnknown = null;
     cmdCount = 0;
     termOffset = 0;
-    resolvers = null;
     evalFlags = 0;
     scriptFile = null;
     flags = 0;
@@ -748,7 +743,7 @@ public class Interp extends EventuallyFreed {
 
     // Tear down the math function table.
 
-    expr = null;
+    setExpr(null);
 
     // Remove all the assoc data tied to this interp and invoke
     // deletion callbacks; note that a callback can create new
@@ -792,7 +787,7 @@ public class Interp extends EventuallyFreed {
 
     frame = null;
     varFrame = null;
-    resolvers = null;
+    resolvers.clear();
 
     // Free up classloader (makes sure Interp is released in container
     // environments.)
@@ -1480,7 +1475,7 @@ public class Interp extends EventuallyFreed {
       while (oldRef != null) {
         refCmd = oldRef.importedCmd;
         data = (ImportedCmdData) refCmd.getCmd();
-        data.realCmd = cmd;
+        data.setRealCmd(cmd);
         oldRef = oldRef.next;
       }
     }
@@ -3601,15 +3596,20 @@ public class Interp extends EventuallyFreed {
     return systemEncodingChangesStdoutStderr;
   }
 
-  class ResolverScheme {
-    String name; // Name identifying this scheme.
-    Resolver resolver;
-
-    ResolverScheme(String name, Resolver resolver) {
-      this.name = name;
-      this.resolver = resolver;
-    }
+  public List<ResolverScheme> getResolvers() {
+    return resolvers;
   }
+
+  /** The expression parser for this interp. */
+  public Expression getExpr() {
+    return expr;
+  }
+
+  public void setExpr(Expression expr) {
+    this.expr = expr;
+  }
+
+  public record ResolverScheme(String name, Resolver resolver) {}
 
   /**
    * ----------------------------------------------------------------------
@@ -3639,26 +3639,21 @@ public class Interp extends EventuallyFreed {
     // Look for an existing scheme with the given name.
     // If found, then replace its rules.
 
-    if (resolvers != null) {
-      for (ListIterator<ResolverScheme> iter = resolvers.listIterator(); iter.hasNext(); ) {
-        res = iter.next();
+    if (getResolvers() != null) {
+      var resolvers = getResolvers();
+      for (var i = 0; i < resolvers.size(); i += 1) {
+        res = resolvers.get(i);
         if (name.equals(res.name)) {
-          res.resolver = resolver;
+          resolvers.set(i, new ResolverScheme(res.name, resolver));
           return;
         }
       }
     }
 
-    if (resolvers == null) {
-      resolvers = new ArrayList<>();
-    }
-
     // Otherwise, this is a new scheme. Add it to the FRONT
     // of the linked list, so that it overrides existing schemes.
-
     res = new ResolverScheme(name, resolver);
-
-    resolvers.add(0, res);
+    getResolvers().add(0, res);
   }
 
   /**
@@ -3680,8 +3675,8 @@ public class Interp extends EventuallyFreed {
     // Look for an existing scheme with the given name. If found,
     // then return pointers to its procedures.
 
-    if (resolvers != null) {
-      for (ListIterator<ResolverScheme> iter = resolvers.listIterator(); iter.hasNext(); ) {
+    if (getResolvers() != null) {
+      for (ListIterator<ResolverScheme> iter = getResolvers().listIterator(); iter.hasNext(); ) {
         res = iter.next();
         if (name.equals(res.name)) {
           return res.resolver;
@@ -3711,8 +3706,8 @@ public class Interp extends EventuallyFreed {
 
     // Look for an existing scheme with the given name.
 
-    if (resolvers != null) {
-      for (ListIterator<ResolverScheme> iter = resolvers.listIterator(); iter.hasNext(); ) {
+    if (getResolvers() != null) {
+      for (ListIterator<ResolverScheme> iter = getResolvers().listIterator(); iter.hasNext(); ) {
         res = iter.next();
         if (name.equals(res.name)) {
           found = true;
@@ -3724,11 +3719,11 @@ public class Interp extends EventuallyFreed {
     // If we found the scheme, delete it.
 
     if (found) {
-      int index = resolvers.indexOf(name);
+      int index = getResolvers().indexOf(name);
       if (index == -1) {
         throw new TclRuntimeError("name " + name + " not found in resolvers");
       }
-      resolvers.remove(index);
+      getResolvers().remove(index);
     }
 
     return found;
@@ -4071,12 +4066,12 @@ public class Interp extends EventuallyFreed {
    * <p>Side effects: None.
    */
   public final void checkInterrupted() {
-    if ((interruptedEvent != null) && (!interruptedEvent.exceptionRaised)) {
+    if ((interruptedEvent != null) && (!interruptedEvent.isExceptionRaised())) {
       // Note that the interruptedEvent in not removed from the
       // event queue since all queued events should be removed
       // from the queue in the disposeInterrupted() method.
 
-      interruptedEvent.exceptionRaised = true;
+      interruptedEvent.setExceptionRaised(true);
 
       throw new TclInterruptedException(this);
     }
@@ -4089,7 +4084,7 @@ public class Interp extends EventuallyFreed {
    * has finished. This method must only ever be invoked after catching a TclInterrupted exception
    * at the outermost level of the Tcl event processing loop.
    */
-  final void disposeInterrupted() {
+  public final void disposeInterrupted() {
 
     if (deleted) {
       final String msg = "Interp.disposeInterrupted() invoked for " + "a deleted interp";
@@ -4108,7 +4103,7 @@ public class Interp extends EventuallyFreed {
     // If the interruptedEvent has not been processed yet,
     // then remove it from the Tcl event queue.
 
-    if ((interruptedEvent != null) && !interruptedEvent.wasProcessed) {
+    if ((interruptedEvent != null) && !interruptedEvent.isWasProcessed()) {
       getNotifier().deleteEvents(interruptedEvent);
     }
 
@@ -4213,7 +4208,7 @@ public class Interp extends EventuallyFreed {
    * @return shell class name
    */
   public String getShellClassName() {
-    return shellClassName == null ? "tcl.lang.NonInteractiveShell" : shellClassName;
+    return shellClassName == null ? "tcl.tools.NonInteractiveShell" : shellClassName;
   }
 
   /**

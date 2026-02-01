@@ -98,7 +98,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>tcl.lang.Shell</mainClass>
+                            <mainClass>tcl.tools.Shell</mainClass>
                         </manifest>
                         <manifestEntries>
                         </manifestEntries>

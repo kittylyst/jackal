@@ -15,7 +15,7 @@ rem
 if "%OS%" == "Windows_NT" setlocal
 
 set jtclver=${project.version}
-set jtclmain=tcl.lang.NonInteractiveShell
+set jtclmain=tcl.tools.NonInteractiveShell
 
 set dir=%~dp0
 
