@@ -14,8 +14,9 @@
 
 package tcl.pkg.java;
 
+import java.beans.EventSetDescriptor;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.ListIterator;
 import tcl.lang.Command;
 import tcl.lang.CommandWithDispose;
@@ -79,7 +80,7 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
   // Stores the bindings of this ReflectObject. This member variable is used
   // in the BeanEventMgr class.
 
-  Hashtable bindings;
+  HashMap<EventSetDescriptor, EventAdaptor> bindings;
 
   // the string representation of the null reflect object
 

@@ -13,7 +13,7 @@
 
 package tcl.lang.model;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import tcl.lang.InternalRep;
 import tcl.lang.exception.TclRuntimeError;
 
@@ -21,7 +21,7 @@ import tcl.lang.exception.TclRuntimeError;
 public final class TclObject extends TclObjectBase {
 
   static final boolean saveObjRecords = TclObjectBase.saveObjRecords;
-  static Hashtable<String, Integer> objRecordMap = TclObjectBase.objRecordMap;
+  static HashMap<String, Integer> objRecordMap = TclObjectBase.objRecordMap;
 
   /**
    * Creates a TclObject with the given InternalRep. This method should be called only by an

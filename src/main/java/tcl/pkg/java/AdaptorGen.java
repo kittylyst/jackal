@@ -20,8 +20,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import tcl.lang.exception.TclRuntimeError;
 
@@ -113,52 +113,38 @@ class AdaptorGen {
   // constant pool. We use this information to avoid having duplicate
   // copies of the same string in the constant pool.
 
-  Hashtable utf8Tab;
+  HashMap<String, Short> utf8Tab;
 
-  // The hashtable stores the Class objects of all the Object types
-  // referenced by the adaptor class, including:
-  //
-  // + Object types passed in as parameters to the methods of
-  // the adaptor class.
-  // + Object types returned by the methods of the adaptor class.
-  // + Wrapper Object types used to pass event parameters
-  // to _processEvent().
-  // + Exception types thrown by the methods of the adaptor
-  // class.
+  // Map of Class objects of all the Object types referenced by the
+  // adaptor class, including: parameters, return types, wrapper types
+  // for _processEvent(), and exception types.
 
-  Hashtable allClasses;
+  HashMap<Class<?>, Class<?>> allClasses;
 
-  // This hashtable contains all the Class objects of the primitive
-  // types used in the adaptor class.
+  // Map of Class objects of the primitive types used in the adaptor class.
 
-  Hashtable primClasses;
+  HashMap<Class<?>, Class<?>> primClasses;
 
-  // This hashtable contains all the primitive types returned by the
-  // methods of the interface. It will also contain Object.class if
-  // there is a method that returns an object (of any class).
+  // Map of primitive/return types returned by the methods of the interface.
+  // Also contains Object.class if a method returns an object.
+  HashMap<Class<?>, Class<?>> returnTypes;
 
-  Hashtable returnTypes;
+  // Constant pool IDs for the _return_<type> methods.
 
-  // This hashtable contains the constant pool IDs for the _return_<type>
-  // methods.
+  HashMap<Class<?>, Short> returnMethodRef;
 
-  Hashtable returnMethodRef;
+  // Constant pool IDs for the constructors of the wrapper classes used
+  // to pass parameters of primitive types to _processEvent().
 
-  // This hashtable stores the constant pool IDs for the constructors of
-  // the wrapper classes that are used to pass parameters of primitive
-  // types to the _processEvent() method.
+  HashMap<Class<?>, Short> wrapperConsRef;
 
-  Hashtable wrapperConsRef;
+  // Constant pool IDs for all the classes referenced by the adaptor class.
 
-  // This hashtable contains the constant pool IDs for all the classes
-  // referenced by the adaptor class.
+  HashMap<Class<?>, Short> clsRef;
 
-  Hashtable clsRef;
+  // Constant pool IDs for all the strings referenced by the adaptor class.
 
-  // This hashtable contains the constant pool IDs for all the strings
-  // referenced by the adaptor class.
-
-  Hashtable stringRef;
+  HashMap<String, Short> stringRef;
 
   // The constant pool ID of the adaptor class.
 
@@ -230,15 +216,15 @@ class AdaptorGen {
     // These variables must be re-initialize each time a new class is to
     // be generated.
 
-    allClasses = new Hashtable();
-    primClasses = new Hashtable();
-    returnTypes = new Hashtable();
+    allClasses = new HashMap<>();
+    primClasses = new HashMap<>();
+    returnTypes = new HashMap<>();
 
-    returnMethodRef = new Hashtable();
-    wrapperConsRef = new Hashtable();
-    clsRef = new Hashtable();
-    stringRef = new Hashtable();
-    utf8Tab = new Hashtable();
+    returnMethodRef = new HashMap<>();
+    wrapperConsRef = new HashMap<>();
+    clsRef = new HashMap<>();
+    stringRef = new HashMap<>();
+    utf8Tab = new HashMap<>();
     cp_methodDesc = new MethodDesc[methods.length];
     analyzeListener();
     cpSize = 1;
@@ -477,8 +463,7 @@ class AdaptorGen {
             cp_super_class, "_processEvent", "([Ljava/lang/Object;Ljava/lang/String;)V");
     cp_wrongException = cp_putMethodRef(cp_super_class, "_wrongException", "()V");
 
-    for (Enumeration e = returnTypes.keys(); e.hasMoreElements(); ) {
-      Class retType = (Class) e.nextElement();
+    for (Class retType : returnTypes.keySet()) {
       short ref;
 
       if (retType.isPrimitive()) {
@@ -506,10 +491,7 @@ class AdaptorGen {
     }
 
     // All the classes referred to by the generated class.
-
-    for (Enumeration e = allClasses.keys(); e.hasMoreElements(); ) {
-      Class type = (Class) e.nextElement();
-
+    for (Class type : allClasses.keySet()) {
       short ref = cp_putClass(type.getName());
       hashPutShort(clsRef, type, ref);
     }
@@ -519,21 +501,7 @@ class AdaptorGen {
     // as java.lang.Integer before they are passed to
     // super._processEvent().
 
-    for (Enumeration e = primClasses.keys(); e.hasMoreElements(); ) {
-      // FIXME : javac compiler bug workaround
-      //
-      // This loop works around a compiler bug in JAVAC 1.1.4. For
-      // For some reasons, if this loop is not here, AdaptorGen.class will
-      // contain incorrect byte code and causes a NullPoniterException.
-      //
-      // This compiler bug happens only in JAVAC. MS JVC apparently
-      // works fine.
-
-      e.nextElement();
-    }
-
-    for (Enumeration e = primClasses.keys(); e.hasMoreElements(); ) {
-      Class primType = (Class) e.nextElement();
+    for (Class primType : primClasses.keySet()) {
       short class_index = cp_getClass(getWrapperClass(primType));
       short ref = cp_putMethodRef(class_index, "<init>", "(" + getTypeDesc(primType) + ")V");
 
@@ -981,20 +949,15 @@ class AdaptorGen {
    * Results: None.
    *
    * Side effects: The short value is wrapped in a Short object and stored in
-   * the hashtable.
+   * the table.
    *
    * ----------------------------------------------------------------------
    */
 
-  private static final void hashPutShort(
-      Hashtable hashtable, // The
-      // hashtable.
-      Object key, // The key.
-      short num) // Put this number under the given key
-        // in the hashtable.
-      {
+  @SuppressWarnings("unchecked")
+  private static void hashPutShort(Map map, Object key, short num) {
     Short shortObj = Short.valueOf(num);
-    hashtable.put(key, shortObj);
+    map.put(key, shortObj);
   }
 
   /*
@@ -1011,12 +974,9 @@ class AdaptorGen {
    * ----------------------------------------------------------------------
    */
 
-  private static final short hashGetShort(
-      Hashtable hashtable, // The
-      // hashtable.
-      Object key) // The key.
-      {
-    return ((Short) hashtable.get(key)).shortValue();
+  @SuppressWarnings("unchecked")
+  private static final short hashGetShort(Map map, Object key) {
+    return ((Short) map.get(key)).shortValue();
   }
 
   /*
@@ -1196,7 +1156,7 @@ class AdaptorGen {
       {
     Short shortObj;
 
-    shortObj = (Short) utf8Tab.get(string);
+    shortObj = utf8Tab.get(string);
 
     // Check to make sure that the string is not already in the
     // constant pool so that we won't have duplicated entries (which

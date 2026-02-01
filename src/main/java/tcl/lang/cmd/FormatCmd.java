@@ -671,7 +671,7 @@ public final class FormatCmd implements Command {
       // "If d1 represents +0.0 while d2 represents -0.0, or
       // vice versa, the equal test has the value false, even
       // though +0.0==-0.0 has the value true. This allows
-      // hashtables to operate properly.
+      // hashing to operate properly.
 
       dblValue = -dblValue;
       prefix = '-';

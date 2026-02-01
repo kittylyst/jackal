@@ -172,7 +172,7 @@ public final class ArrayCmd implements Command {
         }
       case OPT_GET:
         {
-          // Due to the differences in the hashtable implementation
+          // Due to the differences in the hashing implementation
           // from the Tcl core and Java, the output will be rearranged.
           // This is not a negative side effect, however, test results
           // will differ.

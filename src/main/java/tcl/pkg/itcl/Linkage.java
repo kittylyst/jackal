@@ -32,8 +32,8 @@
 
 package tcl.pkg.itcl;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import tcl.lang.AssocData;
 import tcl.lang.Command;
 import tcl.lang.CommandWithDispose;
@@ -48,7 +48,7 @@ class ItclJavafunc {
 
 // This record is stored in the interp assoc data
 
-class AssocHashtable extends Hashtable implements AssocData {
+class AssocHashMap extends HashMap<String, ItclJavafunc> implements AssocData {
 
   public void disposeAssocData(Interp interp) {
     Linkage.FreeC(this, interp);
@@ -85,7 +85,7 @@ class Linkage {
       Command proc) // procedure handling Tcl command
       throws TclException {
     // Maps String to ItclJavafunc
-    Hashtable procTable;
+    Map<String, ItclJavafunc> procTable;
     ItclJavafunc jfunc;
 
     // Make sure that a proc was specified.
@@ -101,7 +101,7 @@ class Linkage {
 
     procTable = Linkage.GetRegisteredProcs(interp);
 
-    jfunc = (ItclJavafunc) procTable.get(name);
+    jfunc = procTable.get(name);
 
     if (jfunc != null) {
       if (jfunc.objCmdProc != null && jfunc.objCmdProc != proc) {
@@ -136,14 +136,14 @@ class Linkage {
       String name) // symbolic name for procedure
       {
     boolean found = false;
-    Hashtable procTable;
+    Map<String, ItclJavafunc> procTable;
     ItclJavafunc jfunc = null;
 
     if (interp != null) {
-      procTable = (Hashtable) interp.getAssocData("itcl_RegC");
+      procTable = (Map<String, ItclJavafunc>) interp.getAssocData("itcl_RegC");
 
       if (procTable != null) {
-        jfunc = (ItclJavafunc) procTable.get(name);
+        jfunc = procTable.get(name);
         if (jfunc != null) {
           found = true;
         }
@@ -167,16 +167,11 @@ class Linkage {
    * ------------------------------------------------------------------------
    */
 
-  static Hashtable GetRegisteredProcs(Interp interp) // interpreter handling
-        // this registration
-      {
-    AssocHashtable procTable;
-
-    // If the registration table does not yet exist, then create it.
-    procTable = (AssocHashtable) interp.getAssocData("itcl_RegC");
+  static Map<String, ItclJavafunc> GetRegisteredProcs(Interp interp) {
+    AssocHashMap procTable = (AssocHashMap) interp.getAssocData("itcl_RegC");
 
     if (procTable == null) {
-      procTable = new AssocHashtable();
+      procTable = new AssocHashMap();
       interp.setAssocData("itcl_RegC", procTable);
     }
 
@@ -192,13 +187,9 @@ class Linkage {
    * ------------------------------------------------------------------------
    */
 
-  static void FreeC(
-      Hashtable table, // associated data
-      Interp interp) // intepreter being deleted
-      {
-    for (Enumeration e = table.keys(); e.hasMoreElements(); ) {
-      String key = (String) e.nextElement();
-      ItclJavafunc jfunc = (ItclJavafunc) table.get(key);
+  static void FreeC(Map<String, ItclJavafunc> table, Interp interp) {
+    for (String key : table.keySet()) {
+      ItclJavafunc jfunc = table.get(key);
 
       if (jfunc.objCmdProc instanceof CommandWithDispose) {
         ((CommandWithDispose) jfunc.objCmdProc).disposeCmd();

@@ -19,8 +19,7 @@ package tcl.pkg.java;
 import java.beans.EventSetDescriptor;
 import java.lang.reflect.Method;
 import java.util.EmptyStackException;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Stack;
 import tcl.lang.AssocData;
 import tcl.lang.Interp;
@@ -36,10 +35,10 @@ import tcl.lang.model.TclObject;
 class BeanEventMgr implements AssocData {
 
   /*
-   * Stores all of the available event adaptor classes.
+   * Stores all the available event adaptor classes.
    */
 
-  private static Hashtable<Class<?>, Class<?>> adaptorClsTab = new Hashtable<>();
+  private static HashMap<Class<?>, Class<?>> adaptorClsTab = new HashMap<>();
 
   /*
    * The class loader for loading automatically generated event adaptor
@@ -55,6 +54,7 @@ class BeanEventMgr implements AssocData {
    * Event parameters can be queried by the "java::event" command.
    */
 
+  // FIXME Modernize Stack as well
   Stack eventParamSetStack;
 
   /*
@@ -224,9 +224,9 @@ class BeanEventMgr implements AssocData {
     EventAdaptor adaptor = null;
 
     if (reflectObj.bindings == null) {
-      reflectObj.bindings = new Hashtable();
+      reflectObj.bindings = new HashMap<>();
     } else {
-      adaptor = (EventAdaptor) reflectObj.bindings.get(eventSet);
+      adaptor = reflectObj.bindings.get(eventSet);
     }
 
     if (adaptor == null) {
@@ -278,7 +278,7 @@ class BeanEventMgr implements AssocData {
       /*
        * The callback command is the empty string. This means remove any
        * existing callback scripts. If no more callback scripts are
-       * registered in the adaptor, we'll remove it from the hashtable.
+       * registered in the adaptor, we'll remove it from the symbol table.
        */
 
       if (adaptor.deleteCallback(event.getName()) == 0) {
@@ -317,7 +317,7 @@ class BeanEventMgr implements AssocData {
     EventAdaptor adaptor = null;
 
     if (reflectObj.bindings != null) {
-      adaptor = (EventAdaptor) reflectObj.bindings.get(eventSet);
+      adaptor = reflectObj.bindings.get(eventSet);
     }
 
     if (adaptor == null) {
@@ -349,8 +349,7 @@ class BeanEventMgr implements AssocData {
     TclObject list = TclList.newInstance();
 
     if (reflectObj.bindings != null) {
-      for (Enumeration e = reflectObj.bindings.elements(); e.hasMoreElements(); ) {
-        EventAdaptor adaptor = (EventAdaptor) e.nextElement();
+      for (EventAdaptor adaptor : reflectObj.bindings.values()) {
         adaptor.getHandledEvents(list);
       }
     }

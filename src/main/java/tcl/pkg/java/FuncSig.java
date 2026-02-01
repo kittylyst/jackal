@@ -21,7 +21,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map.Entry;
 import tcl.lang.InternalRep;
 import tcl.lang.Interp;
@@ -83,15 +82,10 @@ public final class FuncSig implements InternalRep {
 
   Object func;
 
-  // Stores all accessible instance methods for a Java class
-  // Note that we use a Hashtable instead of a HashMap here
-  // since these fields could be accessed from multiple
-  // threads and the Hashtable class is synchronized.
-
-  static Hashtable<Class<?>, Method[]> instanceMethodTable = new Hashtable<>();
-  static Hashtable<Class<?>, Method[]> staticMethodTable = new Hashtable<>();
-  static Hashtable<Class<?>, HashMap<String, Method[]>> instanceMethodTableByName =
-      new Hashtable<Class<?>, HashMap<String, Method[]>>();
+  // Stores all accessible instance methods for a Java class.
+  static HashMap<Class<?>, Method[]> instanceMethodTable = new HashMap<>();
+  static HashMap<Class<?>, Method[]> staticMethodTable = new HashMap<>();
+  static HashMap<Class<?>, HashMap<String, Method[]>> instanceMethodTableByName = new HashMap<>();
 
   /*
    * ----------------------------------------------------------------------
@@ -1127,7 +1121,7 @@ public final class FuncSig implements InternalRep {
    * private access and the package has a custom PkgInvoker. See comments
    * above the "func" member variable for more details.
    *
-   * Side effects: The array of methods are saved in a hashtable for faster
+   * Side effects: The array of methods are saved in a symbol table for faster
    * access in the future.
    *
    * ----------------------------------------------------------------------

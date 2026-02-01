@@ -16,8 +16,7 @@ package tcl.pkg.java;
 
 import java.beans.EventSetDescriptor;
 import java.lang.reflect.Method;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
 import tcl.lang.exception.TclException;
@@ -66,7 +65,7 @@ public class EventAdaptor {
 
   // Stores the callbacks that are currently being handled by the target.
 
-  Hashtable callbacks;
+  HashMap<String, TclObject> callbacks;
 
   // If an Exception is throws during the execution of the event
   // handler, it is stored in this member variable for later processing
@@ -122,7 +121,7 @@ public class EventAdaptor {
       throws TclException // Standard Tcl exception.
       {
     interp = i;
-    callbacks = new Hashtable();
+    callbacks = new HashMap<>();
     eventDesc = desc;
     source = src;
 
@@ -162,7 +161,7 @@ public class EventAdaptor {
         // fires.
       {
     check();
-    TclObject oldCmd = (TclObject) callbacks.get(eventName);
+    TclObject oldCmd = callbacks.get(eventName);
     if (oldCmd != null) {
       callbacks.remove(eventName);
     }
@@ -197,7 +196,7 @@ public class EventAdaptor {
       {
     check();
 
-    TclObject oldCmd = (TclObject) callbacks.get(eventName);
+    TclObject oldCmd = callbacks.get(eventName);
     if (oldCmd != null) {
       callbacks.remove(eventName);
     }
@@ -245,7 +244,7 @@ public class EventAdaptor {
   TclObject getCallback(String eventName) // Name of the event to query.
       {
     check();
-    return (TclObject) callbacks.get(eventName);
+    return callbacks.get(eventName);
   }
 
   /*
@@ -271,8 +270,7 @@ public class EventAdaptor {
     try {
       String interfaceName = eventDesc.getListenerType().getName();
 
-      for (Enumeration e = callbacks.keys(); e.hasMoreElements(); ) {
-        String eventName = (String) e.nextElement();
+      for (String eventName : callbacks.keySet()) {
         TclList.append(null, list, TclString.newInstance(interfaceName + "." + eventName));
       }
     } catch (TclException e) {
@@ -303,7 +301,7 @@ public class EventAdaptor {
     check();
     exception = null;
 
-    TclObject cmd = (TclObject) callbacks.get(eventName);
+    TclObject cmd = callbacks.get(eventName);
     if (cmd != null) {
       Class paramTypes[] = null;
       Method methods[] = eventDesc.getListenerType().getMethods();

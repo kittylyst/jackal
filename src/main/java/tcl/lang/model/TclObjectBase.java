@@ -13,8 +13,7 @@
 
 package tcl.lang.model;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import tcl.lang.InternalRep;
 import tcl.lang.exception.TclRuntimeError;
 
@@ -46,7 +45,7 @@ abstract class TclObjectBase {
   // and transitions from one internal rep to another.
 
   static final boolean saveObjRecords = false;
-  static Hashtable<String, Integer> objRecordMap = (saveObjRecords ? new Hashtable<>() : null);
+  static HashMap<String, Integer> objRecordMap = (saveObjRecords ? new HashMap<>() : null);
 
   // Only set this to true if running test code and
   // the user wants to run extra ref count checks.
@@ -86,7 +85,7 @@ abstract class TclObjectBase {
    * Override of java.lang.Object#hashCode method. This method returns the
    * hash code value for the object on which this method is invoked. This
    * method returns the hash code value as an integer and is supported for the
-   * benefit of hashing based collection classes such as Hashtable, HashMap,
+   * benefit of hashing based collection classes such as HashMap,
    * HashSet etc.
    *
    * This method must be overridden in every class that overrides the equals
@@ -498,15 +497,14 @@ abstract class TclObjectBase {
   static String getObjRecords() {
     if (TclObjectBase.saveObjRecords) {
       StringBuffer sb = new StringBuffer(64);
-      for (Enumeration<String> keys = TclObject.objRecordMap.keys(); keys.hasMoreElements(); ) {
-        String key = keys.nextElement();
+      for (String key : TclObject.objRecordMap.keySet()) {
         Integer num = TclObject.objRecordMap.get(key);
         sb.append(key);
         sb.append(" ");
         sb.append(num.intValue());
         sb.append("\n");
       }
-      TclObject.objRecordMap = new Hashtable<>();
+      TclObject.objRecordMap = new HashMap<>();
       return sb.toString();
     } else {
       return "";
