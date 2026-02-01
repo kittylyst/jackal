@@ -2,11 +2,27 @@
 
 ## Core (`tcl.lang`)
 
-Interpreter core: `Interp`, `Namespace`, `Var`, `CallFrame`, `TclObject`, and supporting types. Defines the `Command` interface (sealed) and command dispatch, variable resolution, expression evaluation (`Expression`), and object types (list, dict, string, integer, double, etc.). Also contains `Shell` (REPL) and process/pipe support.
+Interpreter core: `Interp`, `Var`, `CallFrame`, parser, expression evaluation (`Expression`), and command dispatch. Defines the `Command` interface (sealed). Also contains `TclEvent`, `EventDeleter`, `Notifier`, process/pipe support (`Pipeline`), and utilities (`Util`, `FileUtil`, `TclIO`).
+
+## Model (`tcl.lang.model`)
+
+Tcl value types and namespaces: `TclObject`, `TclObjectBase`, `InternalRep` implementations (`TclString`, `TclList`, `TclDict`, `TclInteger`, `TclDouble`, `TclBoolean`, `TclByteArray`, `TclIndex`), `Namespace`, and supporting types (`CharPointer`, `UTF8CharPointer`).
+
+## Exception (`tcl.lang.exception`)
+
+Exception hierarchy for script and runtime errors: `TclException`, `TclNumArgsException`, `TclVarException`, `TclPosixException`, `TclRuntimeError`, `PackageNameException`, `TclInterruptedException`, and `TclInterruptedExceptionEvent`.
+
+## Regex (`tcl.lang.regex`)
+
+Regular expression engine: `Regex` (Tcl-style RE matching and replacement) and `TclRegexp` (compilation interface). Used by `regexp`, `regsub`, `lsearch -regexp`, and `switch -regexp`.
 
 ## Channels (`tcl.lang.channel`)
 
 I/O abstraction: `Channel` and implementations (file, socket, stdio, etc.) used by `puts`, `gets`, `read`, `fconfigure`, and the Tcl I/O layer.
+
+## Tools (`tcl.tools`)
+
+Entry points and shells: `Shell` (REPL, Main-Class), `AppShell` (manifest-driven), `NonInteractiveShell` (batch mode).
 
 ## Built-in commands (`tcl.lang.cmd`)
 
@@ -46,3 +62,7 @@ Tcl-to-Java compilation: compiles Tcl procedures to JVM bytecode for faster exec
 ## Fleet package (`tcl.pkg.fleet`)
 
 Multi-threaded execution support: worker members and message queue used by TJC (and potentially other callers) to run compiled or scripted code on separate threads.
+
+---
+
+*Packages are exported via `module-info.java` for the `jackal` module.*

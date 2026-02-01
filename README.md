@@ -1,77 +1,46 @@
-Jackal - Modern Tcl Language Interpreter in Java
+# Jackal — Modern Tcl Language Interpreter in Java
 
-http://jtcl-project.github.io/jtcl/
+Jackal is a Tcl (Tool Command Language) interpreter implemented in Java. It is based on [JTcl](https://jtcl-project.github.io/jtcl/) and the earlier [Jacl](http://tcljava.sf.net) interpreter. Jackal aims for Tcl 8.4–compatible syntax and commands within the constraints of the JVM, and is modernized with Java 17+ features (sealed types, records, modular package structure).
 
-JTcl is an implementation of Tcl (Tool Command Language) written in Java.
-JTcl implements a large extent of Tcl 8.4 syntax and commands, limited 
-only by API restrictions of the Java Virtual Machine.  JTcl is based on 
-the Jacl interpreter (http://tcljava.sf.net)
+**Project URL:** <http://jackal.github.io/jtcl/>
 
+## Documentation
 
-INSTALLING JTCL
+See the **`docs/`** directory for detailed documentation:
 
-JTcl requires a Java JVM 8 or higher.  You may have to install Java 
-if you don't already have it installed.  
+- **[docs/README.md](docs/README.md)** — Project overview
+- **[docs/architecture.md](docs/architecture.md)** — Architecture and core components
+- **[docs/package-overview.md](docs/package-overview.md)** — Java package structure
+- **[docs/building-and-testing.md](docs/building-and-testing.md)** — Build and run instructions
 
-Download JTcl distribution from: 
+## Quick start
 
-    https://github.com/jtcl-project/jtcl/releases
+**Requirements:** Java 17 or higher, Maven 3.x
 
-JTcl is distributed as a ZIP archive.  Download the latest 
-jtcl-{version}-bin.zip file from the JTcl website, and unzip into a directory 
-of your choice.  
+```bash
+mvn clean package
+java -jar target/jackal-3.0.0-SNAPSHOT.jar
+```
 
-Unix/Linux/Mac OSX shell script (`jtcl') and Windows batch file (`jtcl.bat') 
-are included.   Unix/Linux/OSX users may want to make a symbolic link
-in /usr/local/bin (or any other directory on your PATH of your choice):
+## Installing
 
-    sudo ln -s `pwd`/jtcl /usr/local/bin
+Jackal requires Java 17 or higher. Download distributions from:
 
+- <https://github.com/jtcl-project/jtcl/releases>
 
-LICENSE
+JTcl binary distributions (jtcl-{version}-bin.zip) are compatible. Unzip into a directory of your choice. Unix/Linux/Mac shell script (`jtcl`) and Windows batch file (`jtcl.bat`) are included.
 
-JTcl is licensed under BSD-style licenses by various copyright holders.  See 
-the license.* files in the binary distribution files, or review at:
+## License
 
-    http://jtcl-project.github.io/jtcl/licenses.html
+Jackal is licensed under BSD-style licenses by various copyright holders. See the `license.*` files or <http://jtcl-project.github.io/jtcl/licenses.html>.
 
-SOURCE CODE
+## Source code
 
-JTcl uses the Git distributed source code control system.  Install
-Git using your OS distribution package manager or get executables 
-from the Git site: http://git-scm.com/ 
+```bash
+git clone https://github.com/jtcl-project/jtcl.git
+```
 
-Browse JTcl source code:   https://github.com/jtcl-project/jtcl
-Clone the JTcl repository: git clone https://github.com/jtcl-project/jtcl.git 
+## Mailing list and bug reporting
 
-Sources to released versions can also be downloaded from:
-
-    https://github.com/jtcl-project/jtcl 
-
-Download the jtcl-{version}-src.zip file and unzip into a directory 
-of your choice.
-
-
-DOCUMENTATION
-
-Local documentation, which consists a copy of the the JTcl web site, can be 
-downloaded from:
-
-    https://github.com/jtcl-project/jtcl/releases
-
-Documenation is distributed as a ZIP archive, Download the latest 
-jtcl-{version}-doc.zip file from the JTcl website, and unzip into a directory 
-of your choice. 
-
-
-MAILING LIST and BUG REPORTING
-
-Please subscribe and use the JTcl mailing list for questions and to
-share information.  The JTcl Bug tracker should be used to
-report bugs.
-
-Mailing lists: https://groups.google.com/d/forum/jtcl-project
-Bug reporting: https://github.com/jtcl-project/jtcl/issues
-
-
-**The JTcl Team**
+- Mailing list: <https://groups.google.com/d/forum/jtcl-project>
+- Bug reporting: <https://github.com/jtcl-project/jtcl/issues>

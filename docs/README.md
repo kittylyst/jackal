@@ -12,6 +12,8 @@ High-level documentation for the Jackal project.
 
 Jackal is a modern Tcl (Tool Command Language) interpreter implemented in Java. It is based on [JTcl](https://jtcl-project.github.io/jtcl/) and the earlier [Jacl](http://tcljava.sf.net) interpreter. Jackal aims for Tcl 8.4–compatible syntax and commands within the constraints of the JVM.
 
-**Requirements:** Java 17 or higher (as configured in the project).
+The codebase uses a modular package layout: `tcl.lang.model` for value types, `tcl.lang.exception` for exceptions, `tcl.lang.regex` for regular expressions, `tcl.tools` for shells, and core interpreter logic in `tcl.lang`.
+
+**Requirements:** Java 17 or higher.
 
 **Project URL:** <http://jackal.github.io/jtcl/>

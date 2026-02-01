@@ -12,16 +12,22 @@ The codebase is a **named Java module** (`jackal`), defined in `src/main/java/mo
 - Exports the public API packages.
 - Requires `java.base`, `java.desktop` (Java Beans / Tcl Blend), and `java.scripting` (JSR 223).
 
-Exported packages include `tcl.lang`, `tcl.lang.channel`, `tcl.lang.cmd`, `tcl.lang.process`, `tcl.lang.embed.jsr223`, and the extension packages under `tcl.pkg.*`.
+Exported packages include:
+
+- **Core:** `tcl.lang`, `tcl.lang.model`, `tcl.lang.exception`, `tcl.lang.regex`
+- **I/O and execution:** `tcl.lang.channel`, `tcl.lang.cmd`, `tcl.lang.process`
+- **Embedding:** `tcl.lang.embed.jsr223`
+- **Tools:** `tcl.tools` (Shell, AppShell)
+- **Extensions:** `tcl.pkg.java`, `tcl.pkg.itcl`, `tcl.pkg.tjc`, `tcl.pkg.fleet`
 
 ## Core components
 
 - **Interp** — Central interpreter: namespace stack, variable resolution, command dispatch, channel table, and association data. One `Interp` instance per interpreter.
-- **Namespace** — Scopes for commands and variables (e.g. global `::`, user namespaces). Hierarchical naming with `::`.
+- **Namespace** (`tcl.lang.model`) — Scopes for commands and variables (e.g. global `::`, user namespaces). Hierarchical naming with `::`.
 - **Var** — Variable representation (scalar/array, traces, link/upvar). Lives in call frames or namespace variable tables.
 - **CallFrame** — Procedure call frame: local variables, compiled locals, and linkage to caller/namespace.
 - **Command** — Sealed interface for all invocable commands (built-in procs, aliases, extensions). Dispatch is by name lookup in the current namespace.
-- **TclObject** — Dual-ported Tcl value (string and internal representation, e.g. list, int, dict). Reference-counted where used across boundaries.
+- **TclObject** (`tcl.lang.model`) — Dual-ported Tcl value (string and internal representation, e.g. list, int, dict). Reference-counted where used across boundaries. Object types (`TclList`, `TclDict`, `TclString`, etc.) live in `tcl.lang.model`.
 
 ## Execution model
 
@@ -35,9 +41,13 @@ Exported packages include `tcl.lang`, `tcl.lang.channel`, `tcl.lang.cmd`, `tcl.l
 
 Functionality is split between:
 
-- **Core** (`tcl.lang`) — Interp, namespaces, variables, core types, and command infrastructure.
+- **Core** (`tcl.lang`) — Interp, variables, call frames, parser, expression evaluation, and command infrastructure.
+- **Model** (`tcl.lang.model`) — TclObject and internal representations (list, dict, string, integer, double, etc.), plus Namespace.
+- **Exception** (`tcl.lang.exception`) — TclException and subclasses (TclNumArgsException, TclVarException, TclPosixException, etc.).
+- **Regex** (`tcl.lang.regex`) — Regular expression engine (Regex, TclRegexp).
 - **Built-in commands** (`tcl.lang.cmd`) — Standard Tcl commands (e.g. `set`, `proc`, `if`, `while`, `list`, `dict`, `namespace`).
 - **Packages** (`tcl.pkg.*`) — Loadable extensions: Java integration, [incr Tcl], TJC, Fleet, etc.
+- **Tools** (`tcl.tools`) — Shell (REPL), AppShell, NonInteractiveShell.
 
 Extensions register new commands (and optionally package/namespace hooks) with an existing `Interp`.
 
