@@ -22,20 +22,19 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Set;
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclByteArray;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
-import tcl.lang.TclIndex;
-import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
-import tcl.lang.TclString;
 import tcl.lang.channel.Channel;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclByteArray;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /**
  * This class implements the built-in "encoding" command in Tcl. It's also the home for the global
@@ -53,17 +52,7 @@ public final class EncodingCmd implements Command {
   public static String systemJavaEncoding = null;
 
   /** Encapsulates both the tcl and the java name for an encoding */
-  static class EncodingMap {
-    String tclName;
-    String javaName;
-    int bytesPerChar;
-
-    public EncodingMap(String tclName, String javaName, int bytesPerChar) {
-      this.tclName = tclName;
-      this.javaName = javaName;
-      this.bytesPerChar = bytesPerChar;
-    }
-  }
+  record EncodingMap(String tclName, String javaName, int bytesPerChar) {}
 
   /**
    * Hashtable of all supported encodings, containing both java names and tcl names. "tcl," is
@@ -166,8 +155,8 @@ public final class EncodingCmd implements Command {
     for (int i = 0; i < encodings.length; i++) {
       EncodingMap map = encodings[i];
 
-      String tclKey = "tcl," + map.tclName;
-      String javaKey = "java," + map.javaName;
+      String tclKey = "tcl," + map.tclName();
+      String javaKey = "java," + map.javaName();
 
       encodeHash.put(tclKey, map);
       encodeHash.put(javaKey, map);
@@ -186,19 +175,17 @@ public final class EncodingCmd implements Command {
     all.add(defaultCharset.name());
     all.addAll(aliases);
 
-    Iterator<String> iterator = all.iterator();
-
     String enc = null;
-    while (iterator.hasNext()) {
-      enc = iterator.next();
+    for (String encName : all) {
+      enc = encName;
       // Lookup EncodingMap for this Java encoding name
       String key = "java," + enc;
       EncodingMap map = (EncodingMap) encodeHash.get(key);
       if (map == null) {
         enc = null;
       } else {
-        systemTclEncoding = map.tclName;
-        systemJavaEncoding = map.javaName;
+        systemTclEncoding = map.tclName();
+        systemJavaEncoding = map.javaName();
         break;
       }
     }
@@ -357,8 +344,8 @@ public final class EncodingCmd implements Command {
             // is not supported by the runtime should
             // not be returned.
 
-            if (isSupported(map.javaName)) {
-              TclList.append(interp, list, TclString.newInstance(map.tclName));
+            if (isSupported(map.javaName())) {
+              TclList.append(interp, list, TclString.newInstance(map.tclName()));
             }
           }
           interp.setResult(list);
@@ -389,13 +376,15 @@ public final class EncodingCmd implements Command {
             systemJavaEncoding = javaEncoding;
 
             /* TCL probably does this differently, but it's the easiest way to implement in JTCL */
-            if (interp.systemEncodingChangesStdoutStderr) {
+            if (interp.isSystemEncodingChangesStdoutStderr()) {
               Channel chan = TclIO.getChannel(interp, "stdout");
               if (chan != null) chan.setEncoding(systemJavaEncoding);
               chan = TclIO.getChannel(interp, "stderr");
-              if (chan != null) chan.setEncoding(systemJavaEncoding);
-              interp.systemEncodingChangesStdoutStderr =
-                  true; // reset it because getChannel() cleared it
+              if (chan != null) {
+                chan.setEncoding(systemJavaEncoding);
+              }
+              // reset it because getChannel() cleared it
+              interp.setSystemEncodingChangesStdoutStderr(true);
             }
           }
 
@@ -421,7 +410,7 @@ public final class EncodingCmd implements Command {
     if (map == null) {
       throw new RuntimeException("Invalid encoding \"" + name + "\"");
     }
-    return map.bytesPerChar;
+    return map.bytesPerChar();
   }
 
   /**
@@ -437,7 +426,7 @@ public final class EncodingCmd implements Command {
     if (map == null) {
       return null;
     }
-    return map.javaName;
+    return map.javaName();
   }
 
   /**
@@ -452,7 +441,7 @@ public final class EncodingCmd implements Command {
     if (map == null) {
       return null;
     }
-    return map.tclName;
+    return map.tclName();
   }
 
   /**

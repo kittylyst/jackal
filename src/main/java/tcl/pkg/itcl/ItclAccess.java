@@ -25,14 +25,15 @@
 package tcl.pkg.itcl;
 
 import java.util.HashMap;
+import java.util.Map;
 import tcl.lang.CallFrame;
 import tcl.lang.Interp;
-import tcl.lang.Namespace;
 import tcl.lang.Procedure;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
 import tcl.lang.Var;
 import tcl.lang.WrappedCommand;
+import tcl.lang.exception.TclException;
+import tcl.lang.model.Namespace;
+import tcl.lang.model.TclObject;
 
 public class ItclAccess {
   public static boolean isProcCallFrame(CallFrame frame) {
@@ -83,11 +84,11 @@ public class ItclAccess {
     return i.varFrame;
   }
 
-  public static HashMap getVarTable(CallFrame frame) {
+  public static HashMap<String, Var> getVarTable(CallFrame frame) {
     return frame.varTable;
   }
 
-  public static void setVarTable(CallFrame frame, HashMap table) {
+  public static void setVarTable(CallFrame frame, HashMap<String, Var> table) {
     frame.varTable = table;
   }
 
@@ -95,7 +96,7 @@ public class ItclAccess {
     return new Var();
   }
 
-  public static void deleteVars(Interp interp, HashMap varTable) {
+  public static void deleteVars(Interp interp, HashMap<String, Var> varTable) {
     Var.deleteVars(interp, varTable);
   }
 
@@ -127,7 +128,7 @@ public class ItclAccess {
   public static void assignLocalVar(Interp interp, String name, TclObject val, CallFrame frame)
       throws TclException {
     if (frame.varTable == null) {
-      frame.varTable = new HashMap();
+      frame.varTable = new HashMap<>();
     }
     Var var = new Var();
     var.clearVarInHashtable(); // Needed to avoid "dangling namespace var"
@@ -137,7 +138,7 @@ public class ItclAccess {
     interp.setVar(name, null, val, 0);
   }
 
-  public static void createObjVar(Var var, String key, Namespace ns, HashMap table) {
+  public static void createObjVar(Var var, String key, Namespace ns, HashMap<String, Var> table) {
     var.hashKey = key;
     var.ns = ns;
 
@@ -155,7 +156,7 @@ public class ItclAccess {
     var.refCount = 1; // protect from being deleted
   }
 
-  public static void createCommonVar(Var var, String key, Namespace ns, HashMap table) {
+  public static void createCommonVar(Var var, String key, Namespace ns, Map<String, Var> table) {
     var.table = table;
     var.hashKey = key;
     var.ns = ns;
@@ -163,9 +164,5 @@ public class ItclAccess {
     var.setVarNamespace();
     var.refCount++; // one use by namespace
     var.refCount++; // another use by class
-  }
-
-  public static Object FirstHashEntry(HashMap table) {
-    return Namespace.FirstHashEntry(table);
   }
 }

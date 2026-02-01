@@ -17,6 +17,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.exception.TclVarException;
+import tcl.lang.model.*;
 
 /*
  * Implements variables in Tcl. The Var class encapsulates most of the functionality
@@ -178,15 +183,15 @@ public class Var {
   private TclObject tobj;
 
   /** Key/value pairs in array, if this is an array variable. Always use getArrayMap() */
-  private Map<String, Var> arraymap;
+  private final Map<String, Var> arraymap = new ConcurrentHashMap<>();
 
   /** Reference to a linkto variable associated by this upvar */
   Var linkto;
 
   /** List that holds the traces that were placed in this Var */
-  public ArrayList traces;
+  public ArrayList<TraceRecord> traces;
 
-  public ArrayList sidVec;
+  public ArrayList<SearchId> sidVec;
 
   /**
    * Miscellaneous bits of information about variable.
@@ -208,7 +213,7 @@ public class Var {
    * its elements are still referred to in upvars). null if the variable is not in a hashtable. This
    * is used to delete an variable from its hashtable if it is no longer needed.
    */
-  public Map table;
+  public Map<String, Var> table;
 
   /** The key under which this variable is stored in the hash table. */
   public String hashKey;
@@ -272,12 +277,12 @@ public class Var {
 
   /** Create a new array map in this Var */
   public void createArrayMap() {
-    this.arraymap = new HashMap<String, Var>();
+    this.arraymap.clear();
   }
 
   /** Remove the existing array map in this var */
   public void deleteArrayMap() {
-    this.arraymap = null;
+    arraymap.clear();
   }
 
   /** Used to create a String that describes this variable. */
@@ -345,7 +350,7 @@ public class Var {
     if (size == 0) {
       return 1;
     }
-    SearchId sid = (SearchId) sidVec.get(size - 1);
+    SearchId sid = sidVec.get(size - 1);
     return (sid.getIndex() + 1);
   }
 
@@ -359,7 +364,7 @@ public class Var {
   public Iterator getSearch(String s) {
     SearchId sid;
     for (int i = 0; i < sidVec.size(); i++) {
-      sid = (SearchId) sidVec.get(i);
+      sid = sidVec.get(i);
       if (sid.equals(s)) {
         return sid.getIterator();
       }
@@ -376,7 +381,7 @@ public class Var {
     SearchId curSid;
 
     for (int i = 0; i < sidVec.size(); i++) {
-      curSid = (SearchId) sidVec.get(i);
+      curSid = sidVec.get(i);
       if (curSid.equals(sid)) {
         sidVec.remove(i);
         return true;
@@ -455,7 +460,7 @@ public class Var {
     // variables are currently in use. Same as
     // the current procedure's frame, if any,
     // unless an "uplevel" is executing.
-    HashMap table; // to the hashtable, if any, in which
+    HashMap<String, Var> table; // to the hashtable, if any, in which
     // to look up the variable.
     Var var; // Used to search for global names.
     String elName; // Name of array element or null.
@@ -509,7 +514,7 @@ public class Var {
       cxtNs = interp.varFrame.ns;
     }
 
-    if (cxtNs.resolver != null || interp.resolvers != null) {
+    if (cxtNs.resolver != null || interp.getResolvers() != null) {
       try {
         if (cxtNs.resolver != null) {
           var = cxtNs.resolver.resolveVar(interp, part1, cxtNs, flags);
@@ -520,11 +525,11 @@ public class Var {
           var = null;
         }
 
-        if (var == null && interp.resolvers != null) {
-          for (ListIterator iter = interp.resolvers.listIterator();
+        if (var == null && interp.getResolvers() != null) {
+          for (ListIterator<Interp.ResolverScheme> iter = interp.getResolvers().listIterator();
               var == null && iter.hasNext(); ) {
-            res = (Interp.ResolverScheme) iter.next();
-            var = res.resolver.resolveVar(interp, part1, cxtNs, flags);
+            res = iter.next();
+            var = res.resolver().resolveVar(interp, part1, cxtNs, flags);
             if (var != null) {
               var.setVarNoCache();
             }
@@ -581,13 +586,13 @@ public class Var {
             return null;
           }
           var = new Var();
-          varNs.varTable.put(tail, var);
+          varNs.getVarTable().put(tail, var);
 
           // There is no hPtr member in Jacl, The hPtr combines the
           // table
           // and the key used in a table lookup.
           var.hashKey = tail;
-          var.table = varNs.varTable;
+          var.table = varNs.getVarTable();
 
           var.ns = varNs;
         } else { // var wasn't found and not to create it
@@ -1159,7 +1164,7 @@ public class Var {
       }
 
       // Look in local table, there should not be an entry
-      HashMap table = varFrame.varTable;
+      HashMap<String, Var> table = varFrame.varTable;
 
       if (table != null && table.size() > 0) {
         Var var = (Var) table.get(varname);
@@ -1407,7 +1412,7 @@ public class Var {
 
       // Look in local table, there should not be an entry for this
       // varname
-      HashMap table = varFrame.varTable;
+      HashMap<String, Var> table = varFrame.varTable;
 
       if (table != null && table.size() > 0) {
         Var var = (Var) table.get(varname);
@@ -1507,7 +1512,7 @@ public class Var {
 
       // Look in local table, there should not be an entry for this
       // varname
-      HashMap table = varFrame.varTable;
+      HashMap<String, Var> table = varFrame.varTable;
 
       if (table != null && table.size() > 0) {
         Var var = (Var) table.get(varname);
@@ -1915,7 +1920,7 @@ public class Var {
 
     if (var.traces == null) {
       var.setVarTraceExists();
-      var.traces = new ArrayList();
+      var.traces = new ArrayList<>();
     }
 
     TraceRecord rec = new TraceRecord();
@@ -1982,7 +1987,7 @@ public class Var {
     if (var.traces != null) {
       int len = var.traces.size();
       for (int i = 0; i < len; i++) {
-        TraceRecord rec = (TraceRecord) var.traces.get(i);
+        TraceRecord rec = var.traces.get(i);
         if (rec.trace == proc) {
           var.traces.remove(i);
           break;
@@ -2016,7 +2021,7 @@ public class Var {
    * @param part2 2nd part of the variable name (can be null).
    * @param flags misc flags that control the actions of this method.
    */
-  public static ArrayList getTraces(
+  public static ArrayList<TraceRecord> getTraces(
       Interp interp, // Interpreter containing
       // variable.
       String part1, // Name of variable or array.
@@ -2090,7 +2095,7 @@ public class Var {
     Var[] result = null;
     CallFrame varFrame;
     CallFrame savedFrame = null;
-    HashMap table;
+    HashMap<String, Var> table;
     Namespace ns, altNs;
     String tail;
     boolean newvar = false;
@@ -2196,16 +2201,16 @@ public class Var {
                 + "\": upvar won't create namespace variable that refers to procedure variable");
       }
 
-      var = (Var) ns.varTable.get(tail);
+      var = ns.getVarTable().get(tail);
       if (var == null) { // we are adding a new entry
         newvar = true;
         var = new Var();
-        ns.varTable.put(tail, var);
+        ns.getVarTable().put(tail, var);
 
         // There is no hPtr member in Jacl, The hPtr combines the table
         // and the key used in a table lookup.
         var.hashKey = tail;
-        var.table = ns.varTable;
+        var.table = ns.getVarTable();
 
         var.ns = ns; // Namespace var
       }
@@ -2467,7 +2472,7 @@ public class Var {
       }
       if ((array != null) && (array.traces != null)) {
         for (i = 0; (array.traces != null) && (i < array.traces.size()); i++) {
-          TraceRecord rec = (TraceRecord) array.traces.get(i);
+          TraceRecord rec = array.traces.get(i);
           if ((rec.flags & flags) != 0) {
             try {
               rec.trace.traceProc(interp, part1, part2, flags);
@@ -2487,7 +2492,7 @@ public class Var {
       }
 
       for (i = 0; (var.traces != null) && (i < var.traces.size()); i++) {
-        TraceRecord rec = (TraceRecord) var.traces.get(i);
+        TraceRecord rec = var.traces.get(i);
         if ((rec.flags & flags) != 0) {
           try {
             rec.trace.traceProc(interp, part1, part2, flags);
@@ -2536,22 +2541,21 @@ public class Var {
    * @param interp Interpreter containing array.
    * @param table HashMap that holds the Vars to delete
    */
-  public static void deleteVars(Interp interp, HashMap table) {
+  public static void deleteVars(Interp interp, Map<String, Var> table) {
     int flags;
     Namespace currNs = Namespace.getCurrentNamespace(interp);
 
     // Determine what flags to pass to the trace callback procedures.
 
     flags = TCL.TRACE_UNSETS;
-    if (table == interp.globalNs.varTable) {
+    if (table == interp.globalNs.getVarTable()) {
       flags |= (TCL.INTERP_DESTROYED | TCL.GLOBAL_ONLY);
-    } else if (table == currNs.varTable) {
+    } else if (table == currNs.getVarTable()) {
       flags |= TCL.NAMESPACE_ONLY;
     }
 
-    for (Iterator iter = table.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
-      deleteVar(interp, (Var) entry.getValue(), flags);
+    for (Map.Entry<String, Var> entry : table.entrySet()) {
+      deleteVar(interp, entry.getValue(), flags);
     }
     table.clear();
   }
@@ -2709,8 +2713,8 @@ public class Var {
     deleteSearches(var);
     Map<String, Var> table = var.getArrayMap();
 
-    for (Iterator iter = table.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : table.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       // String key = (String) entry.getKey();
       el = (Var) entry.getValue();
 
@@ -2911,10 +2915,10 @@ public class Var {
     String varName;
     CallFrame frame = interp.varFrame;
 
-    HashMap localVarTable = frame.varTable;
+    HashMap<String, Var> localVarTable = frame.varTable;
     if (localVarTable != null) {
-      for (Iterator iter = localVarTable.entrySet().iterator(); iter.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iter.next();
+      for (Object o : localVarTable.entrySet()) {
+        Map.Entry entry = (Map.Entry) o;
         varName = (String) entry.getKey();
         var = (Var) entry.getValue();
         if (!var.isVarUndefined() && (includeLinks || !var.isVarLink())) {

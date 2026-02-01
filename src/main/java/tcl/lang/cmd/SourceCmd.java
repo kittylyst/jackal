@@ -19,9 +19,9 @@ package tcl.lang.cmd;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "source" command in Tcl. */
 public final class SourceCmd implements Command {
@@ -37,7 +37,7 @@ public final class SourceCmd implements Command {
    * <p>Side effects: A standard Tcl result is stored in the interpreter. See the user
    * documentation.
    *
-   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
+   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.model.TclObject[])
    */
   public void cmdProc(Interp interp, TclObject argv[]) throws TclException {
     String fileName = null;

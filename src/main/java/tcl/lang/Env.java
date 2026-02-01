@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import tcl.lang.exception.TclException;
 
 /** This class manages the environment array for Tcl interpreters. */
 class Env {
@@ -65,7 +66,6 @@ class Env {
     // a nice shortcut for getting to these useful values.
 
     try {
-
       Properties props = System.getProperties();
       Enumeration list = props.propertyNames();
       while (list.hasMoreElements()) {

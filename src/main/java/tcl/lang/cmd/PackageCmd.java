@@ -14,18 +14,15 @@
 package tcl.lang.cmd;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclIndex;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.Util;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclObject;
 
 public final class PackageCmd implements Command {
 
@@ -82,11 +79,10 @@ public final class PackageCmd implements Command {
     Package pkg;
 
     // Validate the version string that was passed in.
-
     checkVersion(interp, version);
     pkg = findPackage(interp, pkgName);
     if (pkg.version == null) {
-      pkg.version = version;
+      interp.getPackageTable().put(pkgName, new Package(version, pkg.avail()));
       return;
     }
     if (compareVersions(pkg.version, version, null) != 0) {
@@ -125,17 +121,17 @@ public final class PackageCmd implements Command {
    * ----------------------------------------------------------------------
    */
 
-  public static String pkgRequire(
-      Interp interp, // Interpreter in which
-      // package is now
-      // available.
-      String pkgName, // Name of desired package.
-      String version, // Version string for desired version;
-      // null means use the latest version
-      // available.
-      boolean exact) // true means that only the particular
-      // version given is acceptable. false means
-      // use the latest compatible version.
+  /**
+   * @param interp Interpreter in which package is now available.
+   * @param pkgName Name of desired package.
+   * @param version Version string for desired version (null means use the latest version
+   *     available).
+   * @param exact true means that only the particular version given is acceptable. false means use
+   *     the latest compatible version.
+   * @return
+   * @throws TclException
+   */
+  public static String pkgRequire(Interp interp, String pkgName, String version, boolean exact)
       throws TclException {
     VersionSatisfiesResult vsres;
     Package pkg;
@@ -146,7 +142,6 @@ public final class PackageCmd implements Command {
 
     // Do extra check to make sure that version is not
     // null when the exact flag is set to true.
-
     if (version == null && exact) {
       throw new TclException(interp, "conflicting arguments : version == null and exact == true");
     }
@@ -154,7 +149,6 @@ public final class PackageCmd implements Command {
     // Before we can compare versions the version string
     // must be verified but if it is null we are just looking
     // for the latest version so skip the check in this case.
-
     if (version != null) {
       checkVersion(interp, version);
     }
@@ -163,7 +157,6 @@ public final class PackageCmd implements Command {
     // run the "package unknown" script, one to run the "package ifneeded"
     // script for a specific version, and a final pass to lookup the
     // package loaded by the "package ifneeded" script.
-
     vsres = new VersionSatisfiesResult();
     for (pass = 1; ; pass++) {
       pkg = findPackage(interp, pkgName);
@@ -240,8 +233,7 @@ public final class PackageCmd implements Command {
         } catch (TclException e) {
           interp.addErrorInfo("\n    (\"package unknown\" script)");
 
-          // Throw the first exception.
-
+          // Re throw the first exception.
           throw e;
         }
         interp.resetResult();
@@ -314,7 +306,7 @@ public final class PackageCmd implements Command {
     VersionSatisfiesResult vsres = new VersionSatisfiesResult();
     int result;
 
-    pkg = (Package) interp.packageTable.get(pkgName);
+    pkg = (Package) interp.getPackageTable().get(pkgName);
     if (pkg != null) {
       if (pkg.version != null) {
 
@@ -366,15 +358,14 @@ public final class PackageCmd implements Command {
       {
     VersionSatisfiesResult vsres;
     Package pkg;
-    PkgAvail avail;
     PkgAvail prev;
+    PkgAvail avail;
     String version;
     String pkgName;
     String key;
     String cmd;
     String ver1, ver2;
     StringBuffer sbuf;
-    Enumeration e;
     int i, opt, exact;
     boolean once;
 
@@ -386,27 +377,24 @@ public final class PackageCmd implements Command {
       case OPT_FORGET:
         {
           // Forget takes 0 or more arguments.
-
           for (i = 2; i < objv.length; i++) {
             // We do not need to check to make sure
             // package name is "" because it would not
             // be in the hash table so name will be ignored.
 
             pkgName = objv[i].toString();
-            pkg = (Package) interp.packageTable.get(pkgName);
+            pkg = interp.getPackageTable().get(pkgName);
 
             // If this package does not exist, go to next one.
-
             if (pkg == null) {
               continue;
             }
-            interp.packageTable.remove(pkgName);
-            while (pkg.avail != null) {
-              avail = pkg.avail;
-              pkg.avail = avail.next;
-              avail = null;
+            interp.getPackageTable().remove(pkgName);
+            while (pkg.avail() != null) {
+              avail = pkg.avail();
+
+              interp.getPackageTable().put(pkgName, new Package(pkg.version, avail.next));
             }
-            pkg = null;
           }
           return;
         }
@@ -422,9 +410,10 @@ public final class PackageCmd implements Command {
 
           checkVersion(interp, version);
           if (objv.length == 4) {
-            pkg = (Package) interp.packageTable.get(pkgName);
-            if (pkg == null) return;
-
+            pkg = interp.getPackageTable().get(pkgName);
+            if (pkg == null) {
+              return;
+            }
           } else {
             pkg = findPackage(interp, pkgName);
           }
@@ -432,19 +421,16 @@ public final class PackageCmd implements Command {
             if (compareVersions(avail.version, version, null) == 0) {
               if (objv.length == 4) {
                 // If doing a query return current script.
-
                 interp.setResult(avail.script);
                 return;
               }
 
               // We matched so we must be setting the script.
-
               break;
             }
           }
 
           // When we do not match on a query return nothing.
-
           if (objv.length == 4) {
             return;
           }
@@ -452,8 +438,7 @@ public final class PackageCmd implements Command {
             avail = new PkgAvail();
             avail.version = version;
             if (prev == null) {
-              avail.next = pkg.avail;
-              pkg.avail = avail;
+              interp.getPackageTable().put(pkgName, new Package(pkg.version(), avail));
             } else {
               avail.next = prev.next;
               prev.next = avail;
@@ -471,10 +456,9 @@ public final class PackageCmd implements Command {
           try {
             sbuf = new StringBuffer();
             once = false;
-            for (Iterator iter = interp.packageTable.entrySet().iterator(); iter.hasNext(); ) {
-              Map.Entry entry = (Map.Entry) iter.next();
-              key = (String) entry.getKey();
-              pkg = (Package) entry.getValue();
+            for (var entry : interp.getPackageTable().entrySet()) {
+              key = entry.getKey();
+              pkg = entry.getValue();
               once = true;
               if ((pkg.version != null) || (pkg.avail != null)) {
                 Util.appendElement(interp, sbuf, key);
@@ -520,7 +504,7 @@ public final class PackageCmd implements Command {
             throw new TclNumArgsException(interp, 1, objv, "provide package ?version?");
           }
           if (objv.length == 3) {
-            pkg = (Package) interp.packageTable.get(objv[2].toString());
+            pkg = interp.getPackageTable().get(objv[2].toString());
             if (pkg != null) {
               if (pkg.version != null) {
                 interp.setResult(pkg.version);
@@ -591,7 +575,7 @@ public final class PackageCmd implements Command {
           if (objv.length != 3) {
             throw new TclNumArgsException(interp, 1, objv, "versions package");
           }
-          pkg = (Package) interp.packageTable.get(objv[2].toString());
+          pkg = interp.getPackageTable().get(objv[2].toString());
           if (pkg != null) {
             try {
               sbuf = new StringBuffer();
@@ -646,44 +630,34 @@ public final class PackageCmd implements Command {
    * ----------------------------------------------------------------------
    */
 
-  private static Package findPackage(
-      Interp interp, // Interpreter to use for
-      // package lookup.
-      String pkgName) // Name of package to find.
-      throws TclException {
-    Package pkg;
-
-    // check package name to make sure it is not null or "".
-
+  /**
+   * @param interp Interpreter to use for package lookup.
+   * @param pkgName Name of package to find.
+   * @return
+   * @throws TclException
+   */
+  static Package findPackage(Interp interp, String pkgName) throws TclException {
     if (pkgName == null || pkgName.length() == 0) {
       throw new TclException(interp, "expected package name but got \"\"");
     }
 
-    pkg = (Package) interp.packageTable.get(pkgName);
+    Package pkg = interp.getPackageTable().get(pkgName);
     if (pkg == null) {
       // We should add a package with this name.
 
-      pkg = new Package();
-      interp.packageTable.put(pkgName, pkg);
+      pkg = new Package(null, null);
+      interp.getPackageTable().put(pkgName, pkg);
     }
     return pkg;
   }
 
-  /*
-   * ----------------------------------------------------------------------
-   *
-   * checkVersion --
-   *
+  /**
    * This procedure checks to see whether a version number has valid syntax.
    *
-   * Results: If string is not properly formed version number then a
-   * TclException is raised.
-   *
-   * Side effects: None.
-   *
-   * ----------------------------------------------------------------------
+   * @param interp
+   * @param version Version string to be checked
+   * @throws TclException if @version is not a properly formed version number
    */
-
   private static void checkVersion(
       Interp interp, // Used for error reporting.
       String version) // Supposedly a version number, which is
@@ -721,30 +695,18 @@ public final class PackageCmd implements Command {
     }
   }
 
-  /*
-   * ----------------------------------------------------------------------
+  /**
+   * This function will return a -1 if v1 is less than v2, 0 if the two version numbers are the
+   * same, and 1 if v1 is greater than v2. If the sat argument is not null then then its
+   * VersionSatisfiesResult.satisifes field will be true if v2 >= v1 and both numbers have the same
+   * major number or false otherwise.
    *
-   * compareVersions --
-   *
-   * This procedure compares two version numbers.
-   *
-   * Results: This function will return a -1 if v1 is less than v2, 0 if the
-   * two version numbers are the same, and 1 if v1 is greater than v2. If the
-   * sat argument is not null then then its VersionSatisfiesResult.satisifes
-   * field will be true if v2 >= v1 and both numbers have the same major
-   * number or false otherwise.
-   *
-   * Side effects: None.
-   *
-   * ----------------------------------------------------------------------
+   * @param v1 Versions string (e.g. 2.1.3)
+   * @param v2 Versions string (e.g. 2.1.3)
+   * @param vsres
+   * @return
    */
-
-  private static int compareVersions(
-      String v1, // Versions strings. (e.g.
-      // 2.1.3)
-      String v2,
-      VersionSatisfiesResult vsres) {
-
+  static int compareVersions(String v1, String v2, VersionSatisfiesResult vsres) {
     int i;
     int max;
     int n1 = 0;
@@ -865,9 +827,7 @@ public final class PackageCmd implements Command {
     // Create an array that is as big as the number
     // of elements in the vector, copy over and return.
 
-    String[] ret = {(String) null};
-    ret = (String[]) words.toArray(ret);
-    return ret;
+    return (String[]) words.toArray(new String[0]);
   }
 
   // If compare versions is called with a third argument then one of
@@ -893,13 +853,13 @@ public final class PackageCmd implements Command {
   // the "packageTable" hash table in the interpreter, keyed by
   // package name such as "Tk" (no version number).
 
-  static class Package {
-    String version = null; // Version that has been supplied in this
-    // interpreter via "package provide"
-    // null means the package doesn't
-    // exist in this interpreter yet.
+  // Version that has been supplied in this
+  // interpreter via "package provide"
+  // null means the package doesn't
+  // exist in this interpreter yet.
 
-    PkgAvail avail = null; // First in list of all available package
-    // versions
-  }
+  // First in list of all available package
+  // versions
+
+  public record Package(String version, PkgAvail avail) {}
 } // end of class PackageCmd

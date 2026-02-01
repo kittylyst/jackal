@@ -17,10 +17,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
-import tcl.lang.TclPosixException;
-import tcl.lang.TclRuntimeError;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclPosixException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * Subclass of the abstract class Channel. It implements all of the methods to perform read, write,

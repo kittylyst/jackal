@@ -14,6 +14,11 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.CharPointer;
+import tcl.lang.model.TclObject;
+
 class ParseAdaptor {
 
   /*
@@ -83,10 +88,10 @@ class ParseAdaptor {
     }
 
     script = new CharPointer(string);
-    script.index = index;
+    script.setIndex(index);
 
     interp.evalFlags |= Parser.TCL_BRACKET_TERM;
-    Parser.eval2(interp, script.array, script.index, length - index, 0);
+    Parser.eval2(interp, script.getArray(), script.getIndex(), length - index, 0);
     obj = interp.getResult();
     obj.preserve();
     return (new ParseResult(obj, index + interp.termOffset + 1));
@@ -130,13 +135,13 @@ class ParseAdaptor {
     try {
 
       script = new CharPointer(string);
-      script.index = index;
+      script.setIndex(index);
 
-      parse = new TclParse(interp, script.array, length, null, 0);
+      parse = new TclParse(interp, script.getArray(), length, null, 0);
 
       if (debug) {
         System.out.println("string is \"" + string + "\"");
-        System.out.println("script.array is \"" + new String(script.array) + "\"");
+        System.out.println("script.array is \"" + new String(script.getArray()) + "\"");
 
         System.out.println("index is " + index);
         System.out.println("length is " + length);
@@ -144,38 +149,38 @@ class ParseAdaptor {
         System.out.println("parse.endIndex is " + parse.endIndex);
       }
 
-      parse.commandStart = script.index;
+      parse.commandStart = script.getIndex();
       token = parse.getToken(0);
       token.type = Parser.TCL_TOKEN_WORD;
-      token.script_array = script.array;
-      token.script_index = script.index;
+      token.script_array = script.getArray();
+      token.script_index = script.getIndex();
       parse.numTokens++;
       parse.numWords++;
-      parse = Parser.parseTokens(script.array, script.index, Parser.TYPE_QUOTE, parse);
+      parse = Parser.parseTokens(script.getArray(), script.getIndex(), Parser.TYPE_QUOTE, parse);
 
       // Check for the error condition where the parse did not end on
       // a '"' char. Is this happened raise an error.
 
-      if (script.array[parse.termIndex] != '"') {
+      if (script.getArray()[parse.termIndex] != '"') {
         throw new TclException(interp, "missing \"");
       }
 
       // if there was no error then parsing will continue after the
       // last char that was parsed from the string
 
-      script.index = parse.termIndex + 1;
+      script.setIndex(parse.termIndex + 1);
 
       // Finish filling in the token for the word and check for the
       // special case of a word consisting of a single range of
       // literal text.
 
       token = parse.getToken(0);
-      token.size = script.index - token.script_index;
+      token.size = script.getIndex() - token.script_index;
       token.numComponents = parse.numTokens - 1;
       if ((token.numComponents == 1) && (parse.getToken(1).type == Parser.TCL_TOKEN_TEXT)) {
         token.type = Parser.TCL_TOKEN_SIMPLE_WORD;
       }
-      parse.commandSize = script.index - parse.commandStart;
+      parse.commandSize = script.getIndex() - parse.commandStart;
       if (parse.numTokens > 0) {
         obj = Parser.evalTokens(interp, parse.tokenList, 1, parse.numTokens - 1);
       } else {
@@ -186,7 +191,7 @@ class ParseAdaptor {
       parse.release();
     }
 
-    return (new ParseResult(obj, script.index));
+    return (new ParseResult(obj, script.getIndex()));
   }
 
   /*

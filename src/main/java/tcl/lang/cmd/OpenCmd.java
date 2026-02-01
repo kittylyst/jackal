@@ -17,15 +17,15 @@ import java.io.IOException;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
-import tcl.lang.TclInteger;
-import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
 import tcl.lang.channel.FileChannel;
 import tcl.lang.channel.PipelineChannel;
 import tcl.lang.channel.ResourceChannel;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "open" command in Tcl. */
 public final class OpenCmd implements Command {

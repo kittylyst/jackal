@@ -18,6 +18,12 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclBoolean;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
+
 class ParseExpr {
 
   // Definitions of the different lexemes that appear in expressions. The

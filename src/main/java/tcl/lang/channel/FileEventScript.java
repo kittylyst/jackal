@@ -2,7 +2,7 @@ package tcl.lang.channel;
 
 import tcl.lang.AssocData;
 import tcl.lang.Interp;
-import tcl.lang.TclObject;
+import tcl.lang.model.TclObject;
 
 /**
  * AssocData structure that keeps the script for one fileevent command. The existence of a

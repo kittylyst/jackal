@@ -17,12 +17,12 @@ package tcl.lang.cmd;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.QSort;
-import tcl.lang.TclException;
-import tcl.lang.TclIndex;
-import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
 import tcl.lang.Util;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /*
  * This LsortCmd class implements the Command interface for specifying a new

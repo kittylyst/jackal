@@ -38,14 +38,14 @@ import tcl.lang.Command;
 import tcl.lang.CommandWithDispose;
 import tcl.lang.InternalRep;
 import tcl.lang.Interp;
-import tcl.lang.Namespace;
 import tcl.lang.Procedure;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.WrappedCommand;
+import tcl.lang.exception.TclException;
+import tcl.lang.model.Namespace;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 //  Data used to represent an ensemble:
 
@@ -59,45 +59,6 @@ class EnsembleParser implements AssocData {
   public void disposeAssocData(Interp interp) {
     Ensemble.DeleteEnsParser(this, this.master);
   }
-}
-
-// This class defines a Tcl object type that takes the
-// place of a part name during ensemble invocations. When an
-// error occurs and the caller tries to print objv[0], it will
-// get a string that contains a complete path to the ensemble
-// part.
-
-class ItclEnsInvoc implements InternalRep /* , CommandWithDispose */ {
-  EnsemblePart ensPart;
-  TclObject chainObj;
-
-  // Implement InternalRep interface
-  // Note: SetEnsInvocFromAny is not used
-
-  public InternalRep duplicate() {
-    return Ensemble.DupEnsInvocInternalRep(this);
-  }
-
-  public void dispose() {
-    Ensemble.FreeEnsInvocInternalRep(this);
-  }
-
-  public String toString() {
-    return Ensemble.UpdateStringOfEnsInvoc(this);
-  }
-
-  public static TclObject newInstance() {
-    return new TclObject(new ItclEnsInvoc());
-  }
-
-  /*
-   * // Implement CommandWithDispose interface
-   *
-   * public void cmdProc(Interp interp, TclObject argv[]) throws TclException
-   * {}
-   *
-   * public void disposeCmd() {}
-   */
 }
 
 // Data/Methods in Ensemble class
@@ -624,8 +585,8 @@ public class Ensemble {
             ensPart.usage(),
             ensPart.ensemble());
     FindEnsemblePartIndexResult partRes = FindEnsemblePartIndex(parentEnsData, ensName);
-    if (partRes.status) {
-      parentEnsData.parts[partRes.pos] = updatedPart;
+    if (partRes.status()) {
+      parentEnsData.parts[partRes.pos()] = updatedPart;
     }
     ensData.parent = updatedPart;
   }
@@ -671,8 +632,8 @@ public class Ensemble {
     // Install the passed in Command in the ensemble part.
 
     wcmd = new WrappedCommand();
-    wcmd.ns = ensData.wcmd.ns;
-    wcmd.cmd = objProc;
+    wcmd.setNs(ensData.wcmd.getNs());
+    wcmd.setCmd(objProc);
 
     EnsemblePart updatedPart =
         new EnsemblePart(
@@ -683,8 +644,8 @@ public class Ensemble {
             usageInfo != null ? usageInfo : ensPart.usage(),
             ensPart.ensemble());
     FindEnsemblePartIndexResult partRes = FindEnsemblePartIndex(ensData, partName);
-    if (partRes.status) {
-      ensData.parts[partRes.pos] = updatedPart;
+    if (partRes.status()) {
+      ensData.parts[partRes.pos()] = updatedPart;
     }
 
     return updatedPart;
@@ -752,10 +713,10 @@ public class Ensemble {
 
     wcmd = Namespace.findCommand(interp, nameArgv[0], null, TCL.LEAVE_ERR_MSG);
 
-    if (wcmd == null || !(wcmd.cmd instanceof HandleEnsemble)) {
+    if (wcmd == null || !(wcmd.getCmd() instanceof HandleEnsemble)) {
       throw new TclException(interp, "command \"" + nameArgv[0] + "\" is not an ensemble");
     }
-    ensData = ((HandleEnsemble) wcmd.cmd).ensData;
+    ensData = ((HandleEnsemble) wcmd.getCmd()).ensData;
 
     // Follow the trail of sub-ensemble names.
 
@@ -805,10 +766,10 @@ public class Ensemble {
 
     FindEnsemblePartIndexResult res = FindEnsemblePartIndex(ensData, partName);
 
-    if (res.status) {
+    if (res.status()) {
       throw new TclException(interp, "part \"" + partName + "\" already exists in ensemble");
     }
-    pos = res.pos;
+    pos = res.pos();
 
     // Otherwise, make room for a new entry. Keep the parts in
     // lexicographical order, so we can search them quickly
@@ -881,8 +842,8 @@ public class Ensemble {
 
     FindEnsemblePartIndexResult res = FindEnsemblePartIndex(ensPart.ensemble(), ensPart.name());
 
-    if (res.status) {
-      pos = res.pos;
+    if (res.status()) {
+      pos = res.pos();
       ensData = ensPart.ensemble();
       for (i = pos; i < ensData.numParts - 1; i++) {
         ensData.parts[i] = ensData.parts[i + 1];
@@ -1049,22 +1010,13 @@ public class Ensemble {
       }
     }
 
-    FindEnsemblePartIndexResult res = new FindEnsemblePartIndexResult();
-
     if (last >= first) {
-      res.status = true;
-      res.pos = pos;
-      return res;
+      return new FindEnsemblePartIndexResult(true, pos);
     }
-    res.status = false;
-    res.pos = first;
-    return res;
+    return new FindEnsemblePartIndexResult(false, first);
   }
 
-  static class FindEnsemblePartIndexResult {
-    boolean status;
-    int pos;
-  }
+  static record FindEnsemblePartIndexResult(boolean status, int pos) {}
 
   /*
    * ----------------------------------------------------------------------
@@ -1369,7 +1321,7 @@ public class Ensemble {
         if (wcmd == null) {
           cmd = null;
         } else {
-          cmd = wcmd.cmd;
+          cmd = wcmd.getCmd();
         }
 
         if (cmd == null || !(cmd instanceof HandleEnsemble)) {
@@ -1479,11 +1431,11 @@ public class Ensemble {
 
     ns = Namespace.getGlobalNamespace(ensInfo.parser);
 
-    while ((childNs = (Namespace) ItclAccess.FirstHashEntry(ns.childTable)) != null) {
+    while ((childNs = (Namespace) Namespace.FirstHashEntry(ns.childTable)) != null) {
       Namespace.deleteNamespace(childNs);
     }
 
-    while ((wcmd = (WrappedCommand) ItclAccess.FirstHashEntry(ns.cmdTable)) != null) {
+    while ((wcmd = (WrappedCommand) Namespace.FirstHashEntry(ns.getCmdTable())) != null) {
       ensInfo.parser.deleteCommandFromToken(wcmd);
     }
 
@@ -1587,7 +1539,8 @@ public class Ensemble {
       partName = objv[1].toString();
       wcmd = ensData.wcmd;
 
-      proc = ItclAccess.newProcedure(interp, wcmd.ns, partName, objv[2], objv[3], "unknown", 0);
+      proc =
+          ItclAccess.newProcedure(interp, wcmd.getNs(), partName, objv[2], objv[3], "unknown", 0);
 
       // Deduce the usage information from the argument list.
       // We'll register this when we create the part, in a moment.

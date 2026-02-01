@@ -17,6 +17,8 @@ package tcl.lang;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import tcl.lang.exception.TclInterruptedException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * Implements the Jacl version of the Notifier class. The Notifier is the lowest-level part of the
@@ -172,23 +174,23 @@ public class Notifier implements EventDeleter {
           "Notifier.queueEvent() with " + "no Interp() objects in the current thread");
     }
 
-    evt.notifier = this;
+    evt.setNotifier(this);
 
     if (position == TCL.QUEUE_TAIL) {
       // Append the event on the end of the queue.
 
-      evt.next = null;
+      evt.setNext(null);
 
       if (firstEvent == null) {
         firstEvent = evt;
       } else {
-        lastEvent.next = evt;
+        lastEvent.setNext(evt);
       }
       lastEvent = evt;
     } else if (position == TCL.QUEUE_HEAD) {
       // Push the event on the head of the queue.
 
-      evt.next = firstEvent;
+      evt.setNext(firstEvent);
       if (firstEvent == null) {
         lastEvent = evt;
       }
@@ -198,14 +200,14 @@ public class Notifier implements EventDeleter {
       // the marker to the new event.
 
       if (markerEvent == null) {
-        evt.next = firstEvent;
+        evt.setNext(firstEvent);
         firstEvent = evt;
       } else {
-        evt.next = markerEvent.next;
-        markerEvent.next = evt;
+        evt.setNext(markerEvent.getNext());
+        markerEvent.setNext(evt);
       }
       markerEvent = evt;
-      if (evt.next == null) {
+      if (evt.getNext() == null) {
         lastEvent = evt;
       }
     } else {
@@ -248,14 +250,14 @@ public class Notifier implements EventDeleter {
       this.servicedEvent = null;
     }
 
-    for (prev = null, evt = firstEvent; evt != null; evt = evt.next) {
+    for (prev = null, evt = firstEvent; evt != null; evt = evt.getNext()) {
       if (((servicedEvent == null) && (deleter.deleteEvent(evt) == 1)) || (evt == servicedEvent)) {
         if (evt == firstEvent) {
-          firstEvent = evt.next;
+          firstEvent = evt.getNext();
         } else {
-          prev.next = evt.next;
+          prev.setNext(evt.getNext());
         }
-        if (evt.next == null) {
+        if (evt.getNext() == null) {
           lastEvent = prev;
         }
         if (evt == markerEvent) {
@@ -334,14 +336,14 @@ public class Notifier implements EventDeleter {
       // can't depend on pointers found now still being valid when
       // the handler returns.
 
-      evt.isProcessing = true;
+      evt.setProcessing(true);
 
       if (evt.processEvent(flags) != 0) {
-        evt.isProcessed = true;
+        evt.setProcessed(true);
         // Don't allocate/grab the monitor for the event unless sync()
         // has been called in another thread. This is thread safe
         // since sync() checks the isProcessed flag before calling wait.
-        if (evt.needsNotify) {
+        if (evt.isNeedsNotify()) {
           synchronized (evt) {
             evt.notifyAll();
           }
@@ -355,7 +357,7 @@ public class Notifier implements EventDeleter {
         // restore the isProcessing field to allow the event to be
         // attempted again.
 
-        evt.isProcessing = false;
+        evt.setProcessing(false);
       }
 
       // The handler for this event asked to defer it. Just go on to
@@ -396,8 +398,8 @@ public class Notifier implements EventDeleter {
       {
     TclEvent evt;
 
-    for (evt = firstEvent; evt != null; evt = evt.next) {
-      if ((evt.isProcessing == false) && (evt.isProcessed == false) && (evt != skipEvent)) {
+    for (evt = firstEvent; evt != null; evt = evt.getNext()) {
+      if ((evt.isProcessing() == false) && (evt.isProcessed() == false) && (evt != skipEvent)) {
         return evt;
       }
     }

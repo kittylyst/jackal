@@ -17,14 +17,14 @@ import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.StrtoulResult;
 import tcl.lang.TCL;
-import tcl.lang.TclDouble;
-import tcl.lang.TclException;
-import tcl.lang.TclInteger;
-import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.Util;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclDouble;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /** This class implements the built-in "scan" command in Tcl. */
 public final class ScanCmd implements Command {
@@ -960,7 +960,7 @@ public final class ScanCmd implements Command {
       if (chars != null) sb.append(chars);
       if (ranges != null) {
         for (Range r : ranges) {
-          if (r != null) sb.append(r.start).append('-').append(r.end);
+          if (r != null) sb.append(r.start()).append('-').append(r.end());
         }
       }
       sb.append(']');
@@ -969,23 +969,12 @@ public final class ScanCmd implements Command {
   }
 
   /** Represents a range of characters, such as [a-z] */
-  private static class Range {
-    char start;
-    char end;
-
-    /**
-     * Create a new Range of characters
-     *
-     * @param a one character in range
-     * @param b other character in range
-     */
-    Range(char a, char b) {
-      if (a < b) {
-        start = a;
-        end = b;
-      } else {
-        start = b;
-        end = a;
+  private static record Range(char start, char end) {
+    Range {
+      if (start > end) {
+        char tmp = start;
+        start = end;
+        end = tmp;
       }
     }
 
@@ -995,8 +984,8 @@ public final class ScanCmd implements Command {
      * @param c character to test
      * @return true if character is inclusively within this Range
      */
-    final boolean isInRange(char c) {
-      return (c >= start && c <= end);
+    boolean isInRange(char c) {
+      return c >= start && c <= end;
     }
   }
 }

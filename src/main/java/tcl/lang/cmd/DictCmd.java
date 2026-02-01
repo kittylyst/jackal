@@ -13,22 +13,21 @@
 
 package tcl.lang.cmd;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclBoolean;
-import tcl.lang.TclDict;
-import tcl.lang.TclException;
-import tcl.lang.TclIndex;
-import tcl.lang.TclInteger;
-import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
 import tcl.lang.Util;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclBoolean;
+import tcl.lang.model.TclDict;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "dict" command in Tcl. */
 public final class DictCmd implements Command {
@@ -64,7 +63,7 @@ public final class DictCmd implements Command {
    * This procedure is invoked to process the "dict" Tcl command. See the user documentation for
    * details on what it does.
    *
-   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
+   * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, TclObject[])
    */
   public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
     if (objv.length < 2) {
@@ -227,14 +226,11 @@ public final class DictCmd implements Command {
           interp,
           null,
           srcDict,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              if (Util.stringMatch(key.toString(), glob)) {
-                TclDict.put(interp, retDict, key, val);
-              }
-              return null;
+          (i, accum, key, val) -> {
+            if (Util.stringMatch(key.toString(), glob)) {
+              TclDict.put(interp, retDict, key, val);
             }
+            return null;
           });
       interp.setResult(retDict);
     }
@@ -251,29 +247,26 @@ public final class DictCmd implements Command {
           interp,
           null,
           srcDict,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              interp.setVar(vars[0], key, 0);
-              interp.setVar(vars[1], val, 0);
+          (i, accum, key, val) -> {
+            interp.setVar(vars[0], key, 0);
+            interp.setVar(vars[1], val, 0);
 
-              try {
-                interp.eval(script, 0);
-              } catch (TclException e) {
-                if (e.getCompletionCode() == TCL.ERROR) {
-                  interp.addErrorInfo(
-                      "\n    (\"dict filter\" script line " + interp.errorLine + ")");
-                }
-                throw e;
+            try {
+              interp.eval(script, 0);
+            } catch (TclException e) {
+              if (e.getCompletionCode() == TCL.ERROR) {
+                interp.addErrorInfo(
+                    "\n    (\"dict filter\" script line " + interp.getErrorLine() + ")");
               }
-
-              // If the script evaluated to true then store this
-              // key/value pair in the result.
-              if (TclBoolean.get(interp, interp.getResult())) {
-                TclDict.put(interp, retDict, key, val);
-              }
-              return null;
+              throw e;
             }
+
+            // If the script evaluated to true then store this
+            // key/value pair in the result.
+            if (TclBoolean.get(interp, interp.getResult())) {
+              TclDict.put(interp, retDict, key, val);
+            }
+            return null;
           });
       interp.setResult(retDict);
     }
@@ -286,14 +279,11 @@ public final class DictCmd implements Command {
           interp,
           null,
           srcDict,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              if (Util.stringMatch(val.toString(), glob)) {
-                TclDict.put(interp, retDict, key, val);
-              }
-              return null;
+          (i, accum, key, val) -> {
+            if (Util.stringMatch(val.toString(), glob)) {
+              TclDict.put(interp, retDict, key, val);
             }
+            return null;
           });
       interp.setResult(retDict);
     }
@@ -327,23 +317,20 @@ public final class DictCmd implements Command {
           interp,
           null,
           dict,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              interp.setVar(vars[0], key, 0);
-              interp.setVar(vars[1], val, 0);
+          (i, accum, key, val) -> {
+            interp.setVar(vars[0], key, 0);
+            interp.setVar(vars[1], val, 0);
 
-              // Evaluate script
-              try {
-                interp.eval(script, 0);
-              } catch (TclException e) {
-                if (e.getCompletionCode() == TCL.ERROR) {
-                  interp.addErrorInfo("\n    (\"dict for\" body line " + interp.errorLine + ")");
-                }
-                throw e;
+            // Evaluate script
+            try {
+              interp.eval(script, 0);
+            } catch (TclException e) {
+              if (e.getCompletionCode() == TCL.ERROR) {
+                interp.addErrorInfo("\n    (\"dict for\" body line " + interp.getErrorLine() + ")");
               }
-              return null;
+              throw e;
             }
+            return null;
           });
     }
   }
@@ -454,20 +441,17 @@ public final class DictCmd implements Command {
           interp,
           null,
           objv[2],
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              buf.append(
-                  key.toString()
-                      + "("
-                      + key.getRefCount()
-                      + ") = "
-                      + val.toString()
-                      + "("
-                      + val.getRefCount()
-                      + ")\n");
-              return null;
-            }
+          (i, accum, key, val) -> {
+            buf.append(
+                key.toString()
+                    + "("
+                    + key.getRefCount()
+                    + ") = "
+                    + val.toString()
+                    + "("
+                    + val.getRefCount()
+                    + ")\n");
+            return null;
           });
       interp.setResult(buf.toString());
       // That's all we can get from Java's HashMap implementation
@@ -495,14 +479,11 @@ public final class DictCmd implements Command {
           interp,
           null,
           dict,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              if (glob == null || Util.stringMatch(key.toString(), glob)) {
-                TclList.append(interp, result, key);
-              }
-              return null;
+          (i, accum, key, val) -> {
+            if (glob == null || Util.stringMatch(key.toString(), glob)) {
+              TclList.append(interp, result, key);
             }
+            return null;
           });
       interp.setResult(result);
     }
@@ -574,12 +555,9 @@ public final class DictCmd implements Command {
             interp,
             null,
             objv[i],
-            new TclDict.Visitor() {
-              public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                  throws TclException {
-                TclDict.put(interp, retDict, key, val);
-                return null;
-              }
+            (ix, accum, key, val) -> {
+              TclDict.put(interp, retDict, key, val);
+              return null;
             });
       }
       interp.setResult(retDict);
@@ -820,14 +798,11 @@ public final class DictCmd implements Command {
           interp,
           null,
           dict,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              if (glob == null || Util.stringMatch(val.toString(), glob)) {
-                TclList.append(interp, result, val);
-              }
-              return null;
+          (i, accum, key, val) -> {
+            if (glob == null || Util.stringMatch(val.toString(), glob)) {
+              TclList.append(interp, result, val);
             }
+            return null;
           });
       interp.setResult(result);
     }
@@ -867,19 +842,16 @@ public final class DictCmd implements Command {
 
       dict.preserve();
 
-      final List keyList = new LinkedList();
+      final List<TclObject> keyList = new LinkedList<>();
       // Add each key as a new variable in the environment
       TclDict.foreach(
           interp,
           null,
           current,
-          new TclDict.Visitor() {
-            public Object visit(Interp interp, Object accum, TclObject key, TclObject val)
-                throws TclException {
-              interp.setVar(key, val, 0);
-              keyList.add(key);
-              return null;
-            }
+          (i, accum, key, val) -> {
+            interp.setVar(key, val, 0);
+            keyList.add(key);
+            return null;
           });
 
       // Evaluate the script
@@ -902,9 +874,7 @@ public final class DictCmd implements Command {
       final TclObject tmp = TclDict.newInstance();
       // Get new key values -- using keys that were in the
       // dictionary when we started.
-      Iterator keys = keyList.iterator();
-      while (keys.hasNext()) {
-        TclObject key = (TclObject) keys.next();
+      for (TclObject key : keyList) {
         TclObject val = null;
         try {
           val = interp.getVar(key, 0);

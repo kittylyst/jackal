@@ -14,9 +14,8 @@
 
 package tcl.lang;
 
-import tcl.lang.cmd.*;
-import tcl.pkg.java.*;
-import tcl.pkg.tjc.*;
+import tcl.lang.exception.TclException;
+import tcl.lang.model.TclObject;
 
 /**
  * The Command interface specifies the method that a new Tcl command must implement. See the
@@ -197,5 +196,5 @@ public sealed interface Command
    * @param objv the argument list for the command; objv[0[ is the command name itself
    * @throws TclException on any errors
    */
-  public abstract void cmdProc(Interp interp, TclObject[] objv) throws TclException;
+  void cmdProc(Interp interp, TclObject[] objv) throws TclException;
 }

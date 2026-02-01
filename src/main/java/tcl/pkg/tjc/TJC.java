@@ -18,17 +18,8 @@ import tcl.lang.Command;
 import tcl.lang.ExprValue;
 import tcl.lang.Expression;
 import tcl.lang.Interp;
-import tcl.lang.Namespace;
 import tcl.lang.Parser;
 import tcl.lang.TCL;
-import tcl.lang.TclDouble;
-import tcl.lang.TclException;
-import tcl.lang.TclInteger;
-import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
-import tcl.lang.TclString;
 import tcl.lang.Util;
 import tcl.lang.Var;
 import tcl.lang.WrappedCommand;
@@ -36,6 +27,15 @@ import tcl.lang.cmd.LappendCmd;
 import tcl.lang.cmd.LindexCmd;
 import tcl.lang.cmd.ProcCmd;
 import tcl.lang.cmd.SwitchCmd;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.Namespace;
+import tcl.lang.model.TclDouble;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 public class TJC {
 
@@ -78,8 +78,8 @@ public class TJC {
     // equal to a valid cmdEpoch for a command.
 
     INVALID_COMMAND_CACHE = new WrappedCommand();
-    INVALID_COMMAND_CACHE.deleted = true;
-    INVALID_COMMAND_CACHE.cmdEpoch = -1;
+    INVALID_COMMAND_CACHE.setDeleted(true);
+    INVALID_COMMAND_CACHE.setCmdEpoch(-1);
   }
 
   // Invoked to create and push a new CallFrame for local
@@ -217,7 +217,7 @@ public class TJC {
     // first invoked, it should not be a performance concern.
 
     protected void builtinCommandsCheck(Interp interp) throws TclException {
-      if (wcmd.ns.fullName.equals("::")) {
+      if (wcmd.getNs().fullName.equals("::")) {
         return; // loaded into global namespace
       }
       String[] containers = {
@@ -244,13 +244,13 @@ public class TJC {
       String cmdName;
       for (int i = 0; i < builtin.length; i++) {
         cmdName = builtin[i];
-        cmd = Namespace.findCommand(interp, cmdName, wcmd.ns, TCL.NAMESPACE_ONLY);
+        cmd = Namespace.findCommand(interp, cmdName, wcmd.getNs(), TCL.NAMESPACE_ONLY);
         if (cmd != null) {
           throw new TclException(
               interp,
               "TJC compiled command"
                   + " can't be loaded into the namespace "
-                  + wcmd.ns.fullName
+                  + wcmd.getNs().fullName
                   + " as it defines the builtin Tcl command \""
                   + cmdName
                   + "\" ("
@@ -682,9 +682,9 @@ public class TJC {
       throws TclException {
     ProcCmd.FindCommandNamespaceResult result = ProcCmd.FindCommandNamespace(interp, cmdName);
 
-    interp.createCommand(result.cmdFullName, cmd);
+    interp.createCommand(result.cmdFullName(), cmd);
 
-    cmd.wcmd = Namespace.findCommand(interp, result.cmdName, result.ns, TCL.NAMESPACE_ONLY);
+    cmd.wcmd = Namespace.findCommand(interp, result.cmdName(), result.ns(), TCL.NAMESPACE_ONLY);
   }
 
   // Used to load an init file from the package JAR file.
@@ -770,7 +770,7 @@ public class TJC {
         // as well as invocations that source a file not in "files".
         WrappedCommand cmd = interp.getWrappedCommand("TJC::source");
         if (cmd.mustCallInvoke(interp)) cmd.invoke(interp, objv);
-        else cmd.cmd.cmdProc(interp, objv);
+        else cmd.getCmd().cmdProc(interp, objv);
       }
     }
   }
@@ -923,12 +923,12 @@ public class TJC {
       String cmdName = objv[0].toString();
       wcmd = Namespace.findCommand(interp, cmdName, null, fflags);
       if (wcmd != null) {
-        cmd = wcmd.cmd;
+        cmd = wcmd.getCmd();
       }
       if (cmd == null) {
         wcmd = Namespace.findCommand(interp, "unknown", null, TCL.GLOBAL_ONLY);
         if (wcmd != null) {
-          cmd = wcmd.cmd;
+          cmd = wcmd.getCmd();
         }
         if (cmd == null) {
           throw new TclException(interp, "invalid command name \"" + cmdName + "\"");
@@ -1016,7 +1016,7 @@ public class TJC {
 
     ExprValue value;
     if (USE_EXPR_CACHE) {
-      value = interp.expr.grabExprValue();
+      value = interp.getExpr().grabExprValue();
     } else {
       value = new ExprValue(0, null);
     }
@@ -1026,7 +1026,7 @@ public class TJC {
     Expression.ExprParseString(interp, obj, value);
     boolean b = value.getBooleanValue(interp);
     if (USE_EXPR_CACHE) {
-      interp.expr.releaseExprValue(value);
+      interp.getExpr().releaseExprValue(value);
     }
     return b;
   }
@@ -1090,7 +1090,7 @@ public class TJC {
 
   public static void exprReleaseValue(Interp interp, ExprValue value) {
     if (USE_EXPR_CACHE) {
-      interp.expr.releaseExprValue(value);
+      interp.getExpr().releaseExprValue(value);
     }
   }
 
@@ -1101,7 +1101,7 @@ public class TJC {
 
   public static ExprValue exprGetValue(Interp interp, long ival, String srep) throws TclException {
     if (USE_EXPR_CACHE) {
-      ExprValue value = interp.expr.grabExprValue();
+      ExprValue value = interp.getExpr().grabExprValue();
       value.setIntValue(ival, srep);
       return value;
     } else {
@@ -1114,7 +1114,7 @@ public class TJC {
   public static ExprValue exprGetValue(Interp interp, double dval, String srep)
       throws TclException {
     if (USE_EXPR_CACHE) {
-      ExprValue value = interp.expr.grabExprValue();
+      ExprValue value = interp.getExpr().grabExprValue();
       value.setDoubleValue(dval, srep);
       return value;
     } else {
@@ -1126,7 +1126,7 @@ public class TJC {
 
   public static ExprValue exprGetValue(Interp interp, String srep) throws TclException {
     if (USE_EXPR_CACHE) {
-      ExprValue value = interp.expr.grabExprValue();
+      ExprValue value = interp.getExpr().grabExprValue();
       value.setStringValue(srep);
       return value;
     } else {
@@ -1140,7 +1140,7 @@ public class TJC {
 
   public static ExprValue exprGetValue(Interp interp, boolean bval) throws TclException {
     if (USE_EXPR_CACHE) {
-      ExprValue value = interp.expr.grabExprValue();
+      ExprValue value = interp.getExpr().grabExprValue();
       value.setIntValue(bval);
       return value;
     } else {
@@ -1152,7 +1152,7 @@ public class TJC {
 
   public static ExprValue exprGetValue(Interp interp, TclObject tobj) throws TclException {
     if (USE_EXPR_CACHE) {
-      ExprValue value = interp.expr.grabExprValue();
+      ExprValue value = interp.getExpr().grabExprValue();
       Expression.ExprParseObject(interp, tobj, value);
       return value;
     } else {
@@ -1173,7 +1173,7 @@ public class TJC {
 
   public static ExprValue exprGetValue(Interp interp) {
     if (USE_EXPR_CACHE) {
-      return interp.expr.grabExprValue();
+      return interp.getExpr().grabExprValue();
     } else {
       return new ExprValue(0, null);
     }
@@ -1236,7 +1236,7 @@ public class TJC {
       ExprValue[] values, // Array of arguments, can be null
       ExprValue result) // Location to store result
       throws TclException {
-    interp.expr.evalMathFunction(interp, funcName, values, false, result);
+    interp.getExpr().evalMathFunction(interp, funcName, values, false, result);
   }
 
   // Set the interp result to the given expr value. This

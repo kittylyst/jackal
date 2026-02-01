@@ -137,7 +137,7 @@ implementations at the script or Java code level.
 One implementation detail worth mentioning is how
 native Tcl values are passed to a Java method.
 Two special internal reps, <B>tcl.lang.CObject</B>
-and <B>tcl.lang.TclList</B>, are used to implement
+and <B>tcl.lang.model.TclList</B>, are used to implement
 this feature. The following Tcl command implemented
 in Java provides a simple example.
 
@@ -330,7 +330,7 @@ command above. What actually happens is that the <B>TclList.getLength()</B>
 call creates a new <B>Tcl_Obj</B> that would not be deallocated.
 This leak could happen because the <B>TclDouble.get()</B> call converts
 the passed in <B>TclObject</B> from a <B>tcl.lang.CObject</B> internal rep
-to a <B>tcl.lang.TclDouble</B> internal rep. When that happens, the
+to a <B>tcl.lang.model.TclDouble</B> internal rep. When that happens, the
 <B>Tcl_Obj</B> stored in the <B>tcl.lang.CObject</B> is discarded.
 When the object is converted back to a list type via the
 <B>TclList.getLength()</B> call, there is no existing <B>Tcl_Obj</B>

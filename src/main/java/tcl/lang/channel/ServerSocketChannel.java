@@ -17,11 +17,11 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
-import tcl.lang.TclObject;
-import tcl.lang.TclPosixException;
-import tcl.lang.TclString;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclPosixException;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /**
  * The ServerSocketChannel class implements a channel object for ServerSocket connections, created

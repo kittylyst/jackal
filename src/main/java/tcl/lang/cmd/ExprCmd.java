@@ -16,9 +16,9 @@ package tcl.lang.cmd;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "expr" command in Tcl. */
 public final class ExprCmd implements Command {
@@ -33,7 +33,7 @@ public final class ExprCmd implements Command {
     }
 
     if (argv.length == 2) {
-      interp.expr.evalSetResult(interp, argv[1].toString());
+      interp.getExpr().evalSetResult(interp, argv[1].toString());
     } else {
       StringBuffer sbuf = new StringBuffer();
       sbuf.append(argv[1].toString());
@@ -41,7 +41,7 @@ public final class ExprCmd implements Command {
         sbuf.append(' ');
         sbuf.append(argv[i].toString());
       }
-      interp.expr.evalSetResult(interp, sbuf.toString());
+      interp.getExpr().evalSetResult(interp, sbuf.toString());
     }
   }
 }

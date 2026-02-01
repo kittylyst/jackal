@@ -14,11 +14,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tcl.lang.exception.TclException;
+import tcl.tools.NonInteractiveShell;
 
 public class TclCmdTest {
 
   public static final String EXEC_NAME = "jtcltest.bat";
-  public static final Class SHELL_CLASS = tcl.lang.NonInteractiveShell.class;
+  public static final Class SHELL_CLASS = NonInteractiveShell.class;
   public static final String SHELL = SHELL_CLASS.getName();
   public static final String TCLTEST_VERBOSE =
       "tcltest::configure -verbose {start pass body error skip}";

@@ -17,8 +17,8 @@ package tcl.lang.cmd;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.model.TclObject;
 
 // This class implements the built-in "if" command in Tcl.
 
@@ -43,7 +43,7 @@ public final class IfCmd implements Command {
             interp, "wrong # args: no expression after \"" + objv[i - 1] + "\" argument");
       }
       try {
-        if (!executedBody) value = interp.expr.evalBoolean(interp, objv[i].toString());
+        if (!executedBody) value = interp.getExpr().evalBoolean(interp, objv[i].toString());
       } catch (TclException e) {
         switch (e.getCompletionCode()) {
           case TCL.ERROR:

@@ -8,6 +8,8 @@ module jackal {
   requires java.scripting; // javax.script (JSR 223)
 
   exports tcl.lang;
+  exports tcl.lang.exception;
+  exports tcl.lang.regex;
   exports tcl.lang.channel;
   exports tcl.lang.cmd;
   exports tcl.lang.process;
@@ -17,4 +19,6 @@ module jackal {
   exports tcl.pkg.java;
   exports tcl.pkg.java.reflect;
   exports tcl.pkg.itcl;
+  exports tcl.lang.model;
+  exports tcl.tools;
 }

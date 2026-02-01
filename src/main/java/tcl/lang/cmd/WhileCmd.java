@@ -17,9 +17,9 @@ package tcl.lang.cmd;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "while" command in Tcl. */
 public final class WhileCmd implements Command {
@@ -43,7 +43,7 @@ public final class WhileCmd implements Command {
       while (true) {
         boolean exprTest;
         try {
-          exprTest = interp.expr.evalBoolean(interp, test);
+          exprTest = interp.getExpr().evalBoolean(interp, test);
           if (!exprTest) break loop;
         } catch (TclException e1) {
           if (e1.getCompletionCode() == TCL.ERROR) {

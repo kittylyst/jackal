@@ -32,24 +32,23 @@
 package tcl.pkg.itcl;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import tcl.lang.CallFrame;
 import tcl.lang.Command;
 import tcl.lang.CommandWithDispose;
 import tcl.lang.Interp;
-import tcl.lang.Namespace;
 import tcl.lang.Resolver;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclInteger;
-import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
-import tcl.lang.TclString;
 import tcl.lang.Var;
 import tcl.lang.WrappedCommand;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.Namespace;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 public class Cmds {
 
@@ -119,7 +118,7 @@ public class Cmds {
     info.objects = new HashMap();
     info.transparentFrames = new Itcl_Stack();
     Util.InitStack(info.transparentFrames);
-    info.contextFrames = new HashMap();
+    info.contextFrames = new HashMap<>();
     info.protection = Itcl.DEFAULT_PROTECT;
     info.cdefnStack = new Itcl_Stack();
     Util.InitStack(info.cdefnStack);
@@ -300,7 +299,7 @@ public class Cmds {
     // commands. Use FirstHashEntry to always reset the
     // search after deleteCommandFromToken() (Fix 227804).
 
-    while ((contextObj = (ItclObject) ItclAccess.FirstHashEntry(info.objects)) != null) {
+    while ((contextObj = (ItclObject) Namespace.FirstHashEntry(info.objects)) != null) {
       info.interp.deleteCommandFromToken(contextObj.w_accessCmd);
     }
     info.objects.clear();
@@ -308,9 +307,8 @@ public class Cmds {
 
     // Discard all known object contexts.
 
-    for (Iterator iter = info.contextFrames.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
-      contextObj = (ItclObject) entry.getValue();
+    for (Map.Entry<tcl.lang.CallFrame, ItclObject> entry : info.contextFrames.entrySet()) {
+      contextObj = entry.getValue();
       Util.ReleaseData(contextObj);
     }
     info.contextFrames.clear();
@@ -394,8 +392,8 @@ public class Cmds {
           continue;
         }
 
-        for (Iterator iter = ns.cmdTable.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
+        for (Object o : ns.getCmdTable().entrySet()) {
+          Map.Entry entry = (Map.Entry) o;
           String key = (String) entry.getKey();
           cmd = (WrappedCommand) entry.getValue();
 
@@ -437,8 +435,8 @@ public class Cmds {
         // Push any child namespaces onto the stack and continue
         // the search in those namespaces.
 
-        for (Iterator iter = ns.childTable.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
+        for (Object o : ns.childTable.entrySet()) {
+          Map.Entry entry = (Map.Entry) o;
           String key = (String) entry.getKey();
           Namespace child = (Namespace) entry.getValue();
           Util.PushStack(child, search);
@@ -563,8 +561,8 @@ public class Cmds {
           continue;
         }
 
-        for (Iterator iter = ns.cmdTable.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
+        for (Object o : ns.getCmdTable().entrySet()) {
+          Map.Entry entry = (Map.Entry) o;
           String key = (String) entry.getKey();
           wcmd = (WrappedCommand) entry.getValue();
 
@@ -620,8 +618,8 @@ public class Cmds {
         // Push any child namespaces onto the stack and continue
         // the search in those namespaces.
 
-        for (Iterator iter = ns.childTable.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
+        for (Object o : ns.childTable.entrySet()) {
+          Map.Entry entry = (Map.Entry) o;
           // String key = (String) entry.getKey();
           Namespace child = (Namespace) entry.getValue();
 
@@ -889,7 +887,7 @@ public class Cmds {
         frame = Migrate.GetCallFrame(interp, 0);
         info = contextClass.info;
 
-        contextObj = (ItclObject) info.contextFrames.get(frame);
+        contextObj = info.contextFrames.get(frame);
         if (contextObj == null) {
           throw new TclException(
               interp, "can't scope variable \"" + token + "\": missing object context\"");
@@ -1078,7 +1076,7 @@ public class Cmds {
       interp.createCommand(cmdName, new HandleStubCmd());
 
       wcmd = Namespace.findCommand(interp, cmdName, null, TCL.NAMESPACE_ONLY);
-      ((HandleStubCmd) wcmd.cmd).wcmd = wcmd;
+      ((HandleStubCmd) wcmd.getCmd()).wcmd = wcmd;
     }
   } // end class StubCreateCmd
 
@@ -1135,7 +1133,7 @@ public class Cmds {
     // is a stub. If we really want the original command, we'll
     // find it at a higher level.
 
-    if (wcmd.cmd instanceof HandleStubCmd) {
+    if (wcmd.getCmd() instanceof HandleStubCmd) {
       return true;
     }
     return false;

@@ -17,9 +17,9 @@ package tcl.lang.cmd;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "for" command in Tcl. */
 public final class ForCmd implements Command {
@@ -53,7 +53,7 @@ public final class ForCmd implements Command {
     }
 
     while (!done) {
-      if (!interp.expr.evalBoolean(interp, test)) {
+      if (!interp.getExpr().evalBoolean(interp, test)) {
         break;
       }
 

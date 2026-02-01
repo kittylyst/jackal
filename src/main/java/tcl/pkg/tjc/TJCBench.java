@@ -23,15 +23,15 @@ package tcl.pkg.tjc;
 import tcl.lang.ExprValue;
 import tcl.lang.Expression;
 import tcl.lang.Interp;
-import tcl.lang.TclBoolean;
-import tcl.lang.TclDouble;
-import tcl.lang.TclException;
-import tcl.lang.TclInteger;
-import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
-import tcl.lang.TclString;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclBoolean;
+import tcl.lang.model.TclDouble;
+import tcl.lang.model.TclInteger;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 public class TJCBench extends TJC.CompiledCommand {
 

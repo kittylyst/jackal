@@ -17,12 +17,11 @@ package tcl.lang.cmd;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
 import tcl.lang.Var;
-import tcl.lang.VarTrace;
 import tcl.lang.channel.FileEvent;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclObject;
 
 /*
  * This class implements the built-in "vwait" command in Tcl.
@@ -94,38 +93,3 @@ public final class VwaitCmd implements Command {
 /*
  * This class handle variable traces for the "vwait" command.
  */
-
-class VwaitTrace implements VarTrace {
-
-  /*
-   * TraceCmd.cmdProc continuously watches this variable across calls to
-   * doOneEvent(). It returns immediately when done is set to true.
-   */
-
-  boolean done = false;
-
-  /*
-   * ----------------------------------------------------------------------
-   *
-   * traceProc --
-   *
-   * This function gets called when the variable that "vwait" is currently
-   * watching is written to.
-   *
-   * Results: None.
-   *
-   * Side effects: The done variable is set to true, so that "vwait" will
-   * break the waiting loop.
-   *
-   * ----------------------------------------------------------------------
-   */
-
-  public void traceProc(
-      Interp interp, // The current interpreter.
-      String part1, // A Tcl variable or array name.
-      String part2, // Array element name or NULL.
-      int flags) // Mode flags: Should only be TCL.TRACE_WRITES.
-      {
-    done = true;
-  }
-} // end VwaitTrace

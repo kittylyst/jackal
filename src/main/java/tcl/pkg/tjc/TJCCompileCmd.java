@@ -14,18 +14,18 @@ package tcl.pkg.tjc;
 import java.util.ArrayList;
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.PackageNameException;
 import tcl.lang.Procedure;
 import tcl.lang.TCL;
 import tcl.lang.TclClassLoader;
 import tcl.lang.TclEvent;
-import tcl.lang.TclException;
-import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
-import tcl.lang.TclString;
 import tcl.lang.cmd.NamespaceCmd;
+import tcl.lang.exception.PackageNameException;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 public final class TJCCompileCmd implements Command {
 
@@ -185,7 +185,7 @@ public final class TJCCompileCmd implements Command {
       pname.append(cmd);
     } else {
       // make it fully qualified
-      String nsName = proc.wcmd.ns.fullName;
+      String nsName = proc.wcmd.getNs().fullName;
 
       if (nsName.equals("::")) {
         pname.append(nsName);
@@ -202,7 +202,7 @@ public final class TJCCompileCmd implements Command {
       String cns = interp.getResult().toString();
       System.out.println("current namespace is \"" + cns + "\"");
       System.out.println("looked up proc \"" + cmd + "\"");
-      System.out.println("found proc in namespace \"" + proc.wcmd.ns.fullName + "\"");
+      System.out.println("found proc in namespace \"" + proc.wcmd.getNs().fullName + "\"");
       System.out.println("fully qualified name is \"" + pname.toString());
     }
 

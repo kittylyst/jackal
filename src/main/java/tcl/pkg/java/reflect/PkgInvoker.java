@@ -64,7 +64,7 @@ public class PkgInvoker {
   // FIXME: There is a problem here when mutliple interps could be making
   // use of the same cachedInvokers table. If a name conflict were
   // encountered, incorrect result would be the result.
-  static Hashtable cachedInvokers = new Hashtable();
+  static Hashtable<String, PkgInvoker> cachedInvokers = new Hashtable<>();
 
   // This is the default invoker to use if a package doesn't include a
   // proper TclPkgInvoker class. This means only the public members
@@ -204,7 +204,7 @@ public class PkgInvoker {
       pkg = clsName.substring(0, index);
     }
 
-    PkgInvoker invoker = (PkgInvoker) cachedInvokers.get(pkg);
+    PkgInvoker invoker = cachedInvokers.get(pkg);
     if (invoker == null) {
       // Use the class loader that loaded the class
       // in question. The Class.getClassLoader()

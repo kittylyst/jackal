@@ -2,7 +2,6 @@ package tcl.lang;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -10,6 +9,11 @@ import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+import tcl.lang.exception.PackageNameException;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /**
  * TclClassLoader.java --
@@ -42,7 +46,7 @@ public class TclClassLoader extends ClassLoader {
    * Different interpreters require different caches since the same class name could be loaded from
    * two different locations in different interps.
    */
-  private HashMap class_cache = new HashMap();
+  private HashMap<String, Class<?>> class_cache = new HashMap<>();
 
   /**
    * Each instance can have a list of additional paths to search. This needs to be stored on a per
@@ -256,14 +260,14 @@ public class TclClassLoader extends ClassLoader {
    */
   protected Class loadClass(String className, boolean resolveIt)
       throws ClassNotFoundException, PackageNameException, SecurityException {
-    Class result; // The Class that is loaded.
+    Class<?> result; // The Class that is loaded.
     byte[] classData = null; // The bytes that compose the class file.
 
     final boolean printStack = false;
 
     // Check our local cache of classes
 
-    result = (Class) class_cache.get(className);
+    result = class_cache.get(className);
     if (result != null) {
       return result;
     }
@@ -660,8 +664,6 @@ public class TclClassLoader extends ClassLoader {
 
     byte[] result = null; // The bytes that compose the class file.
     String[] jarFiles; // The list of files in the curDir.
-    JarFilenameFilter jarFilter; // Filter the jarFiles list by only
-    // accepting ".jar" or ".zip"
 
     File file = new File(curDir);
 
@@ -669,8 +671,7 @@ public class TclClassLoader extends ClassLoader {
       return null;
     }
 
-    jarFilter = new JarFilenameFilter();
-    jarFiles = file.list(jarFilter);
+    jarFiles = file.list((dir, name) -> name.endsWith(".jar") || name.endsWith(".zip"));
 
     if (jarFiles == null) {
       return null;
@@ -903,11 +904,9 @@ public class TclClassLoader extends ClassLoader {
   private URL getURLFromJar(String curDir, String resName) throws IOException {
     URL result = null;
     String[] jarFiles; // The list of files in the curDir.
-    JarFilenameFilter jarFilter; // Filter the jarFiles list by only
-    // accepting ".jar" or ".zip"
 
-    jarFilter = new JarFilenameFilter();
-    jarFiles = (new File(curDir)).list(jarFilter);
+    jarFiles =
+        (new File(curDir)).list((dir, name) -> name.endsWith(".jar") || name.endsWith(".zip"));
 
     for (int i = 0; i < jarFiles.length; i++) {
       result = extractURLFromJar(curDir + File.separatorChar + jarFiles[i], resName);
@@ -948,31 +947,6 @@ public class TclClassLoader extends ClassLoader {
         }
       }
       return null;
-    }
-  }
-}
-
-/**
- * A class that helps filter directory listings when for jar/zip files during the class resolution
- * stage.
- */
-class JarFilenameFilter implements FilenameFilter {
-
-  /**
-   * Used by the getClassFromJar method. When list returns a list of files in a directory, the list
-   * will only be of jar or zip files.
-   *
-   * <p>Results: True if the file ends with .jar or .zip
-   *
-   * <p>Side effects: None.
-   *
-   * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
-   */
-  public boolean accept(File dir, String name) {
-    if (name.endsWith(".jar") || name.endsWith(".zip")) {
-      return (true);
-    } else {
-      return (false);
     }
   }
 }

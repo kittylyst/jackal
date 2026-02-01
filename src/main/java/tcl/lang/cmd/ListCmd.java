@@ -16,9 +16,9 @@ package tcl.lang.cmd;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "list" command in Tcl. */
 public final class ListCmd implements Command {

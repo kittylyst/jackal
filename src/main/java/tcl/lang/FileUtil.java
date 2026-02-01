@@ -21,6 +21,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /*
  * This class implements utility methods for file-related operations.

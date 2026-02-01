@@ -22,9 +22,9 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "java::bind" command in Tcl. */
 public final class JavaBindCmd implements Command {
@@ -44,7 +44,7 @@ public final class JavaBindCmd implements Command {
   // This cache allows us to always use the same BeanInfo instance for each
   // Java class.
 
-  private Hashtable beanInfoCache = new Hashtable();
+  private Hashtable<Class<?>, BeanInfo> beanInfoCache = new Hashtable<>();
 
   /*
    * ----------------------------------------------------------------------
@@ -156,7 +156,7 @@ public final class JavaBindCmd implements Command {
       BeanInfo beanInfo;
 
       try {
-        beanInfo = (BeanInfo) beanInfoCache.get(cls);
+        beanInfo = beanInfoCache.get(cls);
         if (beanInfo == null) {
           // System.out.println("Introspecting " + cls);
           beanInfo = Introspector.getBeanInfo(cls);

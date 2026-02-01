@@ -5,11 +5,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import tcl.lang.Interp;
 import tcl.lang.Pipeline;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
+import tcl.lang.exception.TclException;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 import tcl.lang.process.Redirect;
 
 /** This class provides a Channel view of a Pipeline object */

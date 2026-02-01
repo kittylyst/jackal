@@ -12,6 +12,11 @@
 package tcl.lang;
 
 import java.util.Arrays;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.CharPointer;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /**
  * This class contains methods that parse Tcl scripts. They do so in a general-purpose fashion that
@@ -358,8 +363,8 @@ public class Parser {
 
         numChars = endIndex - script_index;
         pwsr = ParseWhiteSpace(script_array, script_index, numChars, parse);
-        scanned = pwsr.numScanned;
-        type = pwsr.type;
+        scanned = pwsr.numScanned();
+        type = pwsr.type();
 
         if (scanned > 0) {
           script_index += scanned;
@@ -443,11 +448,11 @@ public class Parser {
     int parseError = Parser.TCL_PARSE_SUCCESS;
 
     do {
-      parse = parseCommand(null, src.array, src.index, len, null, 0, nested);
+      parse = parseCommand(null, src.getArray(), src.getIndex(), len, null, 0, nested);
       parseError = parse.errorType;
-      src.index = parse.commandStart + parse.commandSize;
+      src.setIndex(parse.commandStart + parse.commandSize);
       parse.release(); // Release parser resources
-      if (src.index >= len) {
+      if (src.getIndex() >= len) {
         break;
       }
     } while (parseError == Parser.TCL_PARSE_SUCCESS);
@@ -815,7 +820,7 @@ public class Parser {
       }
 
       if (cmd.mustCallInvoke(interp)) cmd.invoke(interp, objv);
-      else cmd.cmd.cmdProc(interp, objv);
+      else cmd.getCmd().cmdProc(interp, objv);
 
       // (TODO)
       //
@@ -1519,7 +1524,7 @@ public class Parser {
     }
 
     CharPointer src = new CharPointer(string);
-    parse = parseVarName(interp, src.array, src.index, -1, null, false);
+    parse = parseVarName(interp, src.getArray(), src.getIndex(), -1, null, false);
     if (parse.result != TCL.OK) {
       throw new TclException(interp, interp.getResult().toString());
     }
@@ -1572,13 +1577,13 @@ public class Parser {
     CharPointer src = new CharPointer(string);
 
     do {
-      parse = parseCommand(null, src.array, src.index, charLength, null, 0, false);
+      parse = parseCommand(null, src.getArray(), src.getIndex(), charLength, null, 0, false);
 
-      src.index = parse.commandStart + parse.commandSize;
+      src.setIndex(parse.commandStart + parse.commandSize);
 
       parse.release(); // Release parser resources
 
-      if (src.index >= charLength) {
+      if (src.getIndex() >= charLength) {
         break;
       }
     } while (parse.result == TCL.OK);
@@ -1681,31 +1686,31 @@ public class Parser {
         {
           script_index++;
           ParseHexResult pr = ParseHex(script_array, script_index, numChars - 1);
-          count += pr.numScanned;
+          count += pr.numScanned();
 
           if (count == 2) {
             // No hexadigits -> This is just "x".
             c = 'x';
           } else {
             // Keep only the last byte (2 hex digits)
-            c = (char) (pr.result & 0xff);
+            c = (char) (pr.result() & 0xff);
           }
-          return new BackSlashResult(c, script_index + pr.numScanned, count);
+          return new BackSlashResult(c, script_index + pr.numScanned(), count);
         }
       case 'u':
         {
           script_index++;
           ParseHexResult pr =
               ParseHex(script_array, script_index, (numChars > 5) ? 4 : numChars - 1);
-          count += pr.numScanned;
+          count += pr.numScanned();
 
           if (count == 2) {
             // No hexadigits -> This is just "u".
             c = 'u';
           } else {
-            c = (char) pr.result;
+            c = (char) pr.result();
           }
-          return new BackSlashResult(c, script_index + pr.numScanned, count);
+          return new BackSlashResult(c, script_index + pr.numScanned(), count);
         }
       case '\r':
       case '\n':
@@ -2085,10 +2090,7 @@ public class Parser {
   // result an interp member so that an allocation is not needed
   // for each parse operation.
 
-  static class ParseWhitespaceResult {
-    int numScanned;
-    int type;
-  }
+  static record ParseWhitespaceResult(int numScanned, int type) {}
 
   static ParseWhitespaceResult ParseWhiteSpace(
       char[] script_array, // Array
@@ -2136,10 +2138,7 @@ public class Parser {
       }
       break;
     }
-    ParseWhitespaceResult pwsr = new ParseWhitespaceResult();
-    pwsr.type = type;
-    pwsr.numScanned = (p - script_index);
-    return pwsr;
+    return new ParseWhitespaceResult(p - script_index, type);
   }
 
   /*
@@ -2162,10 +2161,7 @@ public class Parser {
    * ----------------------------------------------------------------------
    */
 
-  static class ParseHexResult {
-    int result;
-    int numScanned;
-  }
+  static record ParseHexResult(int result, int numScanned) {}
 
   static ParseHexResult ParseHex(
       char[] script_array, // Array of characters
@@ -2200,10 +2196,7 @@ public class Parser {
       }
     }
 
-    ParseHexResult pr = new ParseHexResult();
-    pr.result = result;
-    pr.numScanned = p - script_index;
-    return pr;
+    return new ParseHexResult(result, p - script_index);
   }
 
   /*
@@ -2540,15 +2533,15 @@ public class Parser {
   // Tcl_EvalDirect. Used primarily for testing the
   // new parser.
 
-  static final int DELETED = 1;
-  static final int ERR_IN_PROGRESS = 2;
-  static final int ERR_ALREADY_LOGGED = 4;
-  static final int ERROR_CODE_SET = 8;
-  static final int EXPR_INITIALIZED = 0x10;
-  static final int DONT_COMPILE_CMDS_INLINE = 0x20;
-  static final int RAND_SEED_INITIALIZED = 0x40;
-  static final int SAFE_INTERP = 0x80;
-  static final int USE_EVAL_DIRECT = 0x100;
+  public static int DELETED = 1;
+  public static int ERR_IN_PROGRESS = 2;
+  public static int ERR_ALREADY_LOGGED = 4;
+  public static int ERROR_CODE_SET = 8;
+  public static int EXPR_INITIALIZED = 0x10;
+  public static int DONT_COMPILE_CMDS_INLINE = 0x20;
+  public static final int RAND_SEED_INITIALIZED = 0x40;
+  public static final int SAFE_INTERP = 0x80;
+  public static final int USE_EVAL_DIRECT = 0x100;
 
   // These are private read only values that are used by the parser
   // class to implement a TclObject[] cache

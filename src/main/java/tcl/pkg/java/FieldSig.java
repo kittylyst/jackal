@@ -20,13 +20,13 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import tcl.lang.InternalRep;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 /** This class implements the internal representation of a Java field signature. */
-class FieldSig implements InternalRep {
+public final class FieldSig implements InternalRep {
 
   // The class that the field signature is used against. If the
   // java::field command is given a class name, then the targetCls is

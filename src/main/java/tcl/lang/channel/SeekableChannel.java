@@ -2,10 +2,10 @@ package tcl.lang.channel;
 
 import java.io.IOException;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
 import tcl.lang.TclIO;
-import tcl.lang.TclPosixException;
-import tcl.lang.TclRuntimeError;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclPosixException;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * Subclass of Channel that supports seeking

@@ -5,8 +5,8 @@ import tcl.lang.Interp;
 import tcl.lang.Notifier;
 import tcl.lang.TCL;
 import tcl.lang.TclEvent;
-import tcl.lang.TclException;
 import tcl.lang.TimerHandler;
+import tcl.lang.exception.TclException;
 
 /**
  * This class is the handles the transient event that executes a 'fileevent' script exactly once. It

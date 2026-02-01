@@ -35,14 +35,14 @@ import java.util.Hashtable;
 import java.util.Stack;
 import tcl.lang.CallFrame;
 import tcl.lang.Interp;
-import tcl.lang.Namespace;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
-import tcl.lang.TclString;
 import tcl.lang.WrappedCommand;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.Namespace;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 //  These records are used to keep track of reference-counted data
 //  for Itcl_PreserveData and Itcl_ReleaseData.
@@ -77,7 +77,7 @@ class Util {
   static Itcl_ListElem listPool = null;
   static int listPoolLen = 0;
 
-  static Hashtable ItclPreservedList = new Hashtable();
+  static Hashtable<ItclEventuallyFreed, ItclPreservedData> ItclPreservedList = new Hashtable<>();
   // Mutex ItclPreservedListLock
 
   static int VALID_LIST = 0x01face10; // magic bit pattern for validation
@@ -625,7 +625,7 @@ class Util {
 
       // Find the data in the global list and bump its usage count.
 
-      chunk = (ItclPreservedData) ItclPreservedList.get(fobj);
+      chunk = ItclPreservedList.get(fobj);
       if (chunk == null) {
         chunk = new ItclPreservedData();
         chunk.fobj = fobj;
@@ -671,7 +671,7 @@ class Util {
     // decrement its usage count.
 
     synchronized (ItclPreservedList) {
-      chunk = (ItclPreservedData) ItclPreservedList.get(fobj);
+      chunk = ItclPreservedList.get(fobj);
 
       Assert(chunk != null, "chunk != null");
 
@@ -1131,15 +1131,7 @@ class Util {
     return new ParseNamespPathResult(head, tail);
   }
 
-  static class ParseNamespPathResult {
-    String head;
-    String tail;
-
-    ParseNamespPathResult(String head, String tail) {
-      this.head = head;
-      this.tail = tail;
-    }
-  }
+  static record ParseNamespPathResult(String head, String tail) {}
 
   /*
    * ------------------------------------------------------------------------
@@ -1271,7 +1263,7 @@ class Util {
 
     interp.resetResult();
     if (wcmd.mustCallInvoke(interp)) wcmd.invoke(interp, cmdlinev);
-    else wcmd.cmd.cmdProc(interp, cmdlinev);
+    else wcmd.getCmd().cmdProc(interp, cmdlinev);
   }
 
   /*

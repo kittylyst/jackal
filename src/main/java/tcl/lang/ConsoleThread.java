@@ -4,9 +4,13 @@ import java.io.IOException;
 import tcl.lang.channel.Channel;
 import tcl.lang.channel.FileEvent;
 import tcl.lang.channel.StdChannel;
+import tcl.lang.exception.TclException;
+import tcl.lang.model.TclBoolean;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /**
- * This class implements the Console Thread: it is started by tcl.lang.Shell if the user gives no
+ * This class implements the Console Thread: it is started by tcl.tools.Shell if the user gives no
  * initial script to evaluate, or when the -console option is specified. The console thread loops
  * forever, reading from the standard input, executing the user input and writing the result to the
  * standard output.
@@ -14,10 +18,10 @@ import tcl.lang.channel.StdChannel;
 public class ConsoleThread extends Thread {
 
   /** Interpreter associated with this console thread. */
-  Interp interp;
+  private Interp interp;
 
   /** Collect the user input in this buffer until it forms a complete Tcl command */
-  StringBuffer sbuf;
+  private StringBuffer sbuf;
 
   /** Used to for interactive output */
   private Channel out;

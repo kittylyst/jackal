@@ -16,8 +16,12 @@ package tcl.lang;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.Namespace;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
 
 /**
  * This class implements a frame in the call stack.
@@ -62,7 +66,7 @@ public class CallFrame {
   public int level;
 
   /** Stores the variables of this CallFrame. */
-  public HashMap varTable;
+  public HashMap<String, Var> varTable;
 
   /**
    * Array of local variables in a compiled proc frame. These include locals set in the proc,
@@ -129,7 +133,7 @@ public class CallFrame {
    * @exception TclException if wrong number of arguments.
    */
   void chain(Procedure proc, TclObject[] objv) throws TclException {
-    this.ns = proc.wcmd.ns;
+    this.ns = proc.wcmd.getNs();
     this.objv = objv;
     // FIXME : quick level hack : fix later
     level = (interp.varFrame == null) ? 1 : (interp.varFrame.level + 1);
@@ -235,9 +239,8 @@ public class CallFrame {
       return alist;
     }
 
-    for (Iterator iter = varTable.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
-      Var v = (Var) entry.getValue();
+    for (Map.Entry<String, Var> entry : varTable.entrySet()) {
+      Var v = entry.getValue();
       if (!v.isVarUndefined()) {
         alist.add(v.hashKey);
       }
@@ -256,9 +259,8 @@ public class CallFrame {
       return alist;
     }
 
-    for (Iterator iter = varTable.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
-      Var v = (Var) entry.getValue();
+    for (Map.Entry<String, Var> entry : varTable.entrySet()) {
+      Var v = entry.getValue();
       if (!v.isVarUndefined() && !v.isVarLink()) {
         alist.add(v.hashKey);
       }

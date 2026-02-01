@@ -20,23 +20,22 @@
 
 package tcl.lang.cmd;
 
-import java.util.Iterator;
 import java.util.Map;
 import tcl.lang.CallFrame;
 import tcl.lang.Command;
 import tcl.lang.InternalRep;
 import tcl.lang.Interp;
-import tcl.lang.Namespace;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclIndex;
-import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
-import tcl.lang.TclString;
 import tcl.lang.Util;
 import tcl.lang.Var;
 import tcl.lang.WrappedCommand;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.Namespace;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 /**
  * This class implements the built-in "namespace" command in Tcl. See the user documentation for
@@ -252,8 +251,8 @@ public final class NamespaceCmd implements InternalRep, Command {
     // whose names match the specified pattern, if any.
 
     list = TclList.newInstance();
-    for (Iterator iter = ns.childTable.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : ns.childTable.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       childNs = (Namespace) entry.getValue();
       if ((pattern == null) || Util.stringMatch(childNs.fullName, pattern)) {
         elem = TclString.newInstance(childNs.fullName);

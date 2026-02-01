@@ -18,11 +18,11 @@ package tcl.pkg.java;
 
 import tcl.lang.InternalRep;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.model.TclObject;
 
 /** This class implements the internal representation of a Java class name. */
-class ClassRep implements InternalRep {
+public final class ClassRep implements InternalRep {
 
   // The class referred to by this ClassRep.
 

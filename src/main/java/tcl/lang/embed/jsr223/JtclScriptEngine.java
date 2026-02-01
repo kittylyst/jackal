@@ -32,6 +32,9 @@ package tcl.lang.embed.jsr223;
 import java.io.*;
 import javax.script.*;
 import tcl.lang.*;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.*;
 
 public class JtclScriptEngine extends AbstractScriptEngine {
 

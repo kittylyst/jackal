@@ -22,16 +22,17 @@ package tcl.lang;
  * all the imported commands that refer to it in a list of ImportRef structures so that they can be
  * deleted when the real command is deleted.
  */
-class ImportRef {
+// FIXME Convert to Record
+public class ImportRef {
   /**
    * Points to the imported command created in an importing namespace; this command redirects its
    * invocations to the "real" cmd.
    */
-  WrappedCommand importedCmd;
+  public WrappedCommand importedCmd;
 
   /**
    * Next element on the linked list of imported commands that refer to the "real" command. The real
    * command deletes these imported commands on this list when it is deleted.
    */
-  ImportRef next;
+  public ImportRef next;
 }

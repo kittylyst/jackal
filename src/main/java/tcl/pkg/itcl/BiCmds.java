@@ -32,21 +32,20 @@
 
 package tcl.pkg.itcl;
 
-import java.util.Iterator;
 import java.util.Map;
 import tcl.lang.CallFrame;
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.Namespace;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclIndex;
-import tcl.lang.TclList;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
-import tcl.lang.TclString;
 import tcl.lang.WrappedCommand;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.Namespace;
+import tcl.lang.model.TclIndex;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 public class BiCmds {
 
@@ -219,8 +218,8 @@ public class BiCmds {
       // context.
 
       Methods.GetContextResult gcr = Methods.GetContext(interp);
-      contextClass = gcr.cdefn;
-      contextObj = gcr.odefn;
+      contextClass = gcr.cdefn();
+      contextObj = gcr.odefn();
 
       if (contextObj == null) {
         throw new TclException(interp, "improper usage: should be \"object isa className\"");
@@ -298,8 +297,8 @@ public class BiCmds {
       // context.
 
       Methods.GetContextResult gcr = Methods.GetContext(interp);
-      contextClass = gcr.cdefn;
-      contextObj = gcr.odefn;
+      contextClass = gcr.cdefn();
+      contextObj = gcr.odefn();
 
       if (contextObj == null) {
         throw new TclException(
@@ -320,8 +319,8 @@ public class BiCmds {
         hier = new ItclHierIter();
         Class.InitHierIter(hier, contextClass);
         while ((cd = Class.AdvanceHierIter(hier)) != null) {
-          for (Iterator iter = cd.variables.entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
+          for (Object o : cd.variables.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             String key = (String) entry.getKey();
             vdefn = (ItclVarDefn) entry.getValue();
 
@@ -478,8 +477,8 @@ public class BiCmds {
       // context.
 
       Methods.GetContextResult gcr = Methods.GetContext(interp);
-      contextClass = gcr.cdefn;
-      contextObj = gcr.odefn;
+      contextClass = gcr.cdefn();
+      contextObj = gcr.odefn();
 
       if (contextObj == null || objv.length != 2) {
         throw new TclException(interp, "improper usage: should be \"object cget -option\"");
@@ -628,8 +627,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         interp.resetResult();
         throw new TclException(interp, "cannot chain functions outside of a class context");
@@ -646,8 +645,8 @@ public class BiCmds {
       }
       cmd = fobjv[0].toString();
       Util.ParseNamespPathResult res = Util.ParseNamespPath(cmd);
-      head = res.head;
-      cmd = res.tail;
+      head = res.head();
+      cmd = res.tail();
 
       // Look for the specified command in one of the base classes.
       // If we have an object context, then start from the most-specific
@@ -737,8 +736,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         throw new TclException(
             interp,
@@ -806,8 +805,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         String name = objv[0].toString();
         throw new TclException(
@@ -875,8 +874,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         String name = objv[0].toString();
         throw new TclException(
@@ -963,8 +962,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         name = objv[0].toString();
         interp.resetResult();
@@ -1080,8 +1079,8 @@ public class BiCmds {
         hier = new ItclHierIter();
         Class.InitHierIter(hier, contextClass);
         while ((cdefn = Class.AdvanceHierIter(hier)) != null) {
-          for (Iterator iter = cdefn.functions.entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
+          for (Object o : cdefn.functions.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             String key = (String) entry.getKey();
             mfunc = (ItclMemberFunc) entry.getValue();
             obj = TclString.newInstance(mfunc.member.fullname);
@@ -1155,8 +1154,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         name = objv[0].toString();
         interp.resetResult();
@@ -1303,8 +1302,8 @@ public class BiCmds {
         hier = new ItclHierIter();
         Class.InitHierIter(hier, contextClass);
         while ((cdefn = Class.AdvanceHierIter(hier)) != null) {
-          for (Iterator iter = cdefn.variables.entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
+          for (Object o : cdefn.variables.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             String key = (String) entry.getKey();
             vdefn = (ItclVarDefn) entry.getValue();
 
@@ -1368,8 +1367,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         name = objv[0].toString();
         interp.resetResult();
@@ -1443,8 +1442,8 @@ public class BiCmds {
 
       try {
         gcr = Methods.GetContext(interp);
-        contextClass = gcr.cdefn;
-        contextObj = gcr.odefn;
+        contextClass = gcr.cdefn();
+        contextObj = gcr.odefn();
       } catch (TclException ex) {
         name = objv[0].toString();
         interp.resetResult();
@@ -1513,7 +1512,7 @@ public class BiCmds {
         throw new TclException(interp, result.toString());
       }
 
-      cmd = wcmd.cmd;
+      cmd = wcmd.getCmd();
 
       try {
         if (wcmd.mustCallInvoke(interp)) wcmd.invoke(interp, objv);

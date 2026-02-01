@@ -17,8 +17,8 @@ package tcl.pkg.java;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.model.TclObject;
 
 /**
  * This class implements the built-in "java::prop" command. The java::prop command is used to

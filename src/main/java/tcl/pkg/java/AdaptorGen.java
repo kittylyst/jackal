@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import tcl.lang.TclRuntimeError;
+import tcl.lang.exception.TclRuntimeError;
 
 /**
  * AdaptorGen is the event adaptor class generator. It can generate an event adaptor class that

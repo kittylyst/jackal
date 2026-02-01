@@ -33,24 +33,23 @@
 package tcl.pkg.itcl;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import tcl.lang.CallFrame;
 import tcl.lang.CommandWithDispose;
 import tcl.lang.Interp;
-import tcl.lang.Namespace;
 import tcl.lang.Resolver;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclList;
-import tcl.lang.TclObject;
-import tcl.lang.TclRuntimeError;
-import tcl.lang.TclString;
 import tcl.lang.Var;
 import tcl.lang.WrappedCommand;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.model.Namespace;
+import tcl.lang.model.TclList;
+import tcl.lang.model.TclObject;
+import tcl.lang.model.TclString;
 
 public class Objects {
-  static HashMap dangleTable = new HashMap();
+  static HashMap<String, Var> dangleTable = new HashMap<>();
 
   /*
    * ------------------------------------------------------------------------
@@ -113,8 +112,8 @@ public class Objects {
     // name for the new object.
 
     Util.ParseNamespPathResult res = Util.ParseNamespPath(name);
-    head = res.head;
-    tail = res.tail;
+    head = res.head();
+    tail = res.tail();
 
     if (head != null) {
       parentNs = Class.FindClassNamespace(interp, head);
@@ -159,7 +158,7 @@ public class Objects {
     interp.createCommand(objName.toString(), new HandleInstanceCmd(newObj));
     wcmd = Namespace.findCommand(interp, name, null, TCL.NAMESPACE_ONLY);
     newObj.w_accessCmd = wcmd;
-    newObj.accessCmd = wcmd.cmd;
+    newObj.accessCmd = wcmd.getCmd();
 
     Util.PreserveData(newObj); // while cmd exists in the interp
     // Itcl_EventuallyFree((ClientData)newObj, ItclFreeObject);
@@ -176,8 +175,8 @@ public class Objects {
 
     cd = Class.AdvanceHierIter(hier);
     while (cd != null) {
-      for (Iterator iter = cd.variables.entrySet().iterator(); iter.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iter.next();
+      for (Object o : cd.variables.entrySet()) {
+        Map.Entry entry = (Map.Entry) o;
         vdefn = (ItclVarDefn) entry.getValue();
 
         if ((vdefn.member.flags & ItclInt.THIS_VAR) != 0) {
@@ -496,7 +495,7 @@ public class Objects {
 
   static boolean IsObject(WrappedCommand wcmd) // command being tested
       {
-    if (wcmd.cmd instanceof HandleInstanceCmd) {
+    if (wcmd.getCmd() instanceof HandleInstanceCmd) {
       return true;
     }
 
@@ -504,7 +503,7 @@ public class Objects {
     // command and see if it represents an object.
 
     wcmd = Namespace.getOriginalCommand(wcmd);
-    if ((wcmd != null) && (wcmd.cmd instanceof HandleInstanceCmd)) {
+    if ((wcmd != null) && (wcmd.getCmd() instanceof HandleInstanceCmd)) {
       return true;
     }
     return false;
@@ -523,7 +522,7 @@ public class Objects {
         // represents
         // the object
       {
-    return ((HandleInstanceCmd) wcmd.cmd).contextObj;
+    return ((HandleInstanceCmd) wcmd.getCmd()).contextObj;
   }
 
   /*
@@ -746,8 +745,8 @@ public class Objects {
     cmdList = new Itcl_List();
     Util.InitList(cmdList);
 
-    for (Iterator iter = cdefn.resolveCmds.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : cdefn.resolveCmds.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       name = (String) entry.getKey();
       mfunc = (ItclMemberFunc) entry.getValue();
 
@@ -946,8 +945,8 @@ public class Objects {
       }
 
       if (!pushErr) {
-        for (Iterator iter = cd.variables.entrySet().iterator(); iter.hasNext(); ) {
-          Map.Entry entry = (Map.Entry) iter.next();
+        for (Object o : cd.variables.entrySet()) {
+          Map.Entry entry = (Map.Entry) o;
           String key = (String) entry.getKey();
           vdefn = (ItclVarDefn) entry.getValue();
 

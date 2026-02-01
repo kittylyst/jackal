@@ -16,13 +16,13 @@ package tcl.lang.cmd;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.Namespace;
 import tcl.lang.Procedure;
 import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
 import tcl.lang.WrappedCommand;
+import tcl.lang.exception.TclException;
+import tcl.lang.exception.TclNumArgsException;
+import tcl.lang.model.Namespace;
+import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "proc" command in Tcl. */
 public final class ProcCmd implements Command {
@@ -57,8 +57,8 @@ public final class ProcCmd implements Command {
     proc =
         new Procedure(
             interp,
-            result.ns,
-            result.cmdName,
+            result.ns(),
+            result.cmdName(),
             objv[2],
             objv[3],
             interp.getScriptFile(),
@@ -69,7 +69,7 @@ public final class ProcCmd implements Command {
     // qualifiers. To create the new command in the right namespace, we
     // use fully qualified name for it.
 
-    interp.createCommand(result.cmdFullName, proc);
+    interp.createCommand(result.cmdFullName(), proc);
 
     // Now initialize the new procedure's cmdPtr field. This will be used
     // later when the procedure is called to determine what namespace the
@@ -77,7 +77,7 @@ public final class ProcCmd implements Command {
     // namespace if the proc was renamed into a different namespace.
 
     WrappedCommand wcmd =
-        Namespace.findCommand(interp, result.cmdFullName, result.ns, TCL.NAMESPACE_ONLY);
+        Namespace.findCommand(interp, result.cmdFullName(), result.ns(), TCL.NAMESPACE_ONLY);
     proc.wcmd = wcmd;
 
     return;
@@ -86,14 +86,8 @@ public final class ProcCmd implements Command {
   // Helper class used to return namespace lookup results for
   // a command name.
 
-  public static class FindCommandNamespaceResult {
-    String fullName; // Initial name of command: like "foo" or
-    // "::one::two::foo"
-    public String cmdName; // Result short name of command: like "foo"
-    public String cmdFullName; // Result full name of command: like
-    // "::one::two::foo"
-    public Namespace ns; // Result namespace the command lives in
-  }
+  public static record FindCommandNamespaceResult(
+      String fullName, String cmdName, String cmdFullName, Namespace ns) {}
 
   // Helper used to lookup the namespace and associated info for a command.
   // Use when defining a new command.
@@ -142,12 +136,6 @@ public final class ProcCmd implements Command {
     }
     ds.append(procName);
 
-    FindCommandNamespaceResult result = new FindCommandNamespaceResult();
-    result.fullName = fullName;
-    result.cmdName = procName;
-    result.cmdFullName = ds.toString();
-    result.ns = ns;
-
-    return result;
+    return new FindCommandNamespaceResult(fullName, procName, ds.toString(), ns);
   }
 }

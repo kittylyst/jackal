@@ -17,6 +17,8 @@
 
 package tcl.lang;
 
+import tcl.lang.exception.TclRuntimeError;
+
 abstract class EventuallyFreed {
 
   // Number of preserve() calls in effect for this object.

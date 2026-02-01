@@ -14,6 +14,7 @@
 package tcl.lang;
 
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * SearchId is used only by the ArrayVar class. When searchstart is called on an Tcl array, a
@@ -41,7 +42,7 @@ public class SearchId {
    * @param s String as the unique identifier for the searchId
    * @param i index value for this object
    */
-  public SearchId(Iterator iter, String s, int i) {
+  public SearchId(Iterator<Map.Entry<String, Var>> iter, String s, int i) {
     this.iter = iter;
     str = s;
     index = i;
@@ -56,7 +57,6 @@ public class SearchId {
    * Return the Iterator for the SearchId object. This is used in the ArrayCmd class for the
    * anymore, donesearch, and nextelement functions.
    *
-   * @param none
    * @return The Iterator for the SearchId object
    */
   Iterator getIterator() {
@@ -67,7 +67,6 @@ public class SearchId {
    * Return the integer value of the index. Used in ArrayVar to generate the next unique SearchId
    * string.
    *
-   * @param none
    * @returnh The integer value of the index
    */
   int getIndex() {

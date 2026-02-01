@@ -23,12 +23,12 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import tcl.lang.InternalRep;
 import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
+import tcl.lang.exception.TclException;
+import tcl.lang.model.TclObject;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 /** This class implements the internal representation of a Java Property signature. */
-class PropertySig implements InternalRep {
+public final class PropertySig implements InternalRep {
 
   // The class that the property signature is used against. It is the
   // class of the java object specified in the java::prop command.

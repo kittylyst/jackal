@@ -7,12 +7,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownServiceException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 import tcl.lang.channel.Channel;
 import tcl.lang.channel.FileChannel;
 import tcl.lang.channel.ReadInputStreamChannel;
@@ -21,6 +16,9 @@ import tcl.lang.cmd.InterpAliasCmd;
 import tcl.lang.cmd.InterpSlaveCmd;
 import tcl.lang.cmd.PackageCmd;
 import tcl.lang.cmd.RegexpCmd;
+import tcl.lang.exception.*;
+import tcl.lang.model.*;
+import tcl.pkg.java.ReflectObject;
 
 /**
  * Implements the core Tcl interpreter.
@@ -41,7 +39,7 @@ public class Interp extends EventuallyFreed {
    * Translates Object to ReflectObject. This makes sure we have only one ReflectObject internalRep
    * for the same Object -- this way Object identity can be done by string comparison.
    */
-  public HashMap reflectObjTable = new HashMap();
+  private final HashMap<String, ReflectObject> reflectObjTable = new HashMap<>();
 
   /**
    * Number of reflect objects created so far inside this Interp (including those that have be
@@ -49,11 +47,7 @@ public class Interp extends EventuallyFreed {
    */
   public long reflectObjCount = 0;
 
-  /**
-   * Table used to store reflect hash index conflicts, see ReflectObject implementation for more
-   * details
-   */
-  public HashMap reflectConflictTable = new HashMap();
+  private final HashMap<String, List<ReflectObject>> reflectConflictTable = new HashMap<>();
 
   /** The number of chars to copy from an offending command into error message. */
   private static final int MAX_ERR_LENGTH = 200;
@@ -74,7 +68,7 @@ public class Interp extends EventuallyFreed {
    * Set to true if [encoding system] can set the encoding for stdout and stderr. This is an attempt
    * to replicate TCL behavior seen in encoding.test encoding-24.3
    */
-  public boolean systemEncodingChangesStdoutStderr = true;
+  private boolean systemEncodingChangesStdoutStderr = true;
 
   /** The Notifier associated with this Interp. */
   private Notifier notifier;
@@ -102,32 +96,24 @@ public class Interp extends EventuallyFreed {
   public CallFrame varFrame;
 
   /** The interpreter's global namespace. */
-  Namespace globalNs;
+  public Namespace globalNs;
 
-  /** Hash table used to keep track of hidden commands on a per-interp basis. */
-  public HashMap hiddenCmdTable;
+  private final HashMap<String, WrappedCommand> hiddenCmdTable = new HashMap<>();
 
-  /**
-   * Information used by InterpCmd.java to keep track of master/slave interps on a per-interp basis.
-   *
-   * <p>Keeps track of all interps for which this interp is the Master. First, slaveTable (a
-   * hashtable) maps from names of commands to slave interpreters. This hashtable is used to store
-   * information about slave interpreters of this interpreter, to map over all slaves, etc.
-   */
-  public HashMap slaveTable;
+  private final HashMap<String, Object> slaveTable = new HashMap<>();
 
   /**
    * Hash table for Target Records. Contains all Target records which denote aliases from slaves or
    * sibling interpreters that direct to commands in this interpreter. This table is used to remove
    * dangling pointers from the slave (or sibling) interpreters when this interpreter is deleted.
    */
-  public HashMap targetTable;
+  private final Map<WrappedCommand, Interp> targetTable = new HashMap<>();
 
   /** Information necessary for this interp to function as a slave. */
   public InterpSlaveCmd slave;
 
   /** Table which maps from names of commands in slave interpreter to InterpAliasCmd objects. */
-  public HashMap aliasTable;
+  private final Map<String, InterpAliasCmd> aliasTable = new HashMap<>();
 
   // FIXME : does globalFrame need to be replaced by globalNs?
   // Points to the global variable frame.
@@ -150,7 +136,7 @@ public class Interp extends EventuallyFreed {
   public int evalFlags;
 
   /** Flags used when evaluating a command. */
-  int flags;
+  public int flags;
 
   /** Is this interpreted marked as safe? */
   public boolean isSafe;
@@ -162,10 +148,9 @@ public class Interp extends EventuallyFreed {
   // Schemes are added/removed by calling addInterpResolver and
   // removeInterpResolver.
 
-  ArrayList resolvers;
+  private final List<ResolverScheme> resolvers = new ArrayList<>();
 
-  /** The expression parser for this interp. */
-  public Expression expr;
+  private Expression expr;
 
   /**
    * Used by the Expression class. If it is equal to zero, then the parser will evaluate commands
@@ -289,7 +274,7 @@ public class Interp extends EventuallyFreed {
 
   // Used ONLY by PackageCmd.
 
-  public HashMap packageTable;
+  private final HashMap<String, tcl.lang.cmd.PackageCmd.Package> packageTable = new HashMap<>();
   public String packageUnknown;
 
   // Used ONLY by the Parser.
@@ -301,7 +286,11 @@ public class Interp extends EventuallyFreed {
   int parserTokensUsed;
 
   /** Used ONLY by JavaImportCmd: classTable, packageTable, wildcardTable */
-  public HashMap[] importTable = {new HashMap(), new HashMap(), new HashMap()};
+  public HashMap[] importTable = {
+    new HashMap<String, String>(),
+    new HashMap<String, List<String>>(),
+    new HashMap<String, List<String>>()
+  };
 
   /**
    * Used by callers of Util.strtoul(), also used in FormatCmd.strtoul(). There is typically only
@@ -503,7 +492,7 @@ public class Interp extends EventuallyFreed {
     recycledD = TclDouble.newInstance(0);
     recycledD.preserve(); // refCount is 1 when unused
 
-    expr = new Expression();
+    setExpr(new Expression());
     nestLevel = 0;
 
     frame = null;
@@ -513,11 +502,9 @@ public class Interp extends EventuallyFreed {
     errorInfo = null;
     errorCode = null;
 
-    packageTable = new HashMap();
     packageUnknown = null;
     cmdCount = 0;
     termOffset = 0;
-    resolvers = null;
     evalFlags = 0;
     scriptFile = null;
     flags = 0;
@@ -548,10 +535,6 @@ public class Interp extends EventuallyFreed {
     errCodeSet = false;
 
     dbg = initDebugInfo();
-
-    slaveTable = new HashMap();
-    targetTable = new HashMap();
-    aliasTable = new HashMap();
 
     // find the name of constructing class to use as the shell class name
     // can be overridden by setShellClassName()
@@ -760,19 +743,20 @@ public class Interp extends EventuallyFreed {
 
     // Tear down the math function table.
 
-    expr = null;
+    setExpr(null);
 
     // Remove all the assoc data tied to this interp and invoke
     // deletion callbacks; note that a callback can create new
     // callbacks, so we iterate.
 
     while (assocData != null) {
-      HashMap table = assocData;
+      HashMap<String, AssocData> table = assocData;
       assocData = null;
 
-      for (Iterator iter = table.entrySet().iterator(); iter.hasNext(); ) {
-        Map.Entry entry = (Map.Entry) iter.next();
-        AssocData data = (AssocData) entry.getValue();
+      for (Iterator<Map.Entry<String, AssocData>> iter = table.entrySet().iterator();
+          iter.hasNext(); ) {
+        Map.Entry<String, AssocData> entry = iter.next();
+        AssocData data = entry.getValue();
         data.disposeAssocData(this);
         iter.remove();
       }
@@ -780,8 +764,8 @@ public class Interp extends EventuallyFreed {
 
     // Close any remaining channels
 
-    for (Iterator iter = interpChanTable.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iter.next();
+    for (Object o : interpChanTable.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       Channel chan = (Channel) entry.getValue();
       try {
         chan.close();
@@ -803,7 +787,7 @@ public class Interp extends EventuallyFreed {
 
     frame = null;
     varFrame = null;
-    resolvers = null;
+    resolvers.clear();
 
     // Free up classloader (makes sure Interp is released in container
     // environments.)
@@ -1449,49 +1433,49 @@ public class Interp extends EventuallyFreed {
       tail = cmdName;
     }
 
-    cmd = (WrappedCommand) ns.cmdTable.get(tail);
+    cmd = (WrappedCommand) ns.getCmdTable().get(tail);
     if (cmd != null) {
       // Command already exists. Delete the old one.
       // Be careful to preserve any existing import links so we can
       // restore them down below. That way, you can redefine a
       // command and its import status will remain intact.
 
-      oldRef = cmd.importRef;
-      cmd.importRef = null;
+      oldRef = cmd.getImportRef();
+      cmd.setImportRef(null);
 
       deleteCommandFromToken(cmd);
 
       // FIXME : create a test case for this condition!
 
-      cmd = (WrappedCommand) ns.cmdTable.get(tail);
+      cmd = (WrappedCommand) ns.getCmdTable().get(tail);
       if (cmd != null) {
         // If the deletion callback recreated the command, just throw
         // away the new command (if we try to delete it again, we
         // could get stuck in an infinite loop).
 
-        cmd.table.remove(cmd.hashKey);
+        cmd.getTable().remove(cmd.getHashKey());
       }
     }
 
     cmd = new WrappedCommand();
-    ns.cmdTable.put(tail, cmd);
-    cmd.table = ns.cmdTable;
-    cmd.hashKey = tail;
-    cmd.ns = ns;
-    cmd.cmd = cmdImpl;
-    cmd.deleted = false;
-    cmd.importRef = null;
-    cmd.cmdEpoch = 1;
+    ns.getCmdTable().put(tail, cmd);
+    cmd.setTable(ns.getCmdTable());
+    cmd.setHashKey(tail);
+    cmd.setNs(ns);
+    cmd.setCmd(cmdImpl);
+    cmd.setDeleted(false);
+    cmd.setImportRef(null);
+    cmd.setCmdEpoch(1);
 
     // Plug in any existing import references found above. Be sure
     // to update all of these references to point to the new command.
 
     if (oldRef != null) {
-      cmd.importRef = oldRef;
+      cmd.setImportRef(oldRef);
       while (oldRef != null) {
         refCmd = oldRef.importedCmd;
-        data = (ImportedCmdData) refCmd.cmd;
-        data.realCmd = cmd;
+        data = (ImportedCmdData) refCmd.getCmd();
+        data.setRealCmd(cmd);
         oldRef = oldRef.next;
       }
     }
@@ -1521,14 +1505,14 @@ public class Interp extends EventuallyFreed {
     // separator, and the command name.
 
     if (cmd != null) {
-      if (cmd.ns != null) {
-        name.append(cmd.ns.fullName);
-        if (cmd.ns != interp.globalNs) {
+      if (cmd.getNs() != null) {
+        name.append(cmd.getNs().fullName);
+        if (cmd.getNs() != interp.globalNs) {
           name.append("::");
         }
       }
-      if (cmd.table != null) {
-        name.append(cmd.hashKey);
+      if (cmd.getTable() != null) {
+        name.append(cmd.getHashKey());
       }
     }
 
@@ -1543,14 +1527,14 @@ public class Interp extends EventuallyFreed {
    * @return name of the command
    */
   public String getCommandName(WrappedCommand cmd) {
-    if ((cmd == null) || (cmd.table == null)) {
+    if ((cmd == null) || (cmd.getTable() == null)) {
       // This should only happen if command was "created" after the
       // interpreter began to be deleted, so there isn't really any
       // command. Just return an empty string.
 
       return "";
     }
-    return cmd.hashKey;
+    return cmd.getHashKey();
   }
 
   /**
@@ -1608,22 +1592,22 @@ public class Interp extends EventuallyFreed {
     // callback could try to delete or rename the command. The deleted
     // flag allows us to detect these cases and skip nested deletes.
 
-    if (cmd.deleted) {
+    if (cmd.isDeleted()) {
       // Another deletion is already in progress. Remove the hash
       // table entry now, but don't invoke a callback or free the
       // command structure.
 
-      if (cmd.hashKey != null && cmd.table != null) {
-        cmd.table.remove(cmd.hashKey);
-        cmd.table = null;
-        cmd.hashKey = null;
+      if (cmd.getHashKey() != null && cmd.getTable() != null) {
+        cmd.getTable().remove(cmd.getHashKey());
+        cmd.setTable(null);
+        cmd.setHashKey(null);
       }
       return 0;
     }
 
-    cmd.deleted = true;
-    if (cmd.cmd instanceof CommandWithDispose) {
-      ((CommandWithDispose) cmd.cmd).disposeCmd();
+    cmd.setDeleted(true);
+    if (cmd.getCmd() instanceof CommandWithDispose) {
+      ((CommandWithDispose) cmd.getCmd()).disposeCmd();
     }
 
     // Bump the command epoch counter. This will invalidate all cached
@@ -1635,7 +1619,7 @@ public class Interp extends EventuallyFreed {
     // commands were created that refer back to this command. Delete these
     // imported commands now.
 
-    for (ref = cmd.importRef; ref != null; ref = nextRef) {
+    for (ref = cmd.getImportRef(); ref != null; ref = nextRef) {
       nextRef = ref.next;
       importCmd = ref.importedCmd;
       deleteCommandFromToken(importCmd);
@@ -1648,15 +1632,15 @@ public class Interp extends EventuallyFreed {
     // Instead, use cmdPtr->hptr, and make sure that no-one else
     // has already deleted the hash entry.
 
-    if (cmd.table != null) {
-      cmd.table.remove(cmd.hashKey);
-      cmd.table = null;
-      cmd.hashKey = null;
+    if (cmd.getTable() != null) {
+      cmd.getTable().remove(cmd.getHashKey());
+      cmd.setTable(null);
+      cmd.setHashKey(null);
     }
 
     // Drop the reference to the Command instance inside the WrappedCommand
 
-    cmd.cmd = null;
+    cmd.setCmd(null);
 
     // We do not need to cleanup the WrappedCommand because GC will get it.
 
@@ -1680,7 +1664,8 @@ public class Interp extends EventuallyFreed {
     String newTail;
     Namespace cmdNs, newNs;
     WrappedCommand cmd;
-    HashMap table, oldTable;
+    HashMap table;
+    Map oldTable;
     String hashKey, oldHashKey;
 
     // Find the existing command. An error is returned if cmdName can't
@@ -1696,7 +1681,7 @@ public class Interp extends EventuallyFreed {
               + oldName
               + "\": command doesn't exist");
     }
-    cmdNs = cmd.ns;
+    cmdNs = cmd.getNs();
 
     // If the new command name is NULL or empty, delete the command. Do this
     // with Tcl_DeleteCommandFromToken, since we already have the command.
@@ -1720,7 +1705,7 @@ public class Interp extends EventuallyFreed {
     if ((newNs == null) || (newTail == null)) {
       throw new TclException(interp, "can't rename to \"" + newName + "\": bad command name");
     }
-    if (newNs.cmdTable.get(newTail) != null) {
+    if (newNs.getCmdTable().get(newTail) != null) {
       throw new TclException(interp, "can't rename to \"" + newName + "\": command already exists");
     }
 
@@ -1739,12 +1724,12 @@ public class Interp extends EventuallyFreed {
     // loop. Since we are adding a new command to a namespace, we must
     // handle any shadowing of the global commands that this might create.
 
-    oldTable = cmd.table;
-    oldHashKey = cmd.hashKey;
-    newNs.cmdTable.put(newTail, cmd);
-    cmd.table = newNs.cmdTable;
-    cmd.hashKey = newTail;
-    cmd.ns = newNs;
+    oldTable = cmd.getTable();
+    oldHashKey = cmd.getHashKey();
+    newNs.getCmdTable().put(newTail, cmd);
+    cmd.setTable(newNs.getCmdTable());
+    cmd.setHashKey(newTail);
+    cmd.setNs(newNs);
     Namespace.resetShadowedCmdRefs(this, cmd);
 
     // Now check for an alias loop. If we detect one, put everything back
@@ -1753,10 +1738,10 @@ public class Interp extends EventuallyFreed {
     try {
       interp.preventAliasLoop(interp, cmd);
     } catch (TclException e) {
-      newNs.cmdTable.remove(newTail);
-      cmd.table = oldTable;
-      cmd.hashKey = oldHashKey;
-      cmd.ns = cmdNs;
+      newNs.getCmdTable().remove(newTail);
+      cmd.setTable(oldTable);
+      cmd.setHashKey(oldHashKey);
+      cmd.setNs(cmdNs);
       throw e;
     }
 
@@ -1791,7 +1776,7 @@ public class Interp extends EventuallyFreed {
     // If we are not creating or renaming an alias, then it is
     // always OK to create or rename the command.
 
-    if (!(cmd.cmd instanceof InterpAliasCmd)) {
+    if (!(cmd.getCmd() instanceof InterpAliasCmd)) {
       return;
     }
 
@@ -1799,7 +1784,7 @@ public class Interp extends EventuallyFreed {
     // If we encounter the alias we are defining (or renaming to) any in
     // the chain then we have a loop.
 
-    InterpAliasCmd alias = (InterpAliasCmd) cmd.cmd;
+    InterpAliasCmd alias = (InterpAliasCmd) cmd.getCmd();
     InterpAliasCmd nextAlias = alias;
     while (true) {
 
@@ -1810,7 +1795,7 @@ public class Interp extends EventuallyFreed {
       if (aliasCmd == null) {
         return;
       }
-      if (aliasCmd.cmd == cmd.cmd) {
+      if (aliasCmd.getCmd() == cmd.getCmd()) {
         throw new TclException(
             this, "cannot define or rename alias \"" + alias.name + "\": would create a loop");
       }
@@ -1819,10 +1804,10 @@ public class Interp extends EventuallyFreed {
       // command is an alias - if so, follow the loop to its target
       // command. Otherwise we do not have a loop.
 
-      if (!(aliasCmd.cmd instanceof InterpAliasCmd)) {
+      if (!(aliasCmd.getCmd() instanceof InterpAliasCmd)) {
         return;
       }
-      nextAlias = (InterpAliasCmd) aliasCmd.cmd;
+      nextAlias = (InterpAliasCmd) aliasCmd.getCmd();
     }
   }
 
@@ -1846,7 +1831,7 @@ public class Interp extends EventuallyFreed {
       throw new TclRuntimeError("unexpected TclException: " + e);
     }
 
-    return ((cmd == null) ? null : cmd.cmd);
+    return ((cmd == null) ? null : cmd.getCmd());
   }
 
   /**
@@ -2172,7 +2157,7 @@ public class Interp extends EventuallyFreed {
 
     CharPointer script = new CharPointer(string);
     try {
-      Parser.eval2(this, script.array, script.index, script.length(), flags);
+      Parser.eval2(this, script.getArray(), script.getIndex(), script.length(), flags);
     } catch (TclException e) {
 
       if (nestLevel != 0) {
@@ -2800,8 +2785,8 @@ public class Interp extends EventuallyFreed {
    */
   public static BackSlashResult backslash(String s, int i, int len) {
     CharPointer script = new CharPointer(s.substring(0, len));
-    script.index = i;
-    return Parser.backslash(script.array, script.index);
+    script.setIndex(i);
+    return Parser.backslash(script.getArray(), script.getIndex());
   }
 
   /**
@@ -3258,23 +3243,19 @@ public class Interp extends EventuallyFreed {
 
     // Check that the command is really in global namespace
 
-    if (cmd.ns != globalNs) {
+    if (cmd.getNs() != globalNs) {
       throw new TclException(
           this, "can only hide global namespace commands" + " (use rename then hide)");
     }
 
     // Initialize the hidden command table if necessary.
 
-    if (hiddenCmdTable == null) {
-      hiddenCmdTable = new HashMap();
-    }
-
     // It is an error to move an exposed command to a hidden command with
     // hiddenCmdToken if a hidden command with the name hiddenCmdToken
     // already
     // exists.
 
-    if (hiddenCmdTable.containsKey(hiddenCmdToken)) {
+    if (getHiddenCmdTable().containsKey(hiddenCmdToken)) {
       throw new TclException(
           this, "hidden command named \"" + hiddenCmdToken + "\" already exists");
     }
@@ -3288,17 +3269,17 @@ public class Interp extends EventuallyFreed {
     // table. This is like deleting the command, so bump its command epoch;
     // this invalidates any cached references that point to the command.
 
-    if (cmd.table.containsKey(cmd.hashKey)) {
-      cmd.table.remove(cmd.hashKey);
+    if (cmd.getTable().containsKey(cmd.getHashKey())) {
+      cmd.getTable().remove(cmd.getHashKey());
       cmd.incrEpoch();
     }
 
     // Now link the hash table entry with the command structure.
     // We ensured above that the nsPtr was right.
 
-    cmd.table = hiddenCmdTable;
-    cmd.hashKey = hiddenCmdToken;
-    hiddenCmdTable.put(hiddenCmdToken, cmd);
+    cmd.setTable(getHiddenCmdTable());
+    cmd.setHashKey(hiddenCmdToken);
+    getHiddenCmdTable().put(hiddenCmdToken, cmd);
   }
 
   /**
@@ -3334,17 +3315,17 @@ public class Interp extends EventuallyFreed {
 
     // Get the command from the hidden command table:
 
-    if (hiddenCmdTable == null || !hiddenCmdTable.containsKey(hiddenCmdToken)) {
+    if (getHiddenCmdTable() == null || !getHiddenCmdTable().containsKey(hiddenCmdToken)) {
       throw new TclException(this, "unknown hidden command \"" + hiddenCmdToken + "\"");
     }
-    cmd = (WrappedCommand) hiddenCmdTable.get(hiddenCmdToken);
+    cmd = (WrappedCommand) getHiddenCmdTable().get(hiddenCmdToken);
 
     // Check that we have a true global namespace
     // command (enforced by Tcl_HideCommand() but let's double
     // check. (If it was not, we would not really know how to
     // handle it).
 
-    if (cmd.ns != globalNs) {
+    if (cmd.getNs() != globalNs) {
 
       // This case is theoritically impossible,
       // we might rather panic() than 'nicely' erroring out ?
@@ -3353,29 +3334,29 @@ public class Interp extends EventuallyFreed {
     }
 
     // This is the global table
-    Namespace ns = cmd.ns;
+    Namespace ns = cmd.getNs();
 
     // It is an error to overwrite an existing exposed command as a result
     // of exposing a previously hidden command.
 
-    if (ns.cmdTable.containsKey(cmdName)) {
+    if (ns.getCmdTable().containsKey(cmdName)) {
       throw new TclException(this, "exposed command \"" + cmdName + "\" already exists");
     }
 
     // Remove the hash entry for the command from the interpreter hidden
     // command table.
 
-    if (cmd.hashKey != null) {
-      cmd.table.remove(cmd.hashKey);
-      cmd.table = ns.cmdTable;
-      cmd.hashKey = cmdName;
+    if (cmd.getHashKey() != null) {
+      cmd.getTable().remove(cmd.getHashKey());
+      cmd.setTable(ns.getCmdTable());
+      cmd.setHashKey(cmdName);
     }
 
     // Now link the hash table entry with the command structure.
     // This is like creating a new command, so deal with any shadowing
     // of commands in the global namespace.
 
-    ns.cmdTable.put(cmdName, cmd);
+    ns.getCmdTable().put(cmdName, cmd);
 
     // Not needed as we are only in the global namespace
     // (but would be needed again if we supported namespace command hiding)
@@ -3458,10 +3439,10 @@ public class Interp extends EventuallyFreed {
 
       // We never invoke "unknown" for hidden commands.
 
-      if (hiddenCmdTable == null || !hiddenCmdTable.containsKey(cmdName)) {
+      if (getHiddenCmdTable() == null || !getHiddenCmdTable().containsKey(cmdName)) {
         throw new TclException(this, "invalid hidden command name \"" + cmdName + "\"");
       }
-      cmd = (WrappedCommand) hiddenCmdTable.get(cmdName);
+      cmd = (WrappedCommand) getHiddenCmdTable().get(cmdName);
     } else {
       cmd = Namespace.findCommand(this, cmdName, null, TCL.GLOBAL_ONLY);
       if (cmd == null) {
@@ -3498,7 +3479,7 @@ public class Interp extends EventuallyFreed {
     int result = TCL.OK;
     try {
       if (cmd.mustCallInvoke(this)) cmd.invoke(this, objv);
-      else cmd.cmd.cmdProc(this, objv);
+      else cmd.getCmd().cmdProc(this, objv);
     } catch (TclException e) {
       result = e.getCompletionCode();
     }
@@ -3513,10 +3494,10 @@ public class Interp extends EventuallyFreed {
       cmd = Namespace.findCommand(this, cmdName, null, TCL.GLOBAL_ONLY);
       if (cmd != null) {
         // Basically just do the same as in hideCommand...
-        cmd.table.remove(cmd.hashKey);
-        cmd.table = hiddenCmdTable;
-        cmd.hashKey = cmdName;
-        hiddenCmdTable.put(cmdName, cmd);
+        cmd.getTable().remove(cmd.getHashKey());
+        cmd.setTable(getHiddenCmdTable());
+        cmd.setHashKey(cmdName);
+        getHiddenCmdTable().put(cmdName, cmd);
       }
     }
 
@@ -3567,15 +3548,68 @@ public class Interp extends EventuallyFreed {
     evalFlags |= Parser.TCL_ALLOW_EXCEPTIONS;
   }
 
-  class ResolverScheme {
-    String name; // Name identifying this scheme.
-    Resolver resolver;
-
-    ResolverScheme(String name, Resolver resolver) {
-      this.name = name;
-      this.resolver = resolver;
-    }
+  public HashMap<String, ReflectObject> getReflectObjTable() {
+    return reflectObjTable;
   }
+
+  /**
+   * Table used to store reflect hash index conflicts, see ReflectObject implementation for more
+   * details
+   */
+  public HashMap<String, List<ReflectObject>> getReflectConflictTable() {
+    return reflectConflictTable;
+  }
+
+  /**
+   * Information used by InterpCmd.java to keep track of master/slave interps on a per-interp basis.
+   *
+   * <p>Keeps track of all interps for which this interp is the Master. First, slaveTable (a
+   * hashtable) maps from names of commands to slave interpreters. This hashtable is used to store
+   * information about slave interpreters of this interpreter, to map over all slaves, etc.
+   */
+  public Map<String, Object> getSlaveTable() {
+    return slaveTable;
+  }
+
+  public Map<String, tcl.lang.cmd.PackageCmd.Package> getPackageTable() {
+    return packageTable;
+  }
+
+  public Map<WrappedCommand, Interp> getTargetTable() {
+    return targetTable;
+  }
+
+  public Map<String, InterpAliasCmd> getAliasTable() {
+    return aliasTable;
+  }
+
+  /** Hash table used to keep track of hidden commands on a per-interp basis. */
+  public HashMap<String, WrappedCommand> getHiddenCmdTable() {
+    return hiddenCmdTable;
+  }
+
+  public void setSystemEncodingChangesStdoutStderr(boolean encodingChanges) {
+    systemEncodingChangesStdoutStderr = encodingChanges;
+  }
+
+  public boolean isSystemEncodingChangesStdoutStderr() {
+    return systemEncodingChangesStdoutStderr;
+  }
+
+  public List<ResolverScheme> getResolvers() {
+    return resolvers;
+  }
+
+  /** The expression parser for this interp. */
+  public Expression getExpr() {
+    return expr;
+  }
+
+  public void setExpr(Expression expr) {
+    this.expr = expr;
+  }
+
+  public record ResolverScheme(String name, Resolver resolver) {}
 
   /**
    * ----------------------------------------------------------------------
@@ -3605,26 +3639,21 @@ public class Interp extends EventuallyFreed {
     // Look for an existing scheme with the given name.
     // If found, then replace its rules.
 
-    if (resolvers != null) {
-      for (ListIterator iter = resolvers.listIterator(); iter.hasNext(); ) {
-        res = (ResolverScheme) iter.next();
+    if (getResolvers() != null) {
+      var resolvers = getResolvers();
+      for (var i = 0; i < resolvers.size(); i += 1) {
+        res = resolvers.get(i);
         if (name.equals(res.name)) {
-          res.resolver = resolver;
+          resolvers.set(i, new ResolverScheme(res.name, resolver));
           return;
         }
       }
     }
 
-    if (resolvers == null) {
-      resolvers = new ArrayList();
-    }
-
     // Otherwise, this is a new scheme. Add it to the FRONT
     // of the linked list, so that it overrides existing schemes.
-
     res = new ResolverScheme(name, resolver);
-
-    resolvers.add(0, res);
+    getResolvers().add(0, res);
   }
 
   /**
@@ -3646,9 +3675,9 @@ public class Interp extends EventuallyFreed {
     // Look for an existing scheme with the given name. If found,
     // then return pointers to its procedures.
 
-    if (resolvers != null) {
-      for (ListIterator iter = resolvers.listIterator(); iter.hasNext(); ) {
-        res = (ResolverScheme) iter.next();
+    if (getResolvers() != null) {
+      for (ListIterator<ResolverScheme> iter = getResolvers().listIterator(); iter.hasNext(); ) {
+        res = iter.next();
         if (name.equals(res.name)) {
           return res.resolver;
         }
@@ -3677,9 +3706,9 @@ public class Interp extends EventuallyFreed {
 
     // Look for an existing scheme with the given name.
 
-    if (resolvers != null) {
-      for (ListIterator iter = resolvers.listIterator(); iter.hasNext(); ) {
-        res = (ResolverScheme) iter.next();
+    if (getResolvers() != null) {
+      for (ListIterator<ResolverScheme> iter = getResolvers().listIterator(); iter.hasNext(); ) {
+        res = iter.next();
         if (name.equals(res.name)) {
           found = true;
           break;
@@ -3690,11 +3719,11 @@ public class Interp extends EventuallyFreed {
     // If we found the scheme, delete it.
 
     if (found) {
-      int index = resolvers.indexOf(name);
+      int index = getResolvers().indexOf(name);
       if (index == -1) {
         throw new TclRuntimeError("name " + name + " not found in resolvers");
       }
-      resolvers.remove(index);
+      getResolvers().remove(index);
     }
 
     return found;
@@ -4037,12 +4066,12 @@ public class Interp extends EventuallyFreed {
    * <p>Side effects: None.
    */
   public final void checkInterrupted() {
-    if ((interruptedEvent != null) && (!interruptedEvent.exceptionRaised)) {
+    if ((interruptedEvent != null) && (!interruptedEvent.isExceptionRaised())) {
       // Note that the interruptedEvent in not removed from the
       // event queue since all queued events should be removed
       // from the queue in the disposeInterrupted() method.
 
-      interruptedEvent.exceptionRaised = true;
+      interruptedEvent.setExceptionRaised(true);
 
       throw new TclInterruptedException(this);
     }
@@ -4055,7 +4084,7 @@ public class Interp extends EventuallyFreed {
    * has finished. This method must only ever be invoked after catching a TclInterrupted exception
    * at the outermost level of the Tcl event processing loop.
    */
-  final void disposeInterrupted() {
+  public final void disposeInterrupted() {
 
     if (deleted) {
       final String msg = "Interp.disposeInterrupted() invoked for " + "a deleted interp";
@@ -4074,7 +4103,7 @@ public class Interp extends EventuallyFreed {
     // If the interruptedEvent has not been processed yet,
     // then remove it from the Tcl event queue.
 
-    if ((interruptedEvent != null) && !interruptedEvent.wasProcessed) {
+    if ((interruptedEvent != null) && !interruptedEvent.isWasProcessed()) {
       getNotifier().deleteEvents(interruptedEvent);
     }
 
@@ -4179,7 +4208,7 @@ public class Interp extends EventuallyFreed {
    * @return shell class name
    */
   public String getShellClassName() {
-    return shellClassName == null ? "tcl.lang.NonInteractiveShell" : shellClassName;
+    return shellClassName == null ? "tcl.tools.NonInteractiveShell" : shellClassName;
   }
 
   /**
