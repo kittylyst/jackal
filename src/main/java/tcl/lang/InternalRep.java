@@ -52,37 +52,21 @@ public sealed interface InternalRep
         tcl.pkg.java.PropertySig,
         tcl.pkg.java.ReflectObject {
 
-  /*
-   * ----------------------------------------------------------------------
+  /**
+   * Free any state associated with the object's internal rep. This method should not be invoked by
+   * user code.
    *
-   * dispose --
-   *
-   * Free any state associated with the object's internal rep. This method
-   * should not be invoked by user code.
-   *
-   * Results: None.
-   *
-   * Side effects: Leaves the object in an unusable state.
-   *
-   * ----------------------------------------------------------------------
+   * <p>Leaves the object in an unusable state.
    */
+  default void dispose() {}
 
-  void dispose();
-
-  /*
-   * ----------------------------------------------------------------------
+  /**
+   * Make a copy of an object's internal representation. This method should not be invoked by user
+   * code.
    *
-   * duplicate --
-   *
-   * Make a copy of an object's internal representation. This method should
-   * not be invoked by user code.
-   *
-   * Results: Returns a newly allocated instance of the appropriate type.
-   *
-   * Side effects: None.
-   *
-   * ----------------------------------------------------------------------
+   * @return A newly allocated instance of the appropriate type.
    */
-
-  InternalRep duplicate();
-} // end InternalRep
+  default InternalRep duplicate() {
+    return this;
+  }
+}

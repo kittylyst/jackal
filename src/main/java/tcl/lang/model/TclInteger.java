@@ -45,9 +45,6 @@ public final class TclInteger implements InternalRep {
     throw new TclRuntimeError("TclInteger.duplicate() should not be invoked");
   }
 
-  /** Implement this no-op for the InternalRep interface. */
-  public void dispose() {}
-
   /** Should never be invoked. */
   public String toString() {
     throw new TclRuntimeError("TclInteger.toString() should not be invoked");
@@ -103,22 +100,6 @@ public final class TclInteger implements InternalRep {
       }
       TclObject.objRecordMap.put(key, num);
     }
-  }
-
-  /**
-   * Tcl_GetIntFromObj -> TclInteger.get
-   *
-   * <p>Returns the integer value of the object as a Java int. This method is @deprecated, because
-   * the internal representation is now long. Use getLong() or getInt() instead.
-   *
-   * @param interp current interpreter.
-   * @param tobj the object to operate on.
-   * @return the integer value of the object. Use getLong() to return a Java long, or getInt() to
-   *     return int.
-   */
-  @Deprecated
-  public static int get(final Interp interp, final TclObject tobj) throws TclException {
-    return (int) getLong(interp, tobj);
   }
 
   /**

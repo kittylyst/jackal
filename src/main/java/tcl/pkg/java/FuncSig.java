@@ -36,6 +36,7 @@ import tcl.pkg.java.reflect.PkgInvoker;
  * Because methods and constructors are very similar to each other, the operations on method
  * signatures and constructor signatures are limped in this class of "function signature."
  */
+// FIXME Candidate for conversion to record?
 public final class FuncSig implements InternalRep {
 
   // The class that a method signature is used against. In the case of a
@@ -131,9 +132,6 @@ public final class FuncSig implements InternalRep {
   public InternalRep duplicate() {
     return new FuncSig(targetCls, pkgInvoker, func);
   }
-
-  /** Implement this no-op for the InternalRep interface. */
-  public void dispose() {}
 
   /*
    * ----------------------------------------------------------------------

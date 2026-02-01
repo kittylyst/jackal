@@ -70,6 +70,7 @@ public final class TclDict implements InternalRep {
   }
 
   /** Called to free any storage for the type's internal rep. */
+  @Override
   public void dispose() {
     // Release the objects associated with each key/value pair.
     for (var entry : map.entrySet()) {
@@ -81,6 +82,7 @@ public final class TclDict implements InternalRep {
   }
 
   /** Returns a duplicate of the current object. */
+  @Override
   public InternalRep duplicate() {
     final int size = map.size();
     TclDict newDict = new TclDict(size);

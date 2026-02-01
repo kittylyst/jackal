@@ -79,7 +79,7 @@ public final class TclParser implements Command {
     if (irep instanceof UTF8CharPointer) {
       script = (UTF8CharPointer) irep;
     } else {
-      script = new UTF8CharPointer(tobj.toString());
+      script = UTF8CharPointer.of(tobj);
       tobj.setInternalRep(script);
     }
     if (script == null) {

@@ -31,7 +31,7 @@ import tcl.pkg.java.reflect.PkgInvoker;
  * A ReflectObject is used to create and access arbitrary Java objects using the Java Reflection
  * API. It wraps around a Java object (i.e., an instance of any Java class) and expose it to Tcl
  * scripts. The object is registered inside the interpreter and is given a string name. Tcl scripts
- * can manipulate this object as long as the the reference count of the object is greater than zero.
+ * can manipulate this object as long as the reference count of the object is greater than zero.
  */
 public sealed class ReflectObject implements InternalRep, CommandWithDispose permits ArrayObject {
 
@@ -591,7 +591,7 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
    *
    * ----------------------------------------------------------------------
    */
-
+  @Override
   public void dispose() {
     if (debug) {
       System.out.println("dispose called for reflect object " + refID);
@@ -638,7 +638,7 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
    *
    * ----------------------------------------------------------------------
    */
-
+  @Override
   public InternalRep duplicate() {
     useCount++;
 

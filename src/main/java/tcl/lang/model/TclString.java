@@ -65,7 +65,8 @@ public final class TclString implements InternalRep {
     }
   }
 
-  /** Returns a dupilcate of the current object. */
+  /** Returns a duplicate of the current object. */
+  @Override
   public InternalRep duplicate() {
     if (TclObject.saveObjRecords) {
       String key = "TclString.duplicate()";
@@ -89,9 +90,6 @@ public final class TclString implements InternalRep {
   public StringBuffer getSbuf() {
     return sbuf;
   }
-
-  /** Implement this no-op for the InternalRep interface. */
-  public void dispose() {}
 
   /**
    * Called to query the string representation of the Tcl object. This method is called only by

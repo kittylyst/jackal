@@ -402,7 +402,7 @@ public final class DictCmd implements Command {
       TclObject key = objv[3];
       int increment = 1;
       if (objv.length == 5) {
-        increment = TclInteger.get(interp, objv[4]);
+        increment = TclInteger.getInt(interp, objv[4]);
       }
       if (dictObj.isShared()) {
         dictObj = dictObj.duplicate();

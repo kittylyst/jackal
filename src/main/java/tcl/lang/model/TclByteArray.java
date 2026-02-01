@@ -71,12 +71,10 @@ public final class TclByteArray implements InternalRep {
   }
 
   /** Returns a duplicate of the current object. */
+  @Override
   public InternalRep duplicate() {
     return new TclByteArray(bytes, 0, used);
   }
-
-  /** Implement this no-op for the InternalRep interface. */
-  public void dispose() {}
 
   /**
    * Called to query the string representation of the Tcl object. This method is called only by

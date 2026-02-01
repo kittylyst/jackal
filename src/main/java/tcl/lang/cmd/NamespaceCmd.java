@@ -1119,6 +1119,7 @@ public final class NamespaceCmd implements InternalRep, Command {
    * ----------------------------------------------------------------------
    */
 
+  @Override
   public void dispose() {
     final boolean debug = false;
     if (debug) {
@@ -1166,6 +1167,7 @@ public final class NamespaceCmd implements InternalRep, Command {
    * ----------------------------------------------------------------------
    */
 
+  @Override
   public InternalRep duplicate() {
     final boolean debug = false;
     if (debug) {

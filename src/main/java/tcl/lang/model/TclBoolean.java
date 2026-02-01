@@ -35,14 +35,6 @@ public final class TclBoolean implements InternalRep {
     value = b;
   }
 
-  /** Returns a dupilcate of the current object. */
-  public InternalRep duplicate() {
-    return this;
-  }
-
-  /** Implement this no-op for the InternalRep interface. */
-  public void dispose() {}
-
   /**
    * Called to query the string representation of the Tcl object. This method is called only by
    * TclObject.toString() when TclObject.stringRep is null.

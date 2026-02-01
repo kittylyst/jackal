@@ -61,6 +61,7 @@ public final class TclList implements InternalRep {
   }
 
   /** Called to free any storage for the type's internal rep. */
+  @Override
   public void dispose() {
     final int size = alist.size();
     for (int i = 0; i < size; i++) {
@@ -72,8 +73,9 @@ public final class TclList implements InternalRep {
   /**
    * DupListInternalRep -> duplicate
    *
-   * <p>Returns a dupilcate of the current object.
+   * <p>Returns a duplicate of the current object.
    */
+  @Override
   public InternalRep duplicate() {
     int size = alist.size();
     TclList newList = new TclList(size);
