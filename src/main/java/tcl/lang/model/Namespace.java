@@ -30,6 +30,7 @@ import java.util.Set;
 import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.parse.Parser;
 
 /**
  * This structure contains a cached pointer to a namespace that is the result of resolving the
@@ -208,7 +209,7 @@ public final class Namespace {
    */
   public static Namespace getCurrentNamespace(Interp interp) {
     if (interp.varFrame != null) {
-      return interp.varFrame.ns;
+      return interp.varFrame.getNs();
     } else {
       return interp.globalNs;
     }
@@ -274,35 +275,35 @@ public final class Namespace {
     }
 
     ns.activationCount++;
-    frame.ns = ns;
-    frame.isProcCallFrame = isProcCallFrame;
+    frame.setNs(ns);
+    frame.setProcCallFrame(isProcCallFrame);
     if (isProcCallFrame) {
       // don't override objv for namespace callframes;
       // it is stuffed with the objv to namespace for
       // info level n reporting
-      frame.objv = null;
+      frame.setObjv(null);
     }
 
-    frame.caller = interp.frame;
-    frame.callerVar = interp.varFrame;
+    frame.setCaller(interp.getFrame());
+    frame.setCallerVar(interp.varFrame);
 
     if (interp.varFrame != null) {
-      frame.level = (interp.varFrame.level + 1);
+      frame.setLevel((interp.varFrame.getLevel() + 1));
     } else {
-      frame.level = 1;
+      frame.setLevel(1);
     }
 
     // FIXME : does Jacl need a procPtr in the CallFrame class?
     // frame.procPtr = null; // no called procedure
 
-    frame.varTable = null; // and no local variables
+    frame.setVarTable(null); // and no local variables
 
     // Compiled locals are not part of Jacl's CallFrame
 
     // Push the new call frame onto the interpreter's stack of procedure
     // call frames making it the current frame.
 
-    interp.frame = frame;
+    interp.setFrame(frame);
     interp.varFrame = frame;
   }
 
@@ -324,7 +325,7 @@ public final class Namespace {
    */
 
   public static void popCallFrame(Interp interp) {
-    CallFrame frame = interp.frame;
+    CallFrame frame = interp.getFrame();
     int saveErrFlag;
     Namespace ns;
 
@@ -333,8 +334,8 @@ public final class Namespace {
     // invoked by the variable deletion don't see the partially-deleted
     // frame.
 
-    interp.frame = frame.caller;
-    interp.varFrame = frame.callerVar;
+    interp.setFrame(frame.getCaller());
+    interp.varFrame = frame.getCallerVar();
 
     // Delete the local variables. As a hack, we save then restore the
     // ERR_IN_PROGRESS flag in the interpreter. The problem is that there
@@ -349,9 +350,9 @@ public final class Namespace {
 
     saveErrFlag = (interp.flags & Parser.ERR_IN_PROGRESS);
 
-    if (frame.varTable != null) {
-      Var.deleteVars(interp, frame.varTable);
-      frame.varTable = null;
+    if (frame.getVarTable() != null) {
+      Var.deleteVars(interp, frame.getVarTable());
+      frame.setVarTable(null);
     }
 
     interp.flags |= saveErrFlag;
@@ -360,12 +361,12 @@ public final class Namespace {
     // namespace is "dying" and there are no more active call frames,
     // call Tcl_DeleteNamespace to destroy it.
 
-    ns = frame.ns;
+    ns = frame.getNs();
     ns.activationCount--;
     if (((ns.flags & NS_DYING) != 0) && (ns.activationCount == 0)) {
       deleteNamespace(ns);
     }
-    frame.ns = null;
+    frame.setNs(null);
   }
 
   /**
@@ -412,7 +413,7 @@ public final class Namespace {
     } else {
       // Find the parent for the new namespace.
 
-      GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+      GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
       getNamespaceForQualName(
           interp, name, null, (CREATE_NS_IF_UNKNOWN | TCL.LEAVE_ERR_MSG), gnfqnr);
       parent = gnfqnr.ns;
@@ -777,7 +778,7 @@ public final class Namespace {
 
     // Check that the pattern doesn't have namespace qualifiers.
 
-    GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     getNamespaceForQualName(interp, pattern, ns, TCL.LEAVE_ERR_MSG, gnfqnr);
     exportNs = gnfqnr.ns;
     simplePattern = gnfqnr.simpleName;
@@ -926,7 +927,7 @@ public final class Namespace {
       throw new TclException(interp, "empty import pattern");
     }
 
-    GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     getNamespaceForQualName(interp, pattern, ns, TCL.LEAVE_ERR_MSG, gnfqnr);
     importNs = gnfqnr.ns;
     simplePattern = gnfqnr.simpleName;
@@ -1119,7 +1120,7 @@ public final class Namespace {
     // and get the simple pattern (no namespace qualifiers or ::'s) at
     // the end.  If no namespace was specified in the pattern, 'importNs' becomes the same
     // as 'ns'.
-    GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     getNamespaceForQualName(interp, pattern, ns, TCL.LEAVE_ERR_MSG, gnfqnr);
     importNs = gnfqnr.ns;
     simplePattern = gnfqnr.simpleName;
@@ -1428,7 +1429,7 @@ public final class Namespace {
       ns = globalNs;
     } else if (ns == null) {
       if (interp.varFrame != null) {
-        ns = interp.varFrame.ns;
+        ns = interp.varFrame.getNs();
       } else {
         ns = interp.globalNs;
       }
@@ -1608,7 +1609,7 @@ public final class Namespace {
     // Add the FIND_ONLY_NS flag to resolve the name all the way down
     // to its last component, a namespace.
 
-    GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     getNamespaceForQualName(interp, name, contextNs, (flags | FIND_ONLY_NS), gnfqnr);
     ns = gnfqnr.ns;
 
@@ -1700,7 +1701,7 @@ public final class Namespace {
 
     // Find the namespace(s) that contain the command.
 
-    GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     getNamespaceForQualName(interp, name, contextNs, flags, gnfqnr);
     ns0 = gnfqnr.ns;
     ns1 = gnfqnr.altNs;
@@ -1821,7 +1822,7 @@ public final class Namespace {
 
     // Find the namespace(s) that contain the variable.
 
-    GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     getNamespaceForQualName(interp, name, contextNs, flags, gnfqnr);
     ns0 = gnfqnr.ns;
     ns1 = gnfqnr.altNs;

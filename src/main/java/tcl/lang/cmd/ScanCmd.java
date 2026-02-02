@@ -150,10 +150,10 @@ public final class ScanCmd implements Command {
          * INTL: "C"
          * locale.
          */
-        Util.strtoul(format, formatIndex - 1, 10, interp.strtoulResult);
-        value = interp.strtoulResult.getValue();
-        if (format.charAt(interp.strtoulResult.getIndex()) == '$') {
-          formatIndex = interp.strtoulResult.getIndex() + 1;
+        Util.strtoul(format, formatIndex - 1, 10, interp.getStrtoulResult());
+        value = interp.getStrtoulResult().getValue();
+        if (format.charAt(interp.getStrtoulResult().getIndex()) == '$') {
+          formatIndex = interp.getStrtoulResult().getIndex() + 1;
           ch = format.charAt(formatIndex++);
           objIndex = (int) (value - 1);
         }
@@ -165,9 +165,9 @@ public final class ScanCmd implements Command {
       int width;
       if ((ch < 0x80) && Character.isDigit(ch)) {
         /* INTL: "C" locale. */
-        Util.strtoul(format, formatIndex - 1, 10, interp.strtoulResult);
-        width = (int) interp.strtoulResult.getValue();
-        formatIndex = interp.strtoulResult.getIndex();
+        Util.strtoul(format, formatIndex - 1, 10, interp.getStrtoulResult());
+        width = (int) interp.getStrtoulResult().getValue();
+        formatIndex = interp.getStrtoulResult().getIndex();
         ch = format.charAt(formatIndex++);
       } else {
         width = 0;
@@ -369,23 +369,23 @@ public final class ScanCmd implements Command {
           /*
            * Scan an unsigned or signed integer.
            */
-          if (width == 0) Util.strtoul(string, stringIndex, radix, interp.strtoulResult);
+          if (width == 0) Util.strtoul(string, stringIndex, radix, interp.getStrtoulResult());
           else {
             if (stringIndex + width > string.length()) {
               underflow = true;
               break DONE;
             }
             String truncString = string.substring(0, stringIndex + width);
-            Util.strtoul(truncString, stringIndex, radix, interp.strtoulResult);
+            Util.strtoul(truncString, stringIndex, radix, interp.getStrtoulResult());
           }
-          if (interp.strtoulResult.getErrno() != TCL.INVALID_INTEGER) {
+          if (interp.getStrtoulResult().getErrno() != TCL.INVALID_INTEGER) {
             long v;
-            if (interp.strtoulResult.getErrno() == TCL.INTEGER_RANGE) {
+            if (interp.getStrtoulResult().getErrno() == TCL.INTEGER_RANGE) {
               v = -1;
             } else {
-              v = interp.strtoulResult.getValue();
+              v = interp.getStrtoulResult().getValue();
             }
-            stringIndex = interp.strtoulResult.getIndex();
+            stringIndex = interp.getStrtoulResult().getIndex();
             if ((flags & SCAN_SUPPRESS) == 0) {
               objs[objIndex++] = TclInteger.newInstance(v);
             }
@@ -404,20 +404,20 @@ public final class ScanCmd implements Command {
            * scan a floating point number
            */
 
-          if (width == 0) Util.strtod(string, stringIndex, -1, interp.strtodResult);
+          if (width == 0) Util.strtod(string, stringIndex, -1, interp.getStrtodResult());
           else {
             if (stringIndex + width > string.length()) {
               underflow = true;
               break DONE;
             }
             String truncString = string.substring(0, stringIndex + width);
-            Util.strtod(truncString, stringIndex, -1, interp.strtodResult);
+            Util.strtod(truncString, stringIndex, -1, interp.getStrtodResult());
           }
 
-          if (interp.strtodResult.getErrno() == 0) {
-            stringIndex = interp.strtodResult.getIndex();
+          if (interp.getStrtodResult().getErrno() == 0) {
+            stringIndex = interp.getStrtodResult().getIndex();
             if ((flags & SCAN_SUPPRESS) == 0) {
-              objs[objIndex++] = TclDouble.newInstance(interp.strtodResult.getValue());
+              objs[objIndex++] = TclDouble.newInstance(interp.getStrtodResult().getValue());
             }
           } else {
             if (width == 1 || string.length() == 1) {

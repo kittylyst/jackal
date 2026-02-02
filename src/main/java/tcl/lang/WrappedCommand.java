@@ -419,9 +419,9 @@ public final class WrappedCommand {
 
       TclObject savedResult = interp.getResult();
       savedResult.preserve();
-      int savedReturnCode = interp.returnCode;
+      int savedReturnCode = interp.getReturnCode();
       // preserve errAlreadyLogged so ::errorInfo is preserved
-      boolean errAlreadyLogged = interp.errAlreadyLogged;
+      boolean errAlreadyLogged = interp.isErrAlreadyLogged();
 
       try {
         /* Call LEAVE traces */
@@ -449,8 +449,8 @@ public final class WrappedCommand {
         // ignore error
       }
 
-      interp.errAlreadyLogged = errAlreadyLogged;
-      interp.returnCode = savedReturnCode;
+      interp.setErrAlreadyLogged(errAlreadyLogged);
+      interp.setReturnCode(savedReturnCode);
       interp.setResult(savedResult);
       savedResult.release();
       if (savedException != null) throw savedException;

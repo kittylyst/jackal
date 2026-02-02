@@ -17,7 +17,8 @@
 package tcl.lang;
 
 /** This abstract class is used to define timer handlers. */
-public abstract class TimerHandler {
+public abstract sealed class TimerHandler
+    permits tcl.lang.channel.FileEvent.FileEventTimer, tcl.lang.cmd.AfterCmd.TimerInfo {
 
   /** Back pointer to the notifier that will fire this timer. */
   Notifier notifier;

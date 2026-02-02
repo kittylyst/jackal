@@ -48,14 +48,14 @@ public final class ErrorCmd implements Command {
 
       if (!errorInfo.equals("")) {
         interp.addErrorInfo(errorInfo);
-        interp.errAlreadyLogged = true;
+        interp.setErrAlreadyLogged(true);
       }
     }
 
     if (argv.length == 4) {
-      boolean errAlreadyLogged = interp.errAlreadyLogged;
+      boolean errAlreadyLogged = interp.isErrAlreadyLogged();
       interp.setErrorCode(argv[3]);
-      interp.errAlreadyLogged = errAlreadyLogged; // in case errorCode var trace in effect
+      interp.setErrAlreadyLogged(errAlreadyLogged); // in case errorCode var trace in effect
     }
 
     interp.setResult(argv[1]);

@@ -22,6 +22,7 @@ import tcl.lang.model.CharPointer;
 import tcl.lang.model.Namespace;
 import tcl.lang.model.TclList;
 import tcl.lang.model.TclObject;
+import tcl.lang.parse.Parser;
 
 /** This class implements the body of a Tcl procedure. */
 public final class Procedure implements Command, CommandWithDispose {
@@ -177,10 +178,10 @@ public final class Procedure implements Command, CommandWithDispose {
           TclObject name = TclList.newInstance();
           TclList.append(interp, name, argv, 0, 2);
           interp.addErrorInfo(
-              "\n    (lambda term \"" + name.toString() + "\" line " + interp.errorLine + ")");
+              "\n    (lambda term \"" + name.toString() + "\" line " + interp.getErrorLine() + ")");
         } else {
           interp.addErrorInfo(
-              "\n    (procedure \"" + argv[0] + "\" line " + interp.errorLine + ")");
+              "\n    (procedure \"" + argv[0] + "\" line " + interp.getErrorLine() + ")");
         }
         throw e;
       } else if (code == TCL.BREAK) {
@@ -205,9 +206,9 @@ public final class Procedure implements Command, CommandWithDispose {
       // a general-purpose mechanism for saving and restoring
       // interpreter state.
 
-      if (interp.errInProgress) {
+      if (interp.isErrInProgress()) {
         frame.dispose();
-        interp.errInProgress = true;
+        interp.setErrInProgress(true);
       } else {
         frame.dispose();
       }

@@ -16,6 +16,8 @@ package tcl.lang;
 
 import tcl.lang.exception.TclException;
 import tcl.lang.model.TclObject;
+import tcl.lang.parse.TclParser;
+import tcl.lang.parse.TclParserExtension;
 
 /**
  * The Command interface specifies the method that a new Tcl command must implement. See the
@@ -169,8 +171,8 @@ public sealed interface Command
         tcl.pkg.tjc.TJCCommandCmd,
         tcl.pkg.tjc.TJCCompileCmd,
         tcl.pkg.tjc.TJCPackageCmd,
-        tcl.lang.TclParser,
-        tcl.lang.TclParserExtension,
+        TclParser,
+        TclParserExtension,
         tcl.lang.cmd.TellCmd,
         tcl.lang.cmd.TimeCmd,
         tcl.lang.cmd.TraceCmd,

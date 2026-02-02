@@ -18,7 +18,6 @@ import tcl.lang.Command;
 import tcl.lang.ExprValue;
 import tcl.lang.Expression;
 import tcl.lang.Interp;
-import tcl.lang.Parser;
 import tcl.lang.TCL;
 import tcl.lang.Util;
 import tcl.lang.Var;
@@ -36,6 +35,7 @@ import tcl.lang.model.TclInteger;
 import tcl.lang.model.TclList;
 import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
+import tcl.lang.parse.Parser;
 
 public class TJC {
 
@@ -94,20 +94,20 @@ public class TJC {
     // Namespace the command is defined in, default to global namespace
 
     if (ns != null) {
-      frame.ns = ns;
+      frame.setNs(ns);
     }
 
     // ignore objv
 
     // isProcCallFrame should be true
-    if (frame.isProcCallFrame == false) {
+    if (frame.isProcCallFrame() == false) {
       throw new TclRuntimeError("expected isProcCallFrame to be true");
     }
 
-    frame.level = (interp.varFrame == null) ? 1 : (interp.varFrame.level + 1);
-    frame.caller = interp.frame;
-    frame.callerVar = interp.varFrame;
-    interp.frame = frame;
+    frame.setLevel((interp.varFrame == null) ? 1 : (interp.varFrame.getLevel() + 1));
+    frame.setCaller(interp.getFrame());
+    frame.setCallerVar(interp.varFrame);
+    interp.setFrame(frame);
     interp.varFrame = frame;
 
     return frame;
@@ -119,9 +119,9 @@ public class TJC {
     // Cleanup code copied from Procedure.java. See the cmdProc
     // implementation in that class for more info.
 
-    if (interp.errInProgress) {
+    if (interp.isErrInProgress()) {
       frame.dispose();
-      interp.errInProgress = true;
+      interp.setErrInProgress(true);
     } else {
       frame.dispose();
     }
@@ -132,11 +132,11 @@ public class TJC {
   // compiledLocals array is disposed of
   // automatically when the CallFrame is popped.
 
-  public static Var[] initCompiledLocals(
-      final CallFrame frame, final int size, final String[] names) {
-    frame.compiledLocalsNames = names;
-    return frame.compiledLocals = new Var[size];
-  }
+  //  public static Var[] initCompiledLocals(
+  //      final CallFrame frame, final int size, final String[] names) {
+  //    frame.setCompiledLocalsNames(names);
+  //    return frame.setCompiledLocals(new Var[size]);
+  //  }
 
   // Evaluate a Tcl string that is the body of a Tcl procedure.
 
@@ -968,7 +968,7 @@ public class TJC {
       // Generate error info that includes the arguments
       // to the command and add these to the errorInfo var.
 
-      if (ex.getCompletionCode() == TCL.ERROR && !(interp.errAlreadyLogged)) {
+      if (ex.getCompletionCode() == TCL.ERROR && !(interp.isErrAlreadyLogged())) {
         StringBuffer cmd_strbuf = new StringBuffer(64);
 
         int len = objv.length;

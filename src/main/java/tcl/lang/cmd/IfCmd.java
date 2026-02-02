@@ -77,7 +77,7 @@ public final class IfCmd implements Command {
         } catch (TclException e) {
           switch (e.getCompletionCode()) {
             case TCL.ERROR:
-              interp.addErrorInfo("\n    (\"if\" then script line " + interp.errorLine + ")");
+              interp.addErrorInfo("\n    (\"if\" then script line " + interp.getErrorLine() + ")");
               break;
           }
           throw e;
@@ -129,7 +129,7 @@ public final class IfCmd implements Command {
     } catch (TclException e) {
       switch (e.getCompletionCode()) {
         case TCL.ERROR:
-          interp.addErrorInfo("\n    (\"if\" else script line " + interp.errorLine + ")");
+          interp.addErrorInfo("\n    (\"if\" else script line " + interp.getErrorLine() + ")");
           break;
       }
       throw e;

@@ -50,7 +50,7 @@ public class Shell {
     // Create the interpreter. This will also create the built-in
     // Tcl commands.
 
-    Interp interp = new Interp();
+    Interp interp = Interp.of();
 
     // if first options are -encoding name, set the encoding of command line script
     int i = 0;

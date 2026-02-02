@@ -8,6 +8,7 @@ import tcl.lang.exception.TclException;
 import tcl.lang.model.TclBoolean;
 import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
+import tcl.lang.parse.Parser;
 
 /**
  * This class implements the Console Thread: it is started by tcl.tools.Shell if the user gives no
@@ -95,7 +96,7 @@ public class ConsoleThread extends Thread {
 
               // See if the command is a complete Tcl command
 
-              if (Interp.commandComplete(command)) {
+              if (Parser.commandComplete(command)) {
                 if (debug) {
                   System.out.println("line was a complete command");
                 }

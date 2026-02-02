@@ -12,6 +12,8 @@
 
 package tcl.lang.channel;
 
+import static tcl.lang.io.Translation.*;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,6 +26,7 @@ import tcl.lang.cmd.EncodingCmd;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclPosixException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.io.Translation;
 import tcl.lang.model.TclByteArray;
 import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
@@ -122,10 +125,10 @@ public abstract sealed class Channel
   protected String encoding;
 
   /** Input translation mode for end-of-line character */
-  protected int inputTranslation = TclIO.TRANS_AUTO;
+  protected Translation inputTranslation = TRANS_AUTO;
 
   /** Output translation mode for end-of-line character */
-  protected int outputTranslation = TclIO.TRANS_PLATFORM;
+  protected Translation outputTranslation = TclIO.getTransPlatform();
 
   /** If nonzero, use this as a signal of EOF on input. */
   protected char inputEofChar = 0;
@@ -197,8 +200,7 @@ public abstract sealed class Channel
 
       /* do we read characters or bytes? Must read characters if encoding is not binary or a non-LF EOL char */
       boolean readChars =
-          !(encoding == null
-              && (inputTranslation == TclIO.TRANS_BINARY || inputTranslation == TclIO.TRANS_LF));
+          !(encoding == null && (inputTranslation == TRANS_BINARY || inputTranslation == TRANS_LF));
       if (readChars) {
         TclString.empty(tobj);
       } else {
@@ -326,7 +328,7 @@ public abstract sealed class Channel
 
       if (outData.isByteArrayType()
           && encoding == null
-          && (outputTranslation == TclIO.TRANS_BINARY || outputTranslation == TclIO.TRANS_LF)) {
+          && (outputTranslation == TRANS_BINARY || outputTranslation == TRANS_LF)) {
         /* Can write with the more efficient firstOutputStream */
         firstOutputStream.write(
             TclByteArray.getBytes(interp, outData), 0, TclByteArray.getLength(interp, outData));
@@ -908,7 +910,7 @@ public abstract sealed class Channel
   /**
    * @return input translation (TclIO.TRANS_*)
    */
-  public int getInputTranslation() {
+  public Translation getInputTranslation() {
     return inputTranslation;
   }
 
@@ -917,7 +919,7 @@ public abstract sealed class Channel
    *
    * @param translation one of the TclIO.TRANS_* constants
    */
-  public void setInputTranslation(int translation) {
+  public void setInputTranslation(Translation translation) {
     if (!(isReadOnly() || isReadWrite())) return;
     inputTranslation = translation;
     if (eolInputFilter != null) {
@@ -928,7 +930,7 @@ public abstract sealed class Channel
   /**
    * @return output translation - one of the TclIO.TRANS_* constants
    */
-  public int getOutputTranslation() {
+  public Translation getOutputTranslation() {
     return outputTranslation;
   }
 
@@ -937,9 +939,9 @@ public abstract sealed class Channel
    *
    * @param translation one of the TclIO.TRANS_* constants
    */
-  public void setOutputTranslation(int translation) {
+  public void setOutputTranslation(Translation translation) {
     if (!(isWriteOnly() || isReadWrite())) return;
-    if (translation == TclIO.TRANS_AUTO) outputTranslation = TclIO.TRANS_PLATFORM;
+    if (translation == TRANS_AUTO) outputTranslation = TclIO.getTransPlatform();
     else outputTranslation = translation;
     if (eolOutputFilter != null) eolOutputFilter.setTranslation(outputTranslation);
   }

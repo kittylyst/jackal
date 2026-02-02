@@ -13,16 +13,16 @@
 
 package tcl.lang.cmd;
 
-import tcl.lang.BackSlashResult;
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.ParseResult;
-import tcl.lang.Parser;
 import tcl.lang.TCL;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
 import tcl.lang.model.TclIndex;
 import tcl.lang.model.TclObject;
+import tcl.lang.parse.BackSlashResult;
+import tcl.lang.parse.ParseResult;
+import tcl.lang.parse.Parser;
 
 /** This class implements the built-in "subst" command in Tcl. */
 public final class SubstCmd implements Command {
@@ -124,7 +124,7 @@ public final class SubstCmd implements Command {
         /*
          * Substitute for backslash
          */
-        BackSlashResult bs = Interp.backslash(s, i, len);
+        BackSlashResult bs = Parser.backslash(s, i, len);
         i = bs.getNextIndex();
         if (bs.isWordSep()) {
           break;
@@ -253,7 +253,7 @@ public final class SubstCmd implements Command {
      * If there are un-parsable commands after a continue or return
      * in a command substitution, it is copied literally into result
      */
-    int trailingIndex = offset + interp.termOffset + 1;
+    int trailingIndex = offset + interp.getTermOffset() + 1;
     if (ccode != TCL.OK
         && ccode != TCL.BREAK
         && originalString.charAt(offset) == '['

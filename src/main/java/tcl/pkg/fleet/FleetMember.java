@@ -143,7 +143,7 @@ public class FleetMember implements Runnable {
         if (debug) {
           System.out.println("Interp() and init");
         }
-        interp = new Interp();
+        interp = Interp.of();
       }
       evalScript(event.callback());
 

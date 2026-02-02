@@ -12,7 +12,7 @@
  *
  */
 
-package tcl.lang;
+package tcl.lang.parse;
 
 import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;

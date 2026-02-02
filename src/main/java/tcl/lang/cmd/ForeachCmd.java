@@ -107,7 +107,7 @@ public final class ForeachCmd implements Command {
             continue;
 
           case TCL.ERROR:
-            interp.addErrorInfo("\n    (\"foreach\" body line " + interp.errorLine + ")");
+            interp.addErrorInfo("\n    (\"foreach\" body line " + interp.getErrorLine() + ")");
             throw e;
 
           default:

@@ -98,7 +98,7 @@ public final class ProcCmd implements Command {
     Namespace ns, altNs, cxtNs;
     StringBuffer ds;
 
-    Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     Namespace.getNamespaceForQualName(interp, fullName, null, 0, gnfqnr);
 
     ns = gnfqnr.ns;

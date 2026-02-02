@@ -275,7 +275,7 @@ public class JtclScriptEngine extends AbstractScriptEngine {
   private Interp getInterp() {
     Interp interp;
     if ((interp = interpreters.get()) == null) {
-      interp = new Interp();
+      interp = Interp.of();
       ContextCommand cmd = new ContextCommand();
       interp.createCommand("context", cmd);
       // alias for 'context' command...

@@ -22,6 +22,7 @@ import tcl.lang.channel.Channel;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.io.Translation;
 import tcl.lang.model.TclBoolean;
 import tcl.lang.model.TclIndex;
 import tcl.lang.model.TclInteger;
@@ -151,32 +152,28 @@ public final class FconfigureCmd implements Command {
 
       if (chan.isReadOnly()) {
         TclList.append(
-            interp,
-            list,
-            TclString.newInstance(TclIO.getTranslationString(chan.getInputTranslation())));
+            interp, list, TclString.newInstance(Translation.getString(chan.getInputTranslation())));
       } else if (chan.isWriteOnly()) {
         TclList.append(
             interp,
             list,
-            TclString.newInstance(TclIO.getTranslationString(chan.getOutputTranslation())));
+            TclString.newInstance(Translation.getString(chan.getOutputTranslation())));
       } else if (chan.isReadWrite()) {
         TclObject translation_pair = TclList.newInstance();
 
         TclList.append(
             interp,
             translation_pair,
-            TclString.newInstance(TclIO.getTranslationString(chan.getInputTranslation())));
+            TclString.newInstance(Translation.getString(chan.getInputTranslation())));
         TclList.append(
             interp,
             translation_pair,
-            TclString.newInstance(TclIO.getTranslationString(chan.getOutputTranslation())));
+            TclString.newInstance(Translation.getString(chan.getOutputTranslation())));
 
         TclList.append(interp, list, translation_pair);
       } else {
         TclList.append(
-            interp,
-            list,
-            TclString.newInstance(TclIO.getTranslationString(chan.getInputTranslation())));
+            interp, list, TclString.newInstance(Translation.getString(chan.getInputTranslation())));
       }
 
       // -peername
@@ -287,25 +284,25 @@ public final class FconfigureCmd implements Command {
         case OPT_TRANSLATION:
           { // -translation
             if (chan.isReadOnly()) {
-              interp.setResult(TclIO.getTranslationString(chan.getInputTranslation()));
+              interp.setResult(Translation.getString(chan.getInputTranslation()));
             } else if (chan.isWriteOnly()) {
-              interp.setResult(TclIO.getTranslationString(chan.getOutputTranslation()));
+              interp.setResult(Translation.getString(chan.getOutputTranslation()));
             } else if (chan.isReadWrite()) {
               TclObject translation_pair = TclList.newInstance();
 
               TclList.append(
                   interp,
                   translation_pair,
-                  TclString.newInstance(TclIO.getTranslationString(chan.getInputTranslation())));
+                  TclString.newInstance(Translation.getString(chan.getInputTranslation())));
               TclList.append(
                   interp,
                   translation_pair,
-                  TclString.newInstance(TclIO.getTranslationString(chan.getOutputTranslation())));
+                  TclString.newInstance(Translation.getString(chan.getOutputTranslation())));
 
               interp.setResult(translation_pair);
             } else {
               // not reading or writing, but test io-39.23 says it should return something
-              interp.setResult(TclIO.getTranslationString(chan.getInputTranslation()));
+              interp.setResult(Translation.getString(chan.getInputTranslation()));
             }
 
             break;
@@ -423,24 +420,21 @@ public final class FconfigureCmd implements Command {
             }
 
             String inputTranslationArg, outputTranslationArg;
-            int inputTranslation, outputTranslation;
+            Translation inputTranslation, outputTranslation;
 
-            if (length == 2) {
-              inputTranslationArg = TclList.index(interp, argv[i], 0).toString();
-              inputTranslation = TclIO.getTranslationID(inputTranslationArg);
-              outputTranslationArg = TclList.index(interp, argv[i], 1).toString();
-              outputTranslation = TclIO.getTranslationID(outputTranslationArg);
-            } else {
-              outputTranslationArg = inputTranslationArg = argv[i].toString();
-              outputTranslation = inputTranslation = TclIO.getTranslationID(outputTranslationArg);
-            }
-
-            if ((inputTranslation == -1) || (outputTranslation == -1)) {
-              throw new TclException(
-                  interp,
-                  "bad value for -translation: "
-                      + "must be one of auto, binary, cr, lf, "
-                      + "crlf, or platform");
+            try {
+              if (length == 2) {
+                inputTranslationArg = TclList.index(interp, argv[i], 0).toString();
+                inputTranslation = Translation.getTranslation(inputTranslationArg);
+                outputTranslationArg = TclList.index(interp, argv[i], 1).toString();
+                outputTranslation = Translation.getTranslation(outputTranslationArg);
+              } else {
+                outputTranslationArg = inputTranslationArg = argv[i].toString();
+                outputTranslation =
+                    inputTranslation = Translation.getTranslation(outputTranslationArg);
+              }
+            } catch (IllegalArgumentException e) {
+              throw new TclException(interp, e.getMessage());
             }
 
             if (chan.isReadOnly()) {

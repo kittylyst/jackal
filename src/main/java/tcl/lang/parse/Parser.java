@@ -9,9 +9,10 @@
  * RCS: @(#) $Id: Parser.java,v 1.30 2006/08/03 22:33:12 mdejong Exp $
  */
 
-package tcl.lang;
+package tcl.lang.parse;
 
 import java.util.Arrays;
+import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
 import tcl.lang.model.CharPointer;
@@ -127,14 +128,14 @@ public class Parser {
         }
 
         if ((cur == '\\')) {
-          int eolCharCount = eolCharCount(script_array, script_index + 1, parse.endIndex);
+          int eolCharCount = eolCharCount(script_array, script_index + 1, parse.getEndIndex());
           if (eolCharCount > 0) {
 
             // Skip backslash-newline sequence: it should be treated
             // just like white space.
 
-            if ((script_index + 1 + eolCharCount) == parse.endIndex) {
-              parse.incomplete = true;
+            if ((script_index + 1 + eolCharCount) == parse.getEndIndex()) {
+              parse.setIncomplete(true);
             }
 
             // this will add 2 to the offset and return to the top
@@ -152,28 +153,28 @@ public class Parser {
         }
 
         // Record the index where the comment starts
-        if (parse.commentStart < 0) {
-          parse.commentStart = script_index;
+        if (parse.getCommentStart() < 0) {
+          parse.setCommentStart(script_index);
         }
 
         while (true) {
           cur = script_array[script_index];
-          if (script_index == parse.endIndex) {
+          if (script_index == parse.getEndIndex()) {
             if (nested) {
-              parse.incomplete = true;
+              parse.setIncomplete(true);
             }
-            parse.commentSize = script_index - parse.commentStart;
+            parse.setCommentSize(script_index - parse.getCommentStart());
             break;
           } else if (cur == '\\') {
-            int eolCharCount = eolCharCount(script_array, script_index + 1, parse.endIndex);
-            if (eolCharCount > 0 && ((script_index + eolCharCount + 1) == parse.endIndex)) {
-              parse.incomplete = true;
+            int eolCharCount = eolCharCount(script_array, script_index + 1, parse.getEndIndex());
+            if (eolCharCount > 0 && ((script_index + eolCharCount + 1) == parse.getEndIndex())) {
+              parse.setIncomplete(true);
             }
             bs = backslash(script_array, script_index);
             script_index = bs.getNextIndex();
           } else if (cur == '\n') {
             script_index++;
-            parse.commentSize = script_index - parse.commentStart;
+            parse.setCommentSize(script_index - parse.getCommentStart());
             break;
           } else {
             script_index++;
@@ -184,12 +185,12 @@ public class Parser {
       // The following loop parses the words of the command, one word
       // in each iteration through the loop.
 
-      parse.commandStart = script_index;
+      parse.setCommandStart(script_index);
 
       while (true) {
 
         // Create the token for the word.
-        wordIndex = parse.numTokens;
+        wordIndex = parse.getNumTokens();
 
         token = parse.getToken(wordIndex);
         token.type = TCL_TOKEN_WORD;
@@ -207,10 +208,10 @@ public class Parser {
             script_index++;
             continue;
           } else if ((cur == '\\')
-              && (eolCharCount = eolCharCount(script_array, script_index + 1, parse.endIndex))
+              && (eolCharCount = eolCharCount(script_array, script_index + 1, parse.getEndIndex()))
                   > 0) {
-            if ((script_index + eolCharCount + 1) == parse.endIndex) {
-              parse.incomplete = true;
+            if ((script_index + eolCharCount + 1) == parse.getEndIndex()) {
+              parse.setIncomplete(true);
             }
             bs = backslash(script_array, script_index);
             script_index = bs.getNextIndex();
@@ -219,16 +220,16 @@ public class Parser {
           break;
         }
         if ((type & terminators) != 0) {
-          parse.termIndex = script_index;
+          parse.setTermIndex(script_index);
           script_index++;
           break;
         }
 
-        if (script_index == parse.endIndex) {
+        if (script_index == parse.getEndIndex()) {
           if (nested && savedChar != ']') {
             // parse.termIndex = token.script_index;
-            parse.incomplete = true;
-            parse.errorType = Parser.TCL_PARSE_MISSING_BRACKET;
+            parse.setIncomplete(true);
+            parse.setErrorType(Parser.TCL_PARSE_MISSING_BRACKET);
             throw new TclException(interp, "missing close-bracket");
           }
           break;
@@ -237,8 +238,8 @@ public class Parser {
         token.script_array = script_array;
         token.script_index = script_index;
 
-        parse.numTokens++;
-        parse.numWords++;
+        parse.setNumTokens(parse.getNumTokens() + 1);
+        parse.setNumWords(parse.getNumWords() + 1);
 
         // At this point the word can have one of three forms: something
         // enclosed in quotes, something enclosed in braces, or an
@@ -249,23 +250,23 @@ public class Parser {
         if (cur == '"') {
           script_index++;
           parse = parseTokens(script_array, script_index, TYPE_QUOTE, parse);
-          if (parse.result != TCL.OK) {
-            throw new TclException(parse.result);
+          if (parse.getResult() != TCL.OK) {
+            throw new TclException(parse.getResult());
           }
-          if (parse.string[parse.termIndex] != '"') {
-            parse.termIndex = script_index - 1;
-            parse.incomplete = true;
-            parse.errorType = Parser.TCL_PARSE_MISSING_QUOTE;
-            throw new TclException(parse.interp, "missing \"");
+          if (parse.getChars()[parse.getTermIndex()] != '"') {
+            parse.setTermIndex(script_index - 1);
+            parse.setIncomplete(true);
+            parse.setErrorType(Parser.TCL_PARSE_MISSING_QUOTE);
+            throw new TclException(parse.getInterp(), "missing \"");
           }
-          script_index = parse.termIndex + 1;
+          script_index = parse.getTermIndex() + 1;
         } else if (cur == '{') {
           // Find the matching right brace that terminates the word,
           // then generate a single token for everything between the
           // braces.
 
           script_index++;
-          token = parse.getToken(parse.numTokens);
+          token = parse.getToken(parse.getNumTokens());
           token.type = TCL_TOKEN_TEXT;
           token.script_array = script_array;
           token.script_index = script_index;
@@ -289,7 +290,7 @@ public class Parser {
               script_index++;
             } else if (script_array[script_index] == '\\') {
               bs = backslash(script_array, script_index);
-              int eolCharCount = eolCharCount(script_array, script_index + 1, parse.endIndex);
+              int eolCharCount = eolCharCount(script_array, script_index + 1, parse.getEndIndex());
               if (eolCharCount > 0) {
                 // A backslash-newline sequence requires special
                 // treatment: it must be collapsed, even inside
@@ -297,22 +298,22 @@ public class Parser {
                 // multiple tokens so that the backslash-newline
                 // can be represented explicitly.
 
-                if ((script_index + eolCharCount + 1) == parse.endIndex) {
-                  parse.incomplete = true;
+                if ((script_index + eolCharCount + 1) == parse.getEndIndex()) {
+                  parse.setIncomplete(true);
                 }
                 token.size = script_index - token.script_index;
                 if (token.size != 0) {
-                  parse.numTokens++;
+                  parse.setNumTokens(parse.getNumTokens() + 1);
                 }
-                token = parse.getToken(parse.numTokens);
+                token = parse.getToken(parse.getNumTokens());
                 token.type = TCL_TOKEN_BS;
                 token.script_array = script_array;
                 token.script_index = script_index;
                 token.size = bs.getNextIndex() - script_index;
                 token.numComponents = 0;
-                parse.numTokens++;
+                parse.setNumTokens(parse.getNumTokens() + 1);
                 script_index = bs.getNextIndex();
-                token = parse.getToken(parse.numTokens);
+                token = parse.getToken(parse.getNumTokens());
                 token.type = TCL_TOKEN_TEXT;
                 token.script_array = script_array;
                 token.script_index = script_index;
@@ -320,18 +321,18 @@ public class Parser {
               } else {
                 script_index = bs.getNextIndex();
               }
-            } else if (script_index == parse.endIndex) {
-              parse.termIndex = parse.getToken(wordIndex).script_index;
-              parse.incomplete = true;
-              parse.errorType = Parser.TCL_PARSE_MISSING_BRACE;
+            } else if (script_index == parse.getEndIndex()) {
+              parse.setTermIndex(parse.getToken(wordIndex).script_index);
+              parse.setIncomplete(true);
+              parse.setErrorType(Parser.TCL_PARSE_MISSING_BRACE);
               throw new TclException(interp, "missing close-brace");
             } else {
               script_index++;
             }
           }
-          if ((script_index != token.script_index) || (parse.numTokens == (wordIndex + 1))) {
+          if ((script_index != token.script_index) || (parse.getNumTokens() == (wordIndex + 1))) {
             token.size = script_index - token.script_index;
-            parse.numTokens++;
+            parse.setNumTokens(parse.getNumTokens() + 1);
           }
           script_index++;
         } else {
@@ -339,10 +340,10 @@ public class Parser {
           // all of the work.
 
           parse = parseTokens(script_array, script_index, TYPE_SPACE | terminators, parse);
-          if (parse.result != TCL.OK) {
-            throw new TclException(parse.result);
+          if (parse.getResult() != TCL.OK) {
+            throw new TclException(parse.getResult());
           }
-          script_index = parse.termIndex;
+          script_index = parse.getTermIndex();
         }
 
         // Finish filling in the token for the word and check for the
@@ -351,7 +352,7 @@ public class Parser {
 
         token = parse.getToken(wordIndex);
         token.size = script_index - token.script_index;
-        token.numComponents = parse.numTokens - (wordIndex + 1);
+        token.numComponents = parse.getNumTokens() - (wordIndex + 1);
         if ((token.numComponents == 1) && (parse.getToken(wordIndex + 1).type == TCL_TOKEN_TEXT)) {
           token.type = TCL_TOKEN_SIMPLE_WORD;
         }
@@ -378,43 +379,43 @@ public class Parser {
         // }
 
         if ((type & terminators) != 0) {
-          parse.termIndex = script_index;
+          parse.setTermIndex(script_index);
           script_index++;
           break;
         }
 
-        if (script_index == parse.endIndex) {
+        if (script_index == parse.getEndIndex()) {
           if (nested && savedChar != ']') {
             // parse.termIndex = token.script_index;
-            parse.incomplete = true;
-            parse.errorType = Parser.TCL_PARSE_MISSING_BRACKET;
+            parse.setIncomplete(true);
+            parse.setErrorType(Parser.TCL_PARSE_MISSING_BRACKET);
             throw new TclException(interp, "missing close-bracket");
           }
           break;
         }
 
-        parse.termIndex = script_index;
+        parse.setTermIndex(script_index);
         if (script_array[script_index - 1] == '"') {
-          parse.errorType = Parser.TCL_PARSE_QUOTE_EXTRA;
+          parse.setErrorType(Parser.TCL_PARSE_QUOTE_EXTRA);
           throw new TclException(interp, "extra characters after close-quote");
         } else {
-          parse.errorType = Parser.TCL_PARSE_BRACE_EXTRA;
+          parse.setErrorType(Parser.TCL_PARSE_BRACE_EXTRA);
           throw new TclException(interp, "extra characters after close-brace");
         }
       }
     } catch (TclException e) {
       script_array[endIndex] = savedChar;
-      if (parse.commandStart < 0) {
-        parse.commandStart = saved_script_index;
+      if (parse.getCommandStart() < 0) {
+        parse.setCommandStart(saved_script_index);
       }
-      parse.commandSize = parse.termIndex - parse.commandStart;
-      parse.result = TCL.ERROR;
+      parse.setCommandSize(parse.getTermIndex() - parse.getCommandStart());
+      parse.setResult(TCL.ERROR);
       return parse;
     }
 
     script_array[endIndex] = savedChar;
-    parse.commandSize = script_index - parse.commandStart;
-    parse.result = TCL.OK;
+    parse.setCommandSize(script_index - parse.getCommandStart());
+    parse.setResult(TCL.OK);
     return parse;
   }
 
@@ -449,8 +450,8 @@ public class Parser {
 
     do {
       parse = parseCommand(null, src.getArray(), src.getIndex(), len, null, 0, nested);
-      parseError = parse.errorType;
-      src.setIndex(parse.commandStart + parse.commandSize);
+      parseError = parse.getErrorType();
+      src.setIndex(parse.getCommandStart() + parse.getCommandSize());
       parse.release(); // Release parser resources
       if (src.getIndex() >= len) {
         break;
@@ -518,9 +519,9 @@ public class Parser {
     // TCL_TOKEN_VARIABLE to parsePtr. For TCL_TOKEN_VARIABLE additional,
     // tokens tokens are added for the parsed variable name.
 
-    originalTokens = parse.numTokens;
+    originalTokens = parse.getNumTokens();
     while (true) {
-      token = parse.getToken(parse.numTokens);
+      token = parse.getToken(parse.getNumTokens());
       token.script_array = script_array;
       token.script_index = script_index;
       token.numComponents = 0;
@@ -570,12 +571,12 @@ public class Parser {
         }
         token.type = TCL_TOKEN_TEXT;
         token.size = script_index - token.script_index;
-        parse.numTokens++;
+        parse.setNumTokens(parse.getNumTokens() + 1);
 
         if (debug) {
           System.out.println("end simple range");
           System.out.println("token.size is " + token.size);
-          System.out.println("parse.numTokens is " + parse.numTokens);
+          System.out.println("parse.numTokens is " + parse.getNumTokens());
           System.out.println();
         }
 
@@ -587,16 +588,16 @@ public class Parser {
           System.out.println("dollar sign");
         }
 
-        varToken = parse.numTokens;
+        varToken = parse.getNumTokens();
         parse =
             parseVarName(
-                parse.interp,
+                parse.getInterp(),
                 script_array,
                 script_index,
-                parse.endIndex - script_index,
+                parse.getEndIndex() - script_index,
                 parse,
                 true);
-        if (parse.result != TCL.OK) {
+        if (parse.getResult() != TCL.OK) {
           return parse;
         }
         script_index += parse.getToken(varToken).size;
@@ -613,48 +614,48 @@ public class Parser {
         while (true) {
           nested =
               parseCommand(
-                  parse.interp,
+                  parse.getInterp(),
                   script_array,
                   script_index,
-                  parse.endIndex - script_index,
-                  parse.fileName,
-                  parse.lineNum,
+                  parse.getEndIndex() - script_index,
+                  parse.getFileName(),
+                  parse.getLineNum(),
                   true);
-          if (nested.result != TCL.OK) {
-            parse.termIndex = nested.termIndex;
-            parse.incomplete = nested.incomplete;
-            parse.errorType = nested.errorType;
-            parse.result = nested.result;
+          if (nested.getResult() != TCL.OK) {
+            parse.setTermIndex(nested.getTermIndex());
+            parse.setIncomplete(nested.isIncomplete());
+            parse.setErrorType(nested.getErrorType());
+            parse.setResult(nested.getResult());
             return parse;
           }
-          script_index = nested.commandStart + nested.commandSize;
-          if ((script_array[script_index - 1] == ']') && !nested.incomplete) {
+          script_index = nested.getCommandStart() + nested.getCommandSize();
+          if ((script_array[script_index - 1] == ']') && !nested.isIncomplete()) {
             break;
           }
-          if (script_index == parse.endIndex) {
-            if (parse.interp != null) {
-              parse.interp.setResult("missing close-bracket");
+          if (script_index == parse.getEndIndex()) {
+            if (parse.getInterp() != null) {
+              parse.getInterp().setResult("missing close-bracket");
             }
-            parse.termIndex = token.script_index;
-            parse.incomplete = true;
-            parse.errorType = Parser.TCL_PARSE_MISSING_BRACKET;
-            parse.result = TCL.ERROR;
+            parse.setTermIndex(token.script_index);
+            parse.setIncomplete(true);
+            parse.setErrorType(Parser.TCL_PARSE_MISSING_BRACKET);
+            parse.setResult(TCL.ERROR);
             return parse;
           }
         }
         token.type = TCL_TOKEN_COMMAND;
         token.size = script_index - token.script_index;
-        parse.numTokens++;
+        parse.setNumTokens(parse.getNumTokens() + 1);
       } else if (cur == '\\') {
         // Backslash substitution.
 
         if (debug) {
           System.out.println("backslash");
         }
-        int eolCharCount = eolCharCount(script_array, script_index + 1, parse.endIndex);
+        int eolCharCount = eolCharCount(script_array, script_index + 1, parse.getEndIndex());
         if (eolCharCount > 0) {
-          if ((script_index + eolCharCount + 1) == parse.endIndex) {
-            parse.incomplete = true;
+          if ((script_index + eolCharCount + 1) == parse.getEndIndex()) {
+            parse.setIncomplete(true);
           }
 
           // Note: backslash-newline is special in that it is
@@ -674,13 +675,13 @@ public class Parser {
         if (token.size == 1) {
           // Just a backslash, due to end of string
           token.type = TCL_TOKEN_TEXT;
-          parse.numTokens++;
+          parse.setNumTokens(parse.getNumTokens() + 1);
           script_index++;
           // numBytes--;
           continue;
         }
         // FIXME: Add code for backslash newline processing
-        parse.numTokens++;
+        parse.setNumTokens(parse.getNumTokens() + 1);
         script_index += token.size;
       } else if (cur == '\0') {
         // We encountered a null character. If it is the null
@@ -691,23 +692,23 @@ public class Parser {
         if (debug) {
           System.out.println("null char");
           System.out.println("script_index is " + script_index);
-          System.out.println("parse.endIndex is " + parse.endIndex);
+          System.out.println("parse.endIndex is " + parse.getEndIndex());
         }
 
-        if (script_index == parse.endIndex) {
+        if (script_index == parse.getEndIndex()) {
           break;
         }
 
         token.type = TCL_TOKEN_TEXT;
         token.size = 1;
-        parse.numTokens++;
+        parse.setNumTokens(parse.getNumTokens() + 1);
         script_index++;
       } else {
         throw new TclRuntimeError("parseTokens encountered unknown character");
       }
     } // end while (true)
 
-    if (parse.numTokens == originalTokens) {
+    if (parse.getNumTokens() == originalTokens) {
       // There was nothing in this range of text. Add an empty token
       // for the empty range, so that there is always at least one
       // token added.
@@ -718,29 +719,29 @@ public class Parser {
 
       token.type = TCL_TOKEN_TEXT;
       token.size = 0;
-      parse.numTokens++;
+      parse.setNumTokens(parse.getNumTokens() + 1);
     } else {
       if (debug) {
         System.out.println("non empty token case");
       }
     }
 
-    parse.termIndex = script_index;
-    parse.result = TCL.OK;
+    parse.setTermIndex(script_index);
+    parse.setResult(TCL.OK);
 
     if (debug) {
       System.out.println();
       System.out.println("Leaving Parser.parseTokens()");
 
-      System.out.println("after parse, parse.numTokens is " + parse.numTokens);
+      System.out.println("after parse, parse.numTokens is " + parse.getNumTokens());
       System.out.println("after parse, token.size is " + token.size);
       System.out.println("after parse, token.hashCode() is " + token.hashCode());
 
       // System.out.println( parse.toString() );
 
-      System.out.print("printing " + (parse.numTokens - originalTokens) + " token(s)");
+      System.out.print("printing " + (parse.getNumTokens() - originalTokens) + " token(s)");
 
-      for (int k = originalTokens; k < parse.numTokens; k++) {
+      for (int k = originalTokens; k < parse.getNumTokens(); k++) {
         token = parse.getToken(k);
         System.out.println(token);
       }
@@ -765,7 +766,8 @@ public class Parser {
    * @param flags Collection of OR-ed bits that control the evaluation of the script. Only
    *     TCL.EVAL_GLOBAL is currently supported.
    */
-  static void evalObjv(Interp interp, TclObject[] objv, int length, int flags) throws TclException {
+  public static void evalObjv(Interp interp, TclObject[] objv, int length, int flags)
+      throws TclException {
     WrappedCommand cmd;
     TclObject[] newObjv = null;
     int i;
@@ -859,7 +861,7 @@ public class Parser {
     int offset;
     int pIndex;
 
-    if (interp.errAlreadyLogged) {
+    if (interp.isErrAlreadyLogged()) {
       // Someone else has already logged error information for this
       // command; we shouldn't add anything more.
 
@@ -871,11 +873,11 @@ public class Parser {
     // because we want to count from the beginning of
     // the script, not the current index.
 
-    interp.errorLine = 1;
+    interp.setErrorLine(1);
 
     for (pIndex = 0; pIndex < cmdIndex; pIndex++) {
       if (script_array[pIndex] == '\n') {
-        interp.errorLine++;
+        interp.setErrorLine(interp.getErrorLine() + 1);
       }
     }
 
@@ -903,12 +905,12 @@ public class Parser {
      * "while compiling"; JTCL has some issues deciding which to use
      * which causes test fails
      */
-    if (!(interp.errInProgress)) {
+    if (!(interp.isErrInProgress())) {
       interp.addErrorInfo("\n    while executing\n\"" + msg + ellipsis + "\"");
     } else {
       interp.addErrorInfo("\n    invoked from within\n\"" + msg + ellipsis + "\"");
     }
-    interp.errAlreadyLogged = false;
+    interp.setErrAlreadyLogged(false);
     e.errIndex = cmdIndex + offset;
   }
 
@@ -1008,7 +1010,7 @@ public class Parser {
           // the variable. This should be removed when the new expr
           // parser is implemented.
 
-          if (interp.noEval == 0) {
+          if (interp.getNoEval() == 0) {
             if (index != null) {
               try {
                 value = interp.getVar(varName, index.toString(), 0);
@@ -1071,7 +1073,8 @@ public class Parser {
    * @param flags Tcl.EVAL_GLOBAL or 0
    * @throws TclException
    */
-  static void eval2(Interp interp, char[] script_array, int script_index, int numChars, int flags)
+  public static void eval2(
+      Interp interp, char[] script_array, int script_index, int numChars, int flags)
       throws TclException {
     int i;
     int objUsed = 0;
@@ -1136,14 +1139,14 @@ public class Parser {
       do {
         parse = parseCommand(interp, src_array, src_index, charsLeft, null, 0, nested);
 
-        if (parse.result != TCL.OK) {
-          throw new TclException(parse.result);
+        if (parse.getResult() != TCL.OK) {
+          throw new TclException(parse.getResult());
         }
 
         // The test on noEval is temporary. As soon as the new expr
         // parser is implemented it should be removed.
 
-        if (parse.numWords > 0 && interp.noEval == 0) {
+        if (parse.getNumWords() > 0 && interp.getNoEval() == 0) {
           // Generate an array of objects for the words of the
           // command.
 
@@ -1157,20 +1160,20 @@ public class Parser {
             // allocation
             // needs to be performed.
 
-            if (objv.length != parse.numWords) {
+            if (objv.length != parse.getNumWords()) {
               // System.out.println("need new size " +
               // objv.length);
               releaseObjv(interp, objv, objv.length); // let go of
               // resource
-              objv = grabObjv(interp, parse.numWords); // get new
+              objv = grabObjv(interp, parse.getNumWords()); // get new
               // resource
             } else {
               // System.out.println("reusing size " +
               // objv.length);
             }
 
-            for (objUsed = 0; objUsed < parse.numWords; objUsed++) {
-              obj = evalTokens(interp, parse.tokenList, tokenIndex + 1, token.numComponents);
+            for (objUsed = 0; objUsed < parse.getNumWords(); objUsed++) {
+              obj = evalTokens(interp, parse.getTokenList(), tokenIndex + 1, token.numComponents);
               if (obj == null) {
                 throw new TclException(TCL.ERROR);
               } else {
@@ -1194,10 +1197,10 @@ public class Parser {
             // free resources that had been allocated
             // to the command.
 
-            if (e.getCompletionCode() == TCL.ERROR && !(interp.errAlreadyLogged)) {
-              commandLength = parse.commandSize;
+            if (e.getCompletionCode() == TCL.ERROR && !(interp.isErrAlreadyLogged())) {
+              commandLength = parse.getCommandSize();
 
-              char term = script_array[parse.commandStart + commandLength - 1];
+              char term = script_array[parse.getCommandStart() + commandLength - 1];
               int type = charType(term);
               int terminators;
               if (nested) {
@@ -1217,13 +1220,13 @@ public class Parser {
               }
               interp.varFrame = savedVarFrame;
               logCommandInfo(
-                  interp, script_array, script_index, parse.commandStart, commandLength, e);
+                  interp, script_array, script_index, parse.getCommandStart(), commandLength, e);
             }
             /*
              *  set the interp.termOffset even on exception, so 'subst' can use
              *  when a continue, break or return exception occurs
              */
-            interp.termOffset = parse.commandStart + parse.commandSize - script_index;
+            interp.setTermOffset(parse.getCommandStart() + parse.getCommandSize() - script_index);
             throw e;
           } finally {
             for (i = 0; i < objUsed; i++) {
@@ -1238,7 +1241,7 @@ public class Parser {
 
         // Advance to the next command in the script.
 
-        nextIndex = parse.commandStart + parse.commandSize;
+        nextIndex = parse.getCommandStart() + parse.getCommandSize();
         charsLeft -= (nextIndex - src_index);
         src_index = nextIndex;
         if (nested && (src_index > 1) && (src_array[src_index - 1] == ']')) {
@@ -1248,7 +1251,7 @@ public class Parser {
           // flag was set in the interpreter and we reached a close
           // bracket in the script. Return immediately.
 
-          interp.termOffset = (src_index - 1) - script_index;
+          interp.setTermOffset((src_index - 1) - script_index);
           interp.varFrame = savedVarFrame;
           return;
         }
@@ -1261,7 +1264,7 @@ public class Parser {
       releaseObjv(interp, objv, objv.length); // Let go of objv buffer
     }
 
-    interp.termOffset = src_index - script_index;
+    interp.setTermOffset(src_index - script_index);
     interp.varFrame = savedVarFrame;
     return;
   }
@@ -1336,12 +1339,12 @@ public class Parser {
     // name, plus any number of additional tokens for the index, if
     // there is one.
 
-    token = parse.getToken(parse.numTokens);
+    token = parse.getToken(parse.getNumTokens());
     token.type = TCL_TOKEN_VARIABLE;
     token.script_array = script_array;
     token.script_index = script_index;
-    varIndex = parse.numTokens;
-    parse.numTokens++;
+    varIndex = parse.getNumTokens();
+    parse.setNumTokens(parse.getNumTokens() + 1);
     script_index++;
     if (script_index >= endIndex) {
       // The dollar sign isn't followed by a variable name.
@@ -1351,11 +1354,11 @@ public class Parser {
       token.type = TCL_TOKEN_TEXT;
       token.size = 1;
       token.numComponents = 0;
-      parse.result = TCL.OK;
+      parse.setResult(TCL.OK);
       return parse;
     }
     startToken = token;
-    token = parse.getToken(parse.numTokens);
+    token = parse.getToken(parse.getNumTokens());
 
     // The name of the variable can have three forms:
     // 1. The $ sign is followed by an open curly brace. Then
@@ -1388,10 +1391,10 @@ public class Parser {
           if (interp != null) {
             interp.setResult("missing close-brace for variable name");
           }
-          parse.termIndex = token.script_index - 1;
-          parse.incomplete = true;
-          parse.errorType = Parser.TCL_PARSE_MISSING_VAR_BRACE;
-          parse.result = TCL.ERROR;
+          parse.setTermIndex(token.script_index - 1);
+          parse.setIncomplete(true);
+          parse.setErrorType(Parser.TCL_PARSE_MISSING_VAR_BRACE);
+          parse.setResult(TCL.ERROR);
           return parse;
         }
         if (script_array[script_index] == '}') {
@@ -1401,7 +1404,7 @@ public class Parser {
       }
       token.size = script_index - token.script_index;
       startToken.size = script_index - startToken.script_index;
-      parse.numTokens++;
+      parse.setNumTokens(parse.getNumTokens() + 1);
       script_index++;
     } else {
       if (debug) {
@@ -1441,10 +1444,10 @@ public class Parser {
         startToken.type = TCL_TOKEN_TEXT;
         startToken.size = 1;
         startToken.numComponents = 0;
-        parse.result = TCL.OK;
+        parse.setResult(TCL.OK);
         return parse;
       }
-      parse.numTokens++;
+      parse.setNumTokens(parse.getNumTokens() + 1);
       if ((script_index != endIndex) && (script_array[script_index] == '(')) {
         // This is a reference to an array element. Call
         // parseTokens recursively to parse the element name,
@@ -1456,20 +1459,20 @@ public class Parser {
 
         script_index++;
         parse = parseTokens(script_array, script_index, TYPE_CLOSE_PAREN, parse);
-        if (parse.result != TCL.OK) {
+        if (parse.getResult() != TCL.OK) {
           return parse;
         }
-        if ((parse.termIndex == endIndex) || (parse.string[parse.termIndex] != ')')) {
+        if ((parse.getTermIndex() == endIndex) || (parse.getChars()[parse.getTermIndex()] != ')')) {
           if (interp != null) {
             interp.setResult("missing )");
           }
-          parse.termIndex = script_index - 1;
-          parse.incomplete = true;
-          parse.errorType = Parser.TCL_PARSE_MISSING_PAREN;
-          parse.result = TCL.ERROR;
+          parse.setTermIndex(script_index - 1);
+          parse.setIncomplete(true);
+          parse.setErrorType(Parser.TCL_PARSE_MISSING_PAREN);
+          parse.setResult(TCL.ERROR);
           return parse;
         }
-        script_index = parse.termIndex + 1;
+        script_index = parse.getTermIndex() + 1;
       }
     }
 
@@ -1483,8 +1486,8 @@ public class Parser {
     }
 
     startToken.size = script_index - startToken.script_index;
-    startToken.numComponents = parse.numTokens - (varIndex + 1);
-    parse.result = TCL.OK;
+    startToken.numComponents = parse.getNumTokens() - (varIndex + 1);
+    parse.setResult(TCL.OK);
     return parse;
   }
 
@@ -1525,26 +1528,26 @@ public class Parser {
 
     CharPointer src = new CharPointer(string);
     parse = parseVarName(interp, src.getArray(), src.getIndex(), -1, null, false);
-    if (parse.result != TCL.OK) {
+    if (parse.getResult() != TCL.OK) {
       throw new TclException(interp, interp.getResult().toString());
     }
 
     try {
       if (debug) {
         System.out.println();
-        System.out.print("parsed " + parse.numTokens + " tokens");
+        System.out.print("parsed " + parse.getNumTokens() + " tokens");
       }
 
-      if (parse.numTokens == 1) {
+      if (parse.getNumTokens() == 1) {
         // There isn't a variable name after all: the $ is just a $.
         return new ParseResult("$", 1);
       }
 
-      obj = evalTokens(interp, parse.tokenList, 0, parse.numTokens);
+      obj = evalTokens(interp, parse.getTokenList(), 0, parse.getNumTokens());
       if (!obj.isShared()) {
         throw new TclRuntimeError("parseVar got temporary object from evalTokens");
       }
-      return new ParseResult(obj, parse.tokenList[0].size);
+      return new ParseResult(obj, parse.getTokenList()[0].size);
     } finally {
       parse.release(); // Release parser resources
     }
@@ -1568,7 +1571,7 @@ public class Parser {
    * ----------------------------------------------------------------------
    */
 
-  static boolean commandComplete(
+  public static boolean commandComplete(
       String string, // Script to check.
       int charLength) // Number of characters in script.
       {
@@ -1579,16 +1582,16 @@ public class Parser {
     do {
       parse = parseCommand(null, src.getArray(), src.getIndex(), charLength, null, 0, false);
 
-      src.setIndex(parse.commandStart + parse.commandSize);
+      src.setIndex(parse.getCommandStart() + parse.getCommandSize());
 
       parse.release(); // Release parser resources
 
       if (src.getIndex() >= charLength) {
         break;
       }
-    } while (parse.result == TCL.OK);
+    } while (parse.getResult() == TCL.OK);
 
-    if (parse.incomplete) {
+    if (parse.isIncomplete()) {
       return false;
     }
     return true;
@@ -1851,10 +1854,10 @@ public class Parser {
     }
 
     src = script_index;
-    startIndex = parse.numTokens;
+    startIndex = parse.getNumTokens();
 
-    if (parse.numTokens == parse.tokensAvailable) {
-      parse.expandTokenArray(parse.numTokens + 1);
+    if (parse.getNumTokens() == parse.getTokensAvailable()) {
+      parse.expandTokenArray(parse.getNumTokens() + 1);
     }
     token = parse.getToken(startIndex);
     token.type = TCL_TOKEN_TEXT;
@@ -1873,9 +1876,9 @@ public class Parser {
       if (numChars == 0) {
         boolean openBrace = false;
 
-        parse.errorType = TCL_PARSE_MISSING_BRACE;
-        parse.termIndex = script_index;
-        parse.incomplete = true;
+        parse.setErrorType(TCL_PARSE_MISSING_BRACE);
+        parse.setTermIndex(script_index);
+        parse.setIncomplete(true);
 
         String msg = "missing close-brace";
 
@@ -1932,11 +1935,11 @@ public class Parser {
             // The last case ensures that there is a token
             // (even if empty) that describes the braced string.
 
-            if ((src != token.script_index) || (parse.numTokens == startIndex)) {
+            if ((src != token.script_index) || (parse.getNumTokens() == startIndex)) {
               token.size = (src - token.script_index);
-              parse.numTokens++;
+              parse.setNumTokens(parse.getNumTokens() + 1);
             }
-            parse.extra = src + 1;
+            parse.setExtra(src + 1);
             return parse;
           }
           break;
@@ -1950,26 +1953,26 @@ public class Parser {
             // represented explicitly.
 
             if (numChars == 2) {
-              parse.incomplete = true;
+              parse.setIncomplete(true);
             }
             token.size = (src - token.script_index);
             if (token.size != 0) {
-              parse.numTokens++;
+              parse.setNumTokens(parse.getNumTokens() + 1);
             }
-            if ((parse.numTokens + 1) >= parse.tokensAvailable) {
-              parse.expandTokenArray(parse.numTokens + 1);
+            if ((parse.getNumTokens() + 1) >= parse.getTokensAvailable()) {
+              parse.expandTokenArray(parse.getNumTokens() + 1);
             }
-            token = parse.getToken(parse.numTokens);
+            token = parse.getToken(parse.getNumTokens());
             token.type = TCL_TOKEN_BS;
             token.script_array = script_array;
             token.script_index = src;
             token.size = length;
             token.numComponents = 0;
-            parse.numTokens++;
+            parse.setNumTokens(parse.getNumTokens() + 1);
 
             src += length - 1;
             numChars -= length - 1;
-            token = parse.getToken(parse.numTokens);
+            token = parse.getToken(parse.getNumTokens());
             token.type = TCL_TOKEN_TEXT;
             token.script_array = script_array;
             token.script_index = src + 1;
@@ -2050,21 +2053,63 @@ public class Parser {
     // FIXME: numBytes-1 not passed since field not supported by
     // parseTokens().
     parse = Parser.parseTokens(script_array, script_index + 1, TYPE_QUOTE, parse);
-    if (parse.result != TCL.OK) {
+    if (parse.getResult() != TCL.OK) {
       // FIXME: look for other locations where parse.release() is not
       // invoked!
       parse.release(); // Tcl_FreeParse()
-      throw new TclException(parse.result);
+      throw new TclException(parse.getResult());
     }
-    if (script_array[parse.termIndex] != '"') {
+    if (script_array[parse.getTermIndex()] != '"') {
       parse.release(); // Tcl_FreeParse()
-      parse.errorType = Parser.TCL_PARSE_MISSING_QUOTE;
-      parse.termIndex = script_index;
-      parse.incomplete = true;
+      parse.setErrorType(Parser.TCL_PARSE_MISSING_QUOTE);
+      parse.setTermIndex(script_index);
+      parse.setIncomplete(true);
       throw new TclException(interp, "missing \"");
     }
-    parse.extra = parse.termIndex + 1;
+    parse.setExtra(parse.getTermIndex() + 1);
     return parse;
+  }
+
+  /*
+   * ----------------------------------------------------------------------
+   *
+   * commandComplete --
+   *
+   * Check if the string is a complete Tcl command string.
+   *
+   * Result: A boolean value indicating whether the string is a complete Tcl command string.
+   *
+   * Side effects: None.
+   *
+   * @param string The string to check.
+   *
+   * @return
+   */
+  public static boolean commandComplete(String string) {
+    return commandComplete(string, string.length());
+  }
+
+  /**
+   * Figure out how to handle a backslash sequence. The index of the ChapPointer must be pointing to
+   * the first /.
+   *
+   * <p>Results: The return value is an instance of BackSlashResult that contains the character that
+   * should be substituted in place of the backslash sequence that starts at src.index, and an index
+   * to the next character after the backslash sequence.
+   *
+   * <p>Side effects: None.
+   *
+   * @param s
+   * @param i
+   * @param len
+   * @return an instance of BackSlashResult that contains the character that should be substituted
+   *     in place of the backslash sequence that starts at src.index, and an index to the next
+   *     character after the backslash sequence.
+   */
+  public static BackSlashResult backslash(String s, int i, int len) {
+    CharPointer script = new CharPointer(s.substring(0, len));
+    script.setIndex(i);
+    return backslash(script.getArray(), script.getIndex());
   }
 
   /*
@@ -2131,7 +2176,7 @@ public class Parser {
         }
         p += 2;
         if (--numChars == 0) {
-          parse.incomplete = true;
+          parse.setIncomplete(true);
           break;
         }
         continue;
@@ -2497,7 +2542,7 @@ public class Parser {
   // codes other than these should be turned into errors.
 
   public static final int TCL_BRACKET_TERM = 1;
-  static final int TCL_ALLOW_EXCEPTIONS = 4;
+  public static final int TCL_ALLOW_EXCEPTIONS = 4;
 
   // Flag bits for Interp structures:
   //
@@ -2559,7 +2604,7 @@ public class Parser {
   // private static final int[] OBJV_CACHE_HITS = {0,0,0,0,0,0,0,0,0,0,0};
   // private static final int[] OBJV_CACHE_MISSES = {0,0,0,0,0,0,0,0,0,0,0};
 
-  static void init(Interp interp) {
+  public static void init(Interp interp) {
     // System.out.println("called Parser.init()");
 
     TclObject[][][] OBJV = new TclObject[OBJV_CACHE_MAX][][];
@@ -2579,8 +2624,8 @@ public class Parser {
       }
     }
 
-    interp.parserObjv = OBJV;
-    interp.parserObjvUsed = USED;
+    interp.setParserObjv(OBJV);
+    interp.setParserObjvUsed(USED);
   }
 
   // Get a TclObject[] array of a given size. The array
@@ -2591,14 +2636,14 @@ public class Parser {
     int OPEN;
 
     if ((size < OBJV_CACHE_MAX)
-        && ((OPEN = interp.parserObjvUsed[size]) < OBJV_CACHE_SIZES[size])) {
+        && ((OPEN = interp.getParserObjvUsed()[size]) < OBJV_CACHE_SIZES[size])) {
       // Found an open cache slot
       if (false) {
         // System.out.println("cache hit for objv of size " + size);
         // OBJV_CACHE_HITS[i] = OBJV_CACHE_HITS[i] + 1;
       }
-      interp.parserObjvUsed[size] += 1;
-      return interp.parserObjv[size][OPEN];
+      interp.getParserObjvUsed()[size] += 1;
+      return interp.getParserObjv()[size][OPEN];
     } else {
       // Did not find a free cache array of this size
       if (false) {
@@ -2620,11 +2665,11 @@ public class Parser {
 
   public static void releaseObjv(final Interp interp, final TclObject[] objv, final int size) {
     if (size < OBJV_CACHE_MAX) {
-      int OPEN = interp.parserObjvUsed[size];
+      int OPEN = interp.getParserObjvUsed()[size];
 
       if (OPEN > 0) {
         OPEN--;
-        interp.parserObjvUsed[size] = OPEN;
+        interp.getParserObjvUsed()[size] = OPEN;
         // Optimize nulling out of array, the
         // most common cases are handled here.
         switch (size) {
@@ -2657,14 +2702,14 @@ public class Parser {
             Arrays.fill(objv, null);
             break;
         }
-        interp.parserObjv[size][OPEN] = objv;
+        interp.getParserObjv()[size][OPEN] = objv;
       }
     }
   }
 
   // Raise an infinite loop TclException
 
-  static void infiniteLoopException(Interp interp) throws TclException {
+  public static void infiniteLoopException(Interp interp) throws TclException {
     throw new TclException(interp, "too many nested evaluations (infinite loop?)");
   }
 } // end class Parser

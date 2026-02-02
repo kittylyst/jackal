@@ -47,7 +47,7 @@ public final class WhileCmd implements Command {
           if (!exprTest) break loop;
         } catch (TclException e1) {
           if (e1.getCompletionCode() == TCL.ERROR) {
-            if (interp.errInProgress) interp.addErrorInfo("\n    (\"while\" test expression)");
+            if (interp.isErrInProgress()) interp.addErrorInfo("\n    (\"while\" test expression)");
           }
           throw e1;
         }
@@ -62,7 +62,7 @@ public final class WhileCmd implements Command {
               continue;
 
             case TCL.ERROR:
-              interp.addErrorInfo("\n    (\"while\" body line " + interp.errorLine + ")");
+              interp.addErrorInfo("\n    (\"while\" body line " + interp.getErrorLine() + ")");
               throw e;
 
             default:

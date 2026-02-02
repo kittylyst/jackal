@@ -28,5 +28,5 @@ public interface EventDeleter {
    * @param evt Event to test whether it should be removed
    * @return 1 means evt should be removed from the event queue. 0 otherwise.
    */
-  public int deleteEvent(TclEvent evt);
-} // end EventDeleter
+  int deleteEvent(TclEvent evt);
+}

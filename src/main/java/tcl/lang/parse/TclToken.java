@@ -16,9 +16,9 @@
  * RCS: @(#) $Id: TclToken.java,v 1.5 2005/10/29 00:27:43 mdejong Exp $
  */
 
-package tcl.lang;
+package tcl.lang.parse;
 
-class TclToken {
+public final class TclToken {
 
   // Contains an array the references the script from where the
   // token originates from and an index to the first character
@@ -85,7 +85,7 @@ class TclToken {
    */
 
   String getTokenString() {
-    final boolean debug = false;
+    final boolean debug = true;
 
     if (debug && ((script_index + size) > script_array.length)) {
       System.out.println();

@@ -22,6 +22,7 @@ import tcl.lang.channel.StdChannel;
 import tcl.lang.exception.TclException;
 import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
+import tcl.lang.parse.Parser;
 
 /*
  * This class manages the background errors for a Tcl interpreter. It

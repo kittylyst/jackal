@@ -42,9 +42,9 @@ public final class JavaImportCmd implements Command {
 
     final String usage = "java::import ?-forget? ?-package pkg? ?class ...?";
 
-    Map<String, String> classTable = interp.importTable[0];
-    Map<String, List<String>> packageTable = interp.importTable[1];
-    Map<String, List<String>> wildcardTable = interp.importTable[2];
+    Map<String, String> classTable = interp.getImportTable()[0];
+    Map<String, List<String>> packageTable = interp.getImportTable()[1];
+    Map<String, List<String>> wildcardTable = interp.getImportTable()[2];
 
     boolean forget = false;
     String pkg = null;
@@ -536,13 +536,13 @@ public final class JavaImportCmd implements Command {
    *     null will be returned.
    */
   public static String getImport(Interp interp, String name) {
-    Map<String, String> classTable = interp.importTable[0];
+    Map<String, String> classTable = interp.getImportTable()[0];
     String fullyqualified = classTable.get(name);
     if (fullyqualified != null) {
       return fullyqualified;
     }
-    Map<String, List<String>> packageTable = interp.importTable[1];
-    Map<String, List<String>> wildcardTable = interp.importTable[2];
+    Map<String, List<String>> packageTable = interp.getImportTable()[1];
+    Map<String, List<String>> wildcardTable = interp.getImportTable()[2];
     List<String> wildcardList = wildcardTable.get("*");
     if (wildcardList != null) {
       for (String class_package : wildcardList) {

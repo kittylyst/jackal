@@ -1,8 +1,10 @@
 package tcl.lang.channel;
 
+import static tcl.lang.io.Translation.*;
+
 import java.io.FilterReader;
 import java.io.IOException;
-import tcl.lang.TclIO;
+import tcl.lang.io.Translation;
 
 /**
  * This java.io.FilterReader subclass translates the end-of-line characters specified by the
@@ -20,8 +22,8 @@ class EolInputFilter extends FilterReader {
   /** readLine() return value if the stringbuffer contains a valid line. */
   static final int COMPLETE_LINE = 0;
 
-  /** The filter's translation property - one of TclIO.TRANS_* */
-  private int translation;
+  /** The filter's translation property - one of TRANS_* */
+  private Translation translation;
 
   /** Set to true when EOF is seen */
   private boolean eofSeen = false;
@@ -35,7 +37,7 @@ class EolInputFilter extends FilterReader {
    * @param in
    * @param translation TclIO.TRANS_* translation value
    */
-  EolInputFilter(UnicodeDecoder in, int translation) {
+  EolInputFilter(UnicodeDecoder in, Translation translation) {
     super(in);
     setTranslation(translation);
     unicodeDecoder = in;
@@ -46,7 +48,7 @@ class EolInputFilter extends FilterReader {
    *
    * @param translation one of the TclIO.TRANS_* values
    */
-  void setTranslation(int translation) {
+  void setTranslation(Translation translation) {
     this.translation = translation;
   }
 
@@ -185,14 +187,14 @@ class EolInputFilter extends FilterReader {
 
     int bytesRead = super.read(cbuf, off, len);
 
-    if (bytesRead < 1 || translation == TclIO.TRANS_BINARY || translation == TclIO.TRANS_LF) {
+    if (bytesRead < 1 || translation == TRANS_BINARY || translation == TRANS_LF) {
       eofSeen = (bytesRead == -1);
       /* shortcut, nothing to do */
       return bytesRead;
     }
 
     /* Another shortcut */
-    if (translation == TclIO.TRANS_CR) {
+    if (translation == TRANS_CR) {
       for (int i = off; i < off + bytesRead; i++) {
         if (cbuf[i] == '\r') cbuf[i] = '\n';
       }
@@ -266,18 +268,12 @@ class EolInputFilter extends FilterReader {
    * @return true if c is an EOL character on its own
    */
   private final boolean isEolChar(int c) {
-    switch (translation) {
-      case TclIO.TRANS_BINARY:
-      case TclIO.TRANS_LF:
-      case TclIO.TRANS_AUTO:
-        return (c == '\n');
-      case TclIO.TRANS_CR:
-        return (c == '\r');
-      case TclIO.TRANS_CRLF:
-        return false;
-      default:
-        return false;
-    }
+    return switch (translation) {
+      case TRANS_BINARY, TRANS_LF, TRANS_AUTO -> (c == '\n');
+      case TRANS_CR -> (c == '\r');
+      case TRANS_CRLF -> false;
+      default -> false;
+    };
   }
 
   /**
@@ -285,7 +281,7 @@ class EolInputFilter extends FilterReader {
    * @return true if c could be the start of a 2-character EOL sequence
    */
   private final boolean mightBeEol2CharSequence(int c) {
-    return (c == '\r' && (translation == TclIO.TRANS_AUTO || translation == TclIO.TRANS_CRLF));
+    return (c == '\r' && (translation == TRANS_AUTO || translation == TRANS_CRLF));
   }
 
   /**
@@ -295,7 +291,7 @@ class EolInputFilter extends FilterReader {
    */
   private final boolean isEol1CharSequence(int c1, int c2) {
     if (isEolChar(c1)) return true;
-    return (translation == TclIO.TRANS_AUTO && c1 == '\r' && c2 != '\n' && c2 != -1);
+    return (translation == TRANS_AUTO && c1 == '\r' && c2 != '\n' && c2 != -1);
   }
 
   /**
@@ -305,18 +301,12 @@ class EolInputFilter extends FilterReader {
    *     c1-c2 sequence does not constitute eol.
    */
   private final boolean isEol2CharSequence(int c1, int c2) {
-    switch (translation) {
-      case TclIO.TRANS_BINARY:
-      case TclIO.TRANS_LF:
-      case TclIO.TRANS_CR:
+    return switch (translation) {
         /* only need one character, not two */
-        return false;
-      case TclIO.TRANS_CRLF:
-        return (c1 == '\r' && c2 == '\n');
-      case TclIO.TRANS_AUTO:
-        return (c1 == '\r' && (c2 == '\n' || c2 == -1));
-      default:
-        return false;
-    }
+      case TRANS_BINARY, TRANS_LF, TRANS_CR -> false;
+      case TRANS_CRLF -> (c1 == '\r' && c2 == '\n');
+      case TRANS_AUTO -> (c1 == '\r' && (c2 == '\n' || c2 == -1));
+      default -> false;
+    };
   }
 }

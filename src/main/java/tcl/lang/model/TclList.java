@@ -658,14 +658,13 @@ public final class TclList implements InternalRep {
     TclObject objArray[] = TclList.getElements(interp, tobj);
     tlist.alist.clear();
 
-    QSort s = new QSort();
-    s.sort(interp, objArray, sortMode, sortIndex, sortIncreasing, command);
+    var qsort = TclSorter.sort(interp, objArray, sortMode, sortIndex, sortIncreasing, command);
 
     for (int i = 0; i < objArray.length; i++) {
       if (unique && i < objArray.length - 1) {
         TclObject o1 = objArray[i];
         TclObject o2 = objArray[i + 1];
-        if (s.compare(o1, o2) == 0) {
+        if (qsort.compare(o1, o2) == 0) {
           /* don't add o1 now, it is not unique */
           continue;
         }

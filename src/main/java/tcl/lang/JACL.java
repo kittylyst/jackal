@@ -20,7 +20,8 @@ package tcl.lang;
  * This class holds all the Jacl-specific package protected constants.
  */
 
-public class JACL {
+public final class JACL {
+  private JACL() {}
 
   /*
    * Platform constants. PLATFORM is not final because we may change it for
@@ -31,4 +32,4 @@ public class JACL {
   public static final int PLATFORM_WINDOWS = 1;
   public static final int PLATFORM_MAC = 2;
   public static int PLATFORM = Util.getActualPlatform();
-} // end JACL class
+}

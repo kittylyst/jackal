@@ -156,7 +156,7 @@ public class FileEvent extends TclEvent {
    *
    * @author tpoindex
    */
-  class FileEventTimer extends TimerHandler {
+  public static final class FileEventTimer extends TimerHandler {
 
     private Interp interp;
     private Channel channel;

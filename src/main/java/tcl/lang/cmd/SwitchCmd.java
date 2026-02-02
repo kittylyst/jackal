@@ -157,7 +157,7 @@ public final class SwitchCmd implements Command {
 
         if (e.getCompletionCode() == TCL.ERROR) {
           interp.addErrorInfo(
-              "\n    (\"" + switchObjv[pIndex] + "\" arm line " + interp.errorLine + ")");
+              "\n    (\"" + switchObjv[pIndex] + "\" arm line " + interp.getErrorLine() + ")");
         }
         throw e;
       }

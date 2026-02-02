@@ -961,7 +961,7 @@ public final class FormatCmd implements Command {
    */
   private static StrtoulResult strtoul(Interp interp, char[] arr, int endIndex) {
     int orgIndex;
-    StrtoulResult strtoulResult = interp.strtoulResult;
+    StrtoulResult strtoulResult = interp.getStrtoulResult();
 
     orgIndex = endIndex;
     for (; endIndex < arr.length; endIndex++) {

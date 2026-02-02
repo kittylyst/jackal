@@ -13,14 +13,18 @@
 
 package tcl.lang;
 
+import static tcl.lang.io.Translation.*;
+
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import tcl.lang.channel.Channel;
 import tcl.lang.channel.FileEvent;
 import tcl.lang.channel.FileEventScript;
 import tcl.lang.channel.StdChannel;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.io.Translation;
 import tcl.lang.model.TclObject;
 
 public class TclIO {
@@ -70,30 +74,16 @@ public class TclIO {
   /** Flush after every write; don't buffer any input */
   public static final int BUFF_NONE = 2;
 
-  /**
-   * Translate \n, \r, \r\n to \n on input; translate \n to platform-specific end of line on output
-   */
-  public static final int TRANS_AUTO = 0;
-
-  /** Don't translate end of line characters */
-  public static final int TRANS_BINARY = 1;
-
-  /** Don't translate end of line characters */
-  public static final int TRANS_LF = 2;
-
-  /** \n -> \r on output; \r -> \n on input */
-  public static final int TRANS_CR = 3;
-
-  /** \n to \r\n on output; \r\n -> \n on input */
-  public static final int TRANS_CRLF = 4;
-
-  /** End-of-line translation for the current platform */
-  public static int TRANS_PLATFORM;
+  private static final Translation TRANS_PLATFORM;
 
   static {
-    if (Util.isWindows()) TRANS_PLATFORM = TRANS_CRLF;
-    else if (Util.isMac()) TRANS_PLATFORM = TRANS_CR;
-    else TRANS_PLATFORM = TRANS_LF;
+    if (Util.isWindows()) {
+      TRANS_PLATFORM = TRANS_CRLF;
+    } else if (Util.isMac()) {
+      TRANS_PLATFORM = TRANS_CR;
+    } else {
+      TRANS_PLATFORM = TRANS_LF;
+    }
   }
 
   /**
@@ -113,7 +103,7 @@ public class TclIO {
    * @return Channel or null if chanName does not exist
    */
   public static Channel getChannel(Interp interp, String chanName) {
-    HashMap<String, Channel> chanTable = getInterpChanTable(interp);
+    Map<String, Channel> chanTable = getInterpChanTable(interp);
 
     /* Once we request stdin/stderr, [system encoding VALUE] can't change its encoding */
     if (interp.isSystemEncodingChangesStdoutStderr()
@@ -170,7 +160,7 @@ public class TclIO {
   public static void registerChannel(Interp interp, Channel chan) {
 
     if (interp != null) {
-      HashMap<String, Channel> chanTable = getInterpChanTable(interp);
+      Map<String, Channel> chanTable = getInterpChanTable(interp);
       String registerName;
 
       if (!chanTable.containsKey("stdin")) {
@@ -195,7 +185,7 @@ public class TclIO {
    * @param interp the current interpreter
    */
   public static void flushAllOpenChannels(Interp interp) {
-    HashMap<String, Channel> chanTable = getInterpChanTable(interp);
+    Map<String, Channel> chanTable = getInterpChanTable(interp);
 
     for (Channel channel : chanTable.values()) {
       if (channel.isWriteOnly() || channel.isReadWrite()) {
@@ -223,8 +213,8 @@ public class TclIO {
   public static void giveChannel(
       Interp master, Interp slave, String chanName, boolean removeFromMaster) throws TclException {
 
-    HashMap<String, Channel> masterTable = getInterpChanTable(master);
-    HashMap<String, Channel> slaveTable = getInterpChanTable(slave);
+    Map<String, Channel> masterTable = getInterpChanTable(master);
+    Map<String, Channel> slaveTable = getInterpChanTable(slave);
 
     slave.setSystemEncodingChangesStdoutStderr(false);
 
@@ -259,7 +249,7 @@ public class TclIO {
    * @param chan channel to unregister
    */
   public static void unregisterChannel(Interp interp, Channel chan) {
-    HashMap<String, Channel> chanTable = getInterpChanTable(interp);
+    Map<String, Channel> chanTable = getInterpChanTable(interp);
 
     FileEventScript.dispose(interp, chan, FileEvent.READABLE);
     FileEventScript.dispose(interp, chan, FileEvent.WRITABLE);
@@ -299,7 +289,7 @@ public class TclIO {
    * @param interp this interpreter
    * @return the interpreter's channel table
    */
-  static HashMap<String, Channel> getInterpChanTable(Interp interp) {
+  static Map<String, Channel> getInterpChanTable(Interp interp) {
     Channel chan;
 
     if (interp.interpChanTable == null) {
@@ -323,30 +313,28 @@ public class TclIO {
    * @return the requested standard channel, creating it if required
    */
   public static Channel getStdChannel(int type) {
-    Channel chan = null;
-
-    switch (type) {
-      case StdChannel.STDIN:
-        if (stdinChan == null) {
-          stdinChan = new StdChannel(StdChannel.STDIN);
-        }
-        chan = stdinChan;
-        break;
-      case StdChannel.STDOUT:
-        if (stdoutChan == null) {
-          stdoutChan = new StdChannel(StdChannel.STDOUT);
-        }
-        chan = stdoutChan;
-        break;
-      case StdChannel.STDERR:
-        if (stderrChan == null) {
-          stderrChan = new StdChannel(StdChannel.STDERR);
-        }
-        chan = stderrChan;
-        break;
-      default:
-        throw new TclRuntimeError("Invalid type for StdChannel");
-    }
+    Channel chan =
+        switch (type) {
+          case StdChannel.STDIN -> {
+            if (stdinChan == null) {
+              stdinChan = new StdChannel(StdChannel.STDIN);
+            }
+            yield stdinChan;
+          }
+          case StdChannel.STDOUT -> {
+            if (stdoutChan == null) {
+              stdoutChan = new StdChannel(StdChannel.STDOUT);
+            }
+            yield stdoutChan;
+          }
+          case StdChannel.STDERR -> {
+            if (stderrChan == null) {
+              stderrChan = new StdChannel(StdChannel.STDERR);
+            }
+            yield stderrChan;
+          }
+          default -> throw new TclRuntimeError("Invalid type for StdChannel");
+        };
 
     return (chan);
   }
@@ -361,7 +349,7 @@ public class TclIO {
    */
   public static String getNextDescriptor(Interp interp, String prefix) {
     int i;
-    HashMap<String, Channel> htbl = getInterpChanTable(interp);
+    Map<String, Channel> htbl = getInterpChanTable(interp);
 
     // The first available file identifier in Tcl is "file3"
     if (prefix.equals("file")) i = 3;
@@ -371,41 +359,6 @@ public class TclIO {
       // Do nothing...
     }
     return prefix + i;
-  }
-
-  /**
-   * @param translation one of the TRANS_* constances
-   * @return a string description for a translation id defined above.
-   */
-  public static String getTranslationString(int translation) {
-    switch (translation) {
-      case TRANS_AUTO:
-        return "auto";
-      case TRANS_CR:
-        return "cr";
-      case TRANS_CRLF:
-        return "crlf";
-      case TRANS_LF:
-        return "lf";
-      case TRANS_BINARY:
-        return "lf";
-      default:
-        throw new TclRuntimeError("bad translation id");
-    }
-  }
-
-  /**
-   * @param translation one the fconfigure -translation strings
-   * @return a numerical identifier for the given -translation string.
-   */
-  public static int getTranslationID(String translation) {
-    if (translation.equals("auto")) return TRANS_AUTO;
-    else if (translation.equals("cr")) return TRANS_CR;
-    else if (translation.equals("crlf")) return TRANS_CRLF;
-    else if (translation.equals("lf")) return TRANS_LF;
-    else if (translation.equals("binary")) return TRANS_LF;
-    else if (translation.equals("platform")) return TRANS_PLATFORM;
-    else return -1;
   }
 
   /**
@@ -434,5 +387,10 @@ public class TclIO {
     else if (buffering.equals("line")) return BUFF_LINE;
     else if (buffering.equals("none")) return BUFF_NONE;
     else return -1;
+  }
+
+  /** End-of-line translation for the current platform */
+  public static Translation getTransPlatform() {
+    return TRANS_PLATFORM;
   }
 }

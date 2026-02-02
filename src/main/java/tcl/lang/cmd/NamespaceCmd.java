@@ -476,8 +476,8 @@ public final class NamespaceCmd implements InternalRep, Command {
 
     frame = interp.newCallFrame();
     // copy objv into frame so 'info level n' can report it
-    frame.objv = new TclObject[objv.length];
-    System.arraycopy(objv, 0, frame.objv, 0, objv.length);
+    frame.setObjv(new TclObject[objv.length]);
+    System.arraycopy(objv, 0, frame.getObjv(), 0, objv.length);
     Namespace.pushCallFrame(interp, frame, namespace, false);
 
     try {
@@ -498,9 +498,9 @@ public final class NamespaceCmd implements InternalRep, Command {
             "\n    (in namespace eval \""
                 + namespace.fullName
                 + "\" script line "
-                + interp.errorLine
+                + interp.getErrorLine()
                 + ")");
-        interp.errAlreadyLogged = false; // allow 'invoked from within' message to be appended
+        interp.setErrAlreadyLogged(false); // allow 'invoked from within' message to be appended
       }
       throw ex;
     } finally {
@@ -766,8 +766,8 @@ public final class NamespaceCmd implements InternalRep, Command {
 
     frame = interp.newCallFrame();
     // copy objv into frame so 'info level n' can report it
-    frame.objv = new TclObject[objv.length];
-    System.arraycopy(objv, 0, frame.objv, 0, objv.length);
+    frame.setObjv(new TclObject[objv.length]);
+    System.arraycopy(objv, 0, frame.getObjv(), 0, objv.length);
     Namespace.pushCallFrame(interp, frame, namespace, false);
 
     // Execute the command. If there is just one argument, just treat it as
@@ -810,7 +810,7 @@ public final class NamespaceCmd implements InternalRep, Command {
             "\n    (in namespace inscope \""
                 + namespace.fullName
                 + "\" script line "
-                + interp.errorLine
+                + interp.getErrorLine()
                 + ")");
       }
       throw ex;
@@ -1223,7 +1223,7 @@ public final class NamespaceCmd implements InternalRep, Command {
     // If the namespace isn't found, we convert the object to an nsName
     // object with a null ResolvedNsName internal rep.
 
-    Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     Namespace.getNamespaceForQualName(interp, name, null, Namespace.FIND_ONLY_NS, gnfqnr);
     ns = gnfqnr.ns;
 

@@ -28,57 +28,26 @@ import tcl.lang.model.TclObject;
  *
  * <p>This class can be overridden to define new variable scoping rules for the Tcl interpreter.
  */
-public class CallFrame {
-  /** The interpreter associated with this call frame. */
-  Interp interp;
+public final class CallFrame {
+  private Interp interp;
 
-  /**
-   * The Namespace this CallFrame is executing in. Used to resolve commands and global variables.
-   */
-  public Namespace ns;
+  private Namespace ns;
 
-  /**
-   * If true, the frame was pushed to execute a Tcl procedure and may have local vars. If false, the
-   * frame was pushed to execute a namespace command and var references are treated as references to
-   * namespace vars; varTable is ignored.
-   */
-  public boolean isProcCallFrame;
+  private boolean isProcCallFrame;
 
-  /**
-   * Stores the arguments of the procedure associated with this CallFrame. Is null for global level.
-   */
-  public TclObject[] objv;
+  private TclObject[] objv;
 
-  /**
-   * Value of interp.frame when this procedure was invoked (i.e. next in stack of all active
-   * procedures).
-   */
-  public CallFrame caller;
+  private CallFrame caller;
 
-  /**
-   * Value of interp.varFrame when this procedure was invoked (i.e. determines variable scoping
-   * within caller; same as caller unless an "uplevel" command or something equivalent was active in
-   * the caller).
-   */
-  public CallFrame callerVar;
+  private CallFrame callerVar;
 
-  /** Level of recursion. = 0 for the global level. */
-  public int level;
+  private int level;
 
-  /** Stores the variables of this CallFrame. */
-  public HashMap<String, Var> varTable;
+  private HashMap<String, Var> varTable = new HashMap<>();
 
-  /**
-   * Array of local variables in a compiled proc frame. These include locals set in the proc,
-   * globals or other variable brought into the proc scope, and compiler generated aliases to
-   * globals. This array is always null for an interpreted proc. A compiled proc implementation
-   * known which variable is associated with each slot at compile time, so it is able to avoid a
-   * symbol table lookup each time the variable is accessed. Both scalar variables and array
-   * variables could appear in this array.
-   */
-  public Var[] compiledLocals;
+  private final Var[] compiledLocals = null;
 
-  public String[] compiledLocalsNames;
+  private String[] compiledLocalsNames;
 
   /**
    * Creates a CallFrame for the global variables.
@@ -86,11 +55,8 @@ public class CallFrame {
    * @param i current interpreter.
    */
   public CallFrame(Interp i) {
-    interp = i;
-    ns = i.globalNs;
-    varTable = null;
-    compiledLocals = null;
-    compiledLocalsNames = null;
+    setInterp(i);
+    setNs(i.globalNs);
     caller = null;
     callerVar = null;
     objv = null;
@@ -133,14 +99,14 @@ public class CallFrame {
    * @exception TclException if wrong number of arguments.
    */
   void chain(Procedure proc, TclObject[] objv) throws TclException {
-    this.ns = proc.wcmd.getNs();
-    this.objv = objv;
+    this.setNs(proc.wcmd.getNs());
+    this.setObjv(objv);
     // FIXME : quick level hack : fix later
-    level = (interp.varFrame == null) ? 1 : (interp.varFrame.level + 1);
-    caller = interp.frame;
-    callerVar = interp.varFrame;
-    interp.frame = this;
-    interp.varFrame = this;
+    setLevel((getInterp().varFrame == null) ? 1 : (getInterp().varFrame.getLevel() + 1));
+    setCaller(getInterp().getFrame());
+    setCallerVar(getInterp().varFrame);
+    getInterp().setFrame(this);
+    getInterp().varFrame = this;
 
     // parameter bindings
 
@@ -166,9 +132,9 @@ public class CallFrame {
         value = TclList.newInstance();
         value.preserve();
         for (int k = j; k < objv.length; k++) {
-          TclList.append(interp, value, objv[k]);
+          TclList.append(getInterp(), value, objv[k]);
         }
-        interp.setVar(varName, value, 0);
+        getInterp().setVar(varName, value, 0);
         value.release();
       } else {
         if (j < objv.length) {
@@ -178,7 +144,7 @@ public class CallFrame {
         } else {
           wrongNumProcArgs(objv, proc);
         }
-        interp.setVar(varName, value, 0);
+        getInterp().setVar(varName, value, 0);
       }
     }
   }
@@ -189,9 +155,9 @@ public class CallFrame {
     sbuf.append("wrong # args: should be \"");
     TclObject procNameList = TclList.newInstance();
     if (proc.isLambda()) {
-      TclList.append(interp, procNameList, objv, 0, 2);
+      TclList.append(getInterp(), procNameList, objv, 0, 2);
     } else {
-      TclList.append(interp, procNameList, objv[0]);
+      TclList.append(getInterp(), procNameList, objv[0]);
     }
     sbuf.append(procNameList.toString());
     for (i = 0; i < proc.argList.length; i++) {
@@ -204,7 +170,7 @@ public class CallFrame {
       if (def != null) sbuf.append("?");
     }
     sbuf.append("\"");
-    throw new TclException(interp, sbuf.toString());
+    throw new TclException(getInterp(), sbuf.toString());
   }
 
   /**
@@ -235,11 +201,11 @@ public class CallFrame {
   ArrayList getVarNames() {
     ArrayList alist = new ArrayList();
 
-    if (varTable == null) {
+    if (getVarTable() == null) {
       return alist;
     }
 
-    for (Map.Entry<String, Var> entry : varTable.entrySet()) {
+    for (Map.Entry<String, Var> entry : getVarTable().entrySet()) {
       Var v = entry.getValue();
       if (!v.isVarUndefined()) {
         alist.add(v.hashKey);
@@ -255,11 +221,11 @@ public class CallFrame {
   ArrayList getLocalVarNames() {
     ArrayList alist = new ArrayList();
 
-    if (varTable == null) {
+    if (getVarTable() == null) {
       return alist;
     }
 
-    for (Map.Entry<String, Var> entry : varTable.entrySet()) {
+    for (Map.Entry<String, Var> entry : getVarTable().entrySet()) {
       Var v = entry.getValue();
       if (!v.isVarUndefined() && !v.isVarLink()) {
         alist.add(v.hashKey);
@@ -291,7 +257,7 @@ public class CallFrame {
     // Parse string to figure out which level number to go to.
 
     result = 1;
-    curLevel = (interp.varFrame == null) ? 0 : interp.varFrame.level;
+    curLevel = (interp.varFrame == null) ? 0 : interp.varFrame.getLevel();
 
     if ((string.length() > 0) && (string.charAt(0) == '#')) {
       level = (int) Util.getInt(interp, string.substring(1));
@@ -313,8 +279,8 @@ public class CallFrame {
     if (level == 0) {
       frame = null;
     } else {
-      for (frame = interp.varFrame; frame != null; frame = frame.callerVar) {
-        if (frame.level == level) {
+      for (frame = interp.varFrame; frame != null; frame = frame.getCallerVar()) {
+        if (frame.getLevel() == level) {
           break;
         }
       }
@@ -335,20 +301,121 @@ public class CallFrame {
    */
   public void dispose() {
     // Unchain this frame from the call stack.
+    getInterp().setFrame(getCaller());
+    getInterp().varFrame = getCallerVar();
+    setCaller(null);
+    setCallerVar(null);
 
-    interp.frame = caller;
-    interp.varFrame = callerVar;
-    caller = null;
-    callerVar = null;
-
-    if (varTable != null) {
-      Var.deleteVars(interp, varTable);
-      varTable = null;
+    if (getVarTable() != null) {
+      Var.deleteVars(getInterp(), getVarTable());
+      setVarTable(null);
     }
-    if (compiledLocals != null) {
-      Var.deleteVars(interp, compiledLocals);
-      compiledLocals = null;
+    if (getCompiledLocals() != null) {
+      Var.deleteVars(getInterp(), getCompiledLocals());
       compiledLocalsNames = null;
     }
+  }
+
+  /** The interpreter associated with this call frame. */
+  public Interp getInterp() {
+    return interp;
+  }
+
+  public void setInterp(Interp interp) {
+    this.interp = interp;
+  }
+
+  /**
+   * The Namespace this CallFrame is executing in. Used to resolve commands and global variables.
+   */
+  public Namespace getNs() {
+    return ns;
+  }
+
+  public void setNs(Namespace ns) {
+    this.ns = ns;
+  }
+
+  /**
+   * If true, the frame was pushed to execute a Tcl procedure and may have local vars. If false, the
+   * frame was pushed to execute a namespace command and var references are treated as references to
+   * namespace vars; varTable is ignored.
+   */
+  public boolean isProcCallFrame() {
+    return isProcCallFrame;
+  }
+
+  public void setProcCallFrame(boolean procCallFrame) {
+    isProcCallFrame = procCallFrame;
+  }
+
+  /**
+   * Stores the arguments of the procedure associated with this CallFrame. Is null for global level.
+   */
+  public TclObject[] getObjv() {
+    return objv;
+  }
+
+  public void setObjv(TclObject[] objv) {
+    this.objv = objv;
+  }
+
+  /**
+   * Value of interp.frame when this procedure was invoked (i.e. next in stack of all active
+   * procedures).
+   */
+  public CallFrame getCaller() {
+    return caller;
+  }
+
+  public void setCaller(CallFrame caller) {
+    this.caller = caller;
+  }
+
+  /**
+   * Value of interp.varFrame when this procedure was invoked (i.e. determines variable scoping
+   * within caller; same as caller unless an "uplevel" command or something equivalent was active in
+   * the caller).
+   */
+  public CallFrame getCallerVar() {
+    return callerVar;
+  }
+
+  public void setCallerVar(CallFrame callerVar) {
+    this.callerVar = callerVar;
+  }
+
+  /** Level of recursion. = 0 for the global level. */
+  public int getLevel() {
+    return level;
+  }
+
+  public void setLevel(int level) {
+    this.level = level;
+  }
+
+  /** Stores the variables of this CallFrame. */
+  public HashMap<String, Var> getVarTable() {
+    return varTable;
+  }
+
+  public void setVarTable(HashMap<String, Var> varTable) {
+    this.varTable = varTable;
+  }
+
+  /**
+   * Array of local variables in a compiled proc frame. These include locals set in the proc,
+   * globals or other variable brought into the proc scope, and compiler generated aliases to
+   * globals. This array is always null for an interpreted proc. A compiled proc implementation
+   * known which variable is associated with each slot at compile time, so it is able to avoid a
+   * symbol table lookup each time the variable is accessed. Both scalar variables and array
+   * variables could appear in this array.
+   */
+  public Var[] getCompiledLocals() {
+    return compiledLocals;
+  }
+
+  public String[] getCompiledLocalsNames() {
+    return compiledLocalsNames;
   }
 }

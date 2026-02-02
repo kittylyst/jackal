@@ -1,9 +1,12 @@
 package tcl.lang.channel;
 
+import static tcl.lang.io.Translation.TRANS_AUTO;
+import static tcl.lang.io.Translation.TRANS_CRLF;
+
 import java.net.InetAddress;
 import tcl.lang.Interp;
-import tcl.lang.TclIO;
 import tcl.lang.exception.TclException;
+import tcl.lang.io.Translation;
 import tcl.lang.model.TclInteger;
 import tcl.lang.model.TclList;
 import tcl.lang.model.TclObject;
@@ -60,11 +63,11 @@ public abstract sealed class AbstractSocketChannel extends Channel
   /**
    * if output translation is set to AUTO, sockets are crlf regardless of platform
    *
-   * @see tcl.lang.channel.Channel#setOutputTranslation(int)
+   * @see Channel#setOutputTranslation(Translation)
    */
   @Override
-  public void setOutputTranslation(int translation) {
-    if (translation == TclIO.TRANS_AUTO) translation = TclIO.TRANS_CRLF;
+  public void setOutputTranslation(Translation translation) {
+    if (translation == TRANS_AUTO) translation = TRANS_CRLF;
     super.setOutputTranslation(translation);
   }
 

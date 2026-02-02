@@ -21,6 +21,8 @@ import tcl.lang.model.TclInteger;
 import tcl.lang.model.TclList;
 import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
+import tcl.lang.parse.BackSlashResult;
+import tcl.lang.parse.Parser;
 import tcl.lang.regex.Regex;
 import tcl.lang.regex.TclRegexp;
 
@@ -250,7 +252,7 @@ public final class Util {
     if (interp == null) {
       res = new StrtoulResult();
     } else {
-      res = interp.strtoulResult;
+      res = interp.getStrtoulResult();
     }
     Util.strtoul(s, i, 0, res);
 
@@ -635,7 +637,7 @@ public final class Util {
     if (interp == null) {
       res = new StrtodResult();
     } else {
-      res = interp.strtodResult;
+      res = interp.getStrtodResult();
     }
     Util.strtod(s, i, len, res);
 
@@ -1112,7 +1114,7 @@ public final class Util {
           // backslash sequence.
 
         case '\\':
-          BackSlashResult bs = Interp.backslash(s, i, len);
+          BackSlashResult bs = Parser.backslash(s, i, len);
           if (openBraces > 0) {
             // Backslashes are ignored in brace-quoted stuff
 
@@ -1306,7 +1308,7 @@ public final class Util {
           if ((i >= len - 1) || (string.charAt(i + 1) == '\n')) {
             flags = TCL_DONT_USE_BRACES | BRACES_UNMATCHED;
           } else {
-            BackSlashResult bs = Interp.backslash(string, i, len);
+            BackSlashResult bs = Parser.backslash(string, i, len);
 
             // Subtract 1 because the for loop will automatically
             // add one on the next iteration.

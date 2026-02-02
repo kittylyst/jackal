@@ -138,7 +138,7 @@ public final class InterpCmd implements Command {
 
           // Weird historical rules: "-safe" is accepted at the end, too.
 
-          boolean safe = interp.isSafe;
+          boolean safe = interp.isSafe();
 
           TclObject slaveNameObj = null;
           boolean last = false;
@@ -241,7 +241,7 @@ public final class InterpCmd implements Command {
       case OPT_ISSAFE:
         {
           Interp slaveInterp = getInterp(interp, objv);
-          interp.setResult(slaveInterp.isSafe);
+          interp.setResult(slaveInterp.isSafe());
           break;
         }
       case OPT_INVOKEHIDDEN:

@@ -46,7 +46,7 @@ public final class EvalCmd implements Command {
       }
     } catch (TclException e) {
       if (e.getCompletionCode() == TCL.ERROR) {
-        interp.addErrorInfo("\n    (\"eval\" body line " + interp.errorLine + ")");
+        interp.addErrorInfo("\n    (\"eval\" body line " + interp.getErrorLine() + ")");
       }
       throw e;
     }

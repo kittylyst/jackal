@@ -12,14 +12,15 @@
  * RCS: @(#) $Id: ParseAdaptor.java,v 1.6 2003/02/05 09:24:40 mdejong Exp $
  */
 
-package tcl.lang;
+package tcl.lang.parse;
 
+import tcl.lang.Interp;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
 import tcl.lang.model.CharPointer;
 import tcl.lang.model.TclObject;
 
-class ParseAdaptor {
+public class ParseAdaptor {
 
   /*
    * ----------------------------------------------------------------------
@@ -40,7 +41,7 @@ class ParseAdaptor {
    * ----------------------------------------------------------------------
    */
 
-  static ParseResult parseVar(
+  public static ParseResult parseVar(
       Interp interp, // The current Interp.
       String string, // The script containing the variable.
       int index, // An index into string that points to.
@@ -71,7 +72,7 @@ class ParseAdaptor {
    * ----------------------------------------------------------------------
    */
 
-  static ParseResult parseNestedCmd(
+  public static ParseResult parseNestedCmd(
       Interp interp, // The current Interp.
       String string, // The script containing the nested command.
       int index, // An index into string that points to.
@@ -94,7 +95,7 @@ class ParseAdaptor {
     Parser.eval2(interp, script.getArray(), script.getIndex(), length - index, 0);
     obj = interp.getResult();
     obj.preserve();
-    return (new ParseResult(obj, index + interp.termOffset + 1));
+    return (new ParseResult(obj, index + interp.getTermOffset() + 1));
   }
 
   /*
@@ -118,7 +119,7 @@ class ParseAdaptor {
    * ----------------------------------------------------------------------
    */
 
-  static ParseResult parseQuotes(
+  public static ParseResult parseQuotes(
       Interp interp, // The current Interp.
       String string, // The script containing the variable.
       int index, // An index into string that points to.
@@ -146,29 +147,29 @@ class ParseAdaptor {
         System.out.println("index is " + index);
         System.out.println("length is " + length);
 
-        System.out.println("parse.endIndex is " + parse.endIndex);
+        System.out.println("parse.endIndex is " + parse.getEndIndex());
       }
 
-      parse.commandStart = script.getIndex();
+      parse.setCommandStart(script.getIndex());
       token = parse.getToken(0);
       token.type = Parser.TCL_TOKEN_WORD;
       token.script_array = script.getArray();
       token.script_index = script.getIndex();
-      parse.numTokens++;
-      parse.numWords++;
+      parse.setNumTokens(parse.getNumTokens() + 1);
+      parse.setNumWords(parse.getNumWords() + 1);
       parse = Parser.parseTokens(script.getArray(), script.getIndex(), Parser.TYPE_QUOTE, parse);
 
       // Check for the error condition where the parse did not end on
       // a '"' char. Is this happened raise an error.
 
-      if (script.getArray()[parse.termIndex] != '"') {
+      if (script.getArray()[parse.getTermIndex()] != '"') {
         throw new TclException(interp, "missing \"");
       }
 
       // if there was no error then parsing will continue after the
       // last char that was parsed from the string
 
-      script.setIndex(parse.termIndex + 1);
+      script.setIndex(parse.getTermIndex() + 1);
 
       // Finish filling in the token for the word and check for the
       // special case of a word consisting of a single range of
@@ -176,13 +177,13 @@ class ParseAdaptor {
 
       token = parse.getToken(0);
       token.size = script.getIndex() - token.script_index;
-      token.numComponents = parse.numTokens - 1;
+      token.numComponents = parse.getNumTokens() - 1;
       if ((token.numComponents == 1) && (parse.getToken(1).type == Parser.TCL_TOKEN_TEXT)) {
         token.type = Parser.TCL_TOKEN_SIMPLE_WORD;
       }
-      parse.commandSize = script.getIndex() - parse.commandStart;
-      if (parse.numTokens > 0) {
-        obj = Parser.evalTokens(interp, parse.tokenList, 1, parse.numTokens - 1);
+      parse.setCommandSize(script.getIndex() - parse.getCommandStart());
+      if (parse.getNumTokens() > 0) {
+        obj = Parser.evalTokens(interp, parse.getTokenList(), 1, parse.getNumTokens() - 1);
       } else {
         throw new TclRuntimeError("parseQuotes error: null obj result");
       }
@@ -210,7 +211,7 @@ class ParseAdaptor {
    * ----------------------------------------------------------------------
    */
 
-  static ParseResult parseBraces(
+  public static ParseResult parseBraces(
       Interp interp, // The current Interp.
       String str, // The script containing the variable.
       int index, // An index into string that points to.

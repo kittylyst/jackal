@@ -12,7 +12,7 @@
  *
  */
 
-package tcl.lang;
+package tcl.lang.parse;
 
 /** Encapsulates the replacement for a backslash in the parser */
 public class BackSlashResult {
