@@ -37,23 +37,23 @@ import tcl.lang.model.TclObject;
 
 public class ItclAccess {
   public static boolean isProcCallFrame(CallFrame frame) {
-    return frame.isProcCallFrame;
+    return frame.isProcCallFrame();
   }
 
   public static void setProcCallFrameFalse(CallFrame frame) {
-    frame.isProcCallFrame = false;
+    frame.setProcCallFrame(false);
   }
 
   public static TclObject[] getCallFrameObjv(CallFrame frame) {
-    return frame.objv;
+    return frame.getObjv();
   }
 
   public static Namespace getCallFrameNamespace(CallFrame frame) {
-    return frame.ns;
+    return frame.getNs();
   }
 
   public static void setCallFrameObjv(CallFrame frame, TclObject[] objv) {
-    frame.objv = objv;
+    frame.setObjv(objv);
   }
 
   public static CallFrame getCallFrame(Interp interp, int level) {
@@ -61,7 +61,7 @@ public class ItclAccess {
 
     frame = interp.varFrame;
     while (frame != null && level > 0) {
-      frame = frame.callerVar;
+      frame = frame.getCallerVar();
       level--;
     }
     return frame;
@@ -85,11 +85,11 @@ public class ItclAccess {
   }
 
   public static HashMap<String, Var> getVarTable(CallFrame frame) {
-    return frame.varTable;
+    return frame.getVarTable();
   }
 
   public static void setVarTable(CallFrame frame, HashMap<String, Var> table) {
-    frame.varTable = table;
+    frame.setVarTable(table);
   }
 
   public static Var newVar() {
@@ -127,14 +127,14 @@ public class ItclAccess {
 
   public static void assignLocalVar(Interp interp, String name, TclObject val, CallFrame frame)
       throws TclException {
-    if (frame.varTable == null) {
-      frame.varTable = new HashMap<>();
+    if (frame.getVarTable() == null) {
+      frame.setVarTable(new HashMap<>());
     }
     Var var = new Var();
     var.clearVarInSymbolTable(); // Needed to avoid "dangling namespace var"
     // error
-    var.table = frame.varTable;
-    frame.varTable.put(name, var);
+    var.table = frame.getVarTable();
+    frame.getVarTable().put(name, var);
     interp.setVar(name, null, val, 0);
   }
 

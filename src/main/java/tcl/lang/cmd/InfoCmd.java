@@ -585,7 +585,7 @@ public final class InfoCmd implements Command {
       if (interp.varFrame == null) {
         interp.setResult(0);
       } else {
-        interp.setResult(interp.varFrame.level);
+        interp.setResult(interp.varFrame.getLevel());
       }
       return;
     } else if (objv.length == 3) {
@@ -596,21 +596,21 @@ public final class InfoCmd implements Command {
           throw new TclException(interp, "bad level \"" + objv[2].toString() + "\"");
         }
 
-        level += interp.varFrame.level;
+        level += interp.varFrame.getLevel();
       }
 
-      for (frame = interp.varFrame; frame != null; frame = frame.callerVar) {
-        if (frame.level == level) {
+      for (frame = interp.varFrame; frame != null; frame = frame.getCallerVar()) {
+        if (frame.getLevel() == level) {
           break;
         }
       }
-      if ((frame == null) || frame.objv == null) {
+      if ((frame == null) || frame.getObjv() == null) {
         throw new TclException(interp, "bad level \"" + objv[2].toString() + "\"");
       }
 
       list = TclList.newInstance();
-      for (int i = 0; i < frame.objv.length; i++) {
-        TclList.append(interp, list, TclString.newInstance(frame.objv[i]));
+      for (int i = 0; i < frame.getObjv().length; i++) {
+        TclList.append(interp, list, TclString.newInstance(frame.getObjv()[i]));
       }
       interp.setResult(list);
       return;
@@ -689,7 +689,7 @@ public final class InfoCmd implements Command {
       throw new TclNumArgsException(interp, 2, objv, "?pattern?");
     }
 
-    if (interp.varFrame == null || !interp.varFrame.isProcCallFrame) {
+    if (interp.varFrame == null || !interp.varFrame.isProcCallFrame()) {
       return;
     }
 
@@ -1011,7 +1011,7 @@ public final class InfoCmd implements Command {
 
     list = TclList.newInstance();
 
-    if ((interp.varFrame == null) || !interp.varFrame.isProcCallFrame || specificNsInPattern) {
+    if ((interp.varFrame == null) || !interp.varFrame.isProcCallFrame() || specificNsInPattern) {
       // There is no frame pointer, the frame pointer was pushed only
       // to activate a namespace, or we are in a procedure call frame
       // but a specific namespace was specified. Create a list containing

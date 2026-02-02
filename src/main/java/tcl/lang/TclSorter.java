@@ -1,5 +1,5 @@
 /*
- * QSort.java
+ * TclSorter.java
  *
  * Copyright (c) 1997 Cornell University.
  * Copyright (c) 1997 Sun Microsystems, Inc.
@@ -8,7 +8,7 @@
  * redistribution of this file, and for a DISCLAIMER OF ALL
  * WARRANTIES.
  *
- * RCS: @(#) $Id: QSort.java,v 1.9 2009/07/29 16:55:17 rszulgo Exp $
+ * RCS: @(#) $Id: TclSorter.java,v 1.9 2009/07/29 16:55:17 rszulgo Exp $
  *
  */
 
@@ -56,20 +56,27 @@ import tcl.lang.model.TclObject;
  */
 
 /** Sorts an array of TclObjects. */
-public final class QSort {
+public final class TclSorter {
   public static final int ASCII = 0;
   public static final int INTEGER = 1;
   public static final int REAL = 2;
   public static final int COMMAND = 3;
   public static final int DICTIONARY = 4;
-
   // Data used during sort.
 
-  private int sortMode;
-  private int sortIndex;
-  private boolean sortIncreasing;
-  private String sortCommand;
-  private Interp sortInterp;
+  private final int sortMode;
+  private final int sortIndex;
+  private final boolean sortIncreasing;
+  private final String sortCommand;
+  private final Interp sortInterp;
+
+  private TclSorter(Interp interp, int mode, int index, boolean increasing, String cmd) {
+    this.sortInterp = interp;
+    this.sortMode = mode;
+    this.sortIndex = index;
+    this.sortIncreasing = increasing;
+    this.sortCommand = cmd;
+  }
 
   /**
    * This is a generic version of C.A.R Hoare's Quick Sort algorithm. This will handle arrays that
@@ -159,17 +166,15 @@ public final class QSort {
    *     on the lsitLength+index+1 element (end = -2); if index==-1, sort on entire element.
    * @param increasing true if the sorted array should be in increasing order.
    * @param cmd the command to use for comparing items. It is used only if sortMode is COMMAND.
-   * @exception TclException if an error occurs during sorting.
+   * @return
+   * @throws TclException if an error occurs during sorting.
    */
-  public void sort(
-      Interp interp, TclObject a[], int mode, int index, boolean increasing, String cmd)
+  public static TclSorter sort(
+      Interp interp, TclObject[] a, int mode, int index, boolean increasing, String cmd)
       throws TclException {
-    sortInterp = interp;
-    sortMode = mode;
-    sortIndex = index;
-    sortIncreasing = increasing;
-    sortCommand = cmd;
-    quickSort(a, 0, a.length - 1);
+    var qsort = new TclSorter(interp, mode, index, increasing, cmd);
+    qsort.quickSort(a, 0, a.length - 1);
+    return qsort;
   }
 
   /**
@@ -299,7 +304,7 @@ public final class QSort {
    * @param str2 second item.
    * @return 0 if they are equal, 1 if obj1 > obj2, -1 otherwise.
    */
-  int doDictionary(String str1, String str2) {
+  private int doDictionary(String str1, String str2) {
     int index1 = 0;
     int index2 = 0;
     final int len1 = str1.length();

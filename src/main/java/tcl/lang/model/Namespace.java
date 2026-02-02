@@ -209,7 +209,7 @@ public final class Namespace {
    */
   public static Namespace getCurrentNamespace(Interp interp) {
     if (interp.varFrame != null) {
-      return interp.varFrame.ns;
+      return interp.varFrame.getNs();
     } else {
       return interp.globalNs;
     }
@@ -275,28 +275,28 @@ public final class Namespace {
     }
 
     ns.activationCount++;
-    frame.ns = ns;
-    frame.isProcCallFrame = isProcCallFrame;
+    frame.setNs(ns);
+    frame.setProcCallFrame(isProcCallFrame);
     if (isProcCallFrame) {
       // don't override objv for namespace callframes;
       // it is stuffed with the objv to namespace for
       // info level n reporting
-      frame.objv = null;
+      frame.setObjv(null);
     }
 
-    frame.caller = interp.getFrame();
-    frame.callerVar = interp.varFrame;
+    frame.setCaller(interp.getFrame());
+    frame.setCallerVar(interp.varFrame);
 
     if (interp.varFrame != null) {
-      frame.level = (interp.varFrame.level + 1);
+      frame.setLevel((interp.varFrame.getLevel() + 1));
     } else {
-      frame.level = 1;
+      frame.setLevel(1);
     }
 
     // FIXME : does Jacl need a procPtr in the CallFrame class?
     // frame.procPtr = null; // no called procedure
 
-    frame.varTable = null; // and no local variables
+    frame.setVarTable(null); // and no local variables
 
     // Compiled locals are not part of Jacl's CallFrame
 
@@ -334,8 +334,8 @@ public final class Namespace {
     // invoked by the variable deletion don't see the partially-deleted
     // frame.
 
-    interp.setFrame(frame.caller);
-    interp.varFrame = frame.callerVar;
+    interp.setFrame(frame.getCaller());
+    interp.varFrame = frame.getCallerVar();
 
     // Delete the local variables. As a hack, we save then restore the
     // ERR_IN_PROGRESS flag in the interpreter. The problem is that there
@@ -350,9 +350,9 @@ public final class Namespace {
 
     saveErrFlag = (interp.flags & Parser.ERR_IN_PROGRESS);
 
-    if (frame.varTable != null) {
-      Var.deleteVars(interp, frame.varTable);
-      frame.varTable = null;
+    if (frame.getVarTable() != null) {
+      Var.deleteVars(interp, frame.getVarTable());
+      frame.setVarTable(null);
     }
 
     interp.flags |= saveErrFlag;
@@ -361,12 +361,12 @@ public final class Namespace {
     // namespace is "dying" and there are no more active call frames,
     // call Tcl_DeleteNamespace to destroy it.
 
-    ns = frame.ns;
+    ns = frame.getNs();
     ns.activationCount--;
     if (((ns.flags & NS_DYING) != 0) && (ns.activationCount == 0)) {
       deleteNamespace(ns);
     }
-    frame.ns = null;
+    frame.setNs(null);
   }
 
   /**
@@ -1429,7 +1429,7 @@ public final class Namespace {
       ns = globalNs;
     } else if (ns == null) {
       if (interp.varFrame != null) {
-        ns = interp.varFrame.ns;
+        ns = interp.varFrame.getNs();
       } else {
         ns = interp.globalNs;
       }

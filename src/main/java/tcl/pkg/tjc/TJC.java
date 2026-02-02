@@ -94,19 +94,19 @@ public class TJC {
     // Namespace the command is defined in, default to global namespace
 
     if (ns != null) {
-      frame.ns = ns;
+      frame.setNs(ns);
     }
 
     // ignore objv
 
     // isProcCallFrame should be true
-    if (frame.isProcCallFrame == false) {
+    if (frame.isProcCallFrame() == false) {
       throw new TclRuntimeError("expected isProcCallFrame to be true");
     }
 
-    frame.level = (interp.varFrame == null) ? 1 : (interp.varFrame.level + 1);
-    frame.caller = interp.getFrame();
-    frame.callerVar = interp.varFrame;
+    frame.setLevel((interp.varFrame == null) ? 1 : (interp.varFrame.getLevel() + 1));
+    frame.setCaller(interp.getFrame());
+    frame.setCallerVar(interp.varFrame);
     interp.setFrame(frame);
     interp.varFrame = frame;
 
@@ -132,11 +132,11 @@ public class TJC {
   // compiledLocals array is disposed of
   // automatically when the CallFrame is popped.
 
-  public static Var[] initCompiledLocals(
-      final CallFrame frame, final int size, final String[] names) {
-    frame.compiledLocalsNames = names;
-    return frame.compiledLocals = new Var[size];
-  }
+  //  public static Var[] initCompiledLocals(
+  //      final CallFrame frame, final int size, final String[] names) {
+  //    frame.setCompiledLocalsNames(names);
+  //    return frame.setCompiledLocals(new Var[size]);
+  //  }
 
   // Evaluate a Tcl string that is the body of a Tcl procedure.
 

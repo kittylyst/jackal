@@ -126,7 +126,7 @@ public final class VariableCmd implements Command {
       // If we are executing inside a Tcl procedure, create a local
       // variable linked to the new namespace variable "varName".
 
-      if ((interp.varFrame != null) && interp.varFrame.isProcCallFrame) {
+      if ((interp.varFrame != null) && interp.varFrame.isProcCallFrame()) {
 
         // varName might have a scope qualifier, but the name for the
         // local "link" variable must be the simple name at the tail.

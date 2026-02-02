@@ -512,7 +512,7 @@ public class Var {
     if (((flags & TCL.GLOBAL_ONLY) != 0) || (interp.varFrame == null)) {
       cxtNs = interp.globalNs;
     } else {
-      cxtNs = interp.varFrame.ns;
+      cxtNs = interp.varFrame.getNs();
     }
 
     if (cxtNs.resolver != null || interp.getResolvers() != null) {
@@ -558,7 +558,7 @@ public class Var {
 
     if (((flags & (TCL.GLOBAL_ONLY | TCL.NAMESPACE_ONLY)) != 0)
         || (varFrame == null)
-        || !varFrame.isProcCallFrame
+        || !varFrame.isProcCallFrame()
         || (part1.indexOf("::") != -1)) {
       String tail;
 
@@ -605,7 +605,7 @@ public class Var {
       }
     } else { // local var: look in frame varFrame
 
-      if (varFrame.compiledLocals != null) { // look in compiled local
+      if (varFrame.getCompiledLocals() != null) { // look in compiled local
         // array
         // Compiled local variable lookups would not
         // normally be done in compiled code via
@@ -618,8 +618,8 @@ public class Var {
         // compiled local array and not in the local
         // var hash table.
 
-        Var[] compiledLocals = varFrame.compiledLocals;
-        String[] compiledLocalsNames = varFrame.compiledLocalsNames;
+        Var[] compiledLocals = varFrame.getCompiledLocals();
+        String[] compiledLocalsNames = varFrame.getCompiledLocalsNames();
         final int MAX = compiledLocals.length;
 
         for (int i = 0; i < MAX; i++) {
@@ -650,11 +650,11 @@ public class Var {
       }
 
       if (var == null) { // look in the frame's var hash table
-        table = varFrame.varTable;
+        table = varFrame.getVarTable();
         if (createPart1) {
           if (table == null) {
             table = new HashMap();
-            varFrame.varTable = table;
+            varFrame.setVarTable(table);
           }
           var = (Var) table.get(part1);
           if (var == null) { // we are adding a new entry
@@ -1149,10 +1149,10 @@ public class Var {
       if (varFrame != interp.getFrame()) {
         throw new TclRuntimeError("interp.frame vs interp.varFrame mismatch");
       }
-      if (varFrame.isProcCallFrame == false) {
+      if (varFrame.isProcCallFrame() == false) {
         throw new TclRuntimeError("expected isProcCallFrame to be true");
       }
-      if (varFrame.compiledLocals == null) {
+      if (varFrame.getCompiledLocals() == null) {
         throw new TclRuntimeError("expected non-null compiledLocals");
       }
 
@@ -1164,7 +1164,7 @@ public class Var {
       }
 
       // Look in local table, there should not be an entry
-      HashMap<String, Var> table = varFrame.varTable;
+      HashMap<String, Var> table = varFrame.getVarTable();
 
       if (table != null && table.size() > 0) {
         Var var = (Var) table.get(varname);
@@ -1268,7 +1268,7 @@ public class Var {
       if (varFrame != interp.getFrame()) {
         throw new TclRuntimeError("interp.frame vs interp.varFrame mismatch");
       }
-      if (varFrame.isProcCallFrame == false) {
+      if (varFrame.isProcCallFrame() == false) {
         throw new TclRuntimeError("expected isProcCallFrame to be true");
       }
 
@@ -1328,10 +1328,10 @@ public class Var {
         throw new TclRuntimeError("interp.frame vs interp.varFrame mismatch");
       }
 
-      if (varFrame.isProcCallFrame == false) {
+      if (varFrame.isProcCallFrame() == false) {
         throw new TclRuntimeError("expected isProcCallFrame to be true");
       }
-      if (varFrame.compiledLocals == null) {
+      if (varFrame.getCompiledLocals() == null) {
         throw new TclRuntimeError("expected non-null compiledLocals");
       }
 
@@ -1391,10 +1391,10 @@ public class Var {
       if (varFrame != interp.getFrame()) {
         throw new TclRuntimeError("interp.frame vs interp.varFrame mismatch");
       }
-      if (varFrame.isProcCallFrame == false) {
+      if (varFrame.isProcCallFrame() == false) {
         throw new TclRuntimeError("expected isProcCallFrame to be true");
       }
-      if (varFrame.compiledLocals == null) {
+      if (varFrame.getCompiledLocals() == null) {
         throw new TclRuntimeError("expected non-null compiledLocals");
       }
 
@@ -1412,7 +1412,7 @@ public class Var {
 
       // Look in local table, there should not be an entry for this
       // varname
-      HashMap<String, Var> table = varFrame.varTable;
+      HashMap<String, Var> table = varFrame.getVarTable();
 
       if (table != null && table.size() > 0) {
         Var var = (Var) table.get(varname);
@@ -1492,10 +1492,10 @@ public class Var {
       if (varFrame != interp.getFrame()) {
         throw new TclRuntimeError("interp.frame vs interp.varFrame mismatch");
       }
-      if (varFrame.isProcCallFrame == false) {
+      if (varFrame.isProcCallFrame() == false) {
         throw new TclRuntimeError("expected isProcCallFrame to be true");
       }
-      if (varFrame.compiledLocals == null) {
+      if (varFrame.getCompiledLocals() == null) {
         throw new TclRuntimeError("expected non-null compiledLocals");
       }
 
@@ -1512,7 +1512,7 @@ public class Var {
 
       // Look in local table, there should not be an entry for this
       // varname
-      HashMap<String, Var> table = varFrame.varTable;
+      HashMap<String, Var> table = varFrame.getVarTable();
 
       if (table != null && table.size() > 0) {
         Var var = (Var) table.get(varname);
@@ -1574,7 +1574,7 @@ public class Var {
       if (varFrame != interp.getFrame()) {
         throw new TclRuntimeError("interp.frame vs interp.varFrame mismatch");
       }
-      if (varFrame.compiledLocals == null) {
+      if (varFrame.getCompiledLocals() == null) {
         throw new TclRuntimeError("expected non-null compiledLocals");
       }
 
@@ -2171,7 +2171,7 @@ public class Var {
     varFrame = interp.varFrame;
     if (((myFlags & (TCL.GLOBAL_ONLY | TCL.NAMESPACE_ONLY)) != 0)
         || (varFrame == null)
-        || !varFrame.isProcCallFrame
+        || !varFrame.isProcCallFrame()
         || ((myName.indexOf("::") != -1) && ((myFlags & EXPLICIT_LOCAL_NAME) == 0))) {
 
       Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
@@ -2217,7 +2217,7 @@ public class Var {
     } else {
       tclVar = null;
 
-      compiledLocals = varFrame.compiledLocals;
+      compiledLocals = varFrame.getCompiledLocals();
       if (compiledLocals != null) { // look in compiled local array
         // A compiled local array is defined, so
         // check in the compiled local array for
@@ -2230,7 +2230,7 @@ public class Var {
         if (localIndex == -1) {
           // compiled local slot is not known, search by name.
           final int MAX = compiledLocals.length;
-          String[] compiledLocalsNames = varFrame.compiledLocalsNames;
+          String[] compiledLocalsNames = varFrame.getCompiledLocalsNames();
 
           for (int i = 0; i < MAX; i++) {
             if (compiledLocalsNames[i].equals(myName)) {
@@ -2250,13 +2250,13 @@ public class Var {
       }
 
       if (!foundInCompiledLocalsArray) {
-        table = varFrame.varTable;
+        table = varFrame.getVarTable();
 
         // Note: Don't create tclVar in the local table when it
         // should be created in the compiledLocals array.
         if (table == null) {
           table = new HashMap();
-          varFrame.varTable = table;
+          varFrame.setVarTable(table);
         }
 
         if (table != null) {
@@ -2867,8 +2867,8 @@ public class Var {
       return; // Invoked from global scope
     }
 
-    if (varFrame.compiledLocals != null) {
-      Var[] compiledLocals = varFrame.compiledLocals;
+    if (varFrame.getCompiledLocals() != null) {
+      Var[] compiledLocals = varFrame.getCompiledLocals();
       final int MAX = compiledLocals.length;
 
       for (int i = 0; i < MAX; i++) {
@@ -2913,7 +2913,7 @@ public class Var {
     String varName;
     CallFrame frame = interp.varFrame;
 
-    HashMap<String, Var> localVarTable = frame.varTable;
+    HashMap<String, Var> localVarTable = frame.getVarTable();
     if (localVarTable != null) {
       for (Object o : localVarTable.entrySet()) {
         Map.Entry entry = (Map.Entry) o;
@@ -2927,7 +2927,7 @@ public class Var {
       }
     }
 
-    Var[] compiledLocals = frame.compiledLocals;
+    Var[] compiledLocals = frame.getCompiledLocals();
     if (compiledLocals != null) {
       final int max = compiledLocals.length;
       for (int i = 0; i < max; i++) {

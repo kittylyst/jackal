@@ -16,7 +16,7 @@ package tcl.lang.cmd;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
-import tcl.lang.QSort;
+import tcl.lang.TclSorter;
 import tcl.lang.Util;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
@@ -82,7 +82,7 @@ public final class LsortCmd implements Command {
     }
 
     String command = null;
-    int sortMode = QSort.ASCII;
+    int sortMode = TclSorter.ASCII;
     int sortIndex = -1;
     boolean sortIncreasing = true;
     boolean unique = false;
@@ -92,7 +92,7 @@ public final class LsortCmd implements Command {
 
       switch (index) {
         case OPT_ASCII: /* -ascii */
-          sortMode = QSort.ASCII;
+          sortMode = TclSorter.ASCII;
           break;
 
         case OPT_COMMAND: /* -command */
@@ -100,7 +100,7 @@ public final class LsortCmd implements Command {
             throw new TclException(
                 interp, "\"-command\" option must be" + " followed by comparison command");
           }
-          sortMode = QSort.COMMAND;
+          sortMode = TclSorter.COMMAND;
           command = argv[i + 1].toString();
           i++;
           break;
@@ -110,7 +110,7 @@ public final class LsortCmd implements Command {
           break;
 
         case OPT_DICTIONARY: /* -dictionary */
-          sortMode = QSort.DICTIONARY;
+          sortMode = TclSorter.DICTIONARY;
           break;
 
         case OPT_INCREASING: /* -increasing */
@@ -127,11 +127,11 @@ public final class LsortCmd implements Command {
           break;
 
         case OPT_INTEGER: /* -integer */
-          sortMode = QSort.INTEGER;
+          sortMode = TclSorter.INTEGER;
           break;
 
         case OPT_REAL: /* -real */
-          sortMode = QSort.REAL;
+          sortMode = TclSorter.REAL;
           break;
 
         case OPT_UNIQUE:
