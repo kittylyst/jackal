@@ -13,7 +13,7 @@ import tcl.lang.io.Translation;
  *
  * @author Dan Bodoh
  */
-class EolOutputFilter extends FilterWriter {
+final class EolOutputFilter extends FilterWriter {
   private Translation translation;
 
   /**
@@ -24,7 +24,7 @@ class EolOutputFilter extends FilterWriter {
    */
   EolOutputFilter(Writer out, Translation translation) {
     super(out);
-    setTranslation(translation);
+    this.translation = translation;
   }
 
   /**

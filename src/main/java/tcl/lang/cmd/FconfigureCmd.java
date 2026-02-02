@@ -154,30 +154,30 @@ public final class FconfigureCmd implements Command {
         TclList.append(
             interp,
             list,
-            TclString.newInstance(TclIO.getTranslationString(chan.getInputTranslation())));
+            TclString.newInstance(Translation.getString(chan.getInputTranslation())));
       } else if (chan.isWriteOnly()) {
         TclList.append(
             interp,
             list,
-            TclString.newInstance(TclIO.getTranslationString(chan.getOutputTranslation())));
+            TclString.newInstance(Translation.getString(chan.getOutputTranslation())));
       } else if (chan.isReadWrite()) {
         TclObject translation_pair = TclList.newInstance();
 
         TclList.append(
             interp,
             translation_pair,
-            TclString.newInstance(TclIO.getTranslationString(chan.getInputTranslation())));
+            TclString.newInstance(Translation.getString(chan.getInputTranslation())));
         TclList.append(
             interp,
             translation_pair,
-            TclString.newInstance(TclIO.getTranslationString(chan.getOutputTranslation())));
+            TclString.newInstance(Translation.getString(chan.getOutputTranslation())));
 
         TclList.append(interp, list, translation_pair);
       } else {
         TclList.append(
             interp,
             list,
-            TclString.newInstance(TclIO.getTranslationString(chan.getInputTranslation())));
+            TclString.newInstance(Translation.getString(chan.getInputTranslation())));
       }
 
       // -peername
@@ -288,25 +288,27 @@ public final class FconfigureCmd implements Command {
         case OPT_TRANSLATION:
           { // -translation
             if (chan.isReadOnly()) {
-              interp.setResult(TclIO.getTranslationString(chan.getInputTranslation()));
+              interp.setResult(Translation.getString(chan.getInputTranslation()));
             } else if (chan.isWriteOnly()) {
-              interp.setResult(TclIO.getTranslationString(chan.getOutputTranslation()));
+              interp.setResult(Translation.getString(chan.getOutputTranslation()));
             } else if (chan.isReadWrite()) {
               TclObject translation_pair = TclList.newInstance();
 
               TclList.append(
                   interp,
                   translation_pair,
-                  TclString.newInstance(TclIO.getTranslationString(chan.getInputTranslation())));
+                  TclString.newInstance(
+                      Translation.getString(chan.getInputTranslation())));
               TclList.append(
                   interp,
                   translation_pair,
-                  TclString.newInstance(TclIO.getTranslationString(chan.getOutputTranslation())));
+                  TclString.newInstance(
+                      Translation.getString(chan.getOutputTranslation())));
 
               interp.setResult(translation_pair);
             } else {
               // not reading or writing, but test io-39.23 says it should return something
-              interp.setResult(TclIO.getTranslationString(chan.getInputTranslation()));
+              interp.setResult(Translation.getString(chan.getInputTranslation()));
             }
 
             break;
@@ -429,12 +431,13 @@ public final class FconfigureCmd implements Command {
             try {
               if (length == 2) {
                 inputTranslationArg = TclList.index(interp, argv[i], 0).toString();
-                inputTranslation = TclIO.getTranslationID(inputTranslationArg);
+                inputTranslation = Translation.getTranslation(inputTranslationArg);
                 outputTranslationArg = TclList.index(interp, argv[i], 1).toString();
-                outputTranslation = TclIO.getTranslationID(outputTranslationArg);
+                outputTranslation = Translation.getTranslation(outputTranslationArg);
               } else {
                 outputTranslationArg = inputTranslationArg = argv[i].toString();
-                outputTranslation = inputTranslation = TclIO.getTranslationID(outputTranslationArg);
+                outputTranslation =
+                    inputTranslation = Translation.getTranslation(outputTranslationArg);
               }
             } catch (IllegalArgumentException e) {
               throw new TclException(interp, e.getMessage());

@@ -74,12 +74,16 @@ public class TclIO {
   /** Flush after every write; don't buffer any input */
   public static final int BUFF_NONE = 2;
 
-  private static Translation TRANS_PLATFORM;
+  private static final Translation TRANS_PLATFORM;
 
   static {
-    if (Util.isWindows()) setTransPlatform(TRANS_CRLF);
-    else if (Util.isMac()) setTransPlatform(TRANS_CR);
-    else setTransPlatform(TRANS_LF);
+    if (Util.isWindows()) {
+      TRANS_PLATFORM = TRANS_CRLF;
+    } else if (Util.isMac()) {
+      TRANS_PLATFORM = TRANS_CR;
+    } else {
+      TRANS_PLATFORM = TRANS_LF;
+    }
   }
 
   /**
@@ -358,39 +362,6 @@ public class TclIO {
   }
 
   /**
-   * @param translation one of the TRANS_* constances
-   * @return a string description for a translation id defined above.
-   */
-  public static String getTranslationString(Translation translation) {
-    return switch (translation) {
-      case TRANS_AUTO -> "auto";
-      case TRANS_CR -> "cr";
-      case TRANS_CRLF -> "crlf";
-      case TRANS_LF -> "lf";
-      case TRANS_BINARY -> "lf";
-      default -> throw new TclRuntimeError("bad translation id");
-    };
-  }
-
-  /**
-   * @param translation one the fconfigure -translation strings
-   * @return a numerical identifier for the given -translation string.
-   */
-  public static Translation getTranslationID(String translation) throws IllegalArgumentException {
-    return switch (translation) {
-      case "auto" -> TRANS_AUTO;
-      case "cr" -> TRANS_CR;
-      case "crlf" -> TRANS_CRLF;
-      case "lf" -> TRANS_LF;
-      case "binary" -> TRANS_LF;
-      case "platform" -> getTransPlatform();
-      default ->
-          throw new IllegalArgumentException(
-              "bad value for -translation: must be one of auto, binary, cr, lf, crlf, or platform");
-    };
-  }
-
-  /**
    * @param buffering one of TclIO.BUFF_FULL, TclIO.BUFF_LINE, TclIO.BUFF_NONE
    * @return a string description for a -buffering id defined above.
    */
@@ -421,9 +392,5 @@ public class TclIO {
   /** End-of-line translation for the current platform */
   public static Translation getTransPlatform() {
     return TRANS_PLATFORM;
-  }
-
-  public static void setTransPlatform(Translation transPlatform) {
-    TRANS_PLATFORM = transPlatform;
   }
 }
