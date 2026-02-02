@@ -17,6 +17,7 @@
 package tcl.lang.cmd;
 
 import java.util.ArrayList;
+import java.util.List;
 import tcl.lang.AssocData;
 import tcl.lang.Command;
 import tcl.lang.IdleHandler;
@@ -369,10 +370,10 @@ public final class AfterCmd implements Command {
    * handler has an AssocData so that they will continue to exist even if the "after" command is
    * deleted.
    */
-  class AfterAssocData implements AssocData {
+  final class AfterAssocData implements AssocData {
 
     /** The set of handlers created but not yet fired. */
-    ArrayList handlers = new ArrayList();
+    List handlers = new ArrayList();
 
     /** Timer identifier of most recently created timer. */
     int lastAfterId = 0;
@@ -393,25 +394,23 @@ public final class AfterCmd implements Command {
         if (assocData.handlers.remove(i) == null) {
           throw new TclRuntimeError("cound not remove handler " + i);
         }
-        if (info instanceof TimerInfo) {
-          TimerInfo ti = (TimerInfo) info;
+        if (info instanceof TimerInfo ti) {
           ti.cancel();
           ti.command.release();
-        } else {
-          IdleInfo ii = (IdleInfo) info;
+        } else if (info instanceof IdleInfo ii) {
           ii.cancel();
           ii.command.release();
         }
       }
       assocData = null;
     }
-  } // end AfterCmd.AfterAssocData
+  }
 
   /**
    * This inner class implement timer handlers for the "after" command. It stores a script to be
    * executed when the timer event is fired.
    */
-  class TimerInfo extends TimerHandler {
+  public final class TimerInfo extends TimerHandler {
 
     /** Interpreter in which the script should be executed. */
     Interp interp;
@@ -464,7 +463,7 @@ public final class AfterCmd implements Command {
    * This inner class implement idle handlers for the "after" command. It stores a script to be
    * executed when the idle event is fired.
    */
-  class IdleInfo extends IdleHandler {
+  final class IdleInfo extends IdleHandler {
 
     /** Interpreter in which the script should be executed. */
     Interp interp;
