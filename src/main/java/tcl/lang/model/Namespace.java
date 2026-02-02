@@ -579,7 +579,7 @@ public final class Namespace {
    *
    * <p>Results: None.
    *
-   * <p>Side effects: Removes this namespace from its parent's child namespace hashtable. Deletes
+   * <p>Side effects: Removes this namespace from its parent's child namespace symbol table. Deletes
    * all commands, variables and namespaces in this namespace. If this is the global namespace, the
    * "errorInfo" and "errorCode" variables are left alone and deleted later.
    *
@@ -656,8 +656,7 @@ public final class Namespace {
       Var.deleteVars(interp, ns.getVarTable());
     }
 
-    // Remove the namespace from its parent's child hashtable.
-
+    // Remove the namespace from its parent's child symbol table.
     if (ns.parent != null) {
       ns.parent.childTable.remove(ns.name);
     }

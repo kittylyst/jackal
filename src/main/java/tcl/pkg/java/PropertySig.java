@@ -28,6 +28,7 @@ import tcl.lang.model.TclObject;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 /** This class implements the internal representation of a Java Property signature. */
+// FIXME Record candidate ???
 public final class PropertySig implements InternalRep {
 
   // The class that the property signature is used against. It is the
@@ -84,9 +85,6 @@ public final class PropertySig implements InternalRep {
   public InternalRep duplicate() {
     return new PropertySig(targetCls, pkgInvoker, desc);
   }
-
-  /** Implement this no-op for the InternalRep interface. */
-  public void dispose() {}
 
   /*
    * ----------------------------------------------------------------------

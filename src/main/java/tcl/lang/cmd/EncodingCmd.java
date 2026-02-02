@@ -21,7 +21,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Set;
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -55,11 +55,11 @@ public final class EncodingCmd implements Command {
   record EncodingMap(String tclName, String javaName, int bytesPerChar) {}
 
   /**
-   * Hashtable of all supported encodings, containing both java names and tcl names. "tcl," is
-   * prepended to Tcl names for the index; "java," is prepended to the java names. The java names
-   * can be either the old-style java.io/java.lang names, or the new style java.nio names.
+   * Map of all supported encodings, containing both java names and tcl names. "tcl," is prepended
+   * to Tcl names for the index; "java," is prepended to the java names. The java names can be
+   * either the old-style java.io/java.lang names, or the new style java.nio names.
    */
-  static Hashtable<String, EncodingMap> encodeHash;
+  static HashMap<String, EncodingMap> encodeHash;
 
   static EncodingMap[] encodings = {
     new EncodingMap(
@@ -147,10 +147,7 @@ public final class EncodingCmd implements Command {
   };
 
   static {
-    // Store entries in a Hashtable, so that access from
-    // multiple threads will be synchronized.
-
-    encodeHash = new Hashtable<String, EncodingMap>();
+    encodeHash = new HashMap<>();
 
     for (int i = 0; i < encodings.length; i++) {
       EncodingMap map = encodings[i];
@@ -180,7 +177,7 @@ public final class EncodingCmd implements Command {
       enc = encName;
       // Lookup EncodingMap for this Java encoding name
       String key = "java," + enc;
-      EncodingMap map = (EncodingMap) encodeHash.get(key);
+      EncodingMap map = encodeHash.get(key);
       if (map == null) {
         enc = null;
       } else {
@@ -406,7 +403,7 @@ public final class EncodingCmd implements Command {
    */
   public static int getBytesPerChar(String name) {
     String key = "java," + name;
-    EncodingMap map = (EncodingMap) encodeHash.get(key);
+    EncodingMap map = encodeHash.get(key);
     if (map == null) {
       throw new RuntimeException("Invalid encoding \"" + name + "\"");
     }
@@ -422,7 +419,7 @@ public final class EncodingCmd implements Command {
    */
   public static String getJavaName(String name) {
     String key = "tcl," + name;
-    EncodingMap map = (EncodingMap) encodeHash.get(key);
+    EncodingMap map = encodeHash.get(key);
     if (map == null) {
       return null;
     }
@@ -437,7 +434,7 @@ public final class EncodingCmd implements Command {
    */
   static String getTclName(String name) {
     String key = "java," + name;
-    EncodingMap map = (EncodingMap) encodeHash.get(key);
+    EncodingMap map = encodeHash.get(key);
     if (map == null) {
       return null;
     }
@@ -450,7 +447,7 @@ public final class EncodingCmd implements Command {
    */
   static boolean isSupported(String name) {
     String key = "java," + name;
-    EncodingMap map = (EncodingMap) encodeHash.get(key);
+    EncodingMap map = encodeHash.get(key);
     if (map == null) {
       return false;
     }

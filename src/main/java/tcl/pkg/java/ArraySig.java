@@ -56,12 +56,10 @@ public final class ArraySig implements InternalRep {
    * ----------------------------------------------------------------------
    */
 
+  @Override
   public InternalRep duplicate() {
     return new ArraySig(arrayType, dimensions);
   }
-
-  /** Implement this no-op for the InternalRep interface. */
-  public void dispose() {}
 
   /*
    * ----------------------------------------------------------------------

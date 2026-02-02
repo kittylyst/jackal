@@ -19,7 +19,7 @@ import java.beans.EventSetDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.lang.reflect.Method;
-import java.util.Hashtable;
+import java.util.HashMap;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.exception.TclException;
@@ -44,7 +44,7 @@ public final class JavaBindCmd implements Command {
   // This cache allows us to always use the same BeanInfo instance for each
   // Java class.
 
-  private Hashtable<Class<?>, BeanInfo> beanInfoCache = new Hashtable<>();
+  private HashMap<Class<?>, BeanInfo> beanInfoCache = new HashMap<>();
 
   /*
    * ----------------------------------------------------------------------

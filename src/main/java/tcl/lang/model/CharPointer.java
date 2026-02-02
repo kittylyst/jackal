@@ -18,7 +18,7 @@ package tcl.lang.model;
 
 /**
  * Used in the Parser, this class implements the functionality of a C character pointer.
- * CharPointers referencing the same script share a reference to one array, while maintaining there
+ * CharPointers referencing the same script share a reference to one array, while maintaining their
  * own current index into the array.
  */
 public class CharPointer {
@@ -90,7 +90,7 @@ public class CharPointer {
    */
   @Override
   public String toString() {
-    return new String(getArray(), 0, getArray().length - 1);
+    return new String(array, 0, getArray().length - 1);
   }
 
   /** A string of characters. */

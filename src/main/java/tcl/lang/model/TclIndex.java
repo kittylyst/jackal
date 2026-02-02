@@ -36,12 +36,10 @@ public final class TclIndex implements InternalRep {
   }
 
   /** Returns a dupilcate of the current object. */
+  @Override
   public InternalRep duplicate() {
     return new TclIndex(index, table);
   }
-
-  /** Implement this no-op for the InternalRep interface. */
-  public void dispose() {}
 
   /**
    * Called to query the string representation of the Tcl object. This method is called only by

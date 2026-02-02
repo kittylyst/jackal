@@ -136,11 +136,11 @@ public class Regex {
 
   // TCL to Java regex map for character classes, equivalences, collating
 
-  private static final Map bracketMap;
+  private static final Map<String, String> bracketMap;
 
   static {
     // initialize bracketMap
-    Map br = new HashMap();
+    Map<String, String> br = new HashMap<>();
 
     br.put("[:alnum:]", "\\p{Alnum}");
     br.put("[:alpha:]", "\\p{Alpha}");
@@ -816,11 +816,13 @@ public class Regex {
   }
 
   /**
-   * @param c character to test
+   * @param sb
+   * @param index
+   * @param inBrackets
+   * @param flags
    * @return true if c is a whitespace character that can be attributed to a -expanded comment
    */
-  private static boolean isCommentWhitespace(
-      StringBuffer sb, int index, boolean inBrackets, int flags) {
+  static boolean isCommentWhitespace(StringBuffer sb, int index, boolean inBrackets, int flags) {
     if ((flags & TCL_REG_EXPANDED) == 0) return false;
     if (inBrackets) return false;
     if (index >= sb.length()) return false;
@@ -834,7 +836,6 @@ public class Regex {
    * @param tclRegex The TCL regular expression to be compiled
    * @return a Pattern object containing the compiled regex
    * @throws PatternSyntaxException if the expression's syntax is invalid or unsupported
-   * @see tcl.lang.Regex
    */
   protected Pattern compile(String tclRegex) throws PatternSyntaxException {
     StringBuffer regexsb = new StringBuffer(tclRegex);
@@ -1082,8 +1083,7 @@ public class Regex {
             if (c == ']') break;
             i++;
           }
-          // replacements are stored in 'bracketMap' Hashtable
-          String replacement = (String) bracketMap.get(charClass.toString());
+          String replacement = bracketMap.get(charClass.toString());
 
           /* collapse single-char collating and equivalence into character class */
           /* Those characters needing escape are part of bracketMap */
@@ -1143,7 +1143,7 @@ public class Regex {
         String escapeReplacement = null;
 
         // for speed, escapes are replaced with a 'switch' and hardcoded replacements,
-        // instead of using a Hashtable or some such cleaner looking method
+        // instead of using a map or some such cleaner looking method
 
         switch (regexsb.charAt(index)) {
           case '0':

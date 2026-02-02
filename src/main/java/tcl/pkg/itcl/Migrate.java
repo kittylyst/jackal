@@ -91,12 +91,12 @@ class Migrate {
    *
    * _TclNewVar -> Migrate.NewVar
    *
-   * Create a new variable that will eventually be entered into a hashtable.
+   * Create a new variable that will eventually be entered into a symbol table.
    *
    * Results: The return value is a reference to the new variable structure.
    * It is marked as a scalar variable (and not a link or array variable). Its
    * value initially is null. The variable is not part of any hash table yet.
-   * Since it will be in a hashtable and not in a call frame, its name field
+   * Since it will be in a symbol table and not in a call frame, its name field
    * is set null. It is initially marked as undefined.
    *
    * Side effects: Storage gets allocated.

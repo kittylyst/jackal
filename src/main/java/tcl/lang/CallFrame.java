@@ -73,8 +73,8 @@ public class CallFrame {
    * globals or other variable brought into the proc scope, and compiler generated aliases to
    * globals. This array is always null for an interpreted proc. A compiled proc implementation
    * known which variable is associated with each slot at compile time, so it is able to avoid a
-   * hashtable lookup each time the variable is accessed. Both scalar variables and array variables
-   * could appear in this array.
+   * symbol table lookup each time the variable is accessed. Both scalar variables and array
+   * variables could appear in this array.
    */
   public Var[] compiledLocals;
 

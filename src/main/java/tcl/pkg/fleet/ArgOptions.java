@@ -98,7 +98,7 @@ public class ArgOptions {
         }
 
         used[i] = true;
-        defValue = TclInteger.get(interp, argv[i]);
+        defValue = TclInteger.getInt(interp, argv[i]);
 
         break;
       }

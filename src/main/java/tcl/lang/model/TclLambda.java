@@ -9,13 +9,11 @@
  * RCS: @(#) $Id$
  */
 
-package tcl.lang;
+package tcl.lang.model;
 
+import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
-import tcl.lang.model.Namespace;
-import tcl.lang.model.TclList;
-import tcl.lang.model.TclObject;
 
 /**
  * Lambda internal rep.
@@ -32,11 +30,13 @@ public final class TclLambda implements InternalRep {
     this.namespaceName = ns;
   }
 
+  @Override
   public void dispose() {
     // TODO: figure out how to cleanup correctly (ref count?)
     // this.procedure.disposeCmd();
   }
 
+  @Override
   public InternalRep duplicate() {
     return new TclLambda(procedure, namespaceName);
   }

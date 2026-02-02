@@ -112,7 +112,7 @@ public class JtclScriptEngine extends AbstractScriptEngine {
       if (rep instanceof TclBoolean) {
         return Boolean.valueOf(TclBoolean.get(interp, tclObj));
       } else if (rep instanceof TclInteger) {
-        return Integer.valueOf(TclInteger.get(interp, tclObj));
+        return Integer.valueOf(TclInteger.getInt(interp, tclObj));
       } else if (rep instanceof TclDouble) {
         return Double.valueOf(TclDouble.get(interp, tclObj));
       } else if (rep instanceof TclString) {

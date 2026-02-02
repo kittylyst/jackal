@@ -21,7 +21,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /*
  * This class is used for the java::* commands to gain access to
@@ -59,12 +59,12 @@ import java.util.Hashtable;
 public class PkgInvoker {
 
   // PkgInvokers of the packages that we have already visited are stored
-  // in this hashtable. They key is the String name of a package.
+  // in this map. The key is the String name of a package.
 
   // FIXME: There is a problem here when mutliple interps could be making
   // use of the same cachedInvokers table. If a name conflict were
   // encountered, incorrect result would be the result.
-  static Hashtable<String, PkgInvoker> cachedInvokers = new Hashtable<>();
+  static HashMap<String, PkgInvoker> cachedInvokers = new HashMap<>();
 
   // This is the default invoker to use if a package doesn't include a
   // proper TclPkgInvoker class. This means only the public members
@@ -183,7 +183,7 @@ public class PkgInvoker {
    * Results: An instance of the PkgInvoker which is included in the package,
    * or defaultInvoker if the package doesn't include a proper PkgInvoker.
    *
-   * Side effects: The returned value is also stored in a hashtable for faster
+   * Side effects: The returned value is also stored in a symbol table for faster
    * access in the future.
    *
    * ----------------------------------------------------------------------

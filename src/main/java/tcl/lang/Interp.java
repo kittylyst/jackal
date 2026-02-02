@@ -3563,9 +3563,9 @@ public class Interp extends EventuallyFreed {
   /**
    * Information used by InterpCmd.java to keep track of master/slave interps on a per-interp basis.
    *
-   * <p>Keeps track of all interps for which this interp is the Master. First, slaveTable (a
-   * hashtable) maps from names of commands to slave interpreters. This hashtable is used to store
-   * information about slave interpreters of this interpreter, to map over all slaves, etc.
+   * <p>Keeps track of all interps for which this interp is the Master. First, slaveTable maps from
+   * names of commands to slave interpreters. This map is used to store information about slave
+   * interpreters of this interpreter, to map over all slaves, etc.
    */
   public Map<String, Object> getSlaveTable() {
     return slaveTable;

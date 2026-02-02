@@ -31,7 +31,7 @@
 
 package tcl.pkg.itcl;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Stack;
 import tcl.lang.CallFrame;
 import tcl.lang.Interp;
@@ -77,7 +77,7 @@ class Util {
   static Itcl_ListElem listPool = null;
   static int listPoolLen = 0;
 
-  static Hashtable<ItclEventuallyFreed, ItclPreservedData> ItclPreservedList = new Hashtable<>();
+  static HashMap<ItclEventuallyFreed, ItclPreservedData> ItclPreservedList = new HashMap<>();
   // Mutex ItclPreservedListLock
 
   static int VALID_LIST = 0x01face10; // magic bit pattern for validation

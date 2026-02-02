@@ -15,10 +15,12 @@ public final class ItclEnsInvoc implements InternalRep /* , CommandWithDispose *
   // Implement InternalRep interface
   // Note: SetEnsInvocFromAny is not used
 
+  @Override
   public InternalRep duplicate() {
     return Ensemble.DupEnsInvocInternalRep(this);
   }
 
+  @Override
   public void dispose() {
     Ensemble.FreeEnsInvocInternalRep(this);
   }

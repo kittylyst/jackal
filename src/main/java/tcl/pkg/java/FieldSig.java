@@ -26,6 +26,7 @@ import tcl.lang.model.TclObject;
 import tcl.pkg.java.reflect.PkgInvoker;
 
 /** This class implements the internal representation of a Java field signature. */
+// FIXME Record candidate ???
 public final class FieldSig implements InternalRep {
 
   // The class that the field signature is used against. If the
@@ -91,9 +92,6 @@ public final class FieldSig implements InternalRep {
   public InternalRep duplicate() {
     return new FieldSig(targetCls, sigCls, pkgInvoker, field);
   }
-
-  /** Implement this no-op for the InternalRep interface. */
-  public void dispose() {}
 
   /*
    * ----------------------------------------------------------------------

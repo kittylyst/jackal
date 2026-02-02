@@ -15,18 +15,26 @@ import tcl.lang.exception.TclRuntimeError;
  * 'b' [4] = 5 [5] = 4 // [6] = 'a' [5] = 6 [6] = 5 // [7] = 'r' [6] = 7 [7] = 6
  */
 public final class UTF8CharPointer extends CharPointer implements InternalRep {
-  int[] charToByteIndex; // Map char index to byte index
-  int[] byteToCharIndex; // Map byte index to char index
-  byte[] bytes;
-  String orig;
+  private int[] charToByteIndex; // Map char index to byte index
+  private int[] byteToCharIndex; // Map byte index to char index
+  private byte[] bytes;
+  private final String orig;
 
-  public UTF8CharPointer(String s) {
+  private UTF8CharPointer(String s) {
     super(s);
     orig = s;
-    getByteInfo();
   }
 
-  void getByteInfo() {
+  public static UTF8CharPointer of(Object obj) {
+    if (obj == null) {
+      throw new TclRuntimeError("Object is null, cannot create a UTF8CharPointer");
+    }
+    var s = new UTF8CharPointer(obj.toString());
+    s.setupInfo();
+    return s;
+  }
+
+  private void setupInfo() {
     int charIndex, byteIndex, bytesThisChar, bytesTotal;
 
     try {
@@ -54,7 +62,6 @@ public final class UTF8CharPointer extends CharPointer implements InternalRep {
       }
 
       // When each character maps to a single byte, bytes is null
-
       if (singleBytes) {
         bytes = null;
         return;
@@ -77,8 +84,8 @@ public final class UTF8CharPointer extends CharPointer implements InternalRep {
 
       charToByteIndex = new int[getArray().length];
 
-      for (charIndex = 0, byteIndex = 0; charIndex < charToByteIndex.length; charIndex++) {
-        charToByteIndex[charIndex] = byteIndex;
+      for (charIndex = 0, byteIndex = 0; charIndex < getCharToByteIndex().length; charIndex++) {
+        getCharToByteIndex()[charIndex] = byteIndex;
 
         c = getArray()[charIndex];
         if (c == '\0') {
@@ -104,12 +111,12 @@ public final class UTF8CharPointer extends CharPointer implements InternalRep {
 
       byteToCharIndex = new int[bytes.length];
       for (charIndex = 0, byteIndex = 0, bytesThisChar = 0;
-          byteIndex < byteToCharIndex.length;
+          byteIndex < getByteToCharIndex().length;
           byteIndex++, bytesThisChar--) {
         if (byteIndex > 0 && bytesThisChar == 0) {
           charIndex++;
         }
-        byteToCharIndex[byteIndex] = charIndex;
+        getByteToCharIndex()[byteIndex] = charIndex;
 
         c = getArray()[charIndex];
         if (bytesThisChar == 0) {
@@ -154,7 +161,7 @@ public final class UTF8CharPointer extends CharPointer implements InternalRep {
       return charIndex;
     }
 
-    return charToByteIndex[charIndex];
+    return getCharToByteIndex()[charIndex];
   }
 
   /**
@@ -170,7 +177,7 @@ public final class UTF8CharPointer extends CharPointer implements InternalRep {
       return charRange;
     }
 
-    return charToByteIndex[charIndex + charRange] - charToByteIndex[charIndex];
+    return getCharToByteIndex()[charIndex + charRange] - getCharToByteIndex()[charIndex];
   }
 
   // Get number of bytes for the given char index
@@ -181,7 +188,7 @@ public final class UTF8CharPointer extends CharPointer implements InternalRep {
       return 1;
     }
 
-    return charToByteIndex[charIndex + 1] - charToByteIndex[charIndex];
+    return getCharToByteIndex()[charIndex + 1] - getCharToByteIndex()[charIndex];
   }
 
   /**
@@ -210,7 +217,7 @@ public final class UTF8CharPointer extends CharPointer implements InternalRep {
       return byteIndex;
     }
 
-    return byteToCharIndex[byteIndex];
+    return getByteToCharIndex()[byteIndex];
   }
 
   // Given a byte index and range, return the number of
@@ -222,7 +229,7 @@ public final class UTF8CharPointer extends CharPointer implements InternalRep {
       return byteRange;
     }
 
-    return byteToCharIndex[byteIndex + byteRange] - byteToCharIndex[byteIndex];
+    return getByteToCharIndex()[byteIndex + byteRange] - getByteToCharIndex()[byteIndex];
   }
 
   // This API is used for debugging, it would never be invoked as part
@@ -260,30 +267,25 @@ public final class UTF8CharPointer extends CharPointer implements InternalRep {
     sb.append("\n");
 
     sb.append("charToByteIndex array:\n");
-    for (int i = 0; i < charToByteIndex.length - 1; i++) {
-      sb.append("[" + i + "] = " + charToByteIndex[i] + "\n");
+    for (int i = 0; i < getCharToByteIndex().length - 1; i++) {
+      sb.append("[" + i + "] = " + getCharToByteIndex()[i] + "\n");
     }
     sb.append("\n");
 
     sb.append("byteToCharIndex array:\n");
-    for (int i = 0; i < byteToCharIndex.length - 1; i++) {
-      sb.append("[" + i + "] = " + byteToCharIndex[i] + "\n");
+    for (int i = 0; i < getByteToCharIndex().length - 1; i++) {
+      sb.append("[" + i + "] = " + getByteToCharIndex()[i] + "\n");
     }
     sb.append("\n");
 
     return sb.toString();
   }
 
-  // InternalRep interfaces
+  public int[] getCharToByteIndex() {
+    return charToByteIndex;
+  }
 
-  // Called to free any storage for the type's internal rep.
-
-  public void dispose() {}
-
-  // duplicate
-
-  public InternalRep duplicate() {
-    // A UTF8CharPointer is read-only, so just dup the ref
-    return this;
+  public int[] getByteToCharIndex() {
+    return byteToCharIndex;
   }
 }

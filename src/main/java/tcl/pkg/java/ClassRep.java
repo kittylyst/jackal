@@ -22,6 +22,7 @@ import tcl.lang.exception.TclException;
 import tcl.lang.model.TclObject;
 
 /** This class implements the internal representation of a Java class name. */
+// FIXME Record candidate ???
 public final class ClassRep implements InternalRep {
 
   // The class referred to by this ClassRep.
@@ -62,9 +63,6 @@ public final class ClassRep implements InternalRep {
   public InternalRep duplicate() {
     return new ClassRep(cls);
   }
-
-  /** Implement this no-op for the InternalRep interface. */
-  public void dispose() {}
 
   /*
    * ----------------------------------------------------------------------

@@ -130,26 +130,11 @@ public final class TclDouble implements InternalRep {
     return new TclDouble(value);
   }
 
-  /** Implement this no-op for the InternalRep interface. */
-  public void dispose() {}
-
-  /*
-   * ----------------------------------------------------------------------
-   *
-   * newInstance --
-   *
-   * Creates a new instance of a TclObject with a TclDouble internal
-   * representation.
-   *
-   * Results: The newly created TclObject.
-   *
-   * Side effects: None.
-   *
-   * ----------------------------------------------------------------------
+  /**
+   * @param d Initial value
+   * @return Newly created TclObject.
    */
-
-  public static TclObject newInstance(double d) // Initial value.
-      {
+  public static TclObject newInstance(double d) {
     return new TclObject(new TclDouble(d));
   }
 

@@ -131,7 +131,7 @@ public class ItclAccess {
       frame.varTable = new HashMap<>();
     }
     Var var = new Var();
-    var.clearVarInHashtable(); // Needed to avoid "dangling namespace var"
+    var.clearVarInSymbolTable(); // Needed to avoid "dangling namespace var"
     // error
     var.table = frame.varTable;
     frame.varTable.put(name, var);

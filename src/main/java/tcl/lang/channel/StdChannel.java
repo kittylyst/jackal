@@ -115,10 +115,10 @@ public final class StdChannel extends Channel {
    * Set the channel type to one of the three stdio types. Throw a tclRuntimeEerror if the stdName
    * is not one of the three types. If it is a stdin channel, initialize the "in" data member. Since
    * "in" is static it may have already be initialized, test for this case first. Set the names to
-   * fileX, this will be the key in the chanTable hashtable to access this object. Note: it is not
-   * put into the hash table in this function. The calling function is responsible for that.
+   * fileX, this will be the key in the chanTable to access this object. Note: it is not put into
+   * the hash table in this function. The calling function is responsible for that.
    *
-   * @param stdName String that equals stdin, stdout, stderr
+   * @param type that equals stdin, stdout, stderr
    * @return The name of the channelId
    */
   String open(int type) {

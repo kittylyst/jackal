@@ -38,7 +38,7 @@ import tcl.lang.model.TclObject;
  * <p>See the file "license.terms" for information on usage and redistribution of this file, and for
  * a DISCLAIMER OF ALL WARRANTIES.
  */
-public class TclClassLoader extends ClassLoader {
+public final class TclClassLoader extends ClassLoader {
 
   /**
    * Cache of classes loaded by this class loader. Typically, a class loader is defined on a
@@ -498,7 +498,7 @@ public class TclClassLoader extends ClassLoader {
    *
    * <p>Results: A Class object or null if it could not be defined.
    *
-   * <p>Side effects: Cache the Class object in the classes Hashtable.
+   * <p>Side effects: Cache the Class object
    *
    * @param className Name of the class, possibly null
    * @param classData Binary data of the class structure.

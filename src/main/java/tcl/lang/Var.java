@@ -39,24 +39,26 @@ public class Var {
    *
    * <p>SCALAR - 1 means this is a scalar variable and not an array or link. The tobj field contains
    * the variable's value. ARRAY - 1 means this is an array variable rather than a scalar variable
-   * or link. The arraymap field points to the array's hashtable for its elements. LINK - 1 means
-   * this Var structure contains a reference to another Var structure that either has the real value
-   * or is itself another LINK pointer. Variables like this come about through "upvar" and "global"
-   * commands, or through references to variables in enclosing namespaces. UNDEFINED - 1 means that
-   * the variable is in the process of being deleted. An undefined variable logically does not exist
-   * and survives only while it has a trace, or if it is a global variable currently being used by
-   * some procedure. IN_HASHTABLE - 1 means this variable is in a hashtable. 0 if a local variable
-   * that was assigned a slot in a procedure frame by the compiler so the Var storage is part of the
-   * call frame. TRACE_EXISTS - 1 means that trace(s) exist on this scalar or array variable. This
-   * flag is set when (var.traces == null), it is cleared when there are no more traces.
-   * TRACE_ACTIVE - 1 means that trace processing is currently underway for a read or write access,
-   * so new read or write accesses should not cause trace procedures to be called and the variable
-   * can't be deleted. ARRAY_ELEMENT - 1 means that this variable is an array element, so it is not
-   * legal for it to be an array itself (the ARRAY flag had better not be set). NAMESPACE_VAR - 1
-   * means that this variable was declared as a namespace variable. This flag ensures it persists
-   * until its namespace is destroyed or until the variable is unset; it will persist even if it has
-   * not been initialized and is marked undefined. The variable's refCount is incremented to reflect
-   * the "reference" from its namespace. NO_CACHE - 1 means that code should not be able to hold a
+   * or link. The arraymap field points to the array's elements. LINK - 1 means this Var structure
+   * contains a reference to another Var structure that either has the real value or is itself
+   * another LINK pointer. Variables like this come about through "upvar" and "global" commands, or
+   * through references to variables in enclosing namespaces. UNDEFINED - 1 means that the variable
+   * is in the process of being deleted. An undefined variable logically does not exist and survives
+   * only while it has a trace, or if it is a global variable currently being used by some
+   * procedure.
+   *
+   * <p>IN_SYMBOL_TABLE - 1 means this variable is in a symbol table. 0 if a local variable that was
+   * assigned a slot in a procedure frame by the compiler so the Var storage is part of the call
+   * frame. TRACE_EXISTS - 1 means that trace(s) exist on this scalar or array variable. This flag
+   * is set when (var.traces == null), it is cleared when there are no more traces. TRACE_ACTIVE - 1
+   * means that trace processing is currently underway for a read or write access, so new read or
+   * write accesses should not cause trace procedures to be called and the variable can't be
+   * deleted. ARRAY_ELEMENT - 1 means that this variable is an array element, so it is not legal for
+   * it to be an array itself (the ARRAY flag had better not be set). NAMESPACE_VAR - 1 means that
+   * this variable was declared as a namespace variable. This flag ensures it persists until its
+   * namespace is destroyed or until the variable is unset; it will persist even if it has not been
+   * initialized and is marked undefined. The variable's refCount is incremented to reflect the
+   * "reference" from its namespace. NO_CACHE - 1 means that code should not be able to hold a
    * cached reference to this variable. This flag is only set for Var objects returned by a
    * namespace or interp resolver. It is not possible to clear this flag, so the variable can't be
    * cached as long as it is alive. NON_LOCAL - 1 means that the variable exists in the compiled
@@ -69,7 +71,7 @@ public class Var {
   static final int ARRAY = 0x2;
   static final int LINK = 0x4;
   static final int UNDEFINED = 0x8;
-  static final int IN_HASHTABLE = 0x10;
+  static final int IN_SYMBOL_TABLE = 0x10;
   static final int TRACE_ACTIVE = 0x20;
   static final int ARRAY_ELEMENT = 0x40;
   static final int NAMESPACE_VAR = 0x80;
@@ -106,8 +108,8 @@ public class Var {
     return ((flags & NAMESPACE_VAR) != 0);
   }
 
-  public final boolean isVarInHashtable() {
-    return ((flags & IN_HASHTABLE) != 0);
+  public final boolean isVarInSymbolTable() {
+    return ((flags & IN_SYMBOL_TABLE) != 0);
   }
 
   public final boolean isVarTraceExists() {
@@ -151,8 +153,8 @@ public class Var {
     flags |= NAMESPACE_VAR;
   }
 
-  final void setVarInHashtable() {
-    flags |= IN_HASHTABLE;
+  final void setVarInSymbolTable() {
+    flags |= IN_SYMBOL_TABLE;
   }
 
   final void setVarNonLocal() {
@@ -171,8 +173,8 @@ public class Var {
     flags &= ~UNDEFINED;
   }
 
-  public final void clearVarInHashtable() {
-    flags &= ~IN_HASHTABLE;
+  public final void clearVarInSymbolTable() {
+    flags &= ~IN_SYMBOL_TABLE;
   }
 
   final void clearVarTraceExists() {
@@ -200,7 +202,7 @@ public class Var {
    * @see Var#ARRAY
    * @see Var#LINK
    * @see Var#UNDEFINED
-   * @see Var#IN_HASHTABLE
+   * @see Var#IN_SYMBOL_TABLE
    * @see Var#TRACE_ACTIVE
    * @see Var#ARRAY_ELEMENT
    * @see Var#NAMESPACE_VAR
@@ -208,10 +210,10 @@ public class Var {
   int flags;
 
   /**
-   * If variable is in a hashtable, either the hash table entry that refers to this variable or null
-   * if the variable has been detached from its hash table (e.g. an array is deleted, but some of
-   * its elements are still referred to in upvars). null if the variable is not in a hashtable. This
-   * is used to delete an variable from its hashtable if it is no longer needed.
+   * If variable is in a symbol table, either the entry that refers to this variable or null if the
+   * variable has been detached from its table (e.g. an array is deleted, but some of its elements
+   * are still referred to in upvars). null if the variable is not in a symbol table. This is used
+   * to delete an variable from its symbol table if it is no longer needed.
    */
   public Map<String, Var> table;
 
@@ -249,7 +251,7 @@ public class Var {
     traces = null;
     // search = null;
     sidVec = null; // Like search in the C implementation
-    flags = (SCALAR | UNDEFINED | IN_HASHTABLE);
+    flags = (SCALAR | UNDEFINED | IN_SYMBOL_TABLE);
   }
 
   /**
@@ -324,9 +326,9 @@ public class Var {
       sb.append(" ");
       sb.append("NAMESPACE_VAR");
     }
-    if (isVarInHashtable()) {
+    if (isVarInSymbolTable()) {
       sb.append(" ");
-      sb.append("IN_HASHTABLE");
+      sb.append("IN_SYMBOL_TABLE");
     }
     if (isVarTraceExists()) {
       sb.append(" ");
@@ -460,8 +462,7 @@ public class Var {
     // variables are currently in use. Same as
     // the current procedure's frame, if any,
     // unless an "uplevel" is executing.
-    HashMap<String, Var> table; // to the hashtable, if any, in which
-    // to look up the variable.
+    HashMap<String, Var> table;
     Var var; // Used to search for global names.
     String elName; // Name of array element or null.
     int openParen;
@@ -550,10 +551,10 @@ public class Var {
     // 4) the name has namespace qualifiers ("::"s).
     // Otherwise, if part1 is a local variable, search first in the
     // frame's array of compiler-allocated local variables, then in its
-    // hashtable for runtime-created local variables.
+    // symbol table for runtime-created local variables.
     //
     // If createPart1 and the variable isn't found, create the variable and,
-    // if necessary, create varFrame's local var hashtable.
+    // if necessary, create varFrame's local var table.
 
     if (((flags & (TCL.GLOBAL_ONLY | TCL.NAMESPACE_ONLY)) != 0)
         || (varFrame == null)
@@ -629,7 +630,7 @@ public class Var {
               if (createPart1) {
                 var = new Var();
                 var.hashKey = part1;
-                var.clearVarInHashtable();
+                var.clearVarInSymbolTable();
 
                 compiledLocals[i] = var;
               }
@@ -736,7 +737,7 @@ public class Var {
       // Make sure we are not resurrecting a namespace variable from a
       // deleted namespace!
 
-      if (((var.flags & IN_HASHTABLE) != 0) && (var.table == null)) {
+      if (((var.flags & IN_SYMBOL_TABLE) != 0) && (var.table == null)) {
         if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
           throw new TclVarException(interp, part1, part2, msg, danglingVar);
         }
@@ -963,14 +964,13 @@ public class Var {
     TclObject oldValue;
     String bytes;
 
-    // If the variable is in a hashtable and its table field is null, then
-    // we
+    // If the variable is in a symbol table and its table field is null, then we
     // may have an upvar to an array element where the array was deleted
     // or an upvar to a namespace variable whose namespace was deleted.
     // Generate an error (allowing the variable to be reset would screw up
     // our storage allocation and is meaningless anyway).
 
-    if (((var.flags & IN_HASHTABLE) != 0) && (var.table == null)) {
+    if (((var.flags & IN_SYMBOL_TABLE) != 0) && (var.table == null)) {
       if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
         if (var.isVarArrayElement()) {
           throw new TclVarException(interp, part1, part2, "set", danglingElement);
@@ -1197,7 +1197,7 @@ public class Var {
     Var var = new Var();
     if (validate) {
       // Double check Var init state assumptions.
-      if (var.flags != (SCALAR | UNDEFINED | IN_HASHTABLE)) {
+      if (var.flags != (SCALAR | UNDEFINED | IN_SYMBOL_TABLE)) {
         throw new TclRuntimeError("invalid Var flags state");
       }
       if (var.getValue() != null) {
@@ -1443,7 +1443,7 @@ public class Var {
     // The varname will always be an unlinked array var.
 
     Var var = new Var();
-    var.clearVarInHashtable();
+    var.clearVarInSymbolTable();
     var.hashKey = varname;
 
     // Add var to the compiled local array
@@ -2091,7 +2091,7 @@ public class Var {
       // compiledLocals array where the upvar
       // variable could be stored.
       ) throws TclException {
-    Var other, var, array;
+    Var other, tclVar, array;
     Var[] result = null;
     CallFrame varFrame;
     CallFrame savedFrame = null;
@@ -2104,7 +2104,7 @@ public class Var {
     Var[] compiledLocals = null;
 
     // Find "other" in "frame". If not looking up other in just the
-    // current namespace, temporarily replace the current var frame
+    // current namespace, temporarily replace the current tclVar frame
     // pointer in the interpreter in order to use TclLookupVar.
 
     try {
@@ -2146,13 +2146,13 @@ public class Var {
     }
 
     // This module assumes that a link target will never
-    // be a link var. In this way, a link var is
+    // be a link tclVar. In this way, a link tclVar is
     // always resolved to either a scalar or an array
     // by following a single link. The lookupVar() method
     // should always return either a scalar or an array.
 
     if (other.isVarLink()) {
-      throw new TclRuntimeError("other var resolved to a link var");
+      throw new TclRuntimeError("other tclVar resolved to a link tclVar");
     }
 
     // Now create a variable entry for "myName". Create it as either a
@@ -2165,8 +2165,8 @@ public class Var {
     // 4) the name has namespace qualifiers ("::"s), unless
     // the special EXPLICIT_LOCAL_NAME flag is set.
     // If creating myName in the active procedure, look in its
-    // hashtable for runtime-created local variables. Create that
-    // procedure's local variable hashtable if necessary.
+    // symbol table for runtime-created local variables. Create that
+    // procedure's local variable table if necessary.
 
     varFrame = interp.varFrame;
     if (((myFlags & (TCL.GLOBAL_ONLY | TCL.NAMESPACE_ONLY)) != 0)
@@ -2188,10 +2188,10 @@ public class Var {
             interp, "can't create \"" + myName + "\": parent namespace doesn't exist");
       }
 
-      // Check that we are not trying to create a namespace var linked to
+      // Check that we are not trying to create a namespace tclVar linked to
       // a local variable in a procedure. If we allowed this, the local
       // variable in the shorter-lived procedure frame could go away
-      // leaving the namespace var's reference invalid.
+      // leaving the namespace tclVar's reference invalid.
 
       if (((otherP2 != null) ? array.ns : other.ns) == null) {
         throw new TclException(
@@ -2201,21 +2201,21 @@ public class Var {
                 + "\": upvar won't create namespace variable that refers to procedure variable");
       }
 
-      var = ns.getVarTable().get(tail);
-      if (var == null) { // we are adding a new entry
+      tclVar = ns.getVarTable().get(tail);
+      if (tclVar == null) { // we are adding a new entry
         newvar = true;
-        var = new Var();
-        ns.getVarTable().put(tail, var);
+        tclVar = new Var();
+        ns.getVarTable().put(tail, tclVar);
 
         // There is no hPtr member in Jacl, The hPtr combines the table
         // and the key used in a table lookup.
-        var.hashKey = tail;
-        var.table = ns.getVarTable();
+        tclVar.hashKey = tail;
+        tclVar.table = ns.getVarTable();
 
-        var.ns = ns; // Namespace var
+        tclVar.ns = ns; // Namespace tclVar
       }
     } else {
-      var = null;
+      tclVar = null;
 
       compiledLocals = varFrame.compiledLocals;
       if (compiledLocals != null) { // look in compiled local array
@@ -2236,44 +2236,42 @@ public class Var {
             if (compiledLocalsNames[i].equals(myName)) {
               foundInCompiledLocalsArray = true;
               localIndex = i;
-              var = compiledLocals[i];
+              tclVar = compiledLocals[i];
               break;
             }
           }
         } else {
-          // Slot the var should live in is known at compile time.
-          // Check to see if compiled local var exists already.
+          // Slot the tclVar should live in is known at compile time.
+          // Check to see if compiled local tclVar exists already.
 
           foundInCompiledLocalsArray = true;
-          var = compiledLocals[localIndex];
+          tclVar = compiledLocals[localIndex];
         }
       }
 
-      if (!foundInCompiledLocalsArray) { // look in frame's local var
-        // hashtable
+      if (!foundInCompiledLocalsArray) {
         table = varFrame.varTable;
 
-        // Note: Don't create var in the local table when it
+        // Note: Don't create tclVar in the local table when it
         // should be created in the compiledLocals array.
-
         if (table == null) {
           table = new HashMap();
           varFrame.varTable = table;
         }
 
         if (table != null) {
-          var = (Var) table.get(myName);
+          tclVar = table.get(myName);
         }
 
-        if (var == null) { // we are adding a new entry
+        if (tclVar == null) { // we are adding a new entry
           newvar = true;
-          var = new Var();
-          table.put(myName, var);
+          tclVar = new Var();
+          table.put(myName, tclVar);
 
-          var.hashKey = myName;
-          var.table = table;
+          tclVar.hashKey = myName;
+          tclVar.table = table;
         }
-        if (var != null) {
+        if (tclVar != null) {
           foundInLocalTable = true;
         }
       }
@@ -2282,27 +2280,27 @@ public class Var {
       // array, but it does not exist yet. Create
       // a new Var instance that will be assigned
       // to the compiled local array slot. This
-      // Var instance will become a link var.
+      // Var instance will become a link tclVar.
 
-      if (foundInCompiledLocalsArray && (var == null)) {
+      if (foundInCompiledLocalsArray && (tclVar == null)) {
         newvar = true;
-        var = new Var();
-        var.hashKey = myName;
-        var.clearVarInHashtable();
+        tclVar = new Var();
+        tclVar.hashKey = myName;
+        tclVar.clearVarInSymbolTable();
       }
     }
 
     if (!newvar) {
-      // The variable already exists. Make sure this variable "var"
+      // The variable already exists. Make sure this variable "tclVar"
       // isn't the same as "other" (avoid circular links). Also, if
       // it's not an upvar then it's an error. If it is an upvar, then
       // just disconnect it from the thing it currently refers to.
 
-      if (var == other) {
+      if (tclVar == other) {
         throw new TclException(interp, "can't upvar from variable to itself");
       }
-      if (var.isVarLink()) {
-        Var link = var.linkto;
+      if (tclVar.isVarLink()) {
+        Var link = tclVar.linkto;
         if (link == other) {
           // Already linked to the variable, no-op
           return;
@@ -2311,36 +2309,36 @@ public class Var {
         if (link.isVarUndefined()) {
           cleanupVar(link, null);
         }
-      } else if (!var.isVarUndefined()) {
+      } else if (!tclVar.isVarUndefined()) {
         throw new TclException(interp, "variable \"" + myName + "\" already exists");
-      } else if (var.traces != null) {
+      } else if (tclVar.traces != null) {
         throw new TclException(
             interp, "variable \"" + myName + "\" has traces: can't use for upvar");
       }
-      // FIXME: Is it possible that the other var
-      // would not be a var link type but it would
+      // FIXME: Is it possible that the other tclVar
+      // would not be a tclVar link type but it would
       // be undefined waiting to be cleaned up?
-      // For example, a linked var in another scope?
+      // For example, a linked tclVar in another scope?
       // Add a test case for this.
     }
 
-    var.setVarLink();
-    var.clearVarUndefined();
-    var.linkto = other;
+    tclVar.setVarLink();
+    tclVar.clearVarUndefined();
+    tclVar.linkto = other;
     other.refCount++;
 
-    // If the link var should be stored in the compiledLocals
+    // If the link tclVar should be stored in the compiledLocals
     // array then do that now. A variable with this same
     // name would never appear in the local table. Also mark
     // this variable as non-local for scoped global.
 
     if (foundInCompiledLocalsArray) {
       if (newvar) {
-        compiledLocals[localIndex] = var;
+        compiledLocals[localIndex] = tclVar;
       }
 
       if ((myFlags & EXPLICIT_LOCAL_NAME) != 0) {
-        var.setVarNonLocal();
+        tclVar.setVarNonLocal();
       }
     }
 
@@ -2615,7 +2613,7 @@ public class Var {
       if ((link.refCount == 0)
           && (link.traces == null)
           // (link.isVarUndefined() && link.isVarInHashtable())
-          && ((link.flags & (UNDEFINED | IN_HASHTABLE)) == (UNDEFINED | IN_HASHTABLE))) {
+          && ((link.flags & (UNDEFINED | IN_SYMBOL_TABLE)) == (UNDEFINED | IN_SYMBOL_TABLE))) {
         if (link.hashKey == null) {
           var.linkto = null; // Drops reference to the link Var
         } else if (link.table != var.table) {
@@ -2676,7 +2674,7 @@ public class Var {
     // variable will get freed when the last upvar goes away. This
     // variable could still be alive after this method finishes since
     // it could be refrenced in a namespace. The code will catch
-    // that case by looking at the IN_HASHTABLE flag and seeing
+    // that case by looking at the IN_SYMBOL_TABLE flag and seeing
     // if the table member is null.
 
     // if (var.refCount == 0) {
@@ -2742,7 +2740,7 @@ public class Var {
       el.setVarScalar();
       if (el.refCount == 0) {
         // We are no longer using the element
-        // element Vars are IN_HASHTABLE
+        // element Vars are IN_SYMBOL_TABLE
       }
     }
     table.clear();
@@ -2763,7 +2761,7 @@ public class Var {
     if (var.isVarUndefined()
         && (var.refCount == 0)
         && (var.traces == null)
-        && ((var.flags & IN_HASHTABLE) != 0)) {
+        && ((var.flags & IN_SYMBOL_TABLE) != 0)) {
       if (var.table != null) {
         var.table.remove(var.hashKey);
         var.table = null;
@@ -2774,7 +2772,7 @@ public class Var {
       if (array.isVarUndefined()
           && (array.refCount == 0)
           && (array.traces == null)
-          && ((array.flags & IN_HASHTABLE) != 0)) {
+          && ((array.flags & IN_SYMBOL_TABLE) != 0)) {
         if (array.table != null) {
           array.table.remove(array.hashKey);
           array.table = null;
