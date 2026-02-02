@@ -47,7 +47,7 @@ public class Interp extends EventuallyFreed {
    */
   public long reflectObjCount = 0;
 
-  private final HashMap<String, List<ReflectObject>> reflectConflictTable = new HashMap<>();
+  private final Map<String, List<ReflectObject>> reflectConflictTable = new HashMap<>();
 
   /** The number of chars to copy from an offending command into error message. */
   private static final int MAX_ERR_LENGTH = 200;
@@ -62,7 +62,7 @@ public class Interp extends EventuallyFreed {
   public int cmdCount;
 
   /** Table of channels currently registered in this interp. */
-  public HashMap<String, Channel> interpChanTable;
+  public Map<String, Channel> interpChanTable;
 
   /**
    * Set to true if [encoding system] can set the encoding for stdout and stderr. This is an attempt
@@ -1048,7 +1048,7 @@ public class Interp extends EventuallyFreed {
     if (getAssocData() == null) {
       return null;
     } else {
-      return (AssocData) getAssocData().get(name);
+      return getAssocData().get(name);
     }
   }
 
@@ -3558,7 +3558,7 @@ public class Interp extends EventuallyFreed {
    * Table used to store reflect hash index conflicts, see ReflectObject implementation for more
    * details
    */
-  public HashMap<String, List<ReflectObject>> getReflectConflictTable() {
+  public Map<String, List<ReflectObject>> getReflectConflictTable() {
     return reflectConflictTable;
   }
 

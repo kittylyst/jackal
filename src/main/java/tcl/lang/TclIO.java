@@ -15,6 +15,7 @@ package tcl.lang;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import tcl.lang.channel.Channel;
 import tcl.lang.channel.FileEvent;
 import tcl.lang.channel.FileEventScript;
@@ -113,7 +114,7 @@ public class TclIO {
    * @return Channel or null if chanName does not exist
    */
   public static Channel getChannel(Interp interp, String chanName) {
-    HashMap<String, Channel> chanTable = getInterpChanTable(interp);
+    Map<String, Channel> chanTable = getInterpChanTable(interp);
 
     /* Once we request stdin/stderr, [system encoding VALUE] can't change its encoding */
     if (interp.isSystemEncodingChangesStdoutStderr()
@@ -170,7 +171,7 @@ public class TclIO {
   public static void registerChannel(Interp interp, Channel chan) {
 
     if (interp != null) {
-      HashMap<String, Channel> chanTable = getInterpChanTable(interp);
+      Map<String, Channel> chanTable = getInterpChanTable(interp);
       String registerName;
 
       if (!chanTable.containsKey("stdin")) {
@@ -195,7 +196,7 @@ public class TclIO {
    * @param interp the current interpreter
    */
   public static void flushAllOpenChannels(Interp interp) {
-    HashMap<String, Channel> chanTable = getInterpChanTable(interp);
+    Map<String, Channel> chanTable = getInterpChanTable(interp);
 
     for (Channel channel : chanTable.values()) {
       if (channel.isWriteOnly() || channel.isReadWrite()) {
@@ -223,8 +224,8 @@ public class TclIO {
   public static void giveChannel(
       Interp master, Interp slave, String chanName, boolean removeFromMaster) throws TclException {
 
-    HashMap<String, Channel> masterTable = getInterpChanTable(master);
-    HashMap<String, Channel> slaveTable = getInterpChanTable(slave);
+    Map<String, Channel> masterTable = getInterpChanTable(master);
+    Map<String, Channel> slaveTable = getInterpChanTable(slave);
 
     slave.setSystemEncodingChangesStdoutStderr(false);
 
@@ -259,7 +260,7 @@ public class TclIO {
    * @param chan channel to unregister
    */
   public static void unregisterChannel(Interp interp, Channel chan) {
-    HashMap<String, Channel> chanTable = getInterpChanTable(interp);
+    Map<String, Channel> chanTable = getInterpChanTable(interp);
 
     FileEventScript.dispose(interp, chan, FileEvent.READABLE);
     FileEventScript.dispose(interp, chan, FileEvent.WRITABLE);
@@ -299,7 +300,7 @@ public class TclIO {
    * @param interp this interpreter
    * @return the interpreter's channel table
    */
-  static HashMap<String, Channel> getInterpChanTable(Interp interp) {
+  static Map<String, Channel> getInterpChanTable(Interp interp) {
     Channel chan;
 
     if (interp.interpChanTable == null) {
@@ -323,30 +324,28 @@ public class TclIO {
    * @return the requested standard channel, creating it if required
    */
   public static Channel getStdChannel(int type) {
-    Channel chan = null;
-
-    switch (type) {
-      case StdChannel.STDIN:
-        if (stdinChan == null) {
-          stdinChan = new StdChannel(StdChannel.STDIN);
-        }
-        chan = stdinChan;
-        break;
-      case StdChannel.STDOUT:
-        if (stdoutChan == null) {
-          stdoutChan = new StdChannel(StdChannel.STDOUT);
-        }
-        chan = stdoutChan;
-        break;
-      case StdChannel.STDERR:
-        if (stderrChan == null) {
-          stderrChan = new StdChannel(StdChannel.STDERR);
-        }
-        chan = stderrChan;
-        break;
-      default:
-        throw new TclRuntimeError("Invalid type for StdChannel");
-    }
+    Channel chan =
+        switch (type) {
+          case StdChannel.STDIN -> {
+            if (stdinChan == null) {
+              stdinChan = new StdChannel(StdChannel.STDIN);
+            }
+            yield stdinChan;
+          }
+          case StdChannel.STDOUT -> {
+            if (stdoutChan == null) {
+              stdoutChan = new StdChannel(StdChannel.STDOUT);
+            }
+            yield stdoutChan;
+          }
+          case StdChannel.STDERR -> {
+            if (stderrChan == null) {
+              stderrChan = new StdChannel(StdChannel.STDERR);
+            }
+            yield stderrChan;
+          }
+          default -> throw new TclRuntimeError("Invalid type for StdChannel");
+        };
 
     return (chan);
   }
@@ -361,7 +360,7 @@ public class TclIO {
    */
   public static String getNextDescriptor(Interp interp, String prefix) {
     int i;
-    HashMap<String, Channel> htbl = getInterpChanTable(interp);
+    Map<String, Channel> htbl = getInterpChanTable(interp);
 
     // The first available file identifier in Tcl is "file3"
     if (prefix.equals("file")) i = 3;
