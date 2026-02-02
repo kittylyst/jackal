@@ -59,7 +59,7 @@ public final class PrecTraceProc implements VarTrace {
     // Disallow it if this is a safe interpreter (we don't want
     // safe interpreters messing up the precision of other
     // interpreters).
-    if (interp.isSafe) {
+    if (interp.isSafe()) {
       throw new TclException(interp, "can't modify precision from a safe interpreter");
     }
     TclObject tobj = null;
@@ -77,7 +77,7 @@ public final class PrecTraceProc implements VarTrace {
       value = "";
     }
 
-    StrtoulResult r = interp.strtoulResult;
+    StrtoulResult r = interp.getStrtoulResult();
     Util.strtoul(value, 0, 10, r);
 
     if ((r.getValue() <= 0)

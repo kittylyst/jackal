@@ -18,6 +18,9 @@ import tcl.lang.cmd.PackageCmd;
 import tcl.lang.cmd.RegexpCmd;
 import tcl.lang.exception.*;
 import tcl.lang.model.*;
+import tcl.lang.parse.Parser;
+import tcl.lang.parse.TclParse;
+import tcl.lang.parse.TclToken;
 import tcl.pkg.java.ReflectObject;
 
 /**
@@ -78,11 +81,7 @@ public class Interp extends EventuallyFreed {
   /** Current working directory. */
   private File workingDir;
 
-  /**
-   * Points to top-most in stack of all nested procedure invocations. null means there are no active
-   * procedures.
-   */
-  public CallFrame frame;
+  private CallFrame frame;
 
   /**
    * Points to the call frame whose variables are currently in use (same as frame unless an
@@ -134,11 +133,9 @@ public class Interp extends EventuallyFreed {
   /** Flags used when evaluating a command. */
   public int flags;
 
-  /** Is this interpreted marked as safe? */
-  public boolean isSafe;
+  private boolean isSafe;
 
-  /** Offset of character just after last one compiled or executed by Parser.eval2(). */
-  public int termOffset;
+  private int termOffset;
 
   // List of name resolution schemes added to this interpreter.
   // Schemes are added/removed by calling addInterpResolver and
@@ -148,32 +145,17 @@ public class Interp extends EventuallyFreed {
 
   private Expression expr;
 
-  /**
-   * Used by the Expression class. If it is equal to zero, then the parser will evaluate commands
-   * and retrieve variable values from the interp.
-   */
-  int noEval;
+  private int noEval;
 
-  /**
-   * Used in the Expression.java file for the SrandFunction.class and RandFunction.class. Set to
-   * true if a seed has been set.
-   */
-  boolean randSeedInit;
+  private boolean randSeedInit;
 
-  /**
-   * Used in the Expression.java file for the SrandFunction.class and RandFunction.class. Stores the
-   * value of the seed.
-   */
-  long randSeed;
+  private long randSeed;
 
-  /** If returnCode is TCL.ERROR, stores the errorInfo. */
-  public String errorInfo;
+  private String errorInfo;
 
-  /** If returnCode is TCL.ERROR, stores the errorCode. */
   public String errorCode;
 
-  /** Completion code to return if current procedure exits with a TCL_RETURN code. */
-  public int returnCode;
+  private int returnCode;
 
   /**
    * True means the interpreter has been deleted: don't process any more commands for it, and
@@ -181,29 +163,13 @@ public class Interp extends EventuallyFreed {
    */
   protected boolean deleted;
 
-  /**
-   * True means an error unwind is already in progress. False means a command proc has been invoked
-   * since last error occured.
-   */
-  public boolean errInProgress;
+  private boolean errInProgress;
 
-  /**
-   * True means information has already been logged in $errorInfo for the current eval() instance,
-   * so eval() needn't log it (used to implement the "error" command).
-   */
-  public boolean errAlreadyLogged;
+  private boolean errAlreadyLogged;
 
-  /**
-   * True means that addErrorInfo has been called to record information for the current error. False
-   * means Interp.eval must clear the errorCode variable if an error is returned.
-   */
-  protected boolean errCodeSet;
+  private boolean errCodeSet;
 
-  /**
-   * When TCL_ERROR is returned, this gives the line number within the command where the error
-   * occurred (1 means first line).
-   */
-  public int errorLine;
+  private int errorLine;
 
   /** Stores the current result in the interpreter. */
   private TclObject m_result;
@@ -271,35 +237,27 @@ public class Interp extends EventuallyFreed {
   // Used ONLY by PackageCmd.
 
   private final HashMap<String, tcl.lang.cmd.PackageCmd.Package> packageTable = new HashMap<>();
-  public String packageUnknown;
+  private String packageUnknown;
 
   // Used ONLY by the Parser.
 
-  TclObject[][][] parserObjv;
-  int[] parserObjvUsed;
+  private TclObject[][][] parserObjv;
+  private int[] parserObjvUsed;
 
-  TclToken[] parserTokens;
-  int parserTokensUsed;
+  private TclToken[] parserTokens;
+  private int parserTokensUsed;
 
-  /** Used ONLY by JavaImportCmd: classTable, packageTable, wildcardTable */
-  public Map[] importTable = {
+  private Map[] importTable = {
     new HashMap<String, String>(),
     new HashMap<String, List<String>>(),
     new HashMap<String, List<String>>()
   };
 
-  /**
-   * Used by callers of Util.strtoul(), also used in FormatCmd.strtoul(). There is typically only
-   * one instance of a StrtoulResult around at any one time. Callers should exercise care to use the
-   * results before any other code could call strtoul() again.
-   */
-  public StrtoulResult strtoulResult = new StrtoulResult();
+  private StrtoulResult strtoulResult = new StrtoulResult();
 
-  /** Used by callers of Util.strtod(). Usage is same as {@link #strtoulResult} */
-  public StrtodResult strtodResult = new StrtodResult();
+  private StrtodResult strtodResult = new StrtodResult();
 
-  /** Used only with Namespace.getNamespaceForQualName() */
-  public Namespace.GetNamespaceForQualNameResult getnfqnResult =
+  private Namespace.GetNamespaceForQualNameResult getnfqnResult =
       new Namespace.GetNamespaceForQualNameResult();
 
   // Cached array object accessed only in Var.lookupVar().
@@ -426,7 +384,7 @@ public class Interp extends EventuallyFreed {
 
   private void init() {
     // freeProc = null;
-    errorLine = 0;
+    setErrorLine(0);
 
     // An empty result is used pretty often. We will use a shared
     // TclObject instance to represent the empty result so that we
@@ -503,20 +461,20 @@ public class Interp extends EventuallyFreed {
     setExpr(new Expression());
     nestLevel = 0;
 
-    frame = null;
+    setFrame(null);
     varFrame = null;
 
-    returnCode = TCL.OK;
-    errorInfo = null;
+    setReturnCode(TCL.OK);
+    setErrorInfo(null);
     errorCode = null;
 
-    packageUnknown = null;
+    setPackageUnknown(null);
     cmdCount = 0;
-    termOffset = 0;
+    setTermOffset(0);
     evalFlags = 0;
     scriptFile = null;
     flags = 0;
-    isSafe = false;
+    setSafe(false);
     setAssocData(null);
 
     globalNs = null; // force creation of global ns below
@@ -527,15 +485,15 @@ public class Interp extends EventuallyFreed {
 
     // Init things that are specific to the Jacl implementation
     workingDir = new File(Util.tryGetSystemProperty("user.dir", "."));
-    noEval = 0;
+    setNoEval(0);
 
     notifier.preserve();
-    randSeedInit = false;
+    setRandSeedInit(false);
 
     deleted = false;
-    errInProgress = false;
-    errAlreadyLogged = false;
-    errCodeSet = false;
+    setErrInProgress(false);
+    setErrAlreadyLogged(false);
+    setErrCodeSet(false);
 
     dbg = initDebugInfo();
 
@@ -727,7 +685,7 @@ public class Interp extends EventuallyFreed {
       errorCodeObj.preserve();
     }
 
-    frame = null;
+    setFrame(null);
     varFrame = null;
 
     try {
@@ -787,7 +745,7 @@ public class Interp extends EventuallyFreed {
     // ownership of
     // the result string to Tcl.
 
-    frame = null;
+    setFrame(null);
     varFrame = null;
     resolvers.clear();
 
@@ -969,7 +927,7 @@ public class Interp extends EventuallyFreed {
     // Load the parser package as a result of the user
     // running "package require parser".
 
-    Extension.loadOnDemand(this, "jaclloadparser", "tcl.lang.TclParserExtension");
+    Extension.loadOnDemand(this, "jaclloadparser", "tcl.lang.parse.TclParserExtension");
 
     try {
       eval("package ifneeded parser 1.4 {jaclloadparser}");
@@ -1421,7 +1379,7 @@ public class Interp extends EventuallyFreed {
     // otherwise, we always put it in the global namespace.
 
     if (cmdName.indexOf("::") != -1) {
-      Namespace.GetNamespaceForQualNameResult gnfqnr = this.getnfqnResult;
+      Namespace.GetNamespaceForQualNameResult gnfqnr = this.getGetnfqnResult();
       Namespace.getNamespaceForQualName(
           this, cmdName, null, Namespace.CREATE_NS_IF_UNKNOWN, gnfqnr);
       ns = gnfqnr.ns;
@@ -1698,7 +1656,7 @@ public class Interp extends EventuallyFreed {
     // automatically create the containing namespaces just like
     // Tcl_CreateCommand would.
 
-    Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     Namespace.getNamespaceForQualName(
         interp, newName, null, Namespace.CREATE_NS_IF_UNKNOWN, gnfqnr);
     newNs = gnfqnr.ns;
@@ -1847,25 +1805,6 @@ public class Interp extends EventuallyFreed {
       // This should never happen
       throw new TclRuntimeError("unexpected TclException: " + e);
     }
-  }
-
-  /*
-   * ----------------------------------------------------------------------
-   *
-   * commandComplete --
-   *
-   * Check if the string is a complete Tcl command string.
-   *
-   * Result: A boolean value indicating whether the string is a complete Tcl command string.
-   *
-   * Side effects: None.
-   *
-   * @param string The string to check.
-   *
-   * @return
-   */
-  public static boolean commandComplete(String string) {
-    return Parser.commandComplete(string, string.length());
   }
 
   /**
@@ -2097,10 +2036,10 @@ public class Interp extends EventuallyFreed {
         }
       }
     }
-    errAlreadyLogged = false;
-    errInProgress = false;
-    errCodeSet = false;
-    returnCode = TCL.OK;
+    setErrAlreadyLogged(false);
+    setErrInProgress(false);
+    setErrCodeSet(false);
+    setReturnCode(TCL.OK);
   }
 
   /**
@@ -2184,12 +2123,12 @@ public class Interp extends EventuallyFreed {
          * set the line number on which we got the unexpected result, which is really probably a break or
          * continue outside of the loop. Also get the contents of that line for the error message
          */
-        errorLine = 1;
+        setErrorLine(1);
         int lineEnd = 0;
         int lineStart = 0;
-        while (lineEnd < termOffset - 1) {
+        while (lineEnd < getTermOffset() - 1) {
           if (script.charAt(lineEnd) == '\n') {
-            ++errorLine;
+            setErrorLine(getErrorLine() + 1);
             lineStart = lineEnd + 1;
           }
           ++lineEnd;
@@ -2279,7 +2218,7 @@ public class Interp extends EventuallyFreed {
       // free resources that had been allocated
       // to the command.
 
-      if (invokedEval && result == TCL.ERROR && !(this.errAlreadyLogged)) {
+      if (invokedEval && result == TCL.ERROR && !(this.isErrAlreadyLogged())) {
         StringBuffer cmd_strbuf = new StringBuffer(64);
 
         for (int i = 0; i < objv.length; i++) {
@@ -2408,7 +2347,7 @@ public class Interp extends EventuallyFreed {
       eval(fileContent, 0);
     } catch (TclException e) {
       if (e.getCompletionCode() == TCL.ERROR) {
-        addErrorInfo("\n    (file \"" + s + "\" line " + errorLine + ")");
+        addErrorInfo("\n    (file \"" + s + "\" line " + getErrorLine() + ")");
       }
       throw e;
     } finally {
@@ -2769,29 +2708,6 @@ public class Interp extends EventuallyFreed {
   }
 
   /**
-   * Figure out how to handle a backslash sequence. The index of the ChapPointer must be pointing to
-   * the first /.
-   *
-   * <p>Results: The return value is an instance of BackSlashResult that contains the character that
-   * should be substituted in place of the backslash sequence that starts at src.index, and an index
-   * to the next character after the backslash sequence.
-   *
-   * <p>Side effects: None.
-   *
-   * @param s
-   * @param i
-   * @param len
-   * @return an instance of BackSlashResult that contains the character that should be substituted
-   *     in place of the backslash sequence that starts at src.index, and an index to the next
-   *     character after the backslash sequence.
-   */
-  public static BackSlashResult backslash(String s, int i, int len) {
-    CharPointer script = new CharPointer(s.substring(0, len));
-    script.setIndex(i);
-    return Parser.backslash(script.getArray(), script.getIndex());
-  }
-
-  /**
    * This procedure is called to record machine-readable information about an error that is about to
    * be returned. The caller should build a list object up and pass it to this routine.
    *
@@ -2810,7 +2726,7 @@ public class Interp extends EventuallyFreed {
   public void setErrorCode(TclObject code) {
     try {
       setVar("errorCode", null, code, TCL.GLOBAL_ONLY);
-      errCodeSet = true;
+      setErrCodeSet(true);
     } catch (TclException excp) {
       // Ignore any TclException's, possibly caused by variable traces on
       // the errorCode variable. This is compatible with the behavior of
@@ -2830,8 +2746,8 @@ public class Interp extends EventuallyFreed {
    * @param message message to record in errorInfo
    */
   public void addErrorInfo(String message) {
-    if (!errInProgress) {
-      errInProgress = true;
+    if (!isErrInProgress()) {
+      setErrInProgress(true);
 
       try {
         setVar("::errorInfo", null, getResult().toString(), TCL.GLOBAL_ONLY);
@@ -2842,7 +2758,7 @@ public class Interp extends EventuallyFreed {
       // If the errorCode variable wasn't set by the code
       // that generated the error, set it to "NONE".
 
-      if (!errCodeSet) {
+      if (!isErrCodeSet()) {
         try {
           setVar("errorCode", null, "NONE", TCL.GLOBAL_ONLY);
         } catch (TclException e1) {
@@ -2896,30 +2812,31 @@ public class Interp extends EventuallyFreed {
   public int updateReturnInfo() {
     int code;
 
-    code = returnCode;
-    returnCode = TCL.OK;
+    code = getReturnCode();
+    setReturnCode(TCL.OK);
 
     if (code == TCL.ERROR) {
       try {
-        setVar("errorCode", null, (errorCode != null) ? errorCode : "NONE", TCL.GLOBAL_ONLY);
+        setVar(
+            "errorCode", null, (getErrorCode() != null) ? getErrorCode() : "NONE", TCL.GLOBAL_ONLY);
       } catch (TclException e) {
         // An error may happen during a trace to errorCode. We ignore
         // it.
         // This may leave error messages inside Interp.result (which
         // is compatible with Tcl 8.4 behavior.
       }
-      errCodeSet = true;
+      setErrCodeSet(true);
 
-      if (errorInfo != null) {
+      if (getErrorInfo() != null) {
         try {
-          setVar("::errorInfo", null, errorInfo, TCL.GLOBAL_ONLY);
+          setVar("::errorInfo", null, getErrorInfo(), TCL.GLOBAL_ONLY);
         } catch (TclException e) {
           // An error may happen during a trace to errorInfo. We
           // ignore it. This may leave error messages inside
           // Interp.result (which is compatible with Tcl 8.4
           // behavior.
         }
-        errInProgress = true;
+        setErrInProgress(true);
       }
     }
 
@@ -3162,10 +3079,10 @@ public class Interp extends EventuallyFreed {
       // the target interp that it has inherited a partial traceback
       // chain, not just a simple error message.
 
-      if (!sourceInterp.errAlreadyLogged) {
+      if (!sourceInterp.isErrAlreadyLogged()) {
         sourceInterp.addErrorInfo("");
       }
-      sourceInterp.errAlreadyLogged = true;
+      sourceInterp.setErrAlreadyLogged(true);
 
       resetResult();
 
@@ -3175,11 +3092,11 @@ public class Interp extends EventuallyFreed {
       obj = sourceInterp.getVar("errorCode", TCL.GLOBAL_ONLY);
       setVar("errorCode", obj, TCL.GLOBAL_ONLY);
 
-      errInProgress = true;
-      errCodeSet = true;
+      setErrInProgress(true);
+      setErrCodeSet(true);
     }
 
-    returnCode = result;
+    setReturnCode(result);
     setResult(sourceInterp.getResult());
     sourceInterp.resetResult();
 
@@ -3506,10 +3423,10 @@ public class Interp extends EventuallyFreed {
     // If an error occurred, record information about what was being
     // executed when the error occurred.
 
-    if ((result == TCL.ERROR) && ((flags & INVOKE_NO_TRACEBACK) == 0) && !errAlreadyLogged) {
+    if ((result == TCL.ERROR) && ((flags & INVOKE_NO_TRACEBACK) == 0) && !isErrAlreadyLogged()) {
       StringBuffer ds;
 
-      if (errInProgress) {
+      if (isErrInProgress()) {
         ds = new StringBuffer("\n    while invoking\n\"");
       } else {
         ds = new StringBuffer("\n    invoked from within\n\"");
@@ -3525,7 +3442,7 @@ public class Interp extends EventuallyFreed {
       }
       ds.append("\"");
       addErrorInfo(ds.toString());
-      errInProgress = true;
+      setErrInProgress(true);
     }
 
     // Free any locally allocated storage used to call "unknown".
@@ -3621,6 +3538,219 @@ public class Interp extends EventuallyFreed {
 
   public void setAssocData(Map<String, AssocData> assocData) {
     this.assocData = assocData;
+  }
+
+  /**
+   * Points to top-most in stack of all nested procedure invocations. null means there are no active
+   * procedures.
+   */
+  public CallFrame getFrame() {
+    return frame;
+  }
+
+  public void setFrame(CallFrame frame) {
+    this.frame = frame;
+  }
+
+  public TclToken[] getParserTokens() {
+    return parserTokens;
+  }
+
+  public void setParserTokens(TclToken[] parserTokens) {
+    this.parserTokens = parserTokens;
+  }
+
+  public int getParserTokensUsed() {
+    return parserTokensUsed;
+  }
+
+  public void setParserTokensUsed(int parserTokensUsed) {
+    this.parserTokensUsed = parserTokensUsed;
+  }
+
+  /** Is this interpreted marked as safe? */
+  public boolean isSafe() {
+    return isSafe;
+  }
+
+  public void setSafe(boolean safe) {
+    isSafe = safe;
+  }
+
+  /** Offset of character just after last one compiled or executed by Parser.eval2(). */
+  public int getTermOffset() {
+    return termOffset;
+  }
+
+  public void setTermOffset(int termOffset) {
+    this.termOffset = termOffset;
+  }
+
+  public String getPackageUnknown() {
+    return packageUnknown;
+  }
+
+  public void setPackageUnknown(String packageUnknown) {
+    this.packageUnknown = packageUnknown;
+  }
+
+  public TclObject[][][] getParserObjv() {
+    return parserObjv;
+  }
+
+  public void setParserObjv(TclObject[][][] parserObjv) {
+    this.parserObjv = parserObjv;
+  }
+
+  public int[] getParserObjvUsed() {
+    return parserObjvUsed;
+  }
+
+  public void setParserObjvUsed(int[] parserObjvUsed) {
+    this.parserObjvUsed = parserObjvUsed;
+  }
+
+  /** Used ONLY by JavaImportCmd: classTable, packageTable, wildcardTable */
+  public Map[] getImportTable() {
+    return importTable;
+  }
+
+  public void setImportTable(Map[] importTable) {
+    this.importTable = importTable;
+  }
+
+  /**
+   * Used by callers of Util.strtoul(), also used in FormatCmd.strtoul(). There is typically only
+   * one instance of a StrtoulResult around at any one time. Callers should exercise care to use the
+   * results before any other code could call strtoul() again.
+   */
+  public StrtoulResult getStrtoulResult() {
+    return strtoulResult;
+  }
+
+  public void setStrtoulResult(StrtoulResult strtoulResult) {
+    this.strtoulResult = strtoulResult;
+  }
+
+  /** Used by callers of Util.strtod(). Usage is same as {@link #strtoulResult} */
+  public StrtodResult getStrtodResult() {
+    return strtodResult;
+  }
+
+  public void setStrtodResult(StrtodResult strtodResult) {
+    this.strtodResult = strtodResult;
+  }
+
+  /** Used only with Namespace.getNamespaceForQualName() */
+  public Namespace.GetNamespaceForQualNameResult getGetnfqnResult() {
+    return getnfqnResult;
+  }
+
+  public void setGetnfqnResult(Namespace.GetNamespaceForQualNameResult getnfqnResult) {
+    this.getnfqnResult = getnfqnResult;
+  }
+
+  /**
+   * Used by the Expression class. If it is equal to zero, then the parser will evaluate commands
+   * and retrieve variable values from the interp.
+   */
+  public int getNoEval() {
+    return noEval;
+  }
+
+  public void setNoEval(int noEval) {
+    this.noEval = noEval;
+  }
+
+  /**
+   * Used in the Expression.java file for the SrandFunction.class and RandFunction.class. Set to
+   * true if a seed has been set.
+   */
+  public boolean isRandSeedInit() {
+    return randSeedInit;
+  }
+
+  public void setRandSeedInit(boolean randSeedInit) {
+    this.randSeedInit = randSeedInit;
+  }
+
+  /**
+   * Used in the Expression.java file for the SrandFunction.class and RandFunction.class. Stores the
+   * value of the seed.
+   */
+  public long getRandSeed() {
+    return randSeed;
+  }
+
+  public void setRandSeed(long randSeed) {
+    this.randSeed = randSeed;
+  }
+
+  /** If returnCode is TCL.ERROR, stores the errorInfo. */
+  public String getErrorInfo() {
+    return errorInfo;
+  }
+
+  public void setErrorInfo(String errorInfo) {
+    this.errorInfo = errorInfo;
+  }
+
+  /** If returnCode is TCL.ERROR, stores the errorCode. */
+  public String getErrorCode() {
+    return errorCode;
+  }
+
+  public void setErrorCode(String errorCode) {
+    this.errorCode = errorCode;
+  }
+
+  /** Completion code to return if current procedure exits with a TCL_RETURN code. */
+  public int getReturnCode() {
+    return returnCode;
+  }
+
+  public void setReturnCode(int returnCode) {
+    this.returnCode = returnCode;
+  }
+
+  /**
+   * True means an error unwind is already in progress. False means a command proc has been invoked
+   * since last error occured.
+   */
+  public boolean isErrInProgress() {
+    return errInProgress;
+  }
+
+  public void setErrInProgress(boolean errInProgress) {
+    this.errInProgress = errInProgress;
+  }
+
+  /**
+   * True means information has already been logged in $errorInfo for the current eval() instance,
+   * so eval() needn't log it (used to implement the "error" command).
+   */
+  public boolean isErrAlreadyLogged() {
+    return errAlreadyLogged;
+  }
+
+  public void setErrAlreadyLogged(boolean errAlreadyLogged) {
+    this.errAlreadyLogged = errAlreadyLogged;
+  }
+
+  /**
+   * True means that addErrorInfo has been called to record information for the current error. False
+   * means Interp.eval must clear the errorCode variable if an error is returned.
+   */
+  public boolean isErrCodeSet() {
+    return errCodeSet;
+  }
+
+  public void setErrCodeSet(boolean errCodeSet) {
+    this.errCodeSet = errCodeSet;
+  }
+
+  public void setErrorLine(int errorLine) {
+    this.errorLine = errorLine;
   }
 
   public record ResolverScheme(String name, Resolver resolver) {}
@@ -3946,6 +4076,10 @@ public class Interp extends EventuallyFreed {
     return m_charCommon[c];
   }
 
+  /**
+   * When TCL_ERROR is returned, this gives the line number within the command where the error
+   * occurred (1 means first line).
+   */
   /**
    * Query the interp.errorLine member. This is like accessing the public Tcl_Interp.errorLine field
    * in the C impl. this method should be used by classes outside the tcl.lang package.

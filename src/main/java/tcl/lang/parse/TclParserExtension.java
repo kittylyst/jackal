@@ -13,8 +13,11 @@
  *
  */
 
-package tcl.lang;
+package tcl.lang.parse;
 
+import tcl.lang.Command;
+import tcl.lang.Extension;
+import tcl.lang.Interp;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
 import tcl.lang.model.TclObject;
@@ -27,7 +30,7 @@ public final class TclParserExtension extends Extension implements Command {
   static String packageVersion = "1.4";
 
   /*
-   * Called via [java::load tcl.lang.TclParserExtension] or from the
+   * Called via [java::load tcl.lang.parse.TclParserExtension] or from the
    * jaclloadparser command implemented below.
    */
 

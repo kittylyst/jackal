@@ -211,7 +211,7 @@ public final class PackageCmd implements Command {
       if (pass > 1) {
         break;
       }
-      script = interp.packageUnknown;
+      script = interp.getPackageUnknown();
       if (script != null) {
         sbuf = new StringBuffer();
         try {
@@ -546,14 +546,14 @@ public final class PackageCmd implements Command {
             throw new TclNumArgsException(interp, 1, objv, "unknown ?command?");
           }
           if (objv.length == 2) {
-            if (interp.packageUnknown != null) {
-              interp.setResult(interp.packageUnknown);
+            if (interp.getPackageUnknown() != null) {
+              interp.setResult(interp.getPackageUnknown());
             }
           } else if (objv.length == 3) {
-            interp.packageUnknown = null;
+            interp.setPackageUnknown(null);
             cmd = objv[2].toString();
             if (cmd.length() > 0) {
-              interp.packageUnknown = cmd;
+              interp.setPackageUnknown(cmd);
             }
           }
           return;

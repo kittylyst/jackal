@@ -16,8 +16,9 @@
  * RCS: @(#) $Id: ParseExpr.java,v 1.6 2006/05/22 21:23:35 mdejong Exp $
  */
 
-package tcl.lang;
+package tcl.lang.parse;
 
+import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
 import tcl.lang.model.TclBoolean;
@@ -1270,7 +1271,7 @@ class ParseExpr {
       startsWithDigit = Character.isDigit(c); // INTL: digit
       String s = new String(info.originalExpr, src, info.lastChar - src);
       if (startsWithDigit && Expression.looksLikeInt(s, s.length(), 0, false)) {
-        StrtoulResult res = interp.strtoulResult;
+        StrtoulResult res = interp.getStrtoulResult();
         Util.strtoul(s, 0, 0, res);
         if (res.getErrno() == 0) {
           term = src + res.getIndex();
@@ -1295,7 +1296,7 @@ class ParseExpr {
 
         s = new String(info.originalExpr, src, length);
 
-        StrtodResult res = interp.strtodResult;
+        StrtodResult res = interp.getStrtodResult();
         Util.strtod(s, 0, -1, res);
         if (res.getIndex() > 0) {
           if (res.getErrno() != 0) {

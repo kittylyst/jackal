@@ -12,15 +12,17 @@
  * RCS: @(#) $Id: TclParse.java,v 1.5 2006/03/27 21:42:55 mdejong Exp $
  */
 
-package tcl.lang;
+package tcl.lang.parse;
 
+import tcl.lang.Interp;
+import tcl.lang.TCL;
 import tcl.lang.exception.TclException;
 import tcl.lang.model.TclInteger;
 import tcl.lang.model.TclList;
 import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
 
-class TclParse {
+public final class TclParse {
 
   private final char[] chars;
 
@@ -159,21 +161,21 @@ class TclParse {
 
   // Creating an interpreter will cause this init method to be called
 
-  static void init(Interp interp) {
+  public static void init(Interp interp) {
     if (USE_TOKEN_CACHE) {
       TclToken[] TOKEN_CACHE = new TclToken[MAX_CACHED_TOKENS];
       for (int i = 0; i < MAX_CACHED_TOKENS; i++) {
         TOKEN_CACHE[i] = new TclToken();
       }
 
-      interp.parserTokens = TOKEN_CACHE;
-      interp.parserTokensUsed = 0;
+      interp.setParserTokens(TOKEN_CACHE);
+      interp.setParserTokensUsed(0);
     }
   }
 
-  private final TclToken grabToken() {
+  private TclToken grabToken() {
     if (USE_TOKEN_CACHE) {
-      if (getInterp() == null || getInterp().parserTokensUsed == MAX_CACHED_TOKENS) {
+      if (getInterp() == null || getInterp().getParserTokensUsed() == MAX_CACHED_TOKENS) {
         // either we do not have a cache because the interp is null or
         // we have already
         // used up all the open cache slots, we just allocate a new one
@@ -181,7 +183,11 @@ class TclParse {
         return new TclToken();
       } else {
         // the cache has an avaliable slot so grab it
-        return getInterp().parserTokens[getInterp().parserTokensUsed++];
+        //          return interp.parserTokens[interp.parserTokensUsed++];
+        var tmpUsed = getInterp().getParserTokensUsed();
+        var tmpToken = getInterp().getParserTokens()[tmpUsed];
+        getInterp().setParserTokensUsed(tmpUsed + 1);
+        return tmpToken;
       }
     } else {
       return new TclToken();
@@ -190,9 +196,12 @@ class TclParse {
 
   private final void releaseToken(TclToken token) {
     if (USE_TOKEN_CACHE) {
-      if (getInterp() != null && getInterp().parserTokensUsed > 0) {
+      if (getInterp() != null && getInterp().getParserTokensUsed() > 0) {
         // if cache is not full put the object back in the cache
-        getInterp().parserTokens[--getInterp().parserTokensUsed] = token;
+        //          interp.parserTokens[--interp.parserTokensUsed] = token;
+        var tmpUsed = getInterp().getParserTokensUsed() - 1;
+        getInterp().getParserTokens()[tmpUsed] = token;
+        getInterp().setParserTokensUsed(tmpUsed);
       }
     }
   }

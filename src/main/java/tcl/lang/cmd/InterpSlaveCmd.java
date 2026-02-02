@@ -156,7 +156,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
         if (objv.length != 2) {
           throw new TclNumArgsException(interp, 2, objv, null);
         }
-        interp.setResult(slaveInterp.isSafe);
+        interp.setResult(slaveInterp.isSafe());
         break;
       case OPT_INVOKEHIDDEN:
         boolean global = false;
@@ -327,7 +327,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
       pathString = objv[objv.length - 1].toString();
     }
     if (!safe) {
-      safe = masterInterp.isSafe;
+      safe = masterInterp.isSafe();
     }
 
     if (masterInterp.getSlaveTable().containsKey(pathString)) {
@@ -411,7 +411,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
           slaveInterp.eval(obj, 0);
           obj.release();
         }
-        result = slaveInterp.returnCode;
+        result = slaveInterp.getReturnCode();
       } catch (TclException e) {
         result = e.getCompletionCode();
       }
@@ -442,7 +442,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
       int objIx, // Number of arguments to ignored.
       TclObject objv[]) // Argument objects.
       throws TclException {
-    if (interp.isSafe) {
+    if (interp.isSafe()) {
       throw new TclException(
           interp, "permission denied: " + "safe interpreter cannot expose commands");
     }
@@ -477,7 +477,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
       int objIx, // Number of arguments to ignored.
       TclObject objv[]) // Argument objects.
       throws TclException {
-    if (interp.isSafe) {
+    if (interp.isSafe()) {
       throw new TclException(
           interp, "permission denied: " + "safe interpreter cannot hide commands");
     }
@@ -535,7 +535,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
       throws TclException {
     int result;
 
-    if (interp.isSafe) {
+    if (interp.isSafe()) {
       throw new TclException(
           interp, "not allowed to " + "invoke hidden commands from safe interpreter");
     }
@@ -556,7 +556,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
         } else {
           slaveInterp.invoke(localObjv, Interp.INVOKE_HIDDEN);
         }
-        result = slaveInterp.returnCode;
+        result = slaveInterp.getReturnCode();
       } catch (TclException e) {
         result = e.getCompletionCode();
       }
@@ -586,11 +586,11 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
       Interp slaveInterp) // The slave interpreter which will be
       // marked trusted.
       throws TclException {
-    if (interp.isSafe) {
+    if (interp.isSafe()) {
       throw new TclException(
           interp, "permission denied: " + "safe interpreter cannot mark trusted");
     }
-    slaveInterp.isSafe = false;
+    slaveInterp.setSafe(false);
   }
 
   /**
@@ -616,7 +616,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
     int limit;
 
     if (objc != 0) {
-      if (interp.isSafe) {
+      if (interp.isSafe()) {
         throw new TclException(
             interp, "permission denied: " + "safe interpreters cannot change recursion limit");
       }
@@ -659,7 +659,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
 
     interp.hideUnsafeCommands();
 
-    interp.isSafe = true;
+    interp.setSafe(true);
 
     // Unsetting variables : (which should not have been set
     // in the first place, but...)

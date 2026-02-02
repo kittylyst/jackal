@@ -51,7 +51,7 @@ public final class ReturnCmd implements Command {
       throws TclException // A standard Tcl exception.
       {
     interp.errorCode = null;
-    interp.errorInfo = null;
+    interp.setErrorInfo(null);
     int returnCode, i;
 
     /*
@@ -86,9 +86,9 @@ public final class ReturnCmd implements Command {
           }
         }
       } else if (argv[i].toString().equals("-errorcode")) {
-        interp.errorCode = argv[i + 1].toString();
+        interp.setErrorCode(argv[i + 1].toString());
       } else if (argv[i].toString().equals("-errorinfo")) {
-        interp.errorInfo = argv[i + 1].toString();
+        interp.setErrorInfo(argv[i + 1].toString());
       } else {
         throw new TclException(
             interp, "bad option \"" + argv[i] + "\": must be -code, -errorcode, or -errorinfo");
@@ -98,7 +98,7 @@ public final class ReturnCmd implements Command {
       interp.setResult(argv[argv.length - 1]);
     }
 
-    interp.returnCode = returnCode;
+    interp.setReturnCode(returnCode);
     throw new TclException(TCL.RETURN);
   }
 } // end ReturnCmd

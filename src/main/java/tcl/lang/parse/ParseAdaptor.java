@@ -12,14 +12,15 @@
  * RCS: @(#) $Id: ParseAdaptor.java,v 1.6 2003/02/05 09:24:40 mdejong Exp $
  */
 
-package tcl.lang;
+package tcl.lang.parse;
 
+import tcl.lang.Interp;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
 import tcl.lang.model.CharPointer;
 import tcl.lang.model.TclObject;
 
-class ParseAdaptor {
+public class ParseAdaptor {
 
   /*
    * ----------------------------------------------------------------------
@@ -40,7 +41,7 @@ class ParseAdaptor {
    * ----------------------------------------------------------------------
    */
 
-  static ParseResult parseVar(
+  public static ParseResult parseVar(
       Interp interp, // The current Interp.
       String string, // The script containing the variable.
       int index, // An index into string that points to.
@@ -71,7 +72,7 @@ class ParseAdaptor {
    * ----------------------------------------------------------------------
    */
 
-  static ParseResult parseNestedCmd(
+  public static ParseResult parseNestedCmd(
       Interp interp, // The current Interp.
       String string, // The script containing the nested command.
       int index, // An index into string that points to.
@@ -94,7 +95,7 @@ class ParseAdaptor {
     Parser.eval2(interp, script.getArray(), script.getIndex(), length - index, 0);
     obj = interp.getResult();
     obj.preserve();
-    return (new ParseResult(obj, index + interp.termOffset + 1));
+    return (new ParseResult(obj, index + interp.getTermOffset() + 1));
   }
 
   /*
@@ -118,7 +119,7 @@ class ParseAdaptor {
    * ----------------------------------------------------------------------
    */
 
-  static ParseResult parseQuotes(
+  public static ParseResult parseQuotes(
       Interp interp, // The current Interp.
       String string, // The script containing the variable.
       int index, // An index into string that points to.
@@ -210,7 +211,7 @@ class ParseAdaptor {
    * ----------------------------------------------------------------------
    */
 
-  static ParseResult parseBraces(
+  public static ParseResult parseBraces(
       Interp interp, // The current Interp.
       String str, // The script containing the variable.
       int index, // An index into string that points to.

@@ -69,7 +69,7 @@ public final class ForCmd implements Command {
             break;
 
           case TCL.ERROR:
-            interp.addErrorInfo("\n    (\"for\" body line " + interp.errorLine + ")");
+            interp.addErrorInfo("\n    (\"for\" body line " + interp.getErrorLine() + ")");
             throw e;
 
           default:

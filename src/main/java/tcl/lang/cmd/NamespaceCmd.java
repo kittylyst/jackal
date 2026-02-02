@@ -498,9 +498,9 @@ public final class NamespaceCmd implements InternalRep, Command {
             "\n    (in namespace eval \""
                 + namespace.fullName
                 + "\" script line "
-                + interp.errorLine
+                + interp.getErrorLine()
                 + ")");
-        interp.errAlreadyLogged = false; // allow 'invoked from within' message to be appended
+        interp.setErrAlreadyLogged(false); // allow 'invoked from within' message to be appended
       }
       throw ex;
     } finally {
@@ -810,7 +810,7 @@ public final class NamespaceCmd implements InternalRep, Command {
             "\n    (in namespace inscope \""
                 + namespace.fullName
                 + "\" script line "
-                + interp.errorLine
+                + interp.getErrorLine()
                 + ")");
       }
       throw ex;
@@ -1223,7 +1223,7 @@ public final class NamespaceCmd implements InternalRep, Command {
     // If the namespace isn't found, we convert the object to an nsName
     // object with a null ResolvedNsName internal rep.
 
-    Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     Namespace.getNamespaceForQualName(interp, name, null, Namespace.FIND_ONLY_NS, gnfqnr);
     ns = gnfqnr.ns;
 

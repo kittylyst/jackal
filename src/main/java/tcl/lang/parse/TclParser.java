@@ -13,8 +13,9 @@
  * RCS: @(#) $Id: TclParser.java,v 1.5 2005/11/22 22:10:02 mdejong Exp $
  */
 
-package tcl.lang;
+package tcl.lang.parse;
 
+import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
 import tcl.lang.exception.TclRuntimeError;

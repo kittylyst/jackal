@@ -9,9 +9,10 @@
  * RCS: @(#) $Id: Parser.java,v 1.30 2006/08/03 22:33:12 mdejong Exp $
  */
 
-package tcl.lang;
+package tcl.lang.parse;
 
 import java.util.Arrays;
+import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
 import tcl.lang.model.CharPointer;
@@ -765,7 +766,8 @@ public class Parser {
    * @param flags Collection of OR-ed bits that control the evaluation of the script. Only
    *     TCL.EVAL_GLOBAL is currently supported.
    */
-  static void evalObjv(Interp interp, TclObject[] objv, int length, int flags) throws TclException {
+  public static void evalObjv(Interp interp, TclObject[] objv, int length, int flags)
+      throws TclException {
     WrappedCommand cmd;
     TclObject[] newObjv = null;
     int i;
@@ -859,7 +861,7 @@ public class Parser {
     int offset;
     int pIndex;
 
-    if (interp.errAlreadyLogged) {
+    if (interp.isErrAlreadyLogged()) {
       // Someone else has already logged error information for this
       // command; we shouldn't add anything more.
 
@@ -871,11 +873,11 @@ public class Parser {
     // because we want to count from the beginning of
     // the script, not the current index.
 
-    interp.errorLine = 1;
+    interp.setErrorLine(1);
 
     for (pIndex = 0; pIndex < cmdIndex; pIndex++) {
       if (script_array[pIndex] == '\n') {
-        interp.errorLine++;
+        interp.setErrorLine(interp.getErrorLine() + 1);
       }
     }
 
@@ -903,12 +905,12 @@ public class Parser {
      * "while compiling"; JTCL has some issues deciding which to use
      * which causes test fails
      */
-    if (!(interp.errInProgress)) {
+    if (!(interp.isErrInProgress())) {
       interp.addErrorInfo("\n    while executing\n\"" + msg + ellipsis + "\"");
     } else {
       interp.addErrorInfo("\n    invoked from within\n\"" + msg + ellipsis + "\"");
     }
-    interp.errAlreadyLogged = false;
+    interp.setErrAlreadyLogged(false);
     e.errIndex = cmdIndex + offset;
   }
 
@@ -1008,7 +1010,7 @@ public class Parser {
           // the variable. This should be removed when the new expr
           // parser is implemented.
 
-          if (interp.noEval == 0) {
+          if (interp.getNoEval() == 0) {
             if (index != null) {
               try {
                 value = interp.getVar(varName, index.toString(), 0);
@@ -1071,7 +1073,8 @@ public class Parser {
    * @param flags Tcl.EVAL_GLOBAL or 0
    * @throws TclException
    */
-  static void eval2(Interp interp, char[] script_array, int script_index, int numChars, int flags)
+  public static void eval2(
+      Interp interp, char[] script_array, int script_index, int numChars, int flags)
       throws TclException {
     int i;
     int objUsed = 0;
@@ -1143,7 +1146,7 @@ public class Parser {
         // The test on noEval is temporary. As soon as the new expr
         // parser is implemented it should be removed.
 
-        if (parse.getNumWords() > 0 && interp.noEval == 0) {
+        if (parse.getNumWords() > 0 && interp.getNoEval() == 0) {
           // Generate an array of objects for the words of the
           // command.
 
@@ -1194,7 +1197,7 @@ public class Parser {
             // free resources that had been allocated
             // to the command.
 
-            if (e.getCompletionCode() == TCL.ERROR && !(interp.errAlreadyLogged)) {
+            if (e.getCompletionCode() == TCL.ERROR && !(interp.isErrAlreadyLogged())) {
               commandLength = parse.getCommandSize();
 
               char term = script_array[parse.getCommandStart() + commandLength - 1];
@@ -1223,7 +1226,7 @@ public class Parser {
              *  set the interp.termOffset even on exception, so 'subst' can use
              *  when a continue, break or return exception occurs
              */
-            interp.termOffset = parse.getCommandStart() + parse.getCommandSize() - script_index;
+            interp.setTermOffset(parse.getCommandStart() + parse.getCommandSize() - script_index);
             throw e;
           } finally {
             for (i = 0; i < objUsed; i++) {
@@ -1248,7 +1251,7 @@ public class Parser {
           // flag was set in the interpreter and we reached a close
           // bracket in the script. Return immediately.
 
-          interp.termOffset = (src_index - 1) - script_index;
+          interp.setTermOffset((src_index - 1) - script_index);
           interp.varFrame = savedVarFrame;
           return;
         }
@@ -1261,7 +1264,7 @@ public class Parser {
       releaseObjv(interp, objv, objv.length); // Let go of objv buffer
     }
 
-    interp.termOffset = src_index - script_index;
+    interp.setTermOffset(src_index - script_index);
     interp.varFrame = savedVarFrame;
     return;
   }
@@ -1568,7 +1571,7 @@ public class Parser {
    * ----------------------------------------------------------------------
    */
 
-  static boolean commandComplete(
+  public static boolean commandComplete(
       String string, // Script to check.
       int charLength) // Number of characters in script.
       {
@@ -2070,6 +2073,48 @@ public class Parser {
   /*
    * ----------------------------------------------------------------------
    *
+   * commandComplete --
+   *
+   * Check if the string is a complete Tcl command string.
+   *
+   * Result: A boolean value indicating whether the string is a complete Tcl command string.
+   *
+   * Side effects: None.
+   *
+   * @param string The string to check.
+   *
+   * @return
+   */
+  public static boolean commandComplete(String string) {
+    return commandComplete(string, string.length());
+  }
+
+  /**
+   * Figure out how to handle a backslash sequence. The index of the ChapPointer must be pointing to
+   * the first /.
+   *
+   * <p>Results: The return value is an instance of BackSlashResult that contains the character that
+   * should be substituted in place of the backslash sequence that starts at src.index, and an index
+   * to the next character after the backslash sequence.
+   *
+   * <p>Side effects: None.
+   *
+   * @param s
+   * @param i
+   * @param len
+   * @return an instance of BackSlashResult that contains the character that should be substituted
+   *     in place of the backslash sequence that starts at src.index, and an index to the next
+   *     character after the backslash sequence.
+   */
+  public static BackSlashResult backslash(String s, int i, int len) {
+    CharPointer script = new CharPointer(s.substring(0, len));
+    script.setIndex(i);
+    return backslash(script.getArray(), script.getIndex());
+  }
+
+  /*
+   * ----------------------------------------------------------------------
+   *
    * TclParseWhiteSpace -> ParseWhiteSpace
    *
    * Scans up to numChars characters starting at script_index, consuming white
@@ -2497,7 +2542,7 @@ public class Parser {
   // codes other than these should be turned into errors.
 
   public static final int TCL_BRACKET_TERM = 1;
-  static final int TCL_ALLOW_EXCEPTIONS = 4;
+  public static final int TCL_ALLOW_EXCEPTIONS = 4;
 
   // Flag bits for Interp structures:
   //
@@ -2559,7 +2604,7 @@ public class Parser {
   // private static final int[] OBJV_CACHE_HITS = {0,0,0,0,0,0,0,0,0,0,0};
   // private static final int[] OBJV_CACHE_MISSES = {0,0,0,0,0,0,0,0,0,0,0};
 
-  static void init(Interp interp) {
+  public static void init(Interp interp) {
     // System.out.println("called Parser.init()");
 
     TclObject[][][] OBJV = new TclObject[OBJV_CACHE_MAX][][];
@@ -2579,8 +2624,8 @@ public class Parser {
       }
     }
 
-    interp.parserObjv = OBJV;
-    interp.parserObjvUsed = USED;
+    interp.setParserObjv(OBJV);
+    interp.setParserObjvUsed(USED);
   }
 
   // Get a TclObject[] array of a given size. The array
@@ -2591,14 +2636,14 @@ public class Parser {
     int OPEN;
 
     if ((size < OBJV_CACHE_MAX)
-        && ((OPEN = interp.parserObjvUsed[size]) < OBJV_CACHE_SIZES[size])) {
+        && ((OPEN = interp.getParserObjvUsed()[size]) < OBJV_CACHE_SIZES[size])) {
       // Found an open cache slot
       if (false) {
         // System.out.println("cache hit for objv of size " + size);
         // OBJV_CACHE_HITS[i] = OBJV_CACHE_HITS[i] + 1;
       }
-      interp.parserObjvUsed[size] += 1;
-      return interp.parserObjv[size][OPEN];
+      interp.getParserObjvUsed()[size] += 1;
+      return interp.getParserObjv()[size][OPEN];
     } else {
       // Did not find a free cache array of this size
       if (false) {
@@ -2620,11 +2665,11 @@ public class Parser {
 
   public static void releaseObjv(final Interp interp, final TclObject[] objv, final int size) {
     if (size < OBJV_CACHE_MAX) {
-      int OPEN = interp.parserObjvUsed[size];
+      int OPEN = interp.getParserObjvUsed()[size];
 
       if (OPEN > 0) {
         OPEN--;
-        interp.parserObjvUsed[size] = OPEN;
+        interp.getParserObjvUsed()[size] = OPEN;
         // Optimize nulling out of array, the
         // most common cases are handled here.
         switch (size) {
@@ -2657,14 +2702,14 @@ public class Parser {
             Arrays.fill(objv, null);
             break;
         }
-        interp.parserObjv[size][OPEN] = objv;
+        interp.getParserObjv()[size][OPEN] = objv;
       }
     }
   }
 
   // Raise an infinite loop TclException
 
-  static void infiniteLoopException(Interp interp) throws TclException {
+  public static void infiniteLoopException(Interp interp) throws TclException {
     throw new TclException(interp, "too many nested evaluations (infinite loop?)");
   }
 } // end class Parser

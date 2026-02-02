@@ -18,7 +18,6 @@ import tcl.lang.Command;
 import tcl.lang.ExprValue;
 import tcl.lang.Expression;
 import tcl.lang.Interp;
-import tcl.lang.Parser;
 import tcl.lang.TCL;
 import tcl.lang.Util;
 import tcl.lang.Var;
@@ -36,6 +35,7 @@ import tcl.lang.model.TclInteger;
 import tcl.lang.model.TclList;
 import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
+import tcl.lang.parse.Parser;
 
 public class TJC {
 
@@ -105,9 +105,9 @@ public class TJC {
     }
 
     frame.level = (interp.varFrame == null) ? 1 : (interp.varFrame.level + 1);
-    frame.caller = interp.frame;
+    frame.caller = interp.getFrame();
     frame.callerVar = interp.varFrame;
-    interp.frame = frame;
+    interp.setFrame(frame);
     interp.varFrame = frame;
 
     return frame;
@@ -119,9 +119,9 @@ public class TJC {
     // Cleanup code copied from Procedure.java. See the cmdProc
     // implementation in that class for more info.
 
-    if (interp.errInProgress) {
+    if (interp.isErrInProgress()) {
       frame.dispose();
-      interp.errInProgress = true;
+      interp.setErrInProgress(true);
     } else {
       frame.dispose();
     }
@@ -968,7 +968,7 @@ public class TJC {
       // Generate error info that includes the arguments
       // to the command and add these to the errorInfo var.
 
-      if (ex.getCompletionCode() == TCL.ERROR && !(interp.errAlreadyLogged)) {
+      if (ex.getCompletionCode() == TCL.ERROR && !(interp.isErrAlreadyLogged())) {
         StringBuffer cmd_strbuf = new StringBuffer(64);
 
         int len = objv.length;

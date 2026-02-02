@@ -30,6 +30,7 @@ import java.util.Set;
 import tcl.lang.*;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.parse.Parser;
 
 /**
  * This structure contains a cached pointer to a namespace that is the result of resolving the
@@ -283,7 +284,7 @@ public final class Namespace {
       frame.objv = null;
     }
 
-    frame.caller = interp.frame;
+    frame.caller = interp.getFrame();
     frame.callerVar = interp.varFrame;
 
     if (interp.varFrame != null) {
@@ -302,7 +303,7 @@ public final class Namespace {
     // Push the new call frame onto the interpreter's stack of procedure
     // call frames making it the current frame.
 
-    interp.frame = frame;
+    interp.setFrame(frame);
     interp.varFrame = frame;
   }
 
@@ -324,7 +325,7 @@ public final class Namespace {
    */
 
   public static void popCallFrame(Interp interp) {
-    CallFrame frame = interp.frame;
+    CallFrame frame = interp.getFrame();
     int saveErrFlag;
     Namespace ns;
 
@@ -333,7 +334,7 @@ public final class Namespace {
     // invoked by the variable deletion don't see the partially-deleted
     // frame.
 
-    interp.frame = frame.caller;
+    interp.setFrame(frame.caller);
     interp.varFrame = frame.callerVar;
 
     // Delete the local variables. As a hack, we save then restore the
@@ -412,7 +413,7 @@ public final class Namespace {
     } else {
       // Find the parent for the new namespace.
 
-      GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+      GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
       getNamespaceForQualName(
           interp, name, null, (CREATE_NS_IF_UNKNOWN | TCL.LEAVE_ERR_MSG), gnfqnr);
       parent = gnfqnr.ns;
@@ -777,7 +778,7 @@ public final class Namespace {
 
     // Check that the pattern doesn't have namespace qualifiers.
 
-    GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     getNamespaceForQualName(interp, pattern, ns, TCL.LEAVE_ERR_MSG, gnfqnr);
     exportNs = gnfqnr.ns;
     simplePattern = gnfqnr.simpleName;
@@ -926,7 +927,7 @@ public final class Namespace {
       throw new TclException(interp, "empty import pattern");
     }
 
-    GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     getNamespaceForQualName(interp, pattern, ns, TCL.LEAVE_ERR_MSG, gnfqnr);
     importNs = gnfqnr.ns;
     simplePattern = gnfqnr.simpleName;
@@ -1119,7 +1120,7 @@ public final class Namespace {
     // and get the simple pattern (no namespace qualifiers or ::'s) at
     // the end.  If no namespace was specified in the pattern, 'importNs' becomes the same
     // as 'ns'.
-    GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     getNamespaceForQualName(interp, pattern, ns, TCL.LEAVE_ERR_MSG, gnfqnr);
     importNs = gnfqnr.ns;
     simplePattern = gnfqnr.simpleName;
@@ -1608,7 +1609,7 @@ public final class Namespace {
     // Add the FIND_ONLY_NS flag to resolve the name all the way down
     // to its last component, a namespace.
 
-    GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     getNamespaceForQualName(interp, name, contextNs, (flags | FIND_ONLY_NS), gnfqnr);
     ns = gnfqnr.ns;
 
@@ -1700,7 +1701,7 @@ public final class Namespace {
 
     // Find the namespace(s) that contain the command.
 
-    GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     getNamespaceForQualName(interp, name, contextNs, flags, gnfqnr);
     ns0 = gnfqnr.ns;
     ns1 = gnfqnr.altNs;
@@ -1821,7 +1822,7 @@ public final class Namespace {
 
     // Find the namespace(s) that contain the variable.
 
-    GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+    GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
     getNamespaceForQualName(interp, name, contextNs, flags, gnfqnr);
     ns0 = gnfqnr.ns;
     ns1 = gnfqnr.altNs;

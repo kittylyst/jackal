@@ -137,9 +137,9 @@ public class CallFrame {
     this.objv = objv;
     // FIXME : quick level hack : fix later
     level = (interp.varFrame == null) ? 1 : (interp.varFrame.level + 1);
-    caller = interp.frame;
+    caller = interp.getFrame();
     callerVar = interp.varFrame;
-    interp.frame = this;
+    interp.setFrame(this);
     interp.varFrame = this;
 
     // parameter bindings
@@ -336,7 +336,7 @@ public class CallFrame {
   public void dispose() {
     // Unchain this frame from the call stack.
 
-    interp.frame = caller;
+    interp.setFrame(caller);
     interp.varFrame = callerVar;
     caller = null;
     callerVar = null;

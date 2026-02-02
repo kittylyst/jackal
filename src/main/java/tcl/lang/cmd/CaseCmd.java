@@ -115,7 +115,7 @@ public final class CaseCmd implements Command {
       } catch (TclException e) {
         if (e.getCompletionCode() == TCL.ERROR) {
           interp.addErrorInfo(
-              "\n    (\"" + caseArgv[body - 1] + "\" arm line " + interp.errorLine + ")");
+              "\n    (\"" + caseArgv[body - 1] + "\" arm line " + interp.getErrorLine() + ")");
         }
         throw e;
       }

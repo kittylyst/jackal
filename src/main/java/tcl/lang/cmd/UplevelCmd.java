@@ -95,7 +95,7 @@ public final class UplevelCmd implements Command {
       interp.eval(cmd, 0);
     } catch (TclException e) {
       if (e.getCompletionCode() == TCL.ERROR) {
-        interp.addErrorInfo("\n    (\"uplevel\" body line " + interp.errorLine + ")");
+        interp.addErrorInfo("\n    (\"uplevel\" body line " + interp.getErrorLine() + ")");
       }
       throw e;
     } finally {

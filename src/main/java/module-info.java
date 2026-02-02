@@ -21,4 +21,5 @@ module jackal {
   exports tcl.pkg.itcl;
   exports tcl.lang.model;
   exports tcl.tools;
+  exports tcl.lang.parse;
 }

@@ -569,7 +569,7 @@ public class Var {
       if (var == null) {
         if (createPart1) { // var wasn't found so create it
 
-          Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+          Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
           Namespace.getNamespaceForQualName(interp, part1, null, flags, gnfqnr);
           varNs = gnfqnr.ns;
           tail = gnfqnr.simpleName;
@@ -1146,7 +1146,7 @@ public class Var {
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
       }
-      if (varFrame != interp.frame) {
+      if (varFrame != interp.getFrame()) {
         throw new TclRuntimeError("interp.frame vs interp.varFrame mismatch");
       }
       if (varFrame.isProcCallFrame == false) {
@@ -1265,7 +1265,7 @@ public class Var {
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
       }
-      if (varFrame != interp.frame) {
+      if (varFrame != interp.getFrame()) {
         throw new TclRuntimeError("interp.frame vs interp.varFrame mismatch");
       }
       if (varFrame.isProcCallFrame == false) {
@@ -1324,7 +1324,7 @@ public class Var {
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
       }
-      if (varFrame != interp.frame) {
+      if (varFrame != interp.getFrame()) {
         throw new TclRuntimeError("interp.frame vs interp.varFrame mismatch");
       }
 
@@ -1388,7 +1388,7 @@ public class Var {
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
       }
-      if (varFrame != interp.frame) {
+      if (varFrame != interp.getFrame()) {
         throw new TclRuntimeError("interp.frame vs interp.varFrame mismatch");
       }
       if (varFrame.isProcCallFrame == false) {
@@ -1489,7 +1489,7 @@ public class Var {
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
       }
-      if (varFrame != interp.frame) {
+      if (varFrame != interp.getFrame()) {
         throw new TclRuntimeError("interp.frame vs interp.varFrame mismatch");
       }
       if (varFrame.isProcCallFrame == false) {
@@ -1571,7 +1571,7 @@ public class Var {
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
       }
-      if (varFrame != interp.frame) {
+      if (varFrame != interp.getFrame()) {
         throw new TclRuntimeError("interp.frame vs interp.varFrame mismatch");
       }
       if (varFrame.compiledLocals == null) {
@@ -2174,7 +2174,7 @@ public class Var {
         || !varFrame.isProcCallFrame
         || ((myName.indexOf("::") != -1) && ((myFlags & EXPLICIT_LOCAL_NAME) == 0))) {
 
-      Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+      Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
       Namespace.getNamespaceForQualName(interp, myName, null, myFlags, gnfqnr);
       ns = gnfqnr.ns;
       altNs = gnfqnr.altNs;

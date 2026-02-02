@@ -408,7 +408,7 @@ public final class StringCmd implements Command {
                 // received an acceptable int, or over/underflow
 
                 if (Expression.looksLikeInt(string1, length1, 0, false)) {
-                  StrtoulResult res = interp.strtoulResult;
+                  StrtoulResult res = interp.getStrtoulResult();
                   Util.strtoul(string1, 0, 0, res);
                   if (res.getIndex() == length1) {
                     if (res.getErrno() == TCL.INTEGER_RANGE) {
@@ -419,7 +419,7 @@ public final class StringCmd implements Command {
                   }
                 }
 
-                StrtodResult res = interp.strtodResult;
+                StrtodResult res = interp.getStrtodResult();
                 Util.strtod(string1, 0, -1, res);
                 if (res.getErrno() == TCL.DOUBLE_RANGE) {
                   // if (errno == ERANGE), then it was an over/underflow
@@ -460,7 +460,7 @@ public final class StringCmd implements Command {
                   }
                 }
 
-                StrtoulResult res = interp.strtoulResult;
+                StrtoulResult res = interp.getStrtoulResult();
                 Util.strtoul(string1, 0, 0, res);
                 if (res.getErrno() == TCL.INTEGER_RANGE
                     || res.getValue() > Integer.MAX_VALUE
@@ -503,7 +503,7 @@ public final class StringCmd implements Command {
                   }
                 }
 
-                StrtoulResult res = interp.strtoulResult;
+                StrtoulResult res = interp.getStrtoulResult();
                 Util.strtoul(string1, 0, 0, res);
                 if (res.getErrno() == TCL.INTEGER_RANGE) {
                   // if (errno == ERANGE), then it was an over/underflow

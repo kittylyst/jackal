@@ -23,6 +23,8 @@ import tcl.lang.model.TclDouble;
 import tcl.lang.model.TclInteger;
 import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
+import tcl.lang.parse.ParseAdaptor;
+import tcl.lang.parse.ParseResult;
 
 /** This class handles Tcl expressions. */
 public class Expression {
@@ -302,13 +304,13 @@ public class Expression {
     throw new TclException(interp, "integer value too large to represent");
   }
 
-  static void DoubleTooLarge(Interp interp) throws TclException {
+  public static void DoubleTooLarge(Interp interp) throws TclException {
     interp.setErrorCode(
         TclString.newInstance("ARITH OVERFLOW {floating-point value too large to represent}"));
     throw new TclException(interp, "floating-point value too large to represent");
   }
 
-  static void DoubleTooSmall(Interp interp) throws TclException {
+  public static void DoubleTooSmall(Interp interp) throws TclException {
     interp.setErrorCode(
         TclString.newInstance("ARITH UNDERFLOW {floating-point value too small to represent}"));
     throw new TclException(interp, "floating-point value too small to represent");
@@ -512,7 +514,7 @@ public class Expression {
       // Note: the Util.strtoul() method handles 32bit unsigned values
       // as well as leading sign characters.
 
-      StrtoulResult res = interp.strtoulResult;
+      StrtoulResult res = interp.getStrtoulResult();
       Util.strtoul(s, 0, 0, res);
       // String token = s.substring(i, res.getIndex());
       // System.out.println("token string from strtoul is \"" + token +
@@ -547,7 +549,7 @@ public class Expression {
     } else {
       // System.out.println("string does not look like an int, checking for Double");
 
-      StrtodResult res = interp.strtodResult;
+      StrtodResult res = interp.getStrtodResult();
       Util.strtod(s, 0, len, res);
 
       if (res.getErrno() == 0) {
@@ -628,7 +630,7 @@ public class Expression {
         operator = m_token;
         value = ExprGetValue(interp, precTable[m_token]);
 
-        if (interp.noEval == 0) {
+        if (interp.getNoEval() == 0) {
           evalUnaryOperator(interp, operator, value);
         }
         gotOp = true;
@@ -677,7 +679,7 @@ public class Expression {
             boolean b = Util.getBoolean(interp, value.getStringValue());
             value.setIntValue(b);
           } catch (TclException e) {
-            if (interp.noEval == 0) {
+            if (interp.getNoEval() == 0) {
               throw e;
             }
 
@@ -690,11 +692,11 @@ public class Expression {
         }
         if (((operator == AND) && (value.getIntValue() == 0))
             || ((operator == OR) && (value.getIntValue() != 0))) {
-          interp.noEval++;
+          interp.setNoEval(interp.getNoEval() + 1);
           try {
             value2 = ExprGetValue(interp, precTable[operator]);
           } finally {
-            interp.noEval--;
+            interp.setNoEval(interp.getNoEval() - 1);
           }
           if (operator == OR) {
             value.setIntValue(1);
@@ -711,18 +713,18 @@ public class Expression {
               SyntaxError(interp);
             }
 
-            interp.noEval++;
+            interp.setNoEval(interp.getNoEval() + 1);
             try {
               value2 = ExprGetValue(interp, precTable[QUESTY] - 1);
             } finally {
-              interp.noEval--;
+              interp.setNoEval(interp.getNoEval() - 1);
             }
           } else {
-            interp.noEval++;
+            interp.setNoEval(interp.getNoEval() + 1);
             try {
               value2 = ExprGetValue(interp, precTable[QUESTY] - 1);
             } finally {
-              interp.noEval--;
+              interp.setNoEval(interp.getNoEval() - 1);
             }
             if (m_token != COLON) {
               SyntaxError(interp);
@@ -749,7 +751,7 @@ public class Expression {
         SyntaxError(interp);
       }
 
-      if (interp.noEval != 0) {
+      if (interp.getNoEval() != 0) {
         continue;
       }
 
@@ -1332,7 +1334,7 @@ public class Expression {
       }
       final boolean startsWithDigit = Character.isDigit(c);
       if (startsWithDigit && looksLikeInt(m_expr, m_len, m_ind, false)) {
-        StrtoulResult res = interp.strtoulResult;
+        StrtoulResult res = interp.getStrtoulResult();
         Util.strtoul(m_expr, m_ind, 0, res);
 
         if (res.getErrno() == 0) {
@@ -1348,7 +1350,7 @@ public class Expression {
           }
         }
       } else if (startsWithDigit || (c == '.') || (c == 'n') || (c == 'N')) {
-        StrtodResult res = interp.strtodResult;
+        StrtodResult res = interp.getStrtodResult();
         Util.strtod(m_expr, m_ind, -1, res);
         if (res.getErrno() == 0) {
           String token = m_expr.substring(m_ind, res.getIndex());
@@ -1379,7 +1381,7 @@ public class Expression {
         pres = ParseAdaptor.parseVar(interp, m_expr, m_ind, m_len);
         m_ind = pres.getNextIndex();
 
-        if (interp.noEval != 0) {
+        if (interp.getNoEval() != 0) {
           retval = grabExprValue();
           retval.setIntValue(0);
         } else {
@@ -1393,7 +1395,7 @@ public class Expression {
         pres = ParseAdaptor.parseNestedCmd(interp, m_expr, m_ind, m_len);
         m_ind = pres.getNextIndex();
 
-        if (interp.noEval != 0) {
+        if (interp.getNoEval() != 0) {
           retval = grabExprValue();
           retval.setIntValue(0);
         } else {
@@ -1414,7 +1416,7 @@ public class Expression {
 
         // System.out.println("after parse next index is " + m_ind);
 
-        if (interp.noEval != 0) {
+        if (interp.getNoEval() != 0) {
           // System.out.println("returning noEval zero value");
           retval = grabExprValue();
           retval.setIntValue(0);
@@ -1430,7 +1432,7 @@ public class Expression {
         m_token = VALUE;
         pres = ParseAdaptor.parseBraces(interp, m_expr, m_ind, m_len);
         m_ind = pres.getNextIndex();
-        if (interp.noEval != 0) {
+        if (interp.getNoEval() != 0) {
           retval = grabExprValue();
           retval.setIntValue(0);
         } else {
@@ -1726,7 +1728,7 @@ public class Expression {
     }
 
     m_token = VALUE;
-    if (interp.noEval != 0) {
+    if (interp.getNoEval() != 0) {
       ExprValue rvalue = grabExprValue();
       rvalue.setIntValue(0);
       return rvalue;
@@ -2478,26 +2480,26 @@ final class RandFunction extends NoArgMathFunction {
 
     int tmp;
 
-    if (!(interp.randSeedInit)) {
-      interp.randSeedInit = true;
-      interp.randSeed = (int) date.getTime();
+    if (!(interp.isRandSeedInit())) {
+      interp.setRandSeedInit(true);
+      interp.setRandSeed((int) date.getTime());
     }
 
-    if (interp.randSeed == 0) {
+    if (interp.getRandSeed() == 0) {
       // Don't allow a 0 seed, since it breaks the generator. Shift
       // it to some other value.
 
-      interp.randSeed = 123459876;
+      interp.setRandSeed(123459876);
     }
 
-    tmp = (int) (interp.randSeed / randIQ);
-    interp.randSeed = ((randIA * (interp.randSeed - tmp * randIQ)) - randIR * tmp);
+    tmp = (int) (interp.getRandSeed() / randIQ);
+    interp.setRandSeed(((randIA * (interp.getRandSeed() - tmp * randIQ)) - randIR * tmp));
 
-    if (interp.randSeed < 0) {
-      interp.randSeed += randIM;
+    if (interp.getRandSeed() < 0) {
+      interp.setRandSeed(interp.getRandSeed() + randIM);
     }
 
-    value.setDoubleValue(interp.randSeed * (1.0 / randIM));
+    value.setDoubleValue(interp.getRandSeed() * (1.0 / randIM));
   }
 }
 
@@ -2508,8 +2510,8 @@ final class SrandFunction extends UnaryMathFunction {
 
     // Reset the seed.
 
-    interp.randSeedInit = true;
-    interp.randSeed = (long) value.getDoubleValue();
+    interp.setRandSeedInit(true);
+    interp.setRandSeed((long) value.getDoubleValue());
 
     // To avoid duplicating the random number generation code we simply
     // call the static random number generator in the RandFunction

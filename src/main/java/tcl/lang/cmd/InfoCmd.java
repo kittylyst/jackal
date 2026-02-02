@@ -37,6 +37,7 @@ import tcl.lang.model.TclInteger;
 import tcl.lang.model.TclList;
 import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
+import tcl.lang.parse.Parser;
 
 /** This class implements the built-in "info" command in Tcl. */
 public final class InfoCmd implements Command {
@@ -290,7 +291,7 @@ public final class InfoCmd implements Command {
 
       pattern = objv[2].toString();
 
-      Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+      Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
       Namespace.getNamespaceForQualName(interp, pattern, null, 0, gnfqnr);
       ns = gnfqnr.ns;
       simplePattern = gnfqnr.simpleName;
@@ -363,7 +364,7 @@ public final class InfoCmd implements Command {
       throw new TclNumArgsException(interp, 2, objv, "command");
     }
 
-    interp.setResult(Interp.commandComplete(objv[2].toString()));
+    interp.setResult(Parser.commandComplete(objv[2].toString()));
     return;
   }
 
@@ -990,7 +991,7 @@ public final class InfoCmd implements Command {
 
       pattern = objv[2].toString();
 
-      Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getnfqnResult;
+      Namespace.GetNamespaceForQualNameResult gnfqnr = interp.getGetnfqnResult();
       Namespace.getNamespaceForQualName(interp, pattern, null, 0, gnfqnr);
       ns = gnfqnr.ns;
       simplePattern = gnfqnr.simpleName;
