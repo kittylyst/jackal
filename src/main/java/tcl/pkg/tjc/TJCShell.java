@@ -51,7 +51,7 @@ public class TJCShell {
     // Create the interpreter. This will also create the built-in
     // Tcl commands.
 
-    Interp interp = new Interp();
+    Interp interp = Interp.of();
 
     // Check for -shell or -s, this means the user wanted to start
     // a TJC enabled shell instead of running the tjc program.

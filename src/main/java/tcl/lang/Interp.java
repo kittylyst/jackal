@@ -71,13 +71,9 @@ public class Interp extends EventuallyFreed {
   private boolean systemEncodingChangesStdoutStderr = true;
 
   /** The Notifier associated with this Interp. */
-  private Notifier notifier;
+  private final Notifier notifier;
 
-  /**
-   * Hash table for associating data with this interpreter. Cleaned up when this interpreter is
-   * deleted
-   */
-  HashMap<String, AssocData> assocData;
+  private Map<String, AssocData> assocData;
 
   /** Current working directory. */
   private File workingDir;
@@ -286,7 +282,7 @@ public class Interp extends EventuallyFreed {
   int parserTokensUsed;
 
   /** Used ONLY by JavaImportCmd: classTable, packageTable, wildcardTable */
-  public HashMap[] importTable = {
+  public Map[] importTable = {
     new HashMap<String, String>(),
     new HashMap<String, List<String>>(),
     new HashMap<String, List<String>>()
@@ -402,8 +398,33 @@ public class Interp extends EventuallyFreed {
    * Side effects: Various parts of the interpreter are initialized; built-in commands are created;
    * global variables are initialized, etc.
    */
-  public Interp() {
+  private Interp() {
+    m_nullResult = TclString.newInstance("");
+    m_minusoneIntegerResult = TclInteger.newInstance(-1);
+    m_zeroIntegerResult = TclInteger.newInstance(0);
+    m_oneIntegerResult = TclInteger.newInstance(1);
+    m_twoIntegerResult = TclInteger.newInstance(2);
+    m_falseBooleanResult = m_zeroIntegerResult;
+    m_trueBooleanResult = m_oneIntegerResult;
 
+    m_zeroDoubleResult = TclDouble.newInstance(0.0);
+    m_onehalfDoubleResult = TclDouble.newInstance(0.5);
+    m_oneDoubleResult = TclDouble.newInstance(1.0);
+    m_twoDoubleResult = TclDouble.newInstance(2.0);
+    m_charCommon = new TclObject[m_charCommonMax];
+
+    cThread = Thread.currentThread();
+    cThreadName = cThread.getName();
+    notifier = Notifier.getNotifierForThread(cThread);
+  }
+
+  public static Interp of() {
+    var out = new Interp();
+    out.init();
+    return out;
+  }
+
+  private void init() {
     // freeProc = null;
     errorLine = 0;
 
@@ -413,49 +434,36 @@ public class Interp extends EventuallyFreed {
     // interpreter result is set to empty. Do the same for other
     // common values.
 
-    m_nullResult = TclString.newInstance("");
     m_nullResult.preserve(); // Increment refCount to 1
     m_nullResult.preserve(); // Increment refCount to 2 (shared)
     m_result = m_nullResult; // correcponds to iPtr->objResultPtr
 
-    m_minusoneIntegerResult = TclInteger.newInstance(-1);
     m_minusoneIntegerResult.preserve(); // Increment refCount to 1
     m_minusoneIntegerResult.preserve(); // Increment refCount to 2 (shared)
 
-    m_zeroIntegerResult = TclInteger.newInstance(0);
     m_zeroIntegerResult.preserve(); // Increment refCount to 1
     m_zeroIntegerResult.preserve(); // Increment refCount to 2 (shared)
 
-    m_oneIntegerResult = TclInteger.newInstance(1);
     m_oneIntegerResult.preserve(); // Increment refCount to 1
     m_oneIntegerResult.preserve(); // Increment refCount to 2 (shared)
 
-    m_falseBooleanResult = m_zeroIntegerResult;
-    m_trueBooleanResult = m_oneIntegerResult;
-
-    m_twoIntegerResult = TclInteger.newInstance(2);
     m_twoIntegerResult.preserve(); // Increment refCount to 1
     m_twoIntegerResult.preserve(); // Increment refCount to 2 (shared)
 
-    m_zeroDoubleResult = TclDouble.newInstance(0.0);
     m_zeroDoubleResult.preserve(); // Increment refCount to 1
     m_zeroDoubleResult.preserve(); // Increment refCount to 2 (shared)
 
-    m_onehalfDoubleResult = TclDouble.newInstance(0.5);
     m_onehalfDoubleResult.preserve(); // Increment refCount to 1
     m_onehalfDoubleResult.preserve(); // Increment refCount to 2 (shared)
 
-    m_oneDoubleResult = TclDouble.newInstance(1.0);
     m_oneDoubleResult.preserve(); // Increment refCount to 1
     m_oneDoubleResult.preserve(); // Increment refCount to 2 (shared)
 
-    m_twoDoubleResult = TclDouble.newInstance(2.0);
     m_twoDoubleResult.preserve(); // Increment refCount to 1
     m_twoDoubleResult.preserve(); // Increment refCount to 2 (shared)
 
     // Create common char values wrapped in a TclObject
 
-    m_charCommon = new TclObject[m_charCommonMax];
     for (int i = 0; i < m_charCommonMax; i++) {
       TclObject obj = null;
       if (((i < ((int) ' ')) && (i == ((int) '\t') || i == ((int) '\r') || i == ((int) '\n')))
@@ -509,7 +517,7 @@ public class Interp extends EventuallyFreed {
     scriptFile = null;
     flags = 0;
     isSafe = false;
-    assocData = null;
+    setAssocData(null);
 
     globalNs = null; // force creation of global ns below
     globalNs = Namespace.createNamespace(this, null, null);
@@ -518,15 +526,10 @@ public class Interp extends EventuallyFreed {
     }
 
     // Init things that are specific to the Jacl implementation
-
     workingDir = new File(Util.tryGetSystemProperty("user.dir", "."));
     noEval = 0;
 
-    cThread = Thread.currentThread();
-    cThreadName = cThread.getName();
-    notifier = Notifier.getNotifierForThread(cThread);
     notifier.preserve();
-
     randSeedInit = false;
 
     deleted = false;
@@ -685,7 +688,6 @@ public class Interp extends EventuallyFreed {
 
     if (notifier != null) {
       notifier.release();
-      notifier = null;
     } else {
       throw new TclRuntimeError("eventuallyDispose() already invoked for " + this);
     }
@@ -749,9 +751,9 @@ public class Interp extends EventuallyFreed {
     // deletion callbacks; note that a callback can create new
     // callbacks, so we iterate.
 
-    while (assocData != null) {
-      HashMap<String, AssocData> table = assocData;
-      assocData = null;
+    while (getAssocData() != null) {
+      Map<String, AssocData> table = getAssocData();
+      setAssocData(null);
 
       for (Iterator<Map.Entry<String, AssocData>> iter = table.entrySet().iterator();
           iter.hasNext(); ) {
@@ -1006,10 +1008,10 @@ public class Interp extends EventuallyFreed {
    * @param data Object associated with the name
    */
   public void setAssocData(String name, AssocData data) {
-    if (assocData == null) {
-      assocData = new HashMap<String, AssocData>();
+    if (getAssocData() == null) {
+      setAssocData(new HashMap<String, AssocData>());
     }
-    assocData.put(name, data);
+    getAssocData().put(name, data);
   }
 
   /**
@@ -1022,11 +1024,11 @@ public class Interp extends EventuallyFreed {
    * @param name name of the association
    */
   public synchronized void deleteAssocData(String name) {
-    if (assocData == null) {
+    if (getAssocData() == null) {
       return;
     }
 
-    AssocData d = assocData.remove(name);
+    AssocData d = getAssocData().remove(name);
     if (d != null) d.disposeAssocData(this);
   }
 
@@ -1043,10 +1045,10 @@ public class Interp extends EventuallyFreed {
    */
   public AssocData getAssocData(String name) // Name of association.
       {
-    if (assocData == null) {
+    if (getAssocData() == null) {
       return null;
     } else {
-      return (AssocData) assocData.get(name);
+      return (AssocData) getAssocData().get(name);
     }
   }
 
@@ -3607,6 +3609,18 @@ public class Interp extends EventuallyFreed {
 
   public void setExpr(Expression expr) {
     this.expr = expr;
+  }
+
+  /**
+   * Hash table for associating data with this interpreter. Cleaned up when this interpreter is
+   * deleted
+   */
+  public Map<String, AssocData> getAssocData() {
+    return assocData;
+  }
+
+  public void setAssocData(Map<String, AssocData> assocData) {
+    this.assocData = assocData;
   }
 
   public record ResolverScheme(String name, Resolver resolver) {}

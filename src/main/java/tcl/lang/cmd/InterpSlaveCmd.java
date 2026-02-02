@@ -335,7 +335,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
           interp, "interpreter named \"" + pathString + "\" already exists, cannot create");
     }
 
-    Interp slaveInterp = new Interp();
+    Interp slaveInterp = Interp.of();
     InterpSlaveCmd slave = new InterpSlaveCmd();
 
     slaveInterp.setMaxNestingDepth(masterInterp.getMaxNestingDepth());

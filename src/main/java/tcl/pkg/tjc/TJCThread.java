@@ -492,7 +492,7 @@ public class TJCThread implements Runnable {
         if (debug) {
           System.out.println("Interp() and init");
         }
-        interp = new Interp();
+        interp = Interp.of();
         if (driver != null) {
           interp.setVar("JAVA_DRIVER", null, driver, 0);
         }
