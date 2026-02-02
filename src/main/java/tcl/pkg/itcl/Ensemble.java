@@ -1423,7 +1423,7 @@ public class Ensemble {
 
     ensInfo = new EnsembleParser();
     ensInfo.master = interp;
-    ensInfo.parser = new Interp();
+    ensInfo.parser = Interp.of();
     ensInfo.ensData = null;
 
     // Remove all namespaces and all normal commands from the

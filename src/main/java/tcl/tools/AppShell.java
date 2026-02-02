@@ -72,7 +72,7 @@ public class AppShell {
 
     // Create the interpreter. This will also create the built-in
     // Tcl commands.
-    Interp interp = new Interp();
+    Interp interp = Interp.of();
 
     TclObject argv = TclList.newInstance();
     argv.preserve();

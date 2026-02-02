@@ -18,20 +18,17 @@ package tcl.lang;
 /** This abstract class is used to define idle handlers. */
 public abstract class IdleHandler {
 
-  /** Back pointer to the notifier that will fire this idle. */
-  Notifier notifier;
+  private Notifier notifier;
 
-  /** True if the cancel() method has been called. */
-  boolean isCancelled;
+  private boolean isCancelled;
 
-  /** Used to distinguish older idle handlers from recently-created ones. */
-  int generation;
+  private int generation;
 
   /** Create an idle handler. Must call register(Notifier) before the handler will be called. */
   public IdleHandler() {
-    isCancelled = false;
-    generation = 0;
-    notifier = null;
+    setCancelled(false);
+    setGeneration(0);
+    setNotifier(null);
   }
 
   /**
@@ -42,8 +39,7 @@ public abstract class IdleHandler {
    *
    * @param n the notifier to fire the event
    */
-  public IdleHandler(Notifier n) // The notifier to fire the event.
-      {
+  public IdleHandler(Notifier n) {
     register(n);
   }
 
@@ -53,14 +49,14 @@ public abstract class IdleHandler {
    * @param n the notifier to fire the events
    */
   public void register(Notifier n) {
-    notifier = (Notifier) n;
-    isCancelled = false;
+    setNotifier((Notifier) n);
+    setCancelled(false);
 
-    synchronized (notifier) {
-      notifier.idleList.add(this);
-      generation = notifier.idleGeneration;
-      if (Thread.currentThread() != notifier.primaryThread) {
-        notifier.notifyAll();
+    synchronized (getNotifier()) {
+      getNotifier().idleList.add(this);
+      setGeneration(getNotifier().idleGeneration);
+      if (Thread.currentThread() != getNotifier().primaryThread) {
+        getNotifier().notifyAll();
       }
     }
   }
@@ -71,16 +67,16 @@ public abstract class IdleHandler {
    * event has already fired, then nothing this call has no effect.
    */
   public synchronized void cancel() {
-    if (isCancelled) {
+    if (isCancelled()) {
       return;
     }
 
-    isCancelled = true;
+    setCancelled(true);
 
-    synchronized (notifier) {
-      for (int i = 0; i < notifier.idleList.size(); i++) {
-        if (notifier.idleList.get(i) == this) {
-          notifier.idleList.remove(i);
+    synchronized (getNotifier()) {
+      for (int i = 0; i < getNotifier().idleList.size(); i++) {
+        if (getNotifier().idleList.get(i) == this) {
+          getNotifier().idleList.remove(i);
 
           /*
            * We can return now because the same idle handler can be
@@ -109,7 +105,7 @@ public abstract class IdleHandler {
      * cancelled.
      */
 
-    if (!isCancelled) {
+    if (!isCancelled()) {
       processIdleEvent();
       return 1;
     } else {
@@ -126,7 +122,34 @@ public abstract class IdleHandler {
   /** This method prints a text description of the event for debugging. */
   public String toString() {
     StringBuffer sb = new StringBuffer(64);
-    sb.append("IdleHandler.generation is " + generation + "\n");
+    sb.append("IdleHandler.generation is " + getGeneration() + "\n");
     return sb.toString();
   }
-} // end IdleHandler
+
+  /** Back pointer to the notifier that will fire this idle. */
+  public Notifier getNotifier() {
+    return notifier;
+  }
+
+  public void setNotifier(Notifier notifier) {
+    this.notifier = notifier;
+  }
+
+  /** True if the cancel() method has been called. */
+  public boolean isCancelled() {
+    return isCancelled;
+  }
+
+  public void setCancelled(boolean cancelled) {
+    isCancelled = cancelled;
+  }
+
+  /** Used to distinguish older idle handlers from recently-created ones. */
+  public int getGeneration() {
+    return generation;
+  }
+
+  public void setGeneration(int generation) {
+    this.generation = generation;
+  }
+}

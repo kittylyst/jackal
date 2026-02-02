@@ -51,7 +51,7 @@ public class TclCmdTest {
             + sep
             + EXEC_NAME;
 
-    interp = new Interp();
+    interp = Interp.of();
     interp.setWorkingDir(tempDir);
   }
 

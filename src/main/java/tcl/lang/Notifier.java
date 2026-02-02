@@ -575,7 +575,7 @@ public class Notifier implements EventDeleter {
 
     while (idleList.size() > 0) {
       IdleHandler h = (IdleHandler) idleList.get(0);
-      if (h.generation > gen) {
+      if (h.getGeneration() > gen) {
         break;
       }
       idleList.remove(0);
