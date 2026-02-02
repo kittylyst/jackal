@@ -22,6 +22,7 @@ import tcl.lang.channel.Channel;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclNumArgsException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.io.Translation;
 import tcl.lang.model.TclBoolean;
 import tcl.lang.model.TclIndex;
 import tcl.lang.model.TclInteger;
@@ -423,24 +424,20 @@ public final class FconfigureCmd implements Command {
             }
 
             String inputTranslationArg, outputTranslationArg;
-            int inputTranslation, outputTranslation;
+            Translation inputTranslation, outputTranslation;
 
-            if (length == 2) {
-              inputTranslationArg = TclList.index(interp, argv[i], 0).toString();
-              inputTranslation = TclIO.getTranslationID(inputTranslationArg);
-              outputTranslationArg = TclList.index(interp, argv[i], 1).toString();
-              outputTranslation = TclIO.getTranslationID(outputTranslationArg);
-            } else {
-              outputTranslationArg = inputTranslationArg = argv[i].toString();
-              outputTranslation = inputTranslation = TclIO.getTranslationID(outputTranslationArg);
-            }
-
-            if ((inputTranslation == -1) || (outputTranslation == -1)) {
-              throw new TclException(
-                  interp,
-                  "bad value for -translation: "
-                      + "must be one of auto, binary, cr, lf, "
-                      + "crlf, or platform");
+            try {
+              if (length == 2) {
+                inputTranslationArg = TclList.index(interp, argv[i], 0).toString();
+                inputTranslation = TclIO.getTranslationID(inputTranslationArg);
+                outputTranslationArg = TclList.index(interp, argv[i], 1).toString();
+                outputTranslation = TclIO.getTranslationID(outputTranslationArg);
+              } else {
+                outputTranslationArg = inputTranslationArg = argv[i].toString();
+                outputTranslation = inputTranslation = TclIO.getTranslationID(outputTranslationArg);
+              }
+            } catch (IllegalArgumentException e) {
+              throw new TclException(interp, e.getMessage());
             }
 
             if (chan.isReadOnly()) {

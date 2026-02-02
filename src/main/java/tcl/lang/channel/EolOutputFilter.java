@@ -1,9 +1,11 @@
 package tcl.lang.channel;
 
+import static tcl.lang.io.Translation.*;
+
 import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.Writer;
-import tcl.lang.TclIO;
+import tcl.lang.io.Translation;
 
 /**
  * This FilterWriter emits the Channel's configured EOL translation characters when '\n' is seen on
@@ -12,7 +14,7 @@ import tcl.lang.TclIO;
  * @author Dan Bodoh
  */
 class EolOutputFilter extends FilterWriter {
-  private int translation;
+  private Translation translation;
 
   /**
    * Create a new EolOutputFilter
@@ -20,7 +22,7 @@ class EolOutputFilter extends FilterWriter {
    * @param out The underlying Writer that receives characters from this stream
    * @param translation TclIO.TRANS_LF, TclIO.TRANS_BINARY, TclIO.TRANS_CR or TclIO.TRANS_CRLF
    */
-  EolOutputFilter(Writer out, int translation) {
+  EolOutputFilter(Writer out, Translation translation) {
     super(out);
     setTranslation(translation);
   }
@@ -28,7 +30,7 @@ class EolOutputFilter extends FilterWriter {
   /**
    * @param translation TclIO.TRANS_LF, TclIO.TRANS_BINARY, TclIO.TRANS_CR or TclIO.TRANS_CRLF
    */
-  void setTranslation(int translation) {
+  void setTranslation(Translation translation) {
     this.translation = translation;
   }
 
@@ -41,12 +43,12 @@ class EolOutputFilter extends FilterWriter {
   public void write(char[] cbuf, int off, int len) throws IOException {
 
     /* No special handling required for LF or Binary mode */
-    if (translation == TclIO.TRANS_LF || translation == TclIO.TRANS_BINARY) {
+    if (translation == TRANS_LF || translation == TRANS_BINARY) {
       out.write(cbuf, off, len);
       return;
     }
 
-    if (translation == TclIO.TRANS_CR) {
+    if (translation == TRANS_CR) {
       for (int i = off; i < off + len; i++) {
         if (cbuf[i] == '\n') cbuf[i] = '\r';
       }
@@ -54,7 +56,7 @@ class EolOutputFilter extends FilterWriter {
       return;
     }
 
-    if (translation == TclIO.TRANS_CRLF) {
+    if (translation == TRANS_CRLF) {
       int eolCnt = 0;
       for (int i = off; i < off + len; i++) {
         if (cbuf[i] == '\n') ++eolCnt;

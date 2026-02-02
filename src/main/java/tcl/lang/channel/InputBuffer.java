@@ -1,5 +1,7 @@
 package tcl.lang.channel;
 
+import static tcl.lang.io.Translation.TRANS_CR;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import tcl.lang.TclIO;
@@ -30,7 +32,7 @@ class InputBuffer extends FilterInputStream {
   boolean eofSeen = false;
 
   /** Character that indicates end of line, for TclIO.BUFF_LINE */
-  private static final int eolChar = TclIO.TRANS_PLATFORM == TclIO.TRANS_CR ? '\r' : '\n';
+  private static final char eolChar = TclIO.getTransPlatform() == TRANS_CR ? '\r' : '\n';
 
   /** Set to true for blocking mode, false for non-blocking */
   private volatile boolean blockingMode;

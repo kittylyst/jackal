@@ -13,6 +13,8 @@
 
 package tcl.lang;
 
+import static tcl.lang.io.Translation.*;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +24,7 @@ import tcl.lang.channel.FileEventScript;
 import tcl.lang.channel.StdChannel;
 import tcl.lang.exception.TclException;
 import tcl.lang.exception.TclRuntimeError;
+import tcl.lang.io.Translation;
 import tcl.lang.model.TclObject;
 
 public class TclIO {
@@ -71,30 +74,12 @@ public class TclIO {
   /** Flush after every write; don't buffer any input */
   public static final int BUFF_NONE = 2;
 
-  /**
-   * Translate \n, \r, \r\n to \n on input; translate \n to platform-specific end of line on output
-   */
-  public static final int TRANS_AUTO = 0;
-
-  /** Don't translate end of line characters */
-  public static final int TRANS_BINARY = 1;
-
-  /** Don't translate end of line characters */
-  public static final int TRANS_LF = 2;
-
-  /** \n -> \r on output; \r -> \n on input */
-  public static final int TRANS_CR = 3;
-
-  /** \n to \r\n on output; \r\n -> \n on input */
-  public static final int TRANS_CRLF = 4;
-
-  /** End-of-line translation for the current platform */
-  public static int TRANS_PLATFORM;
+  private static Translation TRANS_PLATFORM;
 
   static {
-    if (Util.isWindows()) TRANS_PLATFORM = TRANS_CRLF;
-    else if (Util.isMac()) TRANS_PLATFORM = TRANS_CR;
-    else TRANS_PLATFORM = TRANS_LF;
+    if (Util.isWindows()) setTransPlatform(TRANS_CRLF);
+    else if (Util.isMac()) setTransPlatform(TRANS_CR);
+    else setTransPlatform(TRANS_LF);
   }
 
   /**
@@ -376,35 +361,33 @@ public class TclIO {
    * @param translation one of the TRANS_* constances
    * @return a string description for a translation id defined above.
    */
-  public static String getTranslationString(int translation) {
-    switch (translation) {
-      case TRANS_AUTO:
-        return "auto";
-      case TRANS_CR:
-        return "cr";
-      case TRANS_CRLF:
-        return "crlf";
-      case TRANS_LF:
-        return "lf";
-      case TRANS_BINARY:
-        return "lf";
-      default:
-        throw new TclRuntimeError("bad translation id");
-    }
+  public static String getTranslationString(Translation translation) {
+    return switch (translation) {
+      case TRANS_AUTO -> "auto";
+      case TRANS_CR -> "cr";
+      case TRANS_CRLF -> "crlf";
+      case TRANS_LF -> "lf";
+      case TRANS_BINARY -> "lf";
+      default -> throw new TclRuntimeError("bad translation id");
+    };
   }
 
   /**
    * @param translation one the fconfigure -translation strings
    * @return a numerical identifier for the given -translation string.
    */
-  public static int getTranslationID(String translation) {
-    if (translation.equals("auto")) return TRANS_AUTO;
-    else if (translation.equals("cr")) return TRANS_CR;
-    else if (translation.equals("crlf")) return TRANS_CRLF;
-    else if (translation.equals("lf")) return TRANS_LF;
-    else if (translation.equals("binary")) return TRANS_LF;
-    else if (translation.equals("platform")) return TRANS_PLATFORM;
-    else return -1;
+  public static Translation getTranslationID(String translation) throws IllegalArgumentException {
+    return switch (translation) {
+      case "auto" -> TRANS_AUTO;
+      case "cr" -> TRANS_CR;
+      case "crlf" -> TRANS_CRLF;
+      case "lf" -> TRANS_LF;
+      case "binary" -> TRANS_LF;
+      case "platform" -> getTransPlatform();
+      default ->
+          throw new IllegalArgumentException(
+              "bad value for -translation: must be one of auto, binary, cr, lf, crlf, or platform");
+    };
   }
 
   /**
@@ -433,5 +416,14 @@ public class TclIO {
     else if (buffering.equals("line")) return BUFF_LINE;
     else if (buffering.equals("none")) return BUFF_NONE;
     else return -1;
+  }
+
+  /** End-of-line translation for the current platform */
+  public static Translation getTransPlatform() {
+    return TRANS_PLATFORM;
+  }
+
+  public static void setTransPlatform(Translation transPlatform) {
+    TRANS_PLATFORM = transPlatform;
   }
 }
