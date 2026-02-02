@@ -219,20 +219,24 @@ public final class TclParser implements Command {
 
     parse = Parser.parseCommand(interp, script.getArray(), charIndex, charLength, null, -1, false);
 
-    if (parse.result != TCL.OK) {
+    if (parse.getResult() != TCL.OK) {
       ParseSetErrorCode(interp, script, parse);
     }
 
     resultPtr = TclList.newInstance();
-    if (parse.commentStart != -1) {
+    if (parse.getCommentStart() != -1) {
       TclList.append(
-          interp, resultPtr, ParseMakeByteRange(script, parse.commentStart, parse.commentSize));
+          interp,
+          resultPtr,
+          ParseMakeByteRange(script, parse.getCommentStart(), parse.getCommentSize()));
     } else {
       TclList.append(interp, resultPtr, ParseMakeRange(script, script.getIndex(), 0));
     }
     TclList.append(
-        interp, resultPtr, ParseMakeByteRange(script, parse.commandStart, parse.commandSize));
-    endCharIndex = parse.commandStart + parse.commandSize;
+        interp,
+        resultPtr,
+        ParseMakeByteRange(script, parse.getCommandStart(), parse.getCommandSize()));
+    endCharIndex = parse.getCommandStart() + parse.getCommandSize();
     TclList.append(
         interp,
         resultPtr,
@@ -240,7 +244,7 @@ public final class TclParser implements Command {
 
     listPtr = TclList.newInstance();
     i = 0;
-    while (i < parse.numTokens) {
+    while (i < parse.getNumTokens()) {
       ParseMakeTokenListResult result = ParseMakeTokenList(script, parse, i);
       i = result.nextIndex();
       tokenPtr = result.newList();
@@ -279,7 +283,7 @@ public final class TclParser implements Command {
 
     parse = ParseExpr.parseExpr(interp, script.getArray(), charIndex, charLength);
 
-    if (parse.result != TCL.OK) {
+    if (parse.getResult() != TCL.OK) {
       ParseSetErrorCode(interp, script, parse);
     }
 
@@ -402,7 +406,7 @@ public final class TclParser implements Command {
     int charLength = script.getCharRange(index, length);
 
     parse = Parser.parseVarName(interp, script.getArray(), charIndex, charLength, null, false);
-    if (parse.result != TCL.OK) {
+    if (parse.getResult() != TCL.OK) {
       ParseSetErrorCode(interp, script, parse);
     }
 
@@ -436,7 +440,7 @@ public final class TclParser implements Command {
     TclObject tlist;
     String type;
 
-    switch (parse.errorType) {
+    switch (parse.getErrorType()) {
       case Parser.TCL_PARSE_QUOTE_EXTRA:
         type = "quoteExtra";
         break;
@@ -470,9 +474,9 @@ public final class TclParser implements Command {
     tlist = TclList.newInstance();
     TclList.append(interp, tlist, TclString.newInstance("PARSE"));
     TclList.append(interp, tlist, TclString.newInstance(type));
-    if (parse.termIndex > 0) {
+    if (parse.getTermIndex() > 0) {
       // Convert to byte range
-      int byteRange = script.getByteRange(script.getIndex(), parse.termIndex);
+      int byteRange = script.getByteRange(script.getIndex(), parse.getTermIndex());
       TclList.append(interp, tlist, TclInteger.newInstance(byteRange));
     } else {
       TclList.append(interp, tlist, TclInteger.newInstance(0));
@@ -508,7 +512,7 @@ public final class TclParser implements Command {
       TclParse parse, // Parse information.
       int index) // Index of token to append.
       throws TclException {
-    TclToken token = parse.tokenList[index];
+    TclToken token = parse.getTokenList()[index];
     TclObject resultList, resultIndexList;
     int start;
     String type;

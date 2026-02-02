@@ -249,16 +249,16 @@ class ParseExpr {
         LogSyntaxError(info, "extra tokens at end of expression");
       }
     } catch (TclException te) {
-      parse.result = TCL.ERROR;
+      parse.setResult(TCL.ERROR);
       return parse;
     }
 
-    if (parse.result != TCL.OK) {
+    if (parse.getResult() != TCL.OK) {
       throw new TclRuntimeError(
           "non TCL.OK parse result in parseExpr(): " + " TclException should have been raised");
     }
 
-    parse.result = TCL.OK;
+    parse.setResult(TCL.OK);
     return parse;
   }
 
@@ -296,7 +296,7 @@ class ParseExpr {
 
     // HERE("condExpr", 1);
     srcStart = info.start;
-    firstIndex = parseObj.numTokens;
+    firstIndex = parseObj.getNumTokens();
 
     ParseLorExpr(interp, info);
 
@@ -307,7 +307,7 @@ class ParseExpr {
       // before the LOR operand tokens generated above.
 
       parseObj.insertInTokenArray(firstIndex, 2);
-      parseObj.numTokens += 2;
+      parseObj.setNumTokens(parseObj.getNumTokens() + 2);
 
       token = parseObj.getToken(firstIndex);
       token.type = Parser.TCL_TOKEN_SUB_EXPR;
@@ -343,7 +343,7 @@ class ParseExpr {
       condToken = parseObj.getToken(firstIndex);
       condToken.script_array = info.originalExpr;
       condToken.size = (info.prevEnd - srcStart);
-      condToken.numComponents = parseObj.numTokens - (firstIndex + 1);
+      condToken.numComponents = parseObj.getNumTokens() - (firstIndex + 1);
     }
   }
 
@@ -373,7 +373,7 @@ class ParseExpr {
 
     // HERE("lorExpr", 2);
     srcStart = info.start;
-    firstIndex = parseObj.numTokens;
+    firstIndex = parseObj.getNumTokens();
 
     ParseLandExpr(interp, info);
 
@@ -413,7 +413,7 @@ class ParseExpr {
 
     // HERE("landExpr", 3);
     srcStart = info.start;
-    firstIndex = parseObj.numTokens;
+    firstIndex = parseObj.getNumTokens();
 
     ParseBitOrExpr(interp, info);
 
@@ -453,7 +453,7 @@ class ParseExpr {
 
     // HERE("bitOrExpr", 4);
     srcStart = info.start;
-    firstIndex = parseObj.numTokens;
+    firstIndex = parseObj.getNumTokens();
 
     ParseBitXorExpr(interp, info);
 
@@ -494,7 +494,7 @@ class ParseExpr {
 
     // HERE("bitXorExpr", 5);
     srcStart = info.start;
-    firstIndex = parseObj.numTokens;
+    firstIndex = parseObj.getNumTokens();
 
     ParseBitAndExpr(interp, info);
 
@@ -535,7 +535,7 @@ class ParseExpr {
 
     // HERE("bitAndExpr", 6);
     srcStart = info.start;
-    firstIndex = parseObj.numTokens;
+    firstIndex = parseObj.getNumTokens();
 
     ParseEqualityExpr(interp, info);
 
@@ -576,7 +576,7 @@ class ParseExpr {
 
     // HERE("equalityExpr", 7);
     srcStart = info.start;
-    firstIndex = parseObj.numTokens;
+    firstIndex = parseObj.getNumTokens();
 
     ParseRelationalExpr(interp, info);
 
@@ -620,7 +620,7 @@ class ParseExpr {
 
     // HERE("relationalExpr", 8);
     srcStart = info.start;
-    firstIndex = parseObj.numTokens;
+    firstIndex = parseObj.getNumTokens();
 
     ParseShiftExpr(interp, info);
 
@@ -668,7 +668,7 @@ class ParseExpr {
 
     // HERE("shiftExpr", 9);
     srcStart = info.start;
-    firstIndex = parseObj.numTokens;
+    firstIndex = parseObj.getNumTokens();
 
     ParseAddExpr(interp, info);
 
@@ -710,7 +710,7 @@ class ParseExpr {
 
     // HERE("addExpr", 10);
     srcStart = info.start;
-    firstIndex = parseObj.numTokens;
+    firstIndex = parseObj.getNumTokens();
     // System.out.println("parse adda "+info.start+" "+info.size);
 
     ParseMultiplyExpr(interp, info);
@@ -757,7 +757,7 @@ class ParseExpr {
 
     // HERE("multiplyExpr", 11);
     srcStart = info.start;
-    firstIndex = parseObj.numTokens;
+    firstIndex = parseObj.getNumTokens();
 
     ParseUnaryExpr(interp, info);
 
@@ -799,7 +799,7 @@ class ParseExpr {
 
     // HERE("unaryExpr", 12);
     srcStart = info.start;
-    firstIndex = parseObj.numTokens;
+    firstIndex = parseObj.getNumTokens();
 
     lexeme = info.lexeme;
     if ((lexeme == PLUS) || (lexeme == MINUS) || (lexeme == BIT_NOT) || (lexeme == NOT)) {
@@ -861,39 +861,39 @@ class ParseExpr {
 
     // Start a TCL_TOKEN_SUB_EXPR token for the primary.
 
-    if (parseObj.numTokens == parseObj.tokensAvailable) {
-      parseObj.expandTokenArray(parseObj.numTokens);
+    if (parseObj.getNumTokens() == parseObj.getTokensAvailable()) {
+      parseObj.expandTokenArray(parseObj.getNumTokens());
     }
-    exprIndex = parseObj.numTokens;
+    exprIndex = parseObj.getNumTokens();
     exprToken = parseObj.getToken(exprIndex);
     exprToken.type = Parser.TCL_TOKEN_SUB_EXPR;
     exprToken.script_array = info.originalExpr;
     exprToken.script_index = info.start;
-    parseObj.numTokens++;
+    parseObj.setNumTokens(parseObj.getNumTokens() + 1);
 
     // Process the primary then finish setting the fields of the
     // TCL_TOKEN_SUB_EXPR token. Note that we can't use the pointer now
     // stored in "exprToken" in the code below since the token array
     // might be reallocated.
 
-    firstIndex = parseObj.numTokens;
+    firstIndex = parseObj.getNumTokens();
     switch (lexeme) {
       case LITERAL:
         // Int or double number.
 
         // tokenizeLiteral:
-        if (parseObj.numTokens == parseObj.tokensAvailable) {
-          parseObj.expandTokenArray(parseObj.numTokens);
+        if (parseObj.getNumTokens() == parseObj.getTokensAvailable()) {
+          parseObj.expandTokenArray(parseObj.getNumTokens());
         }
         // System.out.println("literal " + parseObj.numTokens);
-        token = parseObj.getToken(parseObj.numTokens);
+        token = parseObj.getToken(parseObj.getNumTokens());
         token.type = Parser.TCL_TOKEN_TEXT;
         token.script_array = info.originalExpr;
         token.script_index = info.start;
         token.size = info.size;
         info.next = info.start + info.size;
         token.numComponents = 0;
-        parseObj.numTokens++;
+        parseObj.setNumTokens(parseObj.getNumTokens() + 1);
 
         exprToken.script_array = info.originalExpr;
         exprToken.size = info.size;
@@ -909,8 +909,8 @@ class ParseExpr {
             Parser.parseVarName(
                 interp, info.originalExpr, dollar, info.lastChar - dollar, parseObj, true);
 
-        if (parseObj.result != TCL.OK) {
-          throw new TclException(parseObj.result);
+        if (parseObj.getResult() != TCL.OK) {
+          throw new TclException(parseObj.getResult());
         }
 
         info.next = dollar + parseObj.getToken(firstIndex).size;
@@ -936,12 +936,12 @@ class ParseExpr {
                 parseObj,
                 true);
 
-        term = parseObj.extra;
+        term = parseObj.getExtra();
         info.next = term;
 
         exprToken = parseObj.getToken(exprIndex);
         exprToken.size = (term - exprToken.script_index);
-        exprToken.numComponents = parseObj.numTokens - firstIndex;
+        exprToken.numComponents = parseObj.getNumTokens() - firstIndex;
         exprToken.script_array = info.originalExpr;
 
         // If parsing the quoted string resulted in more than one token,
@@ -949,11 +949,11 @@ class ParseExpr {
         // the quoted string represents a concatenation of multiple tokens.
 
         if (exprToken.numComponents > 1) {
-          if (parseObj.numTokens >= parseObj.tokensAvailable) {
-            parseObj.expandTokenArray(parseObj.numTokens + 1);
+          if (parseObj.getNumTokens() >= parseObj.getTokensAvailable()) {
+            parseObj.expandTokenArray(parseObj.getNumTokens() + 1);
           }
           parseObj.insertInTokenArray(firstIndex, 1);
-          parseObj.numTokens++;
+          parseObj.setNumTokens(parseObj.getNumTokens() + 1);
           token = parseObj.getToken(firstIndex);
 
           exprToken = parseObj.getToken(exprIndex);
@@ -971,15 +971,15 @@ class ParseExpr {
       case OPEN_BRACKET:
         // '[' command {command} ']'
 
-        if (parseObj.numTokens == parseObj.tokensAvailable) {
-          parseObj.expandTokenArray(parseObj.numTokens);
+        if (parseObj.getNumTokens() == parseObj.getTokensAvailable()) {
+          parseObj.expandTokenArray(parseObj.getNumTokens());
         }
-        token = parseObj.getToken(parseObj.numTokens);
+        token = parseObj.getToken(parseObj.getNumTokens());
         token.type = Parser.TCL_TOKEN_COMMAND;
         token.script_array = info.originalExpr;
         token.script_index = info.start;
         token.numComponents = 0;
-        parseObj.numTokens++;
+        parseObj.setNumTokens(parseObj.getNumTokens() + 1);
 
         // Call Tcl_ParseCommand repeatedly to parse the nested command(s)
         // to find their end, then throw away that parse information.
@@ -991,31 +991,31 @@ class ParseExpr {
                   interp,
                   info.originalExpr,
                   src,
-                  parseObj.endIndex - src,
-                  parseObj.fileName,
-                  parseObj.lineNum,
+                  parseObj.getEndIndex() - src,
+                  parseObj.getFileName(),
+                  parseObj.getLineNum(),
                   true);
-          if (nested.result != TCL.OK) {
-            parseObj.termIndex = nested.termIndex;
-            parseObj.errorType = nested.errorType;
-            parseObj.incomplete = nested.incomplete;
-            parseObj.result = nested.result;
+          if (nested.getResult() != TCL.OK) {
+            parseObj.setTermIndex(nested.getTermIndex());
+            parseObj.setErrorType(nested.getErrorType());
+            parseObj.setIncomplete(nested.isIncomplete());
+            parseObj.setResult(nested.getResult());
           }
-          src = (nested.commandStart + nested.commandSize);
+          src = (nested.getCommandStart() + nested.getCommandSize());
 
           // Check for the closing ']' that ends the command substitution.
           // It must have been the last character of the parsed command.
 
-          if ((nested.termIndex < parseObj.endIndex)
-              && (info.originalExpr[nested.termIndex] == ']')
-              && !nested.incomplete) {
+          if ((nested.getTermIndex() < parseObj.getEndIndex())
+              && (info.originalExpr[nested.getTermIndex()] == ']')
+              && !nested.isIncomplete()) {
             break;
           }
-          if (src == parseObj.endIndex) {
-            parseObj.termIndex = token.script_index;
-            parseObj.incomplete = true;
-            parseObj.result = TCL.ERROR;
-            throw new TclException(parseObj.interp, "missing close-bracket");
+          if (src == parseObj.getEndIndex()) {
+            parseObj.setTermIndex(token.script_index);
+            parseObj.setIncomplete(true);
+            parseObj.setResult(TCL.ERROR);
+            throw new TclException(parseObj.getInterp(), "missing close-bracket");
           }
         }
         token.size = src - token.script_index;
@@ -1038,12 +1038,12 @@ class ParseExpr {
                 (info.lastChar - info.start),
                 parseObj,
                 true);
-        term = parseObj.extra;
+        term = parseObj.getExtra();
         info.next = term;
 
         exprToken = parseObj.getToken(exprIndex);
         exprToken.size = (term - info.start);
-        exprToken.numComponents = parseObj.numTokens - firstIndex;
+        exprToken.numComponents = parseObj.getNumTokens() - firstIndex;
         // exprToken.script_array = info.originalExpr; // Does not appear in
         // C impl
 
@@ -1052,11 +1052,11 @@ class ParseExpr {
         // the braced string represents a concatenation of multiple tokens.
 
         if (exprToken.numComponents > 1) {
-          if (parseObj.numTokens >= parseObj.tokensAvailable) {
-            parseObj.expandTokenArray(parseObj.numTokens + 1);
+          if (parseObj.getNumTokens() >= parseObj.getTokensAvailable()) {
+            parseObj.expandTokenArray(parseObj.getNumTokens() + 1);
           }
           parseObj.insertInTokenArray(firstIndex, 1);
-          parseObj.numTokens++;
+          parseObj.setNumTokens(parseObj.getNumTokens() + 1);
           token = parseObj.getToken(firstIndex);
 
           exprToken = parseObj.getToken(exprIndex);
@@ -1093,18 +1093,18 @@ class ParseExpr {
             info = savedInfo;
 
             // goto tokenizeLiteral;
-            if (parseObj.numTokens == parseObj.tokensAvailable) {
-              parseObj.expandTokenArray(parseObj.numTokens);
+            if (parseObj.getNumTokens() == parseObj.getTokensAvailable()) {
+              parseObj.expandTokenArray(parseObj.getNumTokens());
             }
             // System.out.println("literal " + parseObj.numTokens);
-            token = parseObj.getToken(parseObj.numTokens);
+            token = parseObj.getToken(parseObj.getNumTokens());
             token.type = Parser.TCL_TOKEN_TEXT;
             token.script_array = info.originalExpr;
             token.script_index = info.start;
             token.size = info.size;
             info.next = info.start + info.size;
             token.numComponents = 0;
-            parseObj.numTokens++;
+            parseObj.setNumTokens(parseObj.getNumTokens() + 1);
 
             exprToken.script_array = info.originalExpr;
             exprToken.size = info.size;
@@ -1122,16 +1122,16 @@ class ParseExpr {
           LogSyntaxError(info, null);
         }
 
-        if (parseObj.numTokens == parseObj.tokensAvailable) {
-          parseObj.expandTokenArray(parseObj.numTokens);
+        if (parseObj.getNumTokens() == parseObj.getTokensAvailable()) {
+          parseObj.expandTokenArray(parseObj.getNumTokens());
         }
-        token = parseObj.getToken(parseObj.numTokens);
+        token = parseObj.getToken(parseObj.getNumTokens());
         token.type = Parser.TCL_TOKEN_OPERATOR;
         token.script_array = savedInfo.originalExpr;
         token.script_index = savedInfo.start;
         token.size = savedInfo.size;
         token.numComponents = 0;
-        parseObj.numTokens++;
+        parseObj.setNumTokens(parseObj.getNumTokens() + 1);
 
         GetLexeme(interp, info); // skip over '('
 
@@ -1149,7 +1149,7 @@ class ParseExpr {
         exprToken.size = (info.next - exprToken.script_index);
         // System.out.println("exprToken  size "+exprToken.size+" "+info.next+"
         // "+exprToken.script_index);
-        exprToken.numComponents = parseObj.numTokens - firstIndex;
+        exprToken.numComponents = parseObj.getNumTokens() - firstIndex;
         exprToken.script_array = info.originalExpr;
         break;
 
@@ -1176,7 +1176,7 @@ class ParseExpr {
     // Advance to the next lexeme before returning.
 
     GetLexeme(interp, info);
-    parseObj.termIndex = info.next;
+    parseObj.setTermIndex(info.next);
     return;
   }
 
@@ -1253,7 +1253,7 @@ class ParseExpr {
       }
       c = info.originalExpr[src];
     }
-    parseObj.termIndex = src;
+    parseObj.setTermIndex(src);
     if (src >= info.lastChar) {
       info.lexeme = END;
       info.next = src;
@@ -1278,10 +1278,10 @@ class ParseExpr {
           info.start = src;
           info.size = (term - src);
           info.next = term;
-          parseObj.termIndex = term;
+          parseObj.setTermIndex(term);
           return;
         } else {
-          parseObj.errorType = Parser.TCL_PARSE_BAD_NUMBER;
+          parseObj.setErrorType(Parser.TCL_PARSE_BAD_NUMBER);
           if (res.getErrno() == TCL.INTEGER_RANGE) {
             Expression.IntegerTooLarge(interp);
           } else {
@@ -1299,7 +1299,7 @@ class ParseExpr {
         Util.strtod(s, 0, -1, res);
         if (res.getIndex() > 0) {
           if (res.getErrno() != 0) {
-            parseObj.errorType = Parser.TCL_PARSE_BAD_NUMBER;
+            parseObj.setErrorType(Parser.TCL_PARSE_BAD_NUMBER);
             if (res.getErrno() == TCL.DOUBLE_RANGE) {
               if (res.getValue() != 0) {
                 Expression.DoubleTooLarge(interp);
@@ -1322,7 +1322,7 @@ class ParseExpr {
             info.size = length;
           }
           info.next = src + info.size;
-          parseObj.termIndex = info.next;
+          parseObj.setTermIndex(info.next);
           return;
         }
       }
@@ -1336,7 +1336,7 @@ class ParseExpr {
     info.start = src;
     info.size = 1;
     info.next = src + 1;
-    parseObj.termIndex = info.next;
+    parseObj.setTermIndex(info.next);
 
     switch (c) {
       case '[':
@@ -1411,7 +1411,7 @@ class ParseExpr {
             info.lexeme = LESS;
             break;
         }
-        parseObj.termIndex = info.next;
+        parseObj.setTermIndex(info.next);
         return;
 
       case '>':
@@ -1430,7 +1430,7 @@ class ParseExpr {
             info.lexeme = GREATER;
             break;
         }
-        parseObj.termIndex = info.next;
+        parseObj.setTermIndex(info.next);
         return;
 
       case '=':
@@ -1441,7 +1441,7 @@ class ParseExpr {
         } else {
           info.lexeme = UNKNOWN;
         }
-        parseObj.termIndex = info.next;
+        parseObj.setTermIndex(info.next);
         return;
 
       case '!':
@@ -1452,7 +1452,7 @@ class ParseExpr {
         } else {
           info.lexeme = NOT;
         }
-        parseObj.termIndex = info.next;
+        parseObj.setTermIndex(info.next);
         return;
 
       case '&':
@@ -1463,7 +1463,7 @@ class ParseExpr {
         } else {
           info.lexeme = BIT_AND;
         }
-        parseObj.termIndex = info.next;
+        parseObj.setTermIndex(info.next);
         return;
 
       case '^':
@@ -1478,7 +1478,7 @@ class ParseExpr {
         } else {
           info.lexeme = BIT_OR;
         }
-        parseObj.termIndex = info.next;
+        parseObj.setTermIndex(info.next);
         return;
 
       case '~':
@@ -1490,7 +1490,7 @@ class ParseExpr {
           info.lexeme = STREQ;
           info.size = 2;
           info.next = src + 2;
-          parseObj.termIndex = info.next;
+          parseObj.setTermIndex(info.next);
           return;
         } else {
           checkFuncName(interp, info, src);
@@ -1502,7 +1502,7 @@ class ParseExpr {
           info.lexeme = STRNEQ;
           info.size = 2;
           info.next = src + 2;
-          parseObj.termIndex = info.next;
+          parseObj.setTermIndex(info.next);
           return;
         } else {
           checkFuncName(interp, info, src);
@@ -1526,7 +1526,7 @@ class ParseExpr {
       }
       info.size = (src - info.start);
       info.next = src;
-      info.parseObj.termIndex = info.next;
+      info.parseObj.setTermIndex(info.next);
       String s = new String(info.originalExpr, info.start, info.size);
 
       // Check for boolean literals (true, false, yes, no, on, off)
@@ -1615,18 +1615,18 @@ class ParseExpr {
     TclToken token, firstToken;
     int numToMove;
 
-    if ((parseObj.numTokens + 1) >= parseObj.tokensAvailable) {
-      parseObj.expandTokenArray(parseObj.numTokens + 1);
+    if ((parseObj.getNumTokens() + 1) >= parseObj.getTokensAvailable()) {
+      parseObj.expandTokenArray(parseObj.getNumTokens() + 1);
     }
     parseObj.insertInTokenArray(firstIndex, 2);
-    parseObj.numTokens += 2;
+    parseObj.setNumTokens(parseObj.getNumTokens() + 2);
 
     token = parseObj.getToken(firstIndex);
     token.type = Parser.TCL_TOKEN_SUB_EXPR;
     token.script_index = src;
     token.script_array = info.originalExpr;
     token.size = srcBytes;
-    token.numComponents = parseObj.numTokens - (firstIndex + 1);
+    token.numComponents = parseObj.getNumTokens() - (firstIndex + 1);
 
     token = parseObj.getToken(firstIndex + 1);
     token.type = Parser.TCL_TOKEN_OPERATOR;
@@ -1677,13 +1677,13 @@ class ParseExpr {
     // msg.append(extraInfo);
     // }
 
-    info.parseObj.errorType = Parser.TCL_PARSE_SYNTAX;
-    info.parseObj.termIndex = info.start;
+    info.parseObj.setErrorType(Parser.TCL_PARSE_SYNTAX);
+    info.parseObj.setTermIndex(info.start);
 
-    if (info.parseObj.interp != null) {
-      info.parseObj.interp.resetResult();
+    if (info.parseObj.getInterp() != null) {
+      info.parseObj.getInterp().resetResult();
     }
-    throw new TclException(info.parseObj.interp, msg.toString());
+    throw new TclException(info.parseObj.getInterp(), msg.toString());
   }
 
   /*

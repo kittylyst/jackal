@@ -22,47 +22,27 @@ import tcl.lang.model.TclString;
 
 class TclParse {
 
-  /** The original command string passed to Parser.parseCommand. */
-  char[] string;
+  private final char[] chars;
 
-  /** Index into 'string' that is the character just after the last one in the command string. */
-  int endIndex;
+  private final int endIndex;
 
-  /**
-   * Index into 'string' that is the # that begins the first of one or more comments preceding the
-   * command.
-   */
-  int commentStart;
+  private int commentStart = -1;
 
-  /**
-   * Number of bytes in comments (up through newline character that terminates the last comment). If
-   * there were no comments, this field is 0.
-   */
-  int commentSize;
+  private int commentSize = 0;
 
-  /** Index into 'string' that is the first character in first // word of command. */
-  int commandStart;
+  private int commandStart = -1;
 
-  /**
-   * // Number of bytes in command, including first character of // first word, up through the
-   * terminating newline, close // bracket, or semicolon.
-   */
-  int commandSize;
+  private int commandSize = 0;
 
-  /** Total number of words in command. May be 0. */
-  int numWords;
+  private int numWords = 0;
 
-  /** Stores the tokens that compose the command. */
-  TclToken[] tokenList;
+  private TclToken[] tokenList = new TclToken[INITIAL_NUM_TOKENS];
 
-  /** Total number of tokens in command. */
-  int numTokens;
+  private int numTokens = 0;
 
-  /** Total number of tokens available at token. */
-  int tokensAvailable;
+  private int tokensAvailable = INITIAL_NUM_TOKENS;
 
-  /** One of the parsing error types defined in Parser class. */
-  int errorType;
+  private int errorType = Parser.TCL_PARSE_SUCCESS;
 
   /*
    * ----------------------------------------------------------------------
@@ -75,85 +55,61 @@ class TclParse {
 
   // Interpreter to use for error reporting, or null.
 
-  Interp interp;
+  private final Interp interp;
 
   // Name of file from which script came, or null. Used for error
   // messages.
 
-  String fileName;
+  private final String fileName;
 
   // Line number corresponding to first character in string.
 
-  int lineNum;
+  private int lineNum;
 
   // Points to character in string that terminated most recent token.
   // Filled in by Parser.parseTokens. If an error occurs, points to
   // beginning of region where the error occurred (e.g. the open brace
   // if the close brace is missing).
 
-  int termIndex;
+  private int termIndex;
 
   // This field is set to true by Parser.parseCommand if the command
   // appears to be incomplete. This information is used by
   // Parser.commandComplete.
 
-  boolean incomplete;
+  private boolean incomplete = false;
 
   // When a TclParse is the return value of a method, result is set to
   // a standard Tcl result, indicating the return of the method.
 
-  int result;
+  private int result = TCL.OK;
 
   // Extra integer field used to return a value in a parse operation.
 
-  int extra;
+  private int extra;
 
   // Default size of the tokenList array.
-
   private static final int INITIAL_NUM_TOKENS = 20;
   private static final boolean USE_TOKEN_CACHE = true;
   private static final int MAX_CACHED_TOKENS = 50; // my tests show 50 is best
 
-  /*
-   * ----------------------------------------------------------------------
+  /**
+   * Construct a TclParse object with default values.
    *
-   * TclParse --
-   *
-   * Construct a TclParse object with default values. The interp and fileName
-   * arguments may be null.
-   *
-   * Side effects: None.
-   *
-   * ----------------------------------------------------------------------
+   * @param interp Interpreter to use for error reporting, if null, then no error message is
+   *     provided
+   * @param chars The command being parsed
+   * @param endIndex Offset of the char after the last valid command character
+   * @param fileName Name of file being executed, or null
+   * @param lineNum Line number of file; used for error messages so it may be invalid
    */
-  TclParse(
-      Interp interp, // Interpreter to use for error reporting;
-      // if null, then no error message is
-      // provided. Can be null.
-      char[] string, // The command being parsed.
-      int endIndex, // Points to the char after the last valid
-      // command character.
-      String fileName, // Name of file being executed, or null.
-      int lineNum) // Line number of file; used for error
-        // messages so it may be invalid.
-      {
+  TclParse(Interp interp, char[] chars, int endIndex, String fileName, int lineNum) {
     this.interp = interp;
-    this.string = string;
+    this.chars = chars;
     this.endIndex = endIndex;
     this.fileName = fileName;
     this.lineNum = lineNum;
-    this.tokenList = new TclToken[INITIAL_NUM_TOKENS];
-    this.tokensAvailable = INITIAL_NUM_TOKENS;
-    this.numTokens = 0;
-    this.numWords = 0;
-    this.commentStart = -1;
-    this.commentSize = 0;
-    this.commandStart = -1;
-    this.commandSize = 0;
-    this.termIndex = endIndex;
-    this.incomplete = false;
-    this.errorType = Parser.TCL_PARSE_SUCCESS;
-    this.result = TCL.OK;
+    this.setTermIndex(endIndex);
   }
 
   /*
@@ -175,14 +131,14 @@ class TclParse {
 
   final TclToken getToken(int index) // The index into tokenList.
       {
-    if (index >= tokensAvailable) {
+    if (index >= getTokensAvailable()) {
       expandTokenArray(index);
     }
 
-    if (tokenList[index] == null) {
-      tokenList[index] = grabToken();
+    if (getTokenList()[index] == null) {
+      getTokenList()[index] = grabToken();
     }
-    return tokenList[index];
+    return getTokenList()[index];
   }
 
   // Release internal resources that this TclParser object might have
@@ -193,10 +149,10 @@ class TclParse {
     // (possibly just allocated with new) tokens are returned
     // to the pool first.
 
-    for (int index = tokensAvailable - 1; index >= 0; index--) {
-      if (tokenList[index] != null) {
-        releaseToken(tokenList[index]);
-        tokenList[index] = null;
+    for (int index = getTokensAvailable() - 1; index >= 0; index--) {
+      if (getTokenList()[index] != null) {
+        releaseToken(getTokenList()[index]);
+        getTokenList()[index] = null;
       }
     }
   }
@@ -217,7 +173,7 @@ class TclParse {
 
   private final TclToken grabToken() {
     if (USE_TOKEN_CACHE) {
-      if (interp == null || interp.parserTokensUsed == MAX_CACHED_TOKENS) {
+      if (getInterp() == null || getInterp().parserTokensUsed == MAX_CACHED_TOKENS) {
         // either we do not have a cache because the interp is null or
         // we have already
         // used up all the open cache slots, we just allocate a new one
@@ -225,7 +181,7 @@ class TclParse {
         return new TclToken();
       } else {
         // the cache has an avaliable slot so grab it
-        return interp.parserTokens[interp.parserTokensUsed++];
+        return getInterp().parserTokens[getInterp().parserTokensUsed++];
       }
     } else {
       return new TclToken();
@@ -234,9 +190,9 @@ class TclParse {
 
   private final void releaseToken(TclToken token) {
     if (USE_TOKEN_CACHE) {
-      if (interp != null && interp.parserTokensUsed > 0) {
+      if (getInterp() != null && getInterp().parserTokensUsed > 0) {
         // if cache is not full put the object back in the cache
-        interp.parserTokens[--interp.parserTokensUsed] = token;
+        getInterp().parserTokens[--getInterp().parserTokensUsed] = token;
       }
     }
   }
@@ -260,13 +216,13 @@ class TclParse {
 
   void expandTokenArray(int needed) {
     // Make sure there is at least enough room for needed tokens
-    while (needed >= tokensAvailable) {
-      tokensAvailable *= 2;
+    while (needed >= getTokensAvailable()) {
+      setTokensAvailable(getTokensAvailable() * 2);
     }
 
-    TclToken[] newList = new TclToken[tokensAvailable];
-    System.arraycopy(tokenList, 0, newList, 0, tokenList.length);
-    tokenList = newList;
+    TclToken[] newList = new TclToken[getTokensAvailable()];
+    System.arraycopy(getTokenList(), 0, newList, 0, getTokenList().length);
+    setTokenList(newList);
   }
 
   /*
@@ -286,15 +242,19 @@ class TclParse {
    */
 
   void insertInTokenArray(int location, int numNew) {
-    int needed = numTokens + numNew;
-    if (needed > tokensAvailable) {
+    int needed = getNumTokens() + numNew;
+    if (needed > getTokensAvailable()) {
       expandTokenArray(needed);
     }
 
     System.arraycopy(
-        tokenList, location, tokenList, location + numNew, tokenList.length - location - numNew);
+        getTokenList(),
+        location,
+        getTokenList(),
+        location + numNew,
+        getTokenList().length - location - numNew);
     for (int i = 0; i < numNew; i++) {
-      tokenList[location + i] = grabToken();
+      getTokenList()[location + i] = grabToken();
     }
   }
 
@@ -343,31 +303,33 @@ class TclParse {
     if (debug) {
       System.out.println();
       System.out.println("Entered TclParse.get()");
-      System.out.println("numTokens is " + numTokens);
+      System.out.println("numTokens is " + getNumTokens());
     }
 
     obj = TclList.newInstance();
     try {
-      if (commentSize > 0) {
+      if (getCommentSize() > 0) {
         TclList.append(
-            interp, obj, TclString.newInstance(new String(string, commentStart, commentSize)));
+            getInterp(),
+            obj,
+            TclString.newInstance(new String(getChars(), getCommentStart(), getCommentSize())));
       } else {
-        TclList.append(interp, obj, TclString.newInstance("-"));
+        TclList.append(getInterp(), obj, TclString.newInstance("-"));
       }
 
-      if (commandStart >= (endIndex + 1)) {
-        commandStart = endIndex;
+      if (getCommandStart() >= (getEndIndex() + 1)) {
+        setCommandStart(getEndIndex());
       }
-      cmd = new String(string, commandStart, commandSize);
-      TclList.append(interp, obj, TclString.newInstance(cmd));
-      TclList.append(interp, obj, TclInteger.newInstance(numWords));
+      cmd = new String(getChars(), getCommandStart(), getCommandSize());
+      TclList.append(getInterp(), obj, TclString.newInstance(cmd));
+      TclList.append(getInterp(), obj, TclInteger.newInstance(getNumWords()));
 
-      for (i = 0; i < numTokens; i++) {
+      for (i = 0; i < getNumTokens(); i++) {
         if (debug) {
           System.out.println("processing token " + i);
         }
 
-        token = tokenList[i];
+        token = getTokenList()[i];
         switch (token.type) {
           case Parser.TCL_TOKEN_WORD:
             typeString = "word";
@@ -396,15 +358,15 @@ class TclParse {
           System.out.println("typeString is " + typeString);
         }
 
-        TclList.append(interp, obj, TclString.newInstance(typeString));
-        TclList.append(interp, obj, TclString.newInstance(token.getTokenString()));
-        TclList.append(interp, obj, TclInteger.newInstance(token.numComponents));
+        TclList.append(getInterp(), obj, TclString.newInstance(typeString));
+        TclList.append(getInterp(), obj, TclString.newInstance(token.getTokenString()));
+        TclList.append(getInterp(), obj, TclInteger.newInstance(token.numComponents));
       }
-      nextIndex = commandStart + commandSize;
+      nextIndex = getCommandStart() + getCommandSize();
       TclList.append(
-          interp,
+          getInterp(),
           obj,
-          TclString.newInstance(new String(string, nextIndex, (endIndex - nextIndex))));
+          TclString.newInstance(new String(getChars(), nextIndex, (getEndIndex() - nextIndex))));
 
     } catch (TclException e) {
       // Do Nothing.
@@ -412,4 +374,148 @@ class TclParse {
 
     return obj;
   }
-} // end TclParse
+
+  public Interp getInterp() {
+    return interp;
+  }
+
+  /** The original command string passed to Parser.parseCommand. */
+  public char[] getChars() {
+    return chars;
+  }
+
+  /** Index into 'string' that is the character just after the last one in the command string. */
+  public int getEndIndex() {
+    return endIndex;
+  }
+
+  /** Stores the tokens that compose the command. */
+  public TclToken[] getTokenList() {
+    return tokenList;
+  }
+
+  public void setTokenList(TclToken[] tokenList) {
+    this.tokenList = tokenList;
+  }
+
+  /** Total number of tokens in command. */
+  public int getNumTokens() {
+    return numTokens;
+  }
+
+  public void setNumTokens(int numTokens) {
+    this.numTokens = numTokens;
+  }
+
+  public String getFileName() {
+    return fileName;
+  }
+
+  public int getLineNum() {
+    return lineNum;
+  }
+
+  /**
+   * Index into 'string' that is the # that begins the first of one or more comments preceding the
+   * command.
+   */
+  public int getCommentStart() {
+    return commentStart;
+  }
+
+  public void setCommentStart(int commentStart) {
+    this.commentStart = commentStart;
+  }
+
+  /**
+   * Number of bytes in comments (up through newline character that terminates the last comment). If
+   * there were no comments, this field is 0.
+   */
+  public int getCommentSize() {
+    return commentSize;
+  }
+
+  public void setCommentSize(int commentSize) {
+    this.commentSize = commentSize;
+  }
+
+  /** Index into 'string' that is the first character in first // word of command. */
+  public int getCommandStart() {
+    return commandStart;
+  }
+
+  public void setCommandStart(int commandStart) {
+    this.commandStart = commandStart;
+  }
+
+  /**
+   * // Number of bytes in command, including first character of // first word, up through the
+   * terminating newline, close // bracket, or semicolon.
+   */
+  public int getCommandSize() {
+    return commandSize;
+  }
+
+  public void setCommandSize(int commandSize) {
+    this.commandSize = commandSize;
+  }
+
+  /** Total number of words in command. May be 0. */
+  public int getNumWords() {
+    return numWords;
+  }
+
+  public void setNumWords(int numWords) {
+    this.numWords = numWords;
+  }
+
+  /** Total number of tokens available at token. */
+  public int getTokensAvailable() {
+    return tokensAvailable;
+  }
+
+  public void setTokensAvailable(int tokensAvailable) {
+    this.tokensAvailable = tokensAvailable;
+  }
+
+  /** One of the parsing error types defined in Parser class. */
+  public int getErrorType() {
+    return errorType;
+  }
+
+  public void setErrorType(int errorType) {
+    this.errorType = errorType;
+  }
+
+  public int getTermIndex() {
+    return termIndex;
+  }
+
+  public void setTermIndex(int termIndex) {
+    this.termIndex = termIndex;
+  }
+
+  public boolean isIncomplete() {
+    return incomplete;
+  }
+
+  public void setIncomplete(boolean incomplete) {
+    this.incomplete = incomplete;
+  }
+
+  public int getResult() {
+    return result;
+  }
+
+  public void setResult(int result) {
+    this.result = result;
+  }
+
+  public int getExtra() {
+    return extra;
+  }
+
+  public void setExtra(int extra) {
+    this.extra = extra;
+  }
+}

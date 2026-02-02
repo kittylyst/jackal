@@ -152,9 +152,7 @@ public final class FconfigureCmd implements Command {
 
       if (chan.isReadOnly()) {
         TclList.append(
-            interp,
-            list,
-            TclString.newInstance(Translation.getString(chan.getInputTranslation())));
+            interp, list, TclString.newInstance(Translation.getString(chan.getInputTranslation())));
       } else if (chan.isWriteOnly()) {
         TclList.append(
             interp,
@@ -175,9 +173,7 @@ public final class FconfigureCmd implements Command {
         TclList.append(interp, list, translation_pair);
       } else {
         TclList.append(
-            interp,
-            list,
-            TclString.newInstance(Translation.getString(chan.getInputTranslation())));
+            interp, list, TclString.newInstance(Translation.getString(chan.getInputTranslation())));
       }
 
       // -peername
@@ -297,13 +293,11 @@ public final class FconfigureCmd implements Command {
               TclList.append(
                   interp,
                   translation_pair,
-                  TclString.newInstance(
-                      Translation.getString(chan.getInputTranslation())));
+                  TclString.newInstance(Translation.getString(chan.getInputTranslation())));
               TclList.append(
                   interp,
                   translation_pair,
-                  TclString.newInstance(
-                      Translation.getString(chan.getOutputTranslation())));
+                  TclString.newInstance(Translation.getString(chan.getOutputTranslation())));
 
               interp.setResult(translation_pair);
             } else {
