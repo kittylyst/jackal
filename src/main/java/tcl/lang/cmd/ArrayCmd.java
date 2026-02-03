@@ -15,6 +15,7 @@ package tcl.lang.cmd;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -32,7 +33,6 @@ import tcl.lang.model.TclString;
 
 /** This class implements the built-in "array" command in Tcl. */
 public final class ArrayCmd implements Command {
-  static Class procClass = null;
 
   private static final String validCmds[] = {
     "anymore",
@@ -111,7 +111,6 @@ public final class ArrayCmd implements Command {
       retArray = Var.lookupVar(interp, varName, null, 0, null, false, false);
       if (retArray != null) {
         tclVar = retArray[0];
-        array = retArray[1];
       }
       if ((tclVar == null) || !tclVar.isVarArray() || tclVar.isVarUndefined()) {
         notArray = true;
@@ -198,7 +197,7 @@ public final class ArrayCmd implements Command {
            * case the reading of a value triggers a read trace that modifies
            * the array
            */
-          ArrayList<String> keysToReturn = new ArrayList<String>();
+          List<String> keysToReturn = new ArrayList<>();
 
           for (String key : tclVar.getArrayMap().keySet()) {
             if (pattern != null && !Util.stringMatch(key, pattern)) {
@@ -252,10 +251,9 @@ public final class ArrayCmd implements Command {
           // pattern, test for a match. Each valid key and its value
           // is written into sbuf, which is returned.
 
-          for (Object o : table.entrySet()) {
-            Map.Entry entry = (Map.Entry) o;
-            key = (String) entry.getKey();
-            Var elem = (Var) entry.getValue();
+          for (var entry : table.entrySet()) {
+            key = entry.getKey();
+            Var elem = entry.getValue();
             if (!elem.isVarUndefined()) {
               if (pattern != null) {
                 if (!Util.stringMatch(key, pattern)) {

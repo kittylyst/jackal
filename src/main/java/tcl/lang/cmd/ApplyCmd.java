@@ -25,6 +25,12 @@ import tcl.lang.model.TclObject;
  */
 public final class ApplyCmd implements Command {
 
+    /**
+     *
+     * @param interp The interpreter for setting the results and which contains the context
+     * @param objv the argument list for the command; objv[0] is the command name itself, objv[1] is the target
+     * @throws TclException
+     */
   public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
     if (objv.length < 2) {
       throw new TclNumArgsException(interp, 1, objv, "lambdaExpr ?arg ...?");

@@ -353,7 +353,7 @@ public class Var {
       return 1;
     }
     SearchId sid = sidVec.get(size - 1);
-    return (sid.getIndex() + 1);
+    return (sid.index() + 1);
   }
 
   /**
@@ -368,7 +368,7 @@ public class Var {
     for (int i = 0; i < sidVec.size(); i++) {
       sid = sidVec.get(i);
       if (sid.equals(s)) {
-        return sid.getIterator();
+        return sid.iterator();
       }
     }
     return null;
