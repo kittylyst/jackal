@@ -32,7 +32,7 @@ import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
 
 /** This class implements the built-in "array" command in Tcl. */
-public final class ArrayCmd implements Command {
+public record ArrayCmd() implements Command {
 
   private static final String validCmds[] = {
     "anymore",

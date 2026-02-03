@@ -22,16 +22,14 @@ import java.util.Map;
  * uniquely identifies the searchId for the Tcl array, and an index that is used when to generate
  * other unique strings.
  *
- * @param iterator  An Iterator that stores the list of keys for the ArrayVar. This is used in the ArrayCmd class for the
- *  *      * anymore, donesearch, and nextelement functions.
- * @param str   The unique searchId string
+ * @param iterator An Iterator that stores the list of keys for the ArrayVar. This is used in the
+ *     ArrayCmd class for the * * anymore, donesearch, and nextelement functions.
+ * @param str The unique searchId string
  * @param index Unique index used for generating unique searchId strings
  */
 public record SearchId(Iterator<Map.Entry<String, Var>> iterator, String str, int index) {
-    /**
-     * Return the str that is the unique identifier of the SearchId
-     */
-    public String toString() {
-        return str;
-    }
+  /** Return the str that is the unique identifier of the SearchId */
+  public String toString() {
+    return str;
+  }
 }

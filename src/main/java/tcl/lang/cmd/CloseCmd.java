@@ -25,7 +25,7 @@ import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
 
 /** This class implements the built-in "close" command in Tcl. */
-public final class CloseCmd implements Command {
+public record CloseCmd() implements Command {
   /**
    * This procedure is invoked to process the "close" Tcl command. See the user documentation for
    * details on what it does.

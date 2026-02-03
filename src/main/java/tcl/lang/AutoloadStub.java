@@ -9,57 +9,58 @@ import tcl.lang.model.TclObject;
  * reduces Jacl start up time and, when running Jacl off a web page, reduces download time
  * significantly.
  *
- * I.e. a stub command which autoloads the real command the first time the stub command is invoked.
+ * <p>I.e. a stub command which autoloads the real command the first time the stub command is
+ * invoked.
  *
  * @param className name of the Java class that implements this command, e.g. "tcl.lang.AfterCmd"
  */
 public record AutoloadStub(String className) implements Command {
-    /**
-     * Load the class that implements the given command and execute it.
-     *
-     * @param interp the current interpreter.
-     * @param objv   command arguments.
-     * @throws TclException if error happens inside the real command proc.
-     */
-    @Override
-    public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
-        Command cmd = load(interp, objv[0].toString());
-        // don't call via WrappedCommand.invoke() because this cmdProc was already
-        // called with invoke
-        cmd.cmdProc(interp, objv);
+  /**
+   * Load the class that implements the given command and execute it.
+   *
+   * @param interp the current interpreter.
+   * @param objv command arguments.
+   * @throws TclException if error happens inside the real command proc.
+   */
+  @Override
+  public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
+    Command cmd = load(interp, objv[0].toString());
+    // don't call via WrappedCommand.invoke() because this cmdProc was already
+    // called with invoke
+    cmd.cmdProc(interp, objv);
+  }
+
+  /**
+   * Load the class that implements the given command, create the command in the interpreter, and
+   * return. This helper method is provided so to handle the case where a command wants to create a
+   * stub command without executing it. The qname argument should be the fully qualified name of the
+   * command.
+   */
+  public Command load(Interp interp, String qname) throws TclException {
+    Class<?> cmdClass = null;
+    Command cmd;
+
+    try {
+      TclClassLoader classLoader = interp.getClassLoader();
+      cmdClass = classLoader.loadClass(className());
+    } catch (ClassNotFoundException e) {
+      throw new TclException(interp, "ClassNotFoundException for class \"" + className() + "\"");
+    } catch (PackageNameException e) {
+      throw new TclException(interp, "PackageNameException for class \"" + className() + "\"");
     }
 
-    /**
-     * Load the class that implements the given command, create the command in the interpreter, and
-     * return. This helper method is provided so to handle the case where a command wants to create a
-     * stub command without executing it. The qname argument should be the fully qualified name of the
-     * command.
-     */
-    public Command load(Interp interp, String qname) throws TclException {
-        Class<?> cmdClass = null;
-        Command cmd;
-
-        try {
-            TclClassLoader classLoader = interp.getClassLoader();
-            cmdClass = classLoader.loadClass(className());
-        } catch (ClassNotFoundException e) {
-            throw new TclException(interp, "ClassNotFoundException for class \"" + className() + "\"");
-        } catch (PackageNameException e) {
-            throw new TclException(interp, "PackageNameException for class \"" + className() + "\"");
-        }
-
-        try {
-            cmd = (Command) cmdClass.newInstance();
-        } catch (IllegalAccessException e1) {
-            throw new TclException(
-                    interp, "IllegalAccessException for class \"" + cmdClass.getName() + "\"");
-        } catch (InstantiationException e2) {
-            throw new TclException(
-                    interp, "InstantiationException for class \"" + cmdClass.getName() + "\"");
-        } catch (ClassCastException e3) {
-            throw new TclException(interp, "ClassCastException for class \"" + cmdClass.getName() + "\"");
-        }
-        interp.createCommand(qname, cmd);
-        return cmd;
+    try {
+      cmd = (Command) cmdClass.newInstance();
+    } catch (IllegalAccessException e1) {
+      throw new TclException(
+          interp, "IllegalAccessException for class \"" + cmdClass.getName() + "\"");
+    } catch (InstantiationException e2) {
+      throw new TclException(
+          interp, "InstantiationException for class \"" + cmdClass.getName() + "\"");
+    } catch (ClassCastException e3) {
+      throw new TclException(interp, "ClassCastException for class \"" + cmdClass.getName() + "\"");
     }
+    interp.createCommand(qname, cmd);
+    return cmd;
+  }
 }

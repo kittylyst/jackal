@@ -355,28 +355,28 @@ public class Interp extends EventuallyFreed {
     return out;
   }
 
-    public static HashMap getTclLibraryScripts() {
-        return tclLibraryScripts;
-    }
+  public static HashMap getTclLibraryScripts() {
+    return tclLibraryScripts;
+  }
 
-    public static void setTclLibraryScripts(HashMap tclLibraryScripts) {
-        Interp.tclLibraryScripts = tclLibraryScripts;
-    }
+  public static void setTclLibraryScripts(HashMap tclLibraryScripts) {
+    Interp.tclLibraryScripts = tclLibraryScripts;
+  }
 
-    /**
-     * Using System.in directly creates non-interruptible block during System.in.read(). This instance
-     * prevents the read() block. The first instance created will replace System.in with itself, so
-     * code doesn't have to use this instance directly.
-     */
-    public static ManagedSystemInStream getSystemIn() {
-        return systemIn;
-    }
+  /**
+   * Using System.in directly creates non-interruptible block during System.in.read(). This instance
+   * prevents the read() block. The first instance created will replace System.in with itself, so
+   * code doesn't have to use this instance directly.
+   */
+  public static ManagedSystemInStream getSystemIn() {
+    return systemIn;
+  }
 
-    public static void setSystemIn(ManagedSystemInStream systemIn) {
-        Interp.systemIn = systemIn;
-    }
+  public static void setSystemIn(ManagedSystemInStream systemIn) {
+    Interp.systemIn = systemIn;
+  }
 
-    private void init() {
+  private void init() {
     // freeProc = null;
     setErrorLine(0);
 
@@ -3014,7 +3014,8 @@ public class Interp extends EventuallyFreed {
   /**
    * The script file currently under execution. Can be null if the interpreter is not evaluating any
    * script file.
-   */ /**
+   */
+  /**
    * Returns the name of the script file currently under execution.
    *
    * @return the name of the script file currently under execution.
@@ -3750,131 +3751,132 @@ public class Interp extends EventuallyFreed {
     this.errorLine = errorLine;
   }
 
-    /**
-     * Number of reflect objects created so far inside this Interp (including those that have be
-     * freed)
-     */
-    public long getReflectObjCount() {
-        return reflectObjCount;
-    }
+  /**
+   * Number of reflect objects created so far inside this Interp (including those that have be
+   * freed)
+   */
+  public long getReflectObjCount() {
+    return reflectObjCount;
+  }
 
-    /** Total number of times a command procedure has been called for this interpreter. */
-    public int getCmdCount() {
-        return cmdCount;
-    }
+  /** Total number of times a command procedure has been called for this interpreter. */
+  public int getCmdCount() {
+    return cmdCount;
+  }
 
-    public void setCmdCount(int cmdCount) {
-        this.cmdCount = cmdCount;
-    }
+  public void setCmdCount(int cmdCount) {
+    this.cmdCount = cmdCount;
+  }
 
-    /** Table of channels currently registered in this interp. */
-    public Map<String, Channel> getInterpChanTable() {
-        return interpChanTable;
-    }
+  /** Table of channels currently registered in this interp. */
+  public Map<String, Channel> getInterpChanTable() {
+    return interpChanTable;
+  }
 
-    public void setInterpChanTable(Map<String, Channel> interpChanTable) {
-        this.interpChanTable = interpChanTable;
-    }
+  public void setInterpChanTable(Map<String, Channel> interpChanTable) {
+    this.interpChanTable = interpChanTable;
+  }
 
-    /**
-     * Points to the call frame whose variables are currently in use (same as frame unless an
-     * "uplevel" command is being executed). null means no procedure is active or "uplevel 0" is being
-     * exec'ed.
-     */
-    public CallFrame getVarFrame() {
-        return varFrame;
-    }
+  /**
+   * Points to the call frame whose variables are currently in use (same as frame unless an
+   * "uplevel" command is being executed). null means no procedure is active or "uplevel 0" is being
+   * exec'ed.
+   */
+  public CallFrame getVarFrame() {
+    return varFrame;
+  }
 
-    public void setVarFrame(CallFrame varFrame) {
-        this.varFrame = varFrame;
-    }
+  public void setVarFrame(CallFrame varFrame) {
+    this.varFrame = varFrame;
+  }
 
-    /** The interpreter's global namespace. */
-    public Namespace getGlobalNs() {
-        return globalNs;
-    }
+  /** The interpreter's global namespace. */
+  public Namespace getGlobalNs() {
+    return globalNs;
+  }
 
-    public void setGlobalNs(Namespace globalNs) {
-        this.globalNs = globalNs;
-    }
+  public void setGlobalNs(Namespace globalNs) {
+    this.globalNs = globalNs;
+  }
 
-    /** Information necessary for this interp to function as a slave. */
-    public InterpSlaveCmd getSlave() {
-        return slave;
-    }
+  /** Information necessary for this interp to function as a slave. */
+  public InterpSlaveCmd getSlave() {
+    return slave;
+  }
 
-    public void setSlave(InterpSlaveCmd slave) {
-        this.slave = slave;
-    }
+  public void setSlave(InterpSlaveCmd slave) {
+    this.slave = slave;
+  }
 
-    public void setScriptFile(String scriptFile) {
-        this.scriptFile = scriptFile;
-    }
+  public void setScriptFile(String scriptFile) {
+    this.scriptFile = scriptFile;
+  }
 
-    /** Number of times the interp.eval() routine has been recursively invoked. */
-    public int getNestLevel() {
-        return nestLevel;
-    }
+  /** Number of times the interp.eval() routine has been recursively invoked. */
+  public int getNestLevel() {
+    return nestLevel;
+  }
 
-    public void setNestLevel(int nestLevel) {
-        this.nestLevel = nestLevel;
-    }
+  public void setNestLevel(int nestLevel) {
+    this.nestLevel = nestLevel;
+  }
 
-    /** Flags used when evaluating a command. */
-    public int getEvalFlags() {
-        return evalFlags;
-    }
+  /** Flags used when evaluating a command. */
+  public int getEvalFlags() {
+    return evalFlags;
+  }
 
-    public void setEvalFlags(int evalFlags) {
-        this.evalFlags = evalFlags;
-    }
+  public void setEvalFlags(int evalFlags) {
+    this.evalFlags = evalFlags;
+  }
 
-    /** Flags used when evaluating a command. */
-    public int getFlags() {
-        return flags;
-    }
+  /** Flags used when evaluating a command. */
+  public int getFlags() {
+    return flags;
+  }
 
-    public void setFlags(int flags) {
-        this.flags = flags;
-    }
+  public void setFlags(int flags) {
+    this.flags = flags;
+  }
 
-    public void setClassLoader(TclClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
+  public void setClassLoader(TclClassLoader classLoader) {
+    this.classLoader = classLoader;
+  }
 
-    /** List of WrappedCommands that currently have active execution step traces */
-    public ArrayList<WrappedCommand> getActiveExecutionStepTraces() {
-        return activeExecutionStepTraces;
-    }
+  /** List of WrappedCommands that currently have active execution step traces */
+  public ArrayList<WrappedCommand> getActiveExecutionStepTraces() {
+    return activeExecutionStepTraces;
+  }
 
-    public void setActiveExecutionStepTraces(ArrayList<WrappedCommand> activeExecutionStepTraces) {
-        this.activeExecutionStepTraces = activeExecutionStepTraces;
-    }
+  public void setActiveExecutionStepTraces(ArrayList<WrappedCommand> activeExecutionStepTraces) {
+    this.activeExecutionStepTraces = activeExecutionStepTraces;
+  }
 
-    /** Set to true to enable step tracing, if any exist */
-    public boolean isStepTracingEnabled() {
-        return stepTracingEnabled;
-    }
+  /** Set to true to enable step tracing, if any exist */
+  public boolean isStepTracingEnabled() {
+    return stepTracingEnabled;
+  }
 
-    public void setStepTracingEnabled(boolean stepTracingEnabled) {
-        this.stepTracingEnabled = stepTracingEnabled;
-    }
+  public void setStepTracingEnabled(boolean stepTracingEnabled) {
+    this.stepTracingEnabled = stepTracingEnabled;
+  }
 
-    public String registerReflectObj(ReflectObject roRep) {
-        var newId = reflectObjCount + 1;
-        reflectObjCount = newId;
-        var out = ReflectObject.CMD_PREFIX + Long.toHexString(newId);
-        createCommand(out, roRep);
+  public String registerReflectObj(ReflectObject roRep) {
+    var newId = reflectObjCount + 1;
+    reflectObjCount = newId;
+    var out = ReflectObject.CMD_PREFIX + Long.toHexString(newId);
+    createCommand(out, roRep);
 
-        //      interp.setReflectObjCount(interp.getReflectObjCount() + 1); // incr id, the first id used will be 1
-//      roRep.refID = CMD_PREFIX + Long.toHexString(interp.getReflectObjCount());
-//
-//      interp.createCommand(roRep.refID, roRep);
+    //      interp.setReflectObjCount(interp.getReflectObjCount() + 1); // incr id, the first id
+    // used will be 1
+    //      roRep.refID = CMD_PREFIX + Long.toHexString(interp.getReflectObjCount());
+    //
+    //      interp.createCommand(roRep.refID, roRep);
 
-        return out;
-    }
+    return out;
+  }
 
-    public record ResolverScheme(String name, Resolver resolver) {}
+  public record ResolverScheme(String name, Resolver resolver) {}
 
   /**
    * ----------------------------------------------------------------------

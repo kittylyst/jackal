@@ -779,8 +779,8 @@ public final class TclClassLoader extends ClassLoader {
   }
 
   /**
-   * Remove the given className from the internal cache. The cache could contain the key in the
-   * case where the load worked but the object could not be instantiated.
+   * Remove the given className from the internal cache. The cache could contain the key in the case
+   * where the load worked but the object could not be instantiated.
    *
    * <p>Results: |>None.<|
    *

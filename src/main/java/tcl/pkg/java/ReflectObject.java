@@ -547,11 +547,12 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
       }
 
       // Register the object in the interp.
-        roRep.refID = interp.registerReflectObj(roRep);
-//      interp.setReflectObjCount(interp.getReflectObjCount() + 1); // incr id, the first id used will be 1
-//      roRep.refID = CMD_PREFIX + Long.toHexString(interp.getReflectObjCount());
-//
-//      interp.createCommand(roRep.refID, roRep);
+      roRep.refID = interp.registerReflectObj(roRep);
+      //      interp.setReflectObjCount(interp.getReflectObjCount() + 1); // incr id, the first id
+      // used will be 1
+      //      roRep.refID = CMD_PREFIX + Long.toHexString(interp.getReflectObjCount());
+      //
+      //      interp.createCommand(roRep.refID, roRep);
       addToReflectTable(roRep);
 
       if (debug) {

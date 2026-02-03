@@ -1011,7 +1011,9 @@ public final class InfoCmd implements Command {
 
     list = TclList.newInstance();
 
-    if ((interp.getVarFrame() == null) || !interp.getVarFrame().isProcCallFrame() || specificNsInPattern) {
+    if ((interp.getVarFrame() == null)
+        || !interp.getVarFrame().isProcCallFrame()
+        || specificNsInPattern) {
       // There is no frame pointer, the frame pointer was pushed only
       // to activate a namespace, or we are in a procedure call frame
       // but a specific namespace was specified. Create a list containing

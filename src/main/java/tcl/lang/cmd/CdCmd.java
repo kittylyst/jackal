@@ -24,8 +24,7 @@ import tcl.lang.exception.TclNumArgsException;
 import tcl.lang.model.TclObject;
 
 // This class implements the built-in "cd" command in Tcl.
-
-public final class CdCmd implements Command {
+public record CdCmd() implements Command {
 
   /*
    * --------------------------------------------------------------------------
