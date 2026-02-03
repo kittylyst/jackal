@@ -3020,7 +3020,7 @@ public class Interp extends EventuallyFreed {
    * @return the name of the script file currently under execution.
    */
   public String getScriptFile() {
-    return dbg.fileName;
+    return scriptFile;
   }
 
   /**
