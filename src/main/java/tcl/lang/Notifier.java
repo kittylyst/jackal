@@ -17,6 +17,11 @@ package tcl.lang;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import tcl.lang.exception.TclInterruptedException;
 import tcl.lang.exception.TclRuntimeError;
 
@@ -40,17 +45,20 @@ public class Notifier implements EventDeleter {
   /** timeout for doOneEvent wait() */
   private static final long PAUSE_WAIT = 100L;
 
-  /** First pending event, or null if none. */
-  private TclEvent firstEvent;
+  /** Events before the marker (HEAD only, LIFO). Processed first. */
+  private final LinkedBlockingDeque<TclEvent> eventQueue = new LinkedBlockingDeque<>();
 
-  /** Last pending event, or null if none. */
-  private TclEvent lastEvent;
-
-  /** Last high-priority event in queue, or null if none. */
-  private TclEvent markerEvent;
+  /** Events at or after the marker (MARK then TAIL, FIFO). */
+  private final LinkedBlockingDeque<TclEvent> markerQueue = new LinkedBlockingDeque<>();
 
   /** Event that was just processed by serviceEvent */
   private TclEvent servicedEvent = null;
+
+  /** Lock for queue access and wait/signal. */
+  private final ReentrantLock waitLock = new ReentrantLock();
+
+  /** Condition for doOneEvent to wait on. */
+  private final Condition waitCondition = waitLock.newCondition();
 
   /**
    * The primary thread of this notifier. Only this thread should process events from the event
@@ -91,9 +99,6 @@ public class Notifier implements EventDeleter {
       throw new NullPointerException("primaryThread");
     }
     this.primaryThread = primaryThread;
-    firstEvent = null;
-    lastEvent = null;
-    markerEvent = null;
 
     timerList = new ArrayList<TimerHandler>();
     timerGeneration = 0;
@@ -163,7 +168,7 @@ public class Notifier implements EventDeleter {
    * @param evt the event to be put on the queue
    * @param position one of TCL.QUEUE_TAIL, TCL.QUEUE_HEAD or TCL.QUEUE_MARK.
    */
-  public synchronized void queueEvent(TclEvent evt, int position) {
+  public void queueEvent(TclEvent evt, int position) {
     if (primaryThread == null) {
       // queueEvent() invoked after the Notifier has been
       // released. This could happen if this method was
@@ -176,51 +181,39 @@ public class Notifier implements EventDeleter {
 
     evt.setNotifier(this);
 
-    if (position == TCL.QUEUE_TAIL) {
-      // Append the event on the end of the queue.
-
-      evt.setNext(null);
-
-      if (firstEvent == null) {
-        firstEvent = evt;
+    waitLock.lock();
+    try {
+      if (position == TCL.QUEUE_TAIL) {
+        markerQueue.addLast(evt);
+      } else if (position == TCL.QUEUE_HEAD) {
+        eventQueue.addFirst(evt);
+      } else if (position == TCL.QUEUE_MARK) {
+        markerQueue.addFirst(evt);
       } else {
-        lastEvent.setNext(evt);
+        throw new TclRuntimeError(
+            "wrong position \""
+                + position
+                + "\", must be TCL.QUEUE_HEAD, TCL.QUEUE_TAIL or TCL.QUEUE_MARK");
       }
-      lastEvent = evt;
-    } else if (position == TCL.QUEUE_HEAD) {
-      // Push the event on the head of the queue.
 
-      evt.setNext(firstEvent);
-      if (firstEvent == null) {
-        lastEvent = evt;
+      if (Thread.currentThread() != primaryThread) {
+        waitCondition.signalAll();
       }
-      firstEvent = evt;
-    } else if (position == TCL.QUEUE_MARK) {
-      // Insert the event after the current marker event and advance
-      // the marker to the new event.
-
-      if (markerEvent == null) {
-        evt.setNext(firstEvent);
-        firstEvent = evt;
-      } else {
-        evt.setNext(markerEvent.getNext());
-        markerEvent.setNext(evt);
-      }
-      markerEvent = evt;
-      if (evt.getNext() == null) {
-        lastEvent = evt;
-      }
-    } else {
-      // Wrong flag.
-
-      throw new TclRuntimeError(
-          "wrong position \""
-              + position
-              + "\", must be TCL.QUEUE_HEAD, TCL.QUEUE_TAIL or TCL.QUEUE_MARK");
+    } finally {
+      waitLock.unlock();
     }
+  }
 
-    if (Thread.currentThread() != primaryThread) {
-      notifyAll();
+  /**
+   * Wakes threads waiting in doOneEvent. Called from queueEvent (non-primary thread), TimerHandler
+   * constructor, and IdleHandler.register().
+   */
+  public void signalWaiters() {
+    waitLock.lock();
+    try {
+      waitCondition.signalAll();
+    } finally {
+      waitLock.unlock();
     }
   }
 
@@ -236,43 +229,44 @@ public class Notifier implements EventDeleter {
    *
    * @param deleter the deleter that checks whether an event should be removed
    */
-  public synchronized void deleteEvents(EventDeleter deleter) {
-    TclEvent evt, prev;
-    TclEvent servicedEvent = null;
+  public void deleteEvents(EventDeleter deleter) {
+    TclEvent toRemove = null;
 
-    // Handle the special case of deletion of a single event that was just
-    // processed by the serviceEvent() method.
-
-    if (deleter == this) {
-      servicedEvent = this.servicedEvent;
-      if (servicedEvent == null)
-        throw new TclRuntimeError("servicedEvent was not set by serviceEvent()");
-      this.servicedEvent = null;
-    }
-
-    for (prev = null, evt = firstEvent; evt != null; evt = evt.getNext()) {
-      if (((servicedEvent == null) && (deleter.deleteEvent(evt) == 1)) || (evt == servicedEvent)) {
-        if (evt == firstEvent) {
-          firstEvent = evt.getNext();
-        } else {
-          prev.setNext(evt.getNext());
+    waitLock.lock();
+    try {
+      // Handle the special case of deletion of a single event that was just
+      // processed by the serviceEvent() method.
+      if (deleter == this) {
+        toRemove = this.servicedEvent;
+        if (toRemove == null) {
+          throw new TclRuntimeError("servicedEvent was not set by serviceEvent()");
         }
-        if (evt.getNext() == null) {
-          lastEvent = prev;
-        }
-        if (evt == markerEvent) {
-          markerEvent = prev;
-        }
-        if (evt == servicedEvent) {
-          servicedEvent = null;
-          break; // Just service this one event in the special case
-        }
-      } else {
-        prev = evt;
+        this.servicedEvent = null;
       }
-    }
-    if (servicedEvent != null) {
-      throw new TclRuntimeError("servicedEvent was not removed from the queue");
+
+      boolean removed = false;
+      if (toRemove != null) {
+        removed = eventQueue.remove(toRemove) || markerQueue.remove(toRemove);
+        if (!removed) {
+          throw new TclRuntimeError("servicedEvent was not removed from the queue");
+        }
+        return;
+      }
+
+      for (Iterator<TclEvent> it = eventQueue.iterator(); it.hasNext(); ) {
+        TclEvent evt = it.next();
+        if (deleter.deleteEvent(evt) == 1) {
+          it.remove();
+        }
+      }
+      for (Iterator<TclEvent> it = markerQueue.iterator(); it.hasNext(); ) {
+        TclEvent evt = it.next();
+        if (deleter.deleteEvent(evt) == 1) {
+          it.remove();
+        }
+      }
+    } finally {
+      waitLock.unlock();
     }
   }
 
@@ -387,23 +381,23 @@ public class Notifier implements EventDeleter {
    * ----------------------------------------------------------------------
    */
 
-  private synchronized TclEvent getAvailableEvent(TclEvent skipEvent) // Indicates
-        // that
-        // the
-        // given
-        // event
-        // should
-        // not
-        // be returned. This argument can be null.
-      {
-    TclEvent evt;
-
-    for (evt = firstEvent; evt != null; evt = evt.getNext()) {
-      if ((evt.isProcessing() == false) && (evt.isProcessed() == false) && (evt != skipEvent)) {
-        return evt;
+  private TclEvent getAvailableEvent(TclEvent skipEvent) {
+    waitLock.lock();
+    try {
+      for (TclEvent evt : eventQueue) {
+        if (!evt.isProcessing() && !evt.isProcessed() && evt != skipEvent) {
+          return evt;
+        }
       }
+      for (TclEvent evt : markerQueue) {
+        if (!evt.isProcessing() && !evt.isProcessed() && evt != skipEvent) {
+          return evt;
+        }
+      }
+      return null;
+    } finally {
+      waitLock.unlock();
     }
-    return null;
   }
 
   /**
@@ -423,8 +417,6 @@ public class Notifier implements EventDeleter {
    *     handlers to wait for in the set specified by flags).
    */
   public int doOneEvent(int flags) {
-    final boolean debug = false;
-
     int result = 0;
 
     if (primaryThread == null) {
@@ -512,25 +504,28 @@ public class Notifier implements EventDeleter {
       //
 
       try {
-        // Don't acquire the monitor until we are about to wait
-        // for notification from another thread. It is critical
-        // that this entire method not be synchronized since
-        // a call to processEvent via serviceEvent could take
-        // a very long time. We don't want the monitor held
-        // during that time since that would force calls to
-        // queueEvent in other threads to wait.
-
-        synchronized (this) {
+        // Don't acquire the lock until we are about to wait for notification.
+        // It is critical that this entire method not hold the lock during
+        // processEvent, since that could take a very long time and would
+        // block queueEvent in other threads.
+        waitLock.lock();
+        try {
+          long waitTime;
           if (timerList.size() > 0) {
             TimerHandler h = (TimerHandler) timerList.get(0);
-            long waitTime = h.atTime - sysTime;
+            waitTime = h.atTime - sysTime;
             if (waitTime > 0) {
-              wait(waitTime < PAUSE_WAIT ? waitTime : PAUSE_WAIT);
+              waitTime = waitTime < PAUSE_WAIT ? waitTime : PAUSE_WAIT;
+            } else {
+              waitTime = PAUSE_WAIT;
             }
           } else {
-            wait(PAUSE_WAIT);
+            waitTime = PAUSE_WAIT;
           }
-        } // synchronized (this)
+          waitCondition.await(waitTime, TimeUnit.MILLISECONDS);
+        } finally {
+          waitLock.unlock();
+        }
       } catch (InterruptedException e) {
         // We ignore any InterruptedException and loop continuously
         // until we receive an event.

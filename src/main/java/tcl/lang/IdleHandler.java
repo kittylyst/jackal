@@ -56,7 +56,7 @@ public abstract class IdleHandler {
       getNotifier().idleList.add(this);
       setGeneration(getNotifier().idleGeneration);
       if (Thread.currentThread() != getNotifier().primaryThread) {
-        getNotifier().notifyAll();
+        getNotifier().signalWaiters();
       }
     }
   }

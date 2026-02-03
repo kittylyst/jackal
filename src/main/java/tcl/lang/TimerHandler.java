@@ -70,7 +70,7 @@ public abstract sealed class TimerHandler
       notifier.timerList.add(i, this);
 
       if (Thread.currentThread() != notifier.primaryThread) {
-        notifier.notifyAll();
+        notifier.signalWaiters();
       }
     }
   }
