@@ -36,6 +36,11 @@ import javax.script.*;
 
 public class JtclScriptEngineFactory implements ScriptEngineFactory {
 
+  private static final List<String> names = List.of("tcl", "jtcl", "Tcl", "JTcl", "Jtcl");
+  private static final List<String> extensions = List.of("tcl", "jtcl");
+  private static final List<String> mimeTypes =
+      List.of("application/tcl", "application/jtcl", "application/x-tcl", "application/x-jtcl");
+
   public String getEngineName() {
     return "JTcl";
   }
@@ -116,22 +121,5 @@ public class JtclScriptEngineFactory implements ScriptEngineFactory {
     JtclScriptEngine engine = new JtclScriptEngine();
     engine.setFactory(this);
     return engine;
-  }
-
-  private static List<String> names;
-  private static List<String> extensions;
-  private static List<String> mimeTypes;
-
-  static {
-    names =
-        Collections.unmodifiableList(
-            Arrays.asList(new String[] {"tcl", "jtcl", "Tcl", "JTcl", "Jtcl"}));
-    extensions = Collections.unmodifiableList(Arrays.asList(new String[] {"tcl", "jtcl"}));
-    mimeTypes =
-        Collections.unmodifiableList(
-            Arrays.asList(
-                new String[] {
-                  "application/tcl", "application/jtcl", "application/x-tcl", "application/x-jtcl"
-                }));
   }
 }

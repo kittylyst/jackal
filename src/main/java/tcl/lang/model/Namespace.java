@@ -208,10 +208,10 @@ public final class Namespace {
    * @return a reference to the interpreter's current namespace
    */
   public static Namespace getCurrentNamespace(Interp interp) {
-    if (interp.varFrame != null) {
-      return interp.varFrame.getNs();
+    if (interp.getVarFrame() != null) {
+      return interp.getVarFrame().getNs();
     } else {
-      return interp.globalNs;
+      return interp.getGlobalNs();
     }
   }
 
@@ -222,7 +222,7 @@ public final class Namespace {
    * @return a reference to the interpreter's current namespace
    */
   public static Namespace getGlobalNamespace(Interp interp) {
-    return interp.globalNs;
+    return interp.getGlobalNs();
   }
 
   /*
@@ -285,10 +285,10 @@ public final class Namespace {
     }
 
     frame.setCaller(interp.getFrame());
-    frame.setCallerVar(interp.varFrame);
+    frame.setCallerVar(interp.getVarFrame());
 
-    if (interp.varFrame != null) {
-      frame.setLevel((interp.varFrame.getLevel() + 1));
+    if (interp.getVarFrame() != null) {
+      frame.setLevel((interp.getVarFrame().getLevel() + 1));
     } else {
       frame.setLevel(1);
     }
@@ -304,7 +304,7 @@ public final class Namespace {
     // call frames making it the current frame.
 
     interp.setFrame(frame);
-    interp.varFrame = frame;
+    interp.setVarFrame(frame);
   }
 
   /*
@@ -335,7 +335,7 @@ public final class Namespace {
     // frame.
 
     interp.setFrame(frame.getCaller());
-    interp.varFrame = frame.getCallerVar();
+    interp.setVarFrame(frame.getCallerVar());
 
     // Delete the local variables. As a hack, we save then restore the
     // ERR_IN_PROGRESS flag in the interpreter. The problem is that there
@@ -348,14 +348,14 @@ public final class Namespace {
     // What's really needed is a general-purpose mechanism for saving and
     // restoring interpreter state.
 
-    saveErrFlag = (interp.flags & Parser.ERR_IN_PROGRESS);
+    saveErrFlag = (interp.getFlags() & Parser.ERR_IN_PROGRESS);
 
     if (frame.getVarTable() != null) {
       Var.deleteVars(interp, frame.getVarTable());
       frame.setVarTable(null);
     }
 
-    interp.flags |= saveErrFlag;
+    interp.setFlags(interp.getFlags() | saveErrFlag);
 
     // Decrement the namespace's count of active call frames. If the
     // namespace is "dying" and there are no more active call frames,
@@ -393,7 +393,7 @@ public final class Namespace {
     // If there is no active namespace, the interpreter is being
     // initialized.
 
-    if ((globalNs == null) && (interp.varFrame == null)) {
+    if ((globalNs == null) && (interp.getVarFrame() == null)) {
       // Treat this namespace as the global namespace, and avoid
       // looking for a parent.
 
@@ -547,7 +547,7 @@ public final class Namespace {
 
       teardownNamespace(ns);
 
-      if ((ns != globalNs) || ((interp.flags & Parser.DELETED) != 0)) {
+      if ((ns != globalNs) || ((interp.getFlags() & Parser.DELETED) != 0)) {
         // If this is the global namespace, then it may have residual
         // "errorInfo" and "errorCode" variables for errors that
         // occurred while it was being torn down. Try to clear the
@@ -1008,7 +1008,7 @@ public final class Namespace {
 
           ds = new StringBuffer();
           ds.append(ns.fullName);
-          if (ns != interp.globalNs) {
+          if (ns != interp.getGlobalNs()) {
             ds.append("::");
           }
           ds.append(cmdName);
@@ -1428,10 +1428,10 @@ public final class Namespace {
     if ((flags & TCL.GLOBAL_ONLY) != 0) {
       ns = globalNs;
     } else if (ns == null) {
-      if (interp.varFrame != null) {
-        ns = interp.varFrame.getNs();
+      if (interp.getVarFrame() != null) {
+        ns = interp.getVarFrame().getNs();
       } else {
-        ns = interp.globalNs;
+        ns = interp.getGlobalNs();
       }
     }
 

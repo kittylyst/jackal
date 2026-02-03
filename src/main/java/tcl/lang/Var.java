@@ -457,7 +457,7 @@ public class Var {
       boolean createPart1,
       boolean createPart2)
       throws TclException {
-    CallFrame varFrame = interp.varFrame;
+    CallFrame varFrame = interp.getVarFrame();
     // Reference to the procedure call frame whose
     // variables are currently in use. Same as
     // the current procedure's frame, if any,
@@ -509,10 +509,10 @@ public class Var {
     // value, it may signal to continue onward, or it may signal
     // an error.
 
-    if (((flags & TCL.GLOBAL_ONLY) != 0) || (interp.varFrame == null)) {
-      cxtNs = interp.globalNs;
+    if (((flags & TCL.GLOBAL_ONLY) != 0) || (interp.getVarFrame() == null)) {
+      cxtNs = interp.getGlobalNs();
     } else {
-      cxtNs = interp.varFrame.getNs();
+      cxtNs = interp.getVarFrame().getNs();
     }
 
     if (cxtNs.resolver != null || interp.getResolvers() != null) {
@@ -1141,7 +1141,7 @@ public class Var {
     final boolean validate = false;
 
     if (validate) {
-      CallFrame varFrame = interp.varFrame;
+      CallFrame varFrame = interp.getVarFrame();
 
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
@@ -1260,7 +1260,7 @@ public class Var {
       // is only even invoked after a CallFrame with a compiled
       // local array has already been pushed onto the stack.
 
-      CallFrame varFrame = interp.varFrame;
+      CallFrame varFrame = interp.getVarFrame();
 
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
@@ -1319,7 +1319,7 @@ public class Var {
     final boolean validate = false;
 
     if (validate) {
-      CallFrame varFrame = interp.varFrame;
+      CallFrame varFrame = interp.getVarFrame();
 
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
@@ -1383,7 +1383,7 @@ public class Var {
       // is only even invoked after a CallFrame with a compiled
       // local array has already been pushed onto the stack.
 
-      CallFrame varFrame = interp.varFrame;
+      CallFrame varFrame = interp.getVarFrame();
 
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
@@ -1484,7 +1484,7 @@ public class Var {
       // is only even invoked after a CallFrame with a compiled
       // local array has already been pushed onto the stack.
 
-      CallFrame varFrame = interp.varFrame;
+      CallFrame varFrame = interp.getVarFrame();
 
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
@@ -1566,7 +1566,7 @@ public class Var {
     final boolean validate = false;
 
     if (validate) {
-      CallFrame varFrame = interp.varFrame;
+      CallFrame varFrame = interp.getVarFrame();
 
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
@@ -2109,8 +2109,8 @@ public class Var {
 
     try {
       if ((otherFlags & TCL.NAMESPACE_ONLY) == 0) {
-        savedFrame = interp.varFrame;
-        interp.varFrame = frame;
+        savedFrame = interp.getVarFrame();
+        interp.setVarFrame(frame);
       }
 
       // If the special EXPLICIT_LOCAL_NAME flag is passed, then
@@ -2127,7 +2127,7 @@ public class Var {
       // Reset interp.varFrame
 
       if ((otherFlags & TCL.NAMESPACE_ONLY) == 0) {
-        interp.varFrame = savedFrame;
+        interp.setVarFrame(savedFrame);
       }
     }
 
@@ -2168,7 +2168,7 @@ public class Var {
     // symbol table for runtime-created local variables. Create that
     // procedure's local variable table if necessary.
 
-    varFrame = interp.varFrame;
+    varFrame = interp.getVarFrame();
     if (((myFlags & (TCL.GLOBAL_ONLY | TCL.NAMESPACE_ONLY)) != 0)
         || (varFrame == null)
         || !varFrame.isProcCallFrame()
@@ -2377,7 +2377,7 @@ public class Var {
       if (!var.isVarArrayElement()) {
         if (var.ns != null) {
           buff.append(var.ns.fullName);
-          if (var.ns != interp.globalNs) {
+          if (var.ns != interp.getGlobalNs()) {
             buff.append("::");
           }
         }
@@ -2546,7 +2546,7 @@ public class Var {
     // Determine what flags to pass to the trace callback procedures.
 
     flags = TCL.TRACE_UNSETS;
-    if (table == interp.globalNs.getVarTable()) {
+    if (table == interp.getGlobalNs().getVarTable()) {
       flags |= (TCL.INTERP_DESTROYED | TCL.GLOBAL_ONLY);
     } else if (table == currNs.getVarTable()) {
       flags |= TCL.NAMESPACE_ONLY;
@@ -2862,7 +2862,7 @@ public class Var {
   // scope can be undefined, so ignore those.
 
   static void setUndefinedToNull(Interp interp, String part1, String part2) {
-    CallFrame varFrame = interp.varFrame;
+    CallFrame varFrame = interp.getVarFrame();
     if (varFrame == null) {
       return; // Invoked from global scope
     }
@@ -2911,7 +2911,7 @@ public class Var {
       throws TclException {
     Var var;
     String varName;
-    CallFrame frame = interp.varFrame;
+    CallFrame frame = interp.getVarFrame();
 
     HashMap<String, Var> localVarTable = frame.getVarTable();
     if (localVarTable != null) {

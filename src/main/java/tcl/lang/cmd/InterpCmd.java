@@ -185,7 +185,7 @@ public final class InterpCmd implements Command {
             if (slaveInterp == interp) {
               throw new TclException(interp, "cannot delete the current interpreter");
             }
-            InterpSlaveCmd slave = slaveInterp.slave;
+            InterpSlaveCmd slave = slaveInterp.getSlave();
             slave.masterInterp.deleteCommandFromToken(slave.interpCmd);
           }
           break;
@@ -409,14 +409,14 @@ public final class InterpCmd implements Command {
     if (targetInterp == askingInterp) {
       return true;
     }
-    if (targetInterp == null || targetInterp.slave == null) {
+    if (targetInterp == null || targetInterp.getSlave() == null) {
       return false;
     }
 
-    if (!getInterpPath(askingInterp, targetInterp.slave.masterInterp)) {
+    if (!getInterpPath(askingInterp, targetInterp.getSlave().masterInterp)) {
       return false;
     }
-    askingInterp.appendElement(targetInterp.slave.path);
+    askingInterp.appendElement(targetInterp.getSlave().path);
     return true;
   }
 

@@ -46,7 +46,7 @@ public final class TclClassLoader extends ClassLoader {
    * Different interpreters require different caches since the same class name could be loaded from
    * two different locations in different interps.
    */
-  private HashMap<String, Class<?>> class_cache = new HashMap<>();
+  private HashMap<String, Class<?>> cachedClasses = new HashMap<>();
 
   /**
    * Each instance can have a list of additional paths to search. This needs to be stored on a per
@@ -181,7 +181,7 @@ public final class TclClassLoader extends ClassLoader {
   public void dispose() {
     parent = null;
     interp = null;
-    class_cache = null;
+    cachedClasses = null;
   }
 
   /**
@@ -243,7 +243,7 @@ public final class TclClassLoader extends ClassLoader {
    *
    * @see java.lang.ClassLoader#loadClass(java.lang.String)
    */
-  public Class loadClass(String className) throws ClassNotFoundException, PackageNameException {
+  public Class<?> loadClass(String className) throws ClassNotFoundException, PackageNameException {
     return loadClass(className, true);
   }
 
@@ -258,7 +258,7 @@ public final class TclClassLoader extends ClassLoader {
    *
    * @see java.lang.ClassLoader#loadClass(java.lang.String, boolean)
    */
-  protected Class loadClass(String className, boolean resolveIt)
+  protected Class<?> loadClass(String className, boolean resolveIt)
       throws ClassNotFoundException, PackageNameException, SecurityException {
     Class<?> result; // The Class that is loaded.
     byte[] classData = null; // The bytes that compose the class file.
@@ -267,7 +267,7 @@ public final class TclClassLoader extends ClassLoader {
 
     // Check our local cache of classes
 
-    result = class_cache.get(className);
+    result = cachedClasses.get(className);
     if (result != null) {
       return result;
     }
@@ -277,27 +277,15 @@ public final class TclClassLoader extends ClassLoader {
     // class loader, or the TclClassLoader for a specific interp.
 
     try {
-
       result = Class.forName(className, resolveIt, parent);
 
       // Don't cache classes resolved by a parent class loader, we assume
-      // the
-      // parent will do any needed caching.
-
+      // the parent will do any needed caching.
       return result;
-    } catch (ClassNotFoundException e) {
-      if (printStack) {
-        e.printStackTrace(System.err);
-      }
-    } catch (IllegalArgumentException e) {
-      if (printStack) {
-        e.printStackTrace(System.err);
-      }
-    } catch (NoClassDefFoundError e) {
-      if (printStack) {
-        e.printStackTrace(System.err);
-      }
-    } catch (IncompatibleClassChangeError e) {
+    } catch (ClassNotFoundException
+        | IllegalArgumentException
+        | NoClassDefFoundError
+        | IncompatibleClassChangeError e) {
       if (printStack) {
         e.printStackTrace(System.err);
       }
@@ -346,9 +334,7 @@ public final class TclClassLoader extends ClassLoader {
     // because Sun seems to have changed the Spec for JDK 1.2
     try {
       result = defineClass(className, classData, 0, classData.length);
-    } catch (NoClassDefFoundError err) {
-      throw new ClassFormatError();
-    } catch (ClassFormatError err) {
+    } catch (NoClassDefFoundError | ClassFormatError err) {
       // This exception can be generated when the className argument
       // does not match the actual name of the class. For instance
       // if we try to define Test.class with data from tester/Test.class
@@ -384,8 +370,7 @@ public final class TclClassLoader extends ClassLoader {
     }
 
     // Store it in our local cache
-
-    class_cache.put(className, result);
+    cachedClasses.put(className, result);
 
     return result;
   }
@@ -504,8 +489,8 @@ public final class TclClassLoader extends ClassLoader {
    * @param classData Binary data of the class structure.
    * @return A Class object or null if it could not be defined.
    */
-  public Class defineClass(String className, byte[] classData) {
-    Class result = null; // The Class object defined by classData.
+  public Class<?> defineClass(String className, byte[] classData) {
+    Class<?> result = null; // The Class object defined by classData.
 
     // Create a class from the array of bytes
 
@@ -538,7 +523,7 @@ public final class TclClassLoader extends ClassLoader {
       // If a class was created, then store the class
       // in the loaders cache.
 
-      class_cache.put(className, result);
+      cachedClasses.put(className, result);
     }
 
     return (result);
@@ -794,7 +779,8 @@ public final class TclClassLoader extends ClassLoader {
   }
 
   /**
-   * Remove the given className from the internal cache.
+   * Remove the given className from the internal cache. The cache could contain the key in the
+   * case where the load worked but the object could not be instantiated.
    *
    * <p>Results: |>None.<|
    *
@@ -803,10 +789,7 @@ public final class TclClassLoader extends ClassLoader {
    * @param className
    */
   public void removeCache(String className) {
-    // The cache could contain the key in the case where the load
-    // worked but the object could not be instantiated.
-
-    class_cache.remove(className);
+    cachedClasses.remove(className);
   }
 
   /**

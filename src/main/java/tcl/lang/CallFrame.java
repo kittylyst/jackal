@@ -56,7 +56,7 @@ public final class CallFrame {
    */
   public CallFrame(Interp i) {
     setInterp(i);
-    setNs(i.globalNs);
+    setNs(i.getGlobalNs());
     caller = null;
     callerVar = null;
     objv = null;
@@ -102,11 +102,11 @@ public final class CallFrame {
     this.setNs(proc.wcmd.getNs());
     this.setObjv(objv);
     // FIXME : quick level hack : fix later
-    setLevel((getInterp().varFrame == null) ? 1 : (getInterp().varFrame.getLevel() + 1));
+    setLevel((getInterp().getVarFrame() == null) ? 1 : (getInterp().getVarFrame().getLevel() + 1));
     setCaller(getInterp().getFrame());
-    setCallerVar(getInterp().varFrame);
+    setCallerVar(getInterp().getVarFrame());
     getInterp().setFrame(this);
-    getInterp().varFrame = this;
+    getInterp().setVarFrame(this);
 
     // parameter bindings
 
@@ -257,7 +257,7 @@ public final class CallFrame {
     // Parse string to figure out which level number to go to.
 
     result = 1;
-    curLevel = (interp.varFrame == null) ? 0 : interp.varFrame.getLevel();
+    curLevel = (interp.getVarFrame() == null) ? 0 : interp.getVarFrame().getLevel();
 
     if ((string.length() > 0) && (string.charAt(0) == '#')) {
       level = (int) Util.getInt(interp, string.substring(1));
@@ -279,7 +279,7 @@ public final class CallFrame {
     if (level == 0) {
       frame = null;
     } else {
-      for (frame = interp.varFrame; frame != null; frame = frame.getCallerVar()) {
+      for (frame = interp.getVarFrame(); frame != null; frame = frame.getCallerVar()) {
         if (frame.getLevel() == level) {
           break;
         }
@@ -302,7 +302,7 @@ public final class CallFrame {
   public void dispose() {
     // Unchain this frame from the call stack.
     getInterp().setFrame(getCaller());
-    getInterp().varFrame = getCallerVar();
+    getInterp().setVarFrame(getCallerVar());
     setCaller(null);
     setCallerVar(null);
 

@@ -292,8 +292,8 @@ public class TclIO {
   static Map<String, Channel> getInterpChanTable(Interp interp) {
     Channel chan;
 
-    if (interp.interpChanTable == null) {
-      interp.interpChanTable = new HashMap<String, Channel>();
+    if (interp.getInterpChanTable() == null) {
+      interp.setInterpChanTable(new HashMap<String, Channel>());
 
       chan = getStdChannel(StdChannel.STDIN);
       registerChannel(interp, chan);
@@ -305,7 +305,7 @@ public class TclIO {
       registerChannel(interp, chan);
     }
 
-    return interp.interpChanTable;
+    return interp.getInterpChanTable();
   }
 
   /**

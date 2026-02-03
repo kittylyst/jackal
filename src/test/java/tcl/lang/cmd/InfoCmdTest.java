@@ -2,10 +2,12 @@ package tcl.lang.cmd;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import tcl.lang.TclCmdTest;
 
-public class InfoCmdTest extends TclCmdTest {
+public class    InfoCmdTest extends TclCmdTest {
   @Test
   public void testCmd() throws Exception {
     LinkedList<String> expectedFailureList =
@@ -18,5 +20,10 @@ public class InfoCmdTest extends TclCmdTest {
                 }));
     String resName = "/tcl/lang/cmd/info.test";
     tclTestResource(resName, expectedFailureList);
+  }
+
+  @Test
+  public void testCmdWithArgs() throws Exception {
+      tclTestResource("/test1.test", List.of());
   }
 }

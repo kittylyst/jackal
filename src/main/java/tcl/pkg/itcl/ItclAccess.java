@@ -59,7 +59,7 @@ public class ItclAccess {
   public static CallFrame getCallFrame(Interp interp, int level) {
     CallFrame frame;
 
-    frame = interp.varFrame;
+    frame = interp.getVarFrame();
     while (frame != null && level > 0) {
       frame = frame.getCallerVar();
       level--;
@@ -70,8 +70,8 @@ public class ItclAccess {
   public static CallFrame activateCallFrame(Interp interp, CallFrame frame) {
     CallFrame oldFrame;
 
-    oldFrame = interp.varFrame;
-    interp.varFrame = frame;
+    oldFrame = interp.getVarFrame();
+    interp.setVarFrame(frame);
 
     return oldFrame;
   }
@@ -81,7 +81,7 @@ public class ItclAccess {
   }
 
   public static CallFrame getVarFrame(Interp i) {
-    return i.varFrame;
+    return i.getVarFrame();
   }
 
   public static HashMap<String, Var> getVarTable(CallFrame frame) {

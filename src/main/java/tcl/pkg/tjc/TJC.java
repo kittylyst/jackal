@@ -104,11 +104,11 @@ public class TJC {
       throw new TclRuntimeError("expected isProcCallFrame to be true");
     }
 
-    frame.setLevel((interp.varFrame == null) ? 1 : (interp.varFrame.getLevel() + 1));
+    frame.setLevel((interp.getVarFrame() == null) ? 1 : (interp.getVarFrame().getLevel() + 1));
     frame.setCaller(interp.getFrame());
-    frame.setCallerVar(interp.varFrame);
+    frame.setCallerVar(interp.getVarFrame());
     interp.setFrame(frame);
-    interp.varFrame = frame;
+    interp.setVarFrame(frame);
 
     return frame;
   }
@@ -906,7 +906,7 @@ public class TJC {
     boolean grabbed_objv = false;
 
     // Save copy of interp.varFrame in case TCL.EVAL_GLOBAL is set.
-    CallFrame savedVarFrame = interp.varFrame;
+    CallFrame savedVarFrame = interp.getVarFrame();
 
     // If cmd is null, then resolve objv[0] into a Command.
 
@@ -954,13 +954,13 @@ public class TJC {
 
       interp.ready();
 
-      interp.nestLevel++;
-      interp.cmdCount++;
+      interp.setNestLevel(interp.getNestLevel() + 1);
+      interp.setCmdCount(interp.getCmdCount() + 1);
 
       // Invoke cmdProc for the command.
 
       if ((flags & TCL.EVAL_GLOBAL) != 0) {
-        interp.varFrame = null;
+        interp.setVarFrame(null);
       }
 
       cmd.cmdProc(interp, objv);
@@ -993,8 +993,8 @@ public class TJC {
         objv[0].release();
         TJC.releaseObjv(interp, objv, objv.length);
       }
-      interp.nestLevel--;
-      interp.varFrame = savedVarFrame;
+      interp.setNestLevel(interp.getNestLevel() - 1);
+      interp.setVarFrame(savedVarFrame);
       interp.release();
 
       interp.checkInterrupted();

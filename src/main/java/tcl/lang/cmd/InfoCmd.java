@@ -250,7 +250,7 @@ public final class InfoCmd implements Command {
     if (objv.length != 2) {
       throw new TclNumArgsException(interp, 2, objv, null);
     }
-    interp.setResult(interp.cmdCount);
+    interp.setResult(interp.getCmdCount());
     return;
   }
 
@@ -582,24 +582,24 @@ public final class InfoCmd implements Command {
     TclObject list;
 
     if (objv.length == 2) { // just "info level"
-      if (interp.varFrame == null) {
+      if (interp.getVarFrame() == null) {
         interp.setResult(0);
       } else {
-        interp.setResult(interp.varFrame.getLevel());
+        interp.setResult(interp.getVarFrame().getLevel());
       }
       return;
     } else if (objv.length == 3) {
       level = TclInteger.getInt(interp, objv[2]);
 
       if (level <= 0) {
-        if (interp.varFrame == null) {
+        if (interp.getVarFrame() == null) {
           throw new TclException(interp, "bad level \"" + objv[2].toString() + "\"");
         }
 
-        level += interp.varFrame.getLevel();
+        level += interp.getVarFrame().getLevel();
       }
 
-      for (frame = interp.varFrame; frame != null; frame = frame.getCallerVar()) {
+      for (frame = interp.getVarFrame(); frame != null; frame = frame.getCallerVar()) {
         if (frame.getLevel() == level) {
           break;
         }
@@ -689,7 +689,7 @@ public final class InfoCmd implements Command {
       throw new TclNumArgsException(interp, 2, objv, "?pattern?");
     }
 
-    if (interp.varFrame == null || !interp.varFrame.isProcCallFrame()) {
+    if (interp.getVarFrame() == null || !interp.getVarFrame().isProcCallFrame()) {
       return;
     }
 
@@ -907,12 +907,12 @@ public final class InfoCmd implements Command {
   private static void InfoScriptCmd(Interp interp, TclObject[] objv) throws TclException {
 
     if (objv.length == 3) {
-      interp.scriptFile = objv[2].toString();
+      interp.setScriptFile(objv[2].toString());
     } else if (objv.length != 2) {
       throw new TclNumArgsException(interp, 2, objv, "?filename?");
     }
 
-    interp.setResult(interp.scriptFile);
+    interp.setResult(interp.getScriptFile());
     return;
   }
 
@@ -1011,7 +1011,7 @@ public final class InfoCmd implements Command {
 
     list = TclList.newInstance();
 
-    if ((interp.varFrame == null) || !interp.varFrame.isProcCallFrame() || specificNsInPattern) {
+    if ((interp.getVarFrame() == null) || !interp.getVarFrame().isProcCallFrame() || specificNsInPattern) {
       // There is no frame pointer, the frame pointer was pushed only
       // to activate a namespace, or we are in a procedure call frame
       // but a specific namespace was specified. Create a list containing

@@ -261,25 +261,25 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
 
     interp.getTargetTable().clear();
 
-    if (interp.interpChanTable != null) {
+    if (interp.getInterpChanTable() != null) {
       // Tear down channel table, be careful to pull the first element
       // from
       // the front of the table until empty since the table is modified
       // by unregisterChannel().
       Channel channel;
-      while ((channel = (Channel) Namespace.FirstHashEntry(interp.interpChanTable)) != null) {
+      while ((channel = (Channel) Namespace.FirstHashEntry(interp.getInterpChanTable())) != null) {
         TclIO.unregisterChannel(interp, channel);
       }
     }
 
-    if (interp.slave.interpCmd != null) {
+    if (interp.getSlave().interpCmd != null) {
       // Tcl_DeleteInterp() was called on this interpreter, rather
       // "interp delete" or the equivalent deletion of the command in the
       // master. First ensure that the cleanup callback doesn't try to
       // delete the interp again.
 
-      interp.slave.slaveInterp = null;
-      interp.slave.masterInterp.deleteCommandFromToken(interp.slave.interpCmd);
+      interp.getSlave().slaveInterp = null;
+      interp.getSlave().masterInterp.deleteCommandFromToken(interp.getSlave().interpCmd);
     }
 
     // There shouldn't be any aliases left.
@@ -339,7 +339,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
     InterpSlaveCmd slave = new InterpSlaveCmd();
 
     slaveInterp.setMaxNestingDepth(masterInterp.getMaxNestingDepth());
-    slaveInterp.slave = slave;
+    slaveInterp.setSlave(slave);
     slaveInterp.setAssocData("InterpSlaveCmd", slave);
     slaveInterp.setWorkingDir(interp.getWorkingDir().getPath());
 
@@ -347,10 +347,10 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
     slave.path = pathString;
     slave.slaveInterp = slaveInterp;
 
-    masterInterp.createCommand(pathString, slaveInterp.slave);
-    slaveInterp.slave.interpCmd = Namespace.findCommand(masterInterp, pathString, null, 0);
+    masterInterp.createCommand(pathString, slaveInterp.getSlave());
+    slaveInterp.getSlave().interpCmd = Namespace.findCommand(masterInterp, pathString, null, 0);
 
-    masterInterp.getSlaveTable().put(pathString, slaveInterp.slave);
+    masterInterp.getSlaveTable().put(pathString, slaveInterp.getSlave());
 
     if (debug) {
       System.out.println(
@@ -629,7 +629,7 @@ public final class InterpSlaveCmd implements CommandWithDispose, AssocData {
 
       slaveInterp.setMaxNestingDepth(limit);
 
-      if (interp == slaveInterp && interp.nestLevel > limit) {
+      if (interp == slaveInterp && interp.getNestLevel() > limit) {
         throw new TclException(interp, "falling back due to new recursion limit");
       }
       interp.setResult(objv[objv.length - 1]);
