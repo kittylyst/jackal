@@ -15,9 +15,8 @@
 
 package tcl.lang;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -46,10 +45,10 @@ public class Notifier implements EventDeleter {
   private static final long PAUSE_WAIT = 100L;
 
   /** Events before the marker (HEAD only, LIFO). Processed first. */
-  private final LinkedBlockingDeque<TclEvent> eventQueue = new LinkedBlockingDeque<>();
+  private final BlockingDeque<TclEvent> eventQueue = new LinkedBlockingDeque<>();
 
   /** Events at or after the marker (MARK then TAIL, FIFO). */
-  private final LinkedBlockingDeque<TclEvent> markerQueue = new LinkedBlockingDeque<>();
+  private final BlockingDeque<TclEvent> markerQueue = new LinkedBlockingDeque<>();
 
   /** Event that was just processed by serviceEvent */
   private TclEvent servicedEvent = null;
@@ -60,49 +59,35 @@ public class Notifier implements EventDeleter {
   /** Condition for doOneEvent to wait on. */
   private final Condition waitCondition = waitLock.newCondition();
 
-  /**
-   * The primary thread of this notifier. Only this thread should process events from the event
-   * queue.
-   */
-  Thread primaryThread;
+  private Thread primaryThread;
 
   /** Stores the Notifier for each thread. */
-  private static HashMap<Thread, Notifier> notifierTable = new HashMap<Thread, Notifier>();
+  private static final Map<Thread, Notifier> notifierTable = new HashMap<>();
 
-  /** List of registered timer handlers. */
-  ArrayList<TimerHandler> timerList;
+  private final List<TimerHandler> timerList = new ArrayList<>();
 
-  /** Used to distinguish older timer handlers from recently-created ones. */
-  int timerGeneration;
+  private int timerGeneration;
 
-  /** True if there is a pending timer event in the event queue, false otherwise. */
-  boolean timerPending;
+  private boolean timerPending;
 
-  /** List of registered idle handlers. */
-  ArrayList<IdleHandler> idleList;
+  private final ArrayList<IdleHandler> idleList = new ArrayList<>();
 
-  /** Used to distinguish older idle handlers from recently-created ones. */
-  int idleGeneration;
+  private int idleGeneration;
 
-  /** Reference count of the notifier. It's used to tell when a notifier is no longer needed */
-  int refCount;
+  private int refCount;
 
   /**
    * Creates a Notifier instance.
    *
    * @param primaryThread the primary thread for this notifier
    */
-  private Notifier(Thread primaryThread) // The primary thread for this
-        // Notifier.
-      {
+  private Notifier(Thread primaryThread) {
     if (primaryThread == null) {
-      throw new NullPointerException("primaryThread");
+      throw new IllegalArgumentException("primaryThread");
     }
     this.primaryThread = primaryThread;
 
-    timerList = new ArrayList<TimerHandler>();
     timerGeneration = 0;
-    idleList = new ArrayList<IdleHandler>();
     idleGeneration = 0;
     timerPending = false;
     refCount = 0;
@@ -115,7 +100,7 @@ public class Notifier implements EventDeleter {
    * @return The Notifier for this thread.
    */
   public static synchronized Notifier getNotifierForThread(Thread thread) {
-    Notifier notifier = (Notifier) notifierTable.get(thread);
+    Notifier notifier = notifierTable.get(thread);
     if (notifier == null) {
       notifier = new Notifier(thread);
       notifierTable.put(thread, notifier);
@@ -132,7 +117,7 @@ public class Notifier implements EventDeleter {
     if (refCount < 0) {
       throw new TclRuntimeError("Attempting to preserve a freed Notifier");
     }
-    ++refCount;
+    refCount++;
   }
 
   /**
@@ -141,16 +126,16 @@ public class Notifier implements EventDeleter {
    * its refCount reaches zero.
    */
   public synchronized void release() {
-    if ((refCount == 0) && (primaryThread != null)) {
+    if (refCount == 0 && primaryThread != null) {
       throw new TclRuntimeError("Attempting to release a Notifier before it's preserved");
     }
     if (refCount <= 0) {
       throw new TclRuntimeError("Attempting to release a freed Notifier");
     }
-    --refCount;
+    refCount--;
     if (refCount == 0) {
-      notifierTable.remove(primaryThread);
-      primaryThread = null;
+      notifierTable.remove(getPrimaryThread());
+      setPrimaryThread(null);
     }
   }
 
@@ -169,7 +154,7 @@ public class Notifier implements EventDeleter {
    * @param position one of TCL.QUEUE_TAIL, TCL.QUEUE_HEAD or TCL.QUEUE_MARK.
    */
   public void queueEvent(TclEvent evt, int position) {
-    if (primaryThread == null) {
+    if (getPrimaryThread() == null) {
       // queueEvent() invoked after the Notifier has been
       // released. This could happen if this method was
       // invoked after all the Interp objects in this
@@ -196,7 +181,7 @@ public class Notifier implements EventDeleter {
                 + "\", must be TCL.QUEUE_HEAD, TCL.QUEUE_TAIL or TCL.QUEUE_MARK");
       }
 
-      if (Thread.currentThread() != primaryThread) {
+      if (Thread.currentThread() != getPrimaryThread()) {
         waitCondition.signalAll();
       }
     } finally {
@@ -419,7 +404,7 @@ public class Notifier implements EventDeleter {
   public int doOneEvent(int flags) {
     int result = 0;
 
-    if (primaryThread == null) {
+    if (getPrimaryThread() == null) {
       // queueEvent() invoked after the Notifier has been
       // released. This could happen if this method was
       // invoked after all the Interp objects in this
@@ -454,14 +439,13 @@ public class Notifier implements EventDeleter {
       // event queue. We can't process expired times right away,
       // because there may already be other events on the queue.
 
-      if (!timerPending && (timerList.size() > 0)) {
-        TimerHandler h = (TimerHandler) timerList.get(0);
+      if (!isTimerPending() && timerList.size() > 0) {
+        TimerHandler h = timerList.get(0);
 
         if (h.atTime <= sysTime) {
           TimerEvent event = new TimerEvent();
-          event.notifier = this;
           queueEvent(event, TCL.QUEUE_TAIL);
-          timerPending = true;
+          setTimerPending(true);
         }
       }
 
@@ -512,7 +496,7 @@ public class Notifier implements EventDeleter {
         try {
           long waitTime;
           if (timerList.size() > 0) {
-            TimerHandler h = (TimerHandler) timerList.get(0);
+            TimerHandler h = timerList.get(0);
             waitTime = h.atTime - sysTime;
             if (waitTime > 0) {
               waitTime = waitTime < PAUSE_WAIT ? waitTime : PAUSE_WAIT;
@@ -551,8 +535,7 @@ public class Notifier implements EventDeleter {
 
   private int serviceIdle() {
     int result = 0;
-    int gen = idleGeneration;
-    idleGeneration++;
+    int gen = idleGeneration++;
 
     // The code below is trickier than it may look, for the following
     // reasons:
@@ -569,7 +552,7 @@ public class Notifier implements EventDeleter {
     // infinite loop could result.
 
     while (idleList.size() > 0) {
-      IdleHandler h = (IdleHandler) idleList.get(0);
+      IdleHandler h = idleList.get(0);
       if (h.getGeneration() > gen) {
         break;
       }
@@ -649,94 +632,130 @@ public class Notifier implements EventDeleter {
 
     return;
   }
-} // end Notifier
 
-// This class is used to service timer events. When one or more timers
-// have expired but not processed, one TimerEvent will be generated
-// and put into the event queue. When the TimerEvent is pulled off the
-// queue, it will process all expired timers in a bunch.
-
-class TimerEvent extends TclEvent {
-
-  // The notifier that owns this TimerEvent.
-
-  Notifier notifier;
-
-  /*
-   * ----------------------------------------------------------------------
-   *
-   * TimerHandlerEventProc -> processEvent
-   *
-   * This function is called by Tcl_ServiceEvent when a timer event reaches
-   * the front of the event queue. This function handles the event by invoking
-   * the callbacks for all timers that are ready.
-   *
-   * Results: Returns 1 if the event was handled, meaning it should be removed
-   * from the queue. Returns 0 if the event was not handled, meaning it should
-   * stay on the queue. The only time the event isn't handled is if the
-   * TCL.TIMER_EVENTS flag bit isn't set.
-   *
-   * Side effects: The TimerHandler may have arbitrary side effects while
-   * processing the event.
-   *
-   * ----------------------------------------------------------------------
+  /**
+   * The primary thread of this notifier. Only this thread should process events from the event
+   * queue.
    */
-
-  public int processEvent(int flags) // Same as flags passed to
-        // Notifier.doOneEvent.
-      {
-    // Do nothing if timers aren't enabled. This leaves the event on the
-    // queue, so we will get to it as soon as ServiceEvents() is called with
-    // timers enabled.
-
-    if ((flags & TCL.TIMER_EVENTS) == 0) {
-      return 0;
-    }
-
-    long sysTime = System.currentTimeMillis();
-    int gen = notifier.timerGeneration;
-    notifier.timerGeneration++;
-
-    // The code below is trickier than it may look, for the following
-    // reasons:
-    //
-    // 1. New handlers can get added to the list while the current
-    // one is being processed. If new ones get added, we don't
-    // want to process them during this pass through the list to
-    // avoid starving other event sources. This is implemented
-    // using the timer generation number: new handlers will have
-    // a newer generation number than any of the ones currently on
-    // the list.
-    // 2. The handler can call doOneEvent, so we have to remove
-    // the handler from the list before calling it. Otherwise an
-    // infinite loop could result.
-    // 3. Tcl_DeleteTimerHandler can be called to remove an element from the
-    // list while a handler is executing, so the list could change
-    // structure during the call.
-    // 4. Because we only fetch the current time before entering the loop,
-    // the only way a new timer will even be considered runnable is if
-    // its expiration time is within the same millisecond as the
-    // current time. This is fairly likely on Windows, since it has
-    // a course granularity clock. Since timers are placed
-    // on the queue in time order with the most recently created
-    // handler appearing after earlier ones with the same expiration
-    // time, we don't have to worry about newer generation timers
-    // appearing before later ones.
-
-    notifier.timerPending = false;
-
-    while (notifier.timerList.size() > 0) {
-      TimerHandler h = (TimerHandler) notifier.timerList.get(0);
-      if (h.generation > gen) {
-        break;
-      }
-      if (h.atTime > sysTime) {
-        break;
-      }
-      notifier.timerList.remove(0);
-      h.invoke();
-    }
-
-    return 1;
+  public Thread getPrimaryThread() {
+    return primaryThread;
   }
-} // end TimerEvent
+
+  public void setPrimaryThread(Thread primaryThread) {
+    this.primaryThread = primaryThread;
+  }
+
+  /** List of registered timer handlers. */
+  public List<TimerHandler> getTimerList() {
+    return timerList;
+  }
+
+  /** Used to distinguish older timer handlers from recently-created ones. */
+  public int getTimerGeneration() {
+    return timerGeneration;
+  }
+
+  /** True if there is a pending timer event in the event queue, false otherwise. */
+  public boolean isTimerPending() {
+    return timerPending;
+  }
+
+  public void setTimerPending(boolean timerPending) {
+    this.timerPending = timerPending;
+  }
+
+  /** List of registered idle handlers. */
+  public ArrayList<IdleHandler> getIdleList() {
+    return idleList;
+  }
+
+  /** Used to distinguish older idle handlers from recently-created ones. */
+  public int getIdleGeneration() {
+    return idleGeneration;
+  }
+
+  // This class is used to service timer events. When one or more timers
+  // have expired but not processed, one TimerEvent will be generated
+  // and put into the event queue. When the TimerEvent is pulled off the
+  // queue, it will process all expired timers in a bunch.
+
+  class TimerEvent extends TclEvent {
+    /*
+     * ----------------------------------------------------------------------
+     *
+     * TimerHandlerEventProc -> processEvent
+     *
+     * This function is called by Tcl_ServiceEvent when a timer event reaches
+     * the front of the event queue. This function handles the event by invoking
+     * the callbacks for all timers that are ready.
+     *
+     * Results: Returns 1 if the event was handled, meaning it should be removed
+     * from the queue. Returns 0 if the event was not handled, meaning it should
+     * stay on the queue. The only time the event isn't handled is if the
+     * TCL.TIMER_EVENTS flag bit isn't set.
+     *
+     * Side effects: The TimerHandler may have arbitrary side effects while
+     * processing the event.
+     *
+     * ----------------------------------------------------------------------
+     */
+
+    public int processEvent(int flags) // Same as flags passed to
+          // Notifier.doOneEvent.
+        {
+      // Do nothing if timers aren't enabled. This leaves the event on the
+      // queue, so we will get to it as soon as ServiceEvents() is called with
+      // timers enabled.
+
+      if ((flags & TCL.TIMER_EVENTS) == 0) {
+        return 0;
+      }
+
+      long sysTime = System.currentTimeMillis();
+      int gen = timerGeneration;
+      timerGeneration++;
+
+      // The code below is trickier than it may look, for the following
+      // reasons:
+      //
+      // 1. New handlers can get added to the list while the current
+      // one is being processed. If new ones get added, we don't
+      // want to process them during this pass through the list to
+      // avoid starving other event sources. This is implemented
+      // using the timer generation number: new handlers will have
+      // a newer generation number than any of the ones currently on
+      // the list.
+      // 2. The handler can call doOneEvent, so we have to remove
+      // the handler from the list before calling it. Otherwise an
+      // infinite loop could result.
+      // 3. Tcl_DeleteTimerHandler can be called to remove an element from the
+      // list while a handler is executing, so the list could change
+      // structure during the call.
+      // 4. Because we only fetch the current time before entering the loop,
+      // the only way a new timer will even be considered runnable is if
+      // its expiration time is within the same millisecond as the
+      // current time. This is fairly likely on Windows, since it has
+      // a course granularity clock. Since timers are placed
+      // on the queue in time order with the most recently created
+      // handler appearing after earlier ones with the same expiration
+      // time, we don't have to worry about newer generation timers
+      // appearing before later ones.
+
+      timerPending = false;
+
+      while (timerList.size() > 0) {
+        TimerHandler h = timerList.get(0);
+        if (h.generation > gen) {
+          break;
+        }
+        if (h.atTime > sysTime) {
+          break;
+        }
+        timerList.remove(0);
+        h.invoke();
+      }
+
+      return 1;
+    }
+  }
+}

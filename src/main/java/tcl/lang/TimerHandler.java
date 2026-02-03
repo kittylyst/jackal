@@ -59,17 +59,17 @@ public abstract sealed class TimerHandler
      */
 
     synchronized (notifier) {
-      generation = notifier.timerGeneration;
+      generation = notifier.getTimerGeneration();
 
-      for (i = 0; i < notifier.timerList.size(); i++) {
-        TimerHandler q = (TimerHandler) notifier.timerList.get(i);
+      for (i = 0; i < notifier.getTimerList().size(); i++) {
+        TimerHandler q = (TimerHandler) notifier.getTimerList().get(i);
         if (atTime < q.atTime) {
           break;
         }
       }
-      notifier.timerList.add(i, this);
+      notifier.getTimerList().add(i, this);
 
-      if (Thread.currentThread() != notifier.primaryThread) {
+      if (Thread.currentThread() != notifier.getPrimaryThread()) {
         notifier.signalWaiters();
       }
     }
@@ -88,9 +88,9 @@ public abstract sealed class TimerHandler
     isCancelled = true;
 
     synchronized (notifier) {
-      for (int i = 0; i < notifier.timerList.size(); i++) {
-        if (notifier.timerList.get(i) == this) {
-          notifier.timerList.remove(i);
+      for (int i = 0; i < notifier.getTimerList().size(); i++) {
+        if (notifier.getTimerList().get(i) == this) {
+          notifier.getTimerList().remove(i);
 
           /*
            * We can return now because the same timer can be

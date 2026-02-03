@@ -53,9 +53,9 @@ public abstract class IdleHandler {
     setCancelled(false);
 
     synchronized (getNotifier()) {
-      getNotifier().idleList.add(this);
-      setGeneration(getNotifier().idleGeneration);
-      if (Thread.currentThread() != getNotifier().primaryThread) {
+      getNotifier().getIdleList().add(this);
+      setGeneration(getNotifier().getIdleGeneration());
+      if (Thread.currentThread() != getNotifier().getPrimaryThread()) {
         getNotifier().signalWaiters();
       }
     }
@@ -74,9 +74,9 @@ public abstract class IdleHandler {
     setCancelled(true);
 
     synchronized (getNotifier()) {
-      for (int i = 0; i < getNotifier().idleList.size(); i++) {
-        if (getNotifier().idleList.get(i) == this) {
-          getNotifier().idleList.remove(i);
+      for (int i = 0; i < getNotifier().getIdleList().size(); i++) {
+        if (getNotifier().getIdleList().get(i) == this) {
+          getNotifier().getIdleList().remove(i);
 
           /*
            * We can return now because the same idle handler can be

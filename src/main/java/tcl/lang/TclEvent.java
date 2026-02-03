@@ -48,7 +48,7 @@ public abstract class TclEvent {
       throw new TclRuntimeError("TclEvent is not queued when sync() is called");
     }
 
-    if (Thread.currentThread() == getNotifier().primaryThread) {
+    if (Thread.currentThread() == getNotifier().getPrimaryThread()) {
       while (!isProcessed()) {
         getNotifier().serviceEvent(0);
       }
