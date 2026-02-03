@@ -45,7 +45,7 @@ public class JtclScriptEngine extends AbstractScriptEngine {
   private static ThreadLocal<Interp> interpreters;
 
   static {
-    interpreters = new ThreadLocal<Interp>();
+    interpreters = new ThreadLocal<>();
   }
 
   private static final String CONTEXT = "javax.script.ScriptContext";
@@ -198,8 +198,8 @@ public class JtclScriptEngine extends AbstractScriptEngine {
     public void cmdProc(Interp interp, TclObject[] argv) throws TclException {
       AssocData data = interp.getAssocData(CONTEXT);
       Writer writer;
-      if (data != null && data instanceof ContextData) {
-        ScriptContext context = ((ContextData) data).getContext();
+      if (data != null && data instanceof ContextData cdata) {
+        ScriptContext context = cdata.getContext();
         writer = context.getWriter();
       } else {
         writer = new PrintWriter(System.out);
@@ -217,14 +217,13 @@ public class JtclScriptEngine extends AbstractScriptEngine {
     }
   }
 
-  public Object eval(String str, ScriptContext ctx) throws ScriptException {
+  public TclObject eval(String str, ScriptContext ctx) throws ScriptException {
     Interp interp = getInterp();
     AssocData oldAssocData = interp.getAssocData(CONTEXT);
     try {
       interp.setAssocData(CONTEXT, new ContextData(ctx));
       ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
       interp.eval(str);
-      return interp.getResult();
     } catch (TclException exp) {
       String errMsg = interp.getResult().toString();
       ScriptException se = new ScriptException(errMsg);
@@ -235,6 +234,7 @@ public class JtclScriptEngine extends AbstractScriptEngine {
         interp.setAssocData(CONTEXT, oldAssocData);
       }
     }
+    return interp.getResult();
   }
 
   public Object eval(Reader reader, ScriptContext ctx) throws ScriptException {

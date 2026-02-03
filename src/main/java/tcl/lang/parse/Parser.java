@@ -783,8 +783,8 @@ public class Parser {
 
     interp.ready();
 
-    interp.nestLevel++;
-    savedVarFrame = interp.varFrame;
+    interp.setNestLevel(interp.getNestLevel() + 1);
+    savedVarFrame = interp.getVarFrame();
 
     try {
       // Find the procedure to execute this command. If there isn't one,
@@ -815,10 +815,10 @@ public class Parser {
 
       // Finally, invoke the Command's cmdProc.
 
-      interp.cmdCount++;
+      interp.setCmdCount(interp.getCmdCount() + 1);
 
       if ((flags & TCL.EVAL_GLOBAL) != 0) {
-        interp.varFrame = null;
+        interp.setVarFrame(null);
       }
 
       if (cmd.mustCallInvoke(interp)) cmd.invoke(interp, objv);
@@ -830,8 +830,8 @@ public class Parser {
       // code = AsyncInvoke(interp, code);
       // }
     } finally {
-      interp.varFrame = savedVarFrame;
-      interp.nestLevel--;
+      interp.setVarFrame(savedVarFrame);
+      interp.setNestLevel(interp.getNestLevel() - 1);
     }
   }
 
@@ -980,7 +980,7 @@ public class Parser {
           break;
 
         case TCL_TOKEN_COMMAND:
-          interp.evalFlags |= Parser.TCL_BRACKET_TERM;
+          interp.setEvalFlags(interp.getEvalFlags() | Parser.TCL_BRACKET_TERM);
           token.script_index++;
 
           // should the nest level be changed???
@@ -1114,9 +1114,9 @@ public class Parser {
       numChars = script_length - script_index;
     }
     interp.resetResult();
-    savedVarFrame = interp.varFrame;
+    savedVarFrame = interp.getVarFrame();
     if ((flags & TCL.EVAL_GLOBAL) != 0) {
-      interp.varFrame = null;
+      interp.setVarFrame(null);
     }
 
     // Each iteration through the following loop parses the next
@@ -1127,12 +1127,12 @@ public class Parser {
     // Init objv with the most commonly used array size
     objv = grabObjv(interp, 3);
 
-    if ((interp.evalFlags & TCL_BRACKET_TERM) != 0) {
+    if ((interp.getEvalFlags() & TCL_BRACKET_TERM) != 0) {
       nested = true;
     } else {
       nested = false;
     }
-    interp.evalFlags &= ~TCL_BRACKET_TERM;
+    interp.setEvalFlags(interp.getEvalFlags() & ~TCL_BRACKET_TERM);
 
     try {
 
@@ -1218,7 +1218,7 @@ public class Parser {
 
                 commandLength -= 1;
               }
-              interp.varFrame = savedVarFrame;
+              interp.setVarFrame(savedVarFrame);
               logCommandInfo(
                   interp, script_array, script_index, parse.getCommandStart(), commandLength, e);
             }
@@ -1252,7 +1252,7 @@ public class Parser {
           // bracket in the script. Return immediately.
 
           interp.setTermOffset((src_index - 1) - script_index);
-          interp.varFrame = savedVarFrame;
+          interp.setVarFrame(savedVarFrame);
           return;
         }
       } while (charsLeft > 0);
@@ -1265,7 +1265,7 @@ public class Parser {
     }
 
     interp.setTermOffset(src_index - script_index);
-    interp.varFrame = savedVarFrame;
+    interp.setVarFrame(savedVarFrame);
     return;
   }
 

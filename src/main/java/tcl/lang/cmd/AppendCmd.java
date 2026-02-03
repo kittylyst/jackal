@@ -26,8 +26,7 @@ import tcl.lang.model.TclObject;
 /*
  * This class implements the built-in "append" command in Tcl.
  */
-
-public final class AppendCmd implements Command {
+public record AppendCmd() implements Command {
 
   /*
    * ----------------------------------------------------------------------

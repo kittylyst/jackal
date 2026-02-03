@@ -32,7 +32,7 @@ public final class GlobalCmd implements Command {
 
     // If we are not executing inside a Tcl procedure, just return.
 
-    if ((interp.varFrame == null) || !interp.varFrame.isProcCallFrame()) {
+    if ((interp.getVarFrame() == null) || !interp.getVarFrame().isProcCallFrame()) {
       return;
     }
 

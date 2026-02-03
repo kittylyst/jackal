@@ -87,7 +87,7 @@ public final class SubstCmd implements Command {
         /*
          * eval the command in brackets
          */
-        interp.evalFlags = Parser.TCL_BRACKET_TERM;
+        interp.setEvalFlags(Parser.TCL_BRACKET_TERM);
         try {
           interp.eval(s.substring(i + 1, len));
           i = doCmdOrVarSub(null, s, i, interp.getResult().toString(), result, interp);

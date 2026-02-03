@@ -85,7 +85,7 @@ public final class DictCmd implements Command {
    * dictionary value contained in the variable, writing the resulting dictionary value back to that
    * variable. Non-existent keys are treated as if they map to an empty string.
    */
-  public static final class AppendCmd implements Command {
+  public record AppendCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length < 4) {
         throw new TclNumArgsException(interp, 2, objv, "varName key ?value ...?");
@@ -120,7 +120,7 @@ public final class DictCmd implements Command {
    * <p>Create a new dictionary that contains each of the key/value mappings listed as arguments
    * (keys and values alternating, with each key being followed by its associated value).
    */
-  public static final class CreateCmd implements Command {
+  public record CreateCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if ((objv.length % 2) != 0) {
         throw new TclNumArgsException(interp, 2, objv, "?key value ...?");
@@ -142,7 +142,7 @@ public final class DictCmd implements Command {
    * of nested dictionaries) exists in the given dictionary value. This returns a true value exactly
    * when dict get on that path will succeed.
    */
-  public static final class ExistsCmd implements Command {
+  public record ExistsCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length < 4) {
         throw new TclNumArgsException(interp, 2, objv, "dictionary key ?key ...?");
@@ -184,7 +184,7 @@ public final class DictCmd implements Command {
    *       (in the style of string match.)
    * </dl>
    */
-  public static final class FilterCmd implements Command {
+  public record FilterCmd() implements Command {
     private static final String[] filterTypes = {"key", "script", "value"};
     private static final int FILTER_KEY = 0, FILTER_SCRIPT = 1, FILTER_VALUE = 2;
 
@@ -301,7 +301,7 @@ public final class DictCmd implements Command {
    * immediately. If any evaluation of the body generates a TCL.CONTINUE result, this shall be
    * treated exactly like a normal TCL.OK result. The order of iteration is undefined.
    */
-  public static final class ForCmd implements Command {
+  public record ForCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length != 5) {
         throw new TclNumArgsException(interp, 2, objv, "{keyVar valueVar} dictionary script");
@@ -356,7 +356,7 @@ public final class DictCmd implements Command {
    * <p>It is an error to attempt to retrieve a value for a key that is not present in the
    * dictionary.
    */
-  public static final class GetCmd implements Command {
+  public record GetCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length < 3) {
         throw new TclNumArgsException(interp, 2, objv, "dictionary ?key key ...?");
@@ -386,7 +386,7 @@ public final class DictCmd implements Command {
    * if they map to 0. It is an error to increment a value for an existing key if that value is not
    * an integer.
    */
-  public static final class IncrCmd implements Command {
+  public record IncrCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length < 4 || objv.length > 5) {
         throw new TclNumArgsException(interp, 2, objv, "varName key ?increment?");
@@ -428,7 +428,7 @@ public final class DictCmd implements Command {
    * that are implemented by hash tables, it is expected that this will return the string produced
    * by Tcl_HashStats, similar to array info.
    */
-  public static final class InfoCmd implements Command {
+  public record InfoCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length != 3) {
         throw new TclNumArgsException(interp, 2, objv, "dictionary");
@@ -467,7 +467,7 @@ public final class DictCmd implements Command {
    * supplied the i'th key returned by dict keys will be the key for the i'th value returned by dict
    * values applied to the same dictionary value.
    */
-  public static final class KeysCmd implements Command {
+  public record KeysCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length < 3 || objv.length > 4) {
         throw new TclNumArgsException(interp, 2, objv, "dictionary ?pattern?");
@@ -498,7 +498,7 @@ public final class DictCmd implements Command {
    * there to be no items to append to the list. It is an error for the value that the key maps to
    * to not be representable as a list.
    */
-  public static final class LappendCmd implements Command {
+  public record LappendCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length < 4) {
         throw new TclNumArgsException(interp, 2, objv, "varName key ?value ...?");
@@ -545,7 +545,7 @@ public final class DictCmd implements Command {
    * maps that key to the value according to the last dictionary on the command line containing a
    * mapping for that key.
    */
-  public static final class MergeCmd implements Command {
+  public record MergeCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       final TclObject retDict = TclDict.newInstance();
       // Loop through each dictionary given and add all keys. This can
@@ -572,7 +572,7 @@ public final class DictCmd implements Command {
    * and it also legal for any of the keys to be removed to not be present in the input dictionary
    * in the first place.
    */
-  public static final class RemoveCmd implements Command {
+  public record RemoveCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length < 3) {
         throw new TclNumArgsException(interp, 2, objv, "dictionary ?key ...?");
@@ -596,7 +596,7 @@ public final class DictCmd implements Command {
    * called with no key/value pairs, but illegal for this command to be called with a key but no
    * value.
    */
-  public static final class ReplaceCmd implements Command {
+  public record ReplaceCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length < 3 || (objv.length % 2) != 1) {
         throw new TclNumArgsException(interp, 2, objv, "dictionary ?key value ...?");
@@ -620,7 +620,7 @@ public final class DictCmd implements Command {
    * value. When multiple keys are present, this operation creates or updates a chain of nested
    * dictionaries.
    */
-  public static final class SetCmd implements Command {
+  public record SetCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length < 5) {
         throw new TclNumArgsException(interp, 2, objv, "varName key ?key ...? value");
@@ -648,7 +648,7 @@ public final class DictCmd implements Command {
    *
    * <p>Return the number of key/value mappings in the given dictionary value.
    */
-  public static final class SizeCmd implements Command {
+  public record SizeCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length != 3) {
         throw new TclNumArgsException(interp, 2, objv, "dictionary");
@@ -666,7 +666,7 @@ public final class DictCmd implements Command {
    * nested dictionaries to the mapping to remove. At least one key must be specified, but the last
    * key on the key-path need not exist. All other components on the path must exist.
    */
-  public static final class UnsetCmd implements Command {
+  public record UnsetCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length < 4) {
         throw new TclNumArgsException(interp, 2, objv, "varName key ?key ...?");
@@ -702,7 +702,7 @@ public final class DictCmd implements Command {
    * evaluation of body. Note that the mapping of values to variables does not use traces; changes
    * to the dictionaryVariable's contents only happen when body terminates.
    */
-  public static final class UpdateCmd implements Command {
+  public record UpdateCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length < 5 || (objv.length % 2) != 0) {
         throw new TclNumArgsException(
@@ -786,7 +786,7 @@ public final class DictCmd implements Command {
    * is supplied the i'th key returned by dict keys will be the key for the i'th value returned by
    * dict values applied to the same dictionary value.
    */
-  public static final class ValuesCmd implements Command {
+  public record ValuesCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length < 3 || objv.length > 4) {
         throw new TclNumArgsException(interp, 2, objv, "dictionary ?pattern?");
@@ -821,7 +821,7 @@ public final class DictCmd implements Command {
    * body. Note that the mapping of values to variables does not use traces; changes to the
    * dictionaryVariable's contents only happen when body terminates.
    */
-  public static final class WithCmd implements Command {
+  public record WithCmd() implements Command {
     public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
       if (objv.length < 4) {
         throw new TclNumArgsException(interp, 2, objv, "dictVar ?key ...? script");

@@ -8,27 +8,21 @@ import tcl.lang.model.TclObject;
  * The purpose of AutoloadStub is to load-on-demand the classes that implement Tcl commands. This
  * reduces Jacl start up time and, when running Jacl off a web page, reduces download time
  * significantly.
+ *
+ * <p>I.e. a stub command which autoloads the real command the first time the stub command is
+ * invoked.
+ *
+ * @param className name of the Java class that implements this command, e.g. "tcl.lang.AfterCmd"
  */
-public final class AutoloadStub implements Command {
-  private String className;
-
-  /**
-   * Create a stub command which autoloads the real command the first time the stub command is
-   * invoked.
-   *
-   * @param clsName name of the Java class that implements this command, e.g. "tcl.lang.AfterCmd"
-   */
-  public AutoloadStub(String clsName) {
-    this.className = clsName;
-  }
-
+public record AutoloadStub(String className) implements Command {
   /**
    * Load the class that implements the given command and execute it.
    *
    * @param interp the current interpreter.
    * @param objv command arguments.
-   * @exception TclException if error happens inside the real command proc.
+   * @throws TclException if error happens inside the real command proc.
    */
+  @Override
   public void cmdProc(Interp interp, TclObject[] objv) throws TclException {
     Command cmd = load(interp, objv[0].toString());
     // don't call via WrappedCommand.invoke() because this cmdProc was already
@@ -43,16 +37,16 @@ public final class AutoloadStub implements Command {
    * command.
    */
   public Command load(Interp interp, String qname) throws TclException {
-    Class cmdClass = null;
+    Class<?> cmdClass = null;
     Command cmd;
 
     try {
-      TclClassLoader classLoader = (TclClassLoader) interp.getClassLoader();
-      cmdClass = classLoader.loadClass(getClassName());
+      TclClassLoader classLoader = interp.getClassLoader();
+      cmdClass = classLoader.loadClass(className());
     } catch (ClassNotFoundException e) {
-      throw new TclException(interp, "ClassNotFoundException for class \"" + getClassName() + "\"");
+      throw new TclException(interp, "ClassNotFoundException for class \"" + className() + "\"");
     } catch (PackageNameException e) {
-      throw new TclException(interp, "PackageNameException for class \"" + getClassName() + "\"");
+      throw new TclException(interp, "PackageNameException for class \"" + className() + "\"");
     }
 
     try {
@@ -69,12 +63,4 @@ public final class AutoloadStub implements Command {
     interp.createCommand(qname, cmd);
     return cmd;
   }
-
-  public String getClassName() {
-    return className;
-  }
-
-  //    public void setClassName(String className) {
-  //        this.className = className;
-  //    }
 }

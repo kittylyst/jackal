@@ -80,8 +80,8 @@ public final class UplevelCmd implements Command {
 
     // Modify the interpreter state to execute in the given frame.
 
-    savedVarFrame = interp.varFrame;
-    interp.varFrame = frame;
+    savedVarFrame = interp.getVarFrame();
+    interp.setVarFrame(frame);
 
     // Execute the residual arguments as a command.
 
@@ -99,7 +99,7 @@ public final class UplevelCmd implements Command {
       }
       throw e;
     } finally {
-      interp.varFrame = savedVarFrame;
+      interp.setVarFrame(savedVarFrame);
     }
   }
 } // end UplevelCmd

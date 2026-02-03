@@ -23,7 +23,7 @@ import tcl.lang.model.TclList;
 import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "case" command in Tcl. */
-public final class CaseCmd implements Command {
+public record CaseCmd() implements Command {
   /**
    * Executes a "case" statement. See Tcl user documentation for details.
    *
@@ -31,6 +31,7 @@ public final class CaseCmd implements Command {
    * @param argv command arguments.
    * @exception TclException If incorrect number of arguments.
    */
+  @Override
   public void cmdProc(Interp interp, TclObject argv[]) throws TclException {
     if (argv.length < 3) {
       throw new TclNumArgsException(interp, 1, argv, "string ?in? patList body ... ?default body?");

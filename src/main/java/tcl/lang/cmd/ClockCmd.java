@@ -40,7 +40,7 @@ import tcl.lang.model.TclInteger;
 import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "clock" command in Tcl. */
-public final class ClockCmd implements Command {
+public record ClockCmd() implements Command {
 
   private static final String[] validCmds = {"clicks", "format", "scan", "seconds"};
 
@@ -63,8 +63,8 @@ public final class ClockCmd implements Command {
   private static final int OPT_SCAN_BASE = 0;
   private static final int OPT_SCAN_GMT = 1;
 
-  static final int EPOCH_YEAR = 1970;
-  static final int MILLIS_PER_HOUR = 60 * 60 * 1000;
+  private static final int EPOCH_YEAR = 1970;
+  private static final int MILLIS_PER_HOUR = 60 * 60 * 1000;
 
   /**
    * ----------------------------------------------------------------------
@@ -80,6 +80,7 @@ public final class ClockCmd implements Command {
    *
    * <p>----------------------------------------------------------------------
    */
+  @Override
   public void cmdProc(
       Interp interp, // Current interpreter.
       TclObject[] objv) // Argument list.
@@ -225,8 +226,7 @@ public final class ClockCmd implements Command {
    * @param format format string
    * @throws TclException
    */
-  private void FormatClock(Interp interp, int clockVal, boolean useGMT, String format)
-      throws TclException {
+  private void FormatClock(Interp interp, int clockVal, boolean useGMT, String format) {
     Date date = new Date((long) clockVal * 1000);
     GregorianCalendar calendar = new GregorianCalendar();
     SimpleDateFormat fmt, locFmt;

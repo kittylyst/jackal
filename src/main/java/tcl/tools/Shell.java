@@ -15,7 +15,6 @@
 
 package tcl.tools;
 
-import tcl.lang.ConsoleThread;
 import tcl.lang.Interp;
 import tcl.lang.Notifier;
 import tcl.lang.TCL;

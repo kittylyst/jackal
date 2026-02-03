@@ -81,7 +81,7 @@ public final class InterpAliasCmd implements CommandWithDispose {
     targetInterp.preserve();
 
     try {
-      targetInterp.nestLevel++;
+      targetInterp.setNestLevel(targetInterp.getNestLevel() + 1);
 
       targetInterp.resetResult();
       targetInterp.allowExceptions();
@@ -99,13 +99,13 @@ public final class InterpAliasCmd implements CommandWithDispose {
       int result = targetInterp.invoke(cmdv, Interp.INVOKE_NO_TRACEBACK);
 
       cmd.release();
-      targetInterp.nestLevel--;
+      targetInterp.setNestLevel(targetInterp.getNestLevel() - 1);
 
       // Check if we are at the bottom of the stack for the target
       // interpreter.
       // If so, check for special return codes.
 
-      if (targetInterp.nestLevel == 0) {
+      if (targetInterp.getNestLevel() == 0) {
         if (result == TCL.RETURN) {
           result = targetInterp.updateReturnInfo();
         }
@@ -177,7 +177,7 @@ public final class InterpAliasCmd implements CommandWithDispose {
 
     /* Don't allow alias over an interpreter's own slave command - see test interp-14.4 */
     WrappedCommand slaveCmd = Namespace.findCommand(slaveInterp, name.toString(), null, 0);
-    if (slaveCmd != null && slaveInterp != null && slaveCmd.getCmd() == masterInterp.slave) {
+    if (slaveCmd != null && slaveInterp != null && slaveCmd.getCmd() == masterInterp.getSlave()) {
       slaveInterp.deleteCommandFromToken(slaveCmd);
       throw new TclException(
           interp, "cannot define or rename alias \"" + name + "\": interpreter deleted");

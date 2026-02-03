@@ -44,11 +44,7 @@ public class Interp extends EventuallyFreed {
    */
   private final HashMap<String, ReflectObject> reflectObjTable = new HashMap<>();
 
-  /**
-   * Number of reflect objects created so far inside this Interp (including those that have be
-   * freed)
-   */
-  public long reflectObjCount = 0;
+  private long reflectObjCount = 0;
 
   private final Map<String, List<ReflectObject>> reflectConflictTable = new HashMap<>();
 
@@ -61,11 +57,9 @@ public class Interp extends EventuallyFreed {
   /** We pretend this is Tcl 8.4, patch level 0. */
   public static final String TCL_PATCH_LEVEL = "8.4.0";
 
-  /** Total number of times a command procedure has been called for this interpreter. */
-  public int cmdCount;
+  private int cmdCount;
 
-  /** Table of channels currently registered in this interp. */
-  public Map<String, Channel> interpChanTable;
+  private Map<String, Channel> interpChanTable;
 
   /**
    * Set to true if [encoding system] can set the encoding for stdout and stderr. This is an attempt
@@ -83,15 +77,9 @@ public class Interp extends EventuallyFreed {
 
   private CallFrame frame;
 
-  /**
-   * Points to the call frame whose variables are currently in use (same as frame unless an
-   * "uplevel" command is being executed). null means no procedure is active or "uplevel 0" is being
-   * exec'ed.
-   */
-  public CallFrame varFrame;
+  private CallFrame varFrame;
 
-  /** The interpreter's global namespace. */
-  public Namespace globalNs;
+  private Namespace globalNs;
 
   private final HashMap<String, WrappedCommand> hiddenCmdTable = new HashMap<>();
 
@@ -104,8 +92,7 @@ public class Interp extends EventuallyFreed {
    */
   private final Map<WrappedCommand, Interp> targetTable = new HashMap<>();
 
-  /** Information necessary for this interp to function as a slave. */
-  public InterpSlaveCmd slave;
+  private InterpSlaveCmd slave;
 
   /** Table which maps from names of commands in slave interpreter to InterpAliasCmd objects. */
   private final Map<String, InterpAliasCmd> aliasTable = new HashMap<>();
@@ -115,23 +102,16 @@ public class Interp extends EventuallyFreed {
 
   // CallFrame globalFrame;
 
-  /**
-   * The script file currently under execution. Can be null if the interpreter is not evaluating any
-   * script file.
-   */
-  public String scriptFile;
+  private String scriptFile;
 
-  /** Number of times the interp.eval() routine has been recursively invoked. */
-  public int nestLevel;
+  private int nestLevel;
 
   /** Used to catch infinite loops in Parser.eval2. */
   private int maxNestingDepth = 1000;
 
-  /** Flags used when evaluating a command. */
-  public int evalFlags;
+  private int evalFlags;
 
-  /** Flags used when evaluating a command. */
-  public int flags;
+  private int flags;
 
   private boolean isSafe;
 
@@ -303,7 +283,7 @@ public class Interp extends EventuallyFreed {
 
   // The ClassLoader for this interp
 
-  TclClassLoader classLoader = null;
+  private TclClassLoader classLoader = null;
 
   // Map of Tcl library scripts that is initialized
   // the first time a script is loaded. All interps
@@ -317,7 +297,7 @@ public class Interp extends EventuallyFreed {
   // in order to avoid a possible race condition
   // during the first call to evalResource.
 
-  static HashMap tclLibraryScripts = new HashMap();
+  private static HashMap tclLibraryScripts = new HashMap();
 
   // The interruptedEvent field is set after a call
   // to Interp.setInterrupted(). When non-null, this
@@ -327,18 +307,11 @@ public class Interp extends EventuallyFreed {
 
   private TclInterruptedExceptionEvent interruptedEvent = null;
 
-  /** List of WrappedCommands that currently have active execution step traces */
-  ArrayList<WrappedCommand> activeExecutionStepTraces = null;
+  private ArrayList<WrappedCommand> activeExecutionStepTraces = null;
 
-  /** Set to true to enable step tracing, if any exist */
-  boolean stepTracingEnabled = true;
+  private boolean stepTracingEnabled = true;
 
-  /**
-   * Using System.in directly creates non-interruptible block during System.in.read(). This instance
-   * prevents the read() block. The first instance created will replace System.in with itself, so
-   * code doesn't have to use this instance directly.
-   */
-  public static ManagedSystemInStream systemIn = new ManagedSystemInStream();
+  private static ManagedSystemInStream systemIn = new ManagedSystemInStream();
 
   /**
    * Temporary file name created for [info nameofexecutable]. Typically set by [info
@@ -380,6 +353,27 @@ public class Interp extends EventuallyFreed {
     var out = new Interp();
     out.init();
     return out;
+  }
+
+  public static HashMap getTclLibraryScripts() {
+    return tclLibraryScripts;
+  }
+
+  public static void setTclLibraryScripts(HashMap tclLibraryScripts) {
+    Interp.tclLibraryScripts = tclLibraryScripts;
+  }
+
+  /**
+   * Using System.in directly creates non-interruptible block during System.in.read(). This instance
+   * prevents the read() block. The first instance created will replace System.in with itself, so
+   * code doesn't have to use this instance directly.
+   */
+  public static ManagedSystemInStream getSystemIn() {
+    return systemIn;
+  }
+
+  public static void setSystemIn(ManagedSystemInStream systemIn) {
+    Interp.systemIn = systemIn;
   }
 
   private void init() {
@@ -459,27 +453,27 @@ public class Interp extends EventuallyFreed {
     recycledD.preserve(); // refCount is 1 when unused
 
     setExpr(new Expression());
-    nestLevel = 0;
+    setNestLevel(0);
 
     setFrame(null);
-    varFrame = null;
+    setVarFrame(null);
 
     setReturnCode(TCL.OK);
     setErrorInfo(null);
     errorCode = null;
 
     setPackageUnknown(null);
-    cmdCount = 0;
+    setCmdCount(0);
     setTermOffset(0);
-    evalFlags = 0;
-    scriptFile = null;
-    flags = 0;
+    setEvalFlags(0);
+    setScriptFile(null);
+    setFlags(0);
     setSafe(false);
     setAssocData(null);
 
-    globalNs = null; // force creation of global ns below
-    globalNs = Namespace.createNamespace(this, null, null);
-    if (globalNs == null) {
+    setGlobalNs(null); // force creation of global ns below
+    setGlobalNs(Namespace.createNamespace(this, null, null));
+    if (getGlobalNs() == null) {
       throw new TclRuntimeError("Interp(): can't create global namespace");
     }
 
@@ -510,7 +504,7 @@ public class Interp extends EventuallyFreed {
     // Initialize the Global (static) channel table and the local
     // interp channel table.
 
-    interpChanTable = TclIO.getInterpChanTable(this);
+    setInterpChanTable(TclIO.getInterpChanTable(this));
 
     // Sets up the variable trace for tcl_precision.
 
@@ -638,7 +632,7 @@ public class Interp extends EventuallyFreed {
       throw new TclRuntimeError("eventuallyDispose called on interpreter not marked deleted");
     }
 
-    if (nestLevel > 0) {
+    if (getNestLevel() > 0) {
       throw new TclRuntimeError("dispose() called with active evals");
     }
 
@@ -659,7 +653,7 @@ public class Interp extends EventuallyFreed {
     // Dismantle the namespace here, before we clear the assocData. If any
     // background errors occur here, they will be deleted below.
 
-    Namespace.teardownNamespace(globalNs);
+    Namespace.teardownNamespace(getGlobalNs());
 
     // Delete all variables.
 
@@ -686,7 +680,7 @@ public class Interp extends EventuallyFreed {
     }
 
     setFrame(null);
-    varFrame = null;
+    setVarFrame(null);
 
     try {
       if (errorInfoObj != null) {
@@ -724,7 +718,7 @@ public class Interp extends EventuallyFreed {
 
     // Close any remaining channels
 
-    for (Object o : interpChanTable.entrySet()) {
+    for (Object o : getInterpChanTable().entrySet()) {
       Map.Entry entry = (Map.Entry) o;
       Channel chan = (Channel) entry.getValue();
       try {
@@ -733,31 +727,31 @@ public class Interp extends EventuallyFreed {
         // Ignore any IO errors
       }
     }
-    interpChanTable.clear();
-    interpChanTable = null;
+    getInterpChanTable().clear();
+    setInterpChanTable(null);
 
     // Finish deleting the global namespace.
 
-    Namespace.deleteNamespace(globalNs);
-    globalNs = null;
+    Namespace.deleteNamespace(getGlobalNs());
+    setGlobalNs(null);
 
     // Free up the result *after* deleting variables, since variable deletion could have transferred
     // ownership of
     // the result string to Tcl.
 
     setFrame(null);
-    varFrame = null;
+    setVarFrame(null);
     resolvers.clear();
 
     // Free up classloader (makes sure Interp is released in container
     // environments.)
-    if (classLoader != null) {
-      classLoader.dispose();
-      classLoader = null;
+    if (getClassLoader() != null) {
+      getClassLoader().dispose();
+      setClassLoader(null);
     }
 
     // stop the ManagedSystemInStream thread
-    systemIn.dispose();
+    getSystemIn().dispose();
 
     resetResult();
   }
@@ -788,7 +782,7 @@ public class Interp extends EventuallyFreed {
     // Check depth of nested calls to eval: if this gets too large,
     // it's probably because of an infinite loop somewhere.
 
-    if (nestLevel >= maxNestingDepth) {
+    if (getNestLevel() >= maxNestingDepth) {
       Parser.infiniteLoopException(this);
     }
   }
@@ -1389,7 +1383,7 @@ public class Interp extends EventuallyFreed {
         return;
       }
     } else {
-      ns = globalNs;
+      ns = getGlobalNs();
       tail = cmdName;
     }
 
@@ -1467,7 +1461,7 @@ public class Interp extends EventuallyFreed {
     if (cmd != null) {
       if (cmd.getNs() != null) {
         name.append(cmd.getNs().fullName);
-        if (cmd.getNs() != interp.globalNs) {
+        if (cmd.getNs() != interp.getGlobalNs()) {
           name.append("::");
         }
       }
@@ -1891,11 +1885,11 @@ public class Interp extends EventuallyFreed {
    * @return true if it was added
    */
   boolean activateExecutionStepTrace(WrappedCommand cmd) {
-    if (activeExecutionStepTraces == null) {
-      activeExecutionStepTraces = new ArrayList<WrappedCommand>();
+    if (getActiveExecutionStepTraces() == null) {
+      setActiveExecutionStepTraces(new ArrayList<>());
     }
-    if (activeExecutionStepTraces.contains(cmd)) return false;
-    activeExecutionStepTraces.add(cmd);
+    if (getActiveExecutionStepTraces().contains(cmd)) return false;
+    getActiveExecutionStepTraces().add(cmd);
     return true;
   }
 
@@ -1905,10 +1899,10 @@ public class Interp extends EventuallyFreed {
    * @param cmd Command which was being stepped through
    */
   void deactivateExecutionStepTrace(WrappedCommand cmd) {
-    if (activeExecutionStepTraces == null) return;
-    activeExecutionStepTraces.remove(cmd);
-    if (activeExecutionStepTraces.size() == 0) {
-      activeExecutionStepTraces = null;
+    if (getActiveExecutionStepTraces() == null) return;
+    getActiveExecutionStepTraces().remove(cmd);
+    if (getActiveExecutionStepTraces().size() == 0) {
+      setActiveExecutionStepTraces(null);
     }
   }
 
@@ -1916,7 +1910,7 @@ public class Interp extends EventuallyFreed {
    * @return true if there are active execution step traces in effect
    */
   final boolean hasActiveExecutionStepTraces() {
-    return (stepTracingEnabled && activeExecutionStepTraces != null);
+    return (isStepTracingEnabled() && getActiveExecutionStepTraces() != null);
   }
 
   /**
@@ -1925,8 +1919,8 @@ public class Interp extends EventuallyFreed {
    */
   WrappedCommand[] getCopyOfActiveExecutionStepTraces() {
     WrappedCommand[] rv = new WrappedCommand[0];
-    if (activeExecutionStepTraces == null) return rv;
-    rv = activeExecutionStepTraces.toArray(rv);
+    if (getActiveExecutionStepTraces() == null) return rv;
+    rv = getActiveExecutionStepTraces().toArray(rv);
     return rv;
   }
 
@@ -1934,7 +1928,7 @@ public class Interp extends EventuallyFreed {
    * @param enable if false, suppress execution step tracing. If true, re-enable step tracing
    */
   void enableExecutionStepTracing(boolean enable) {
-    stepTracingEnabled = enable;
+    setStepTracingEnabled(enable);
   }
 
   /*-----------------------------------------------------------------
@@ -2093,15 +2087,15 @@ public class Interp extends EventuallyFreed {
       throw new NullPointerException("passed null String to eval()");
     }
 
-    int evalFlags = this.evalFlags;
-    this.evalFlags &= ~Parser.TCL_ALLOW_EXCEPTIONS;
+    int evalFlags = this.getEvalFlags();
+    this.setEvalFlags(this.getEvalFlags() & ~Parser.TCL_ALLOW_EXCEPTIONS);
 
     CharPointer script = new CharPointer(string);
     try {
       Parser.eval2(this, script.getArray(), script.getIndex(), script.length(), flags);
     } catch (TclException e) {
 
-      if (nestLevel != 0) {
+      if (getNestLevel() != 0) {
         throw e;
       }
 
@@ -2186,8 +2180,8 @@ public class Interp extends EventuallyFreed {
     // the TclObject arguments to the command can be used as is
     // by invoking Parse.evalObjv();
 
-    int evalFlags = this.evalFlags;
-    this.evalFlags &= ~Parser.TCL_ALLOW_EXCEPTIONS;
+    int evalFlags = this.getEvalFlags();
+    this.setEvalFlags(this.getEvalFlags() & ~Parser.TCL_ALLOW_EXCEPTIONS);
     TclObject[] objv = null;
     boolean invokedEval = false;
 
@@ -2235,7 +2229,7 @@ public class Interp extends EventuallyFreed {
 
       // Process results when the next level is zero
 
-      if (nestLevel != 0) {
+      if (getNestLevel() != 0) {
         throw e;
       }
 
@@ -2339,8 +2333,8 @@ public class Interp extends EventuallyFreed {
       throw new TclException(this, "couldn't read file \"" + s + "\"");
     }
 
-    String oldScript = scriptFile;
-    scriptFile = s;
+    String oldScript = getScriptFile();
+    setScriptFile(s);
 
     try {
       pushDebugStack(s, 1);
@@ -2351,7 +2345,7 @@ public class Interp extends EventuallyFreed {
       }
       throw e;
     } finally {
-      scriptFile = oldScript;
+      setScriptFile(oldScript);
       popDebugStack();
     }
   }
@@ -2384,13 +2378,13 @@ public class Interp extends EventuallyFreed {
       throw new TclException(this, "cannot read URL \"" + s + "\"");
     }
 
-    String oldScript = scriptFile;
-    scriptFile = s;
+    String oldScript = getScriptFile();
+    setScriptFile(s);
 
     try {
       eval(fileContent, 0);
     } finally {
-      scriptFile = oldScript;
+      setScriptFile(oldScript);
     }
   }
 
@@ -2647,8 +2641,8 @@ public class Interp extends EventuallyFreed {
     // resource loads should not need to grab a static monitor.
 
     if (USE_SCRIPT_CACHE && couldBeCached) {
-      synchronized (tclLibraryScripts) {
-        if ((script = (String) tclLibraryScripts.get(resName)) == null) {
+      synchronized (getTclLibraryScripts()) {
+        if ((script = (String) getTclLibraryScripts().get(resName)) == null) {
           isCached = false;
         } else {
           isCached = true;
@@ -2668,7 +2662,7 @@ public class Interp extends EventuallyFreed {
             if (script == null) {
               throw new TclException(this, "cannot read resource \"" + resName + "\"");
             }
-            tclLibraryScripts.put(resName, script);
+            getTclLibraryScripts().put(resName, script);
           } finally {
             closeInputStream(stream);
           }
@@ -2697,13 +2691,13 @@ public class Interp extends EventuallyFreed {
     // can be used to construct names of other resources in the
     // same resource directory.
 
-    String oldScript = scriptFile;
-    scriptFile = "resource:" + resName;
+    String oldScript = getScriptFile();
+    setScriptFile("resource:" + resName);
 
     try {
       eval(script, 0);
     } finally {
-      scriptFile = oldScript;
+      setScriptFile(oldScript);
     }
   }
 
@@ -3018,12 +3012,16 @@ public class Interp extends EventuallyFreed {
   }
 
   /**
+   * The script file currently under execution. Can be null if the interpreter is not evaluating any
+   * script file.
+   */
+  /**
    * Returns the name of the script file currently under execution.
    *
    * @return the name of the script file currently under execution.
    */
   public String getScriptFile() {
-    return dbg.fileName;
+    return scriptFile;
   }
 
   /**
@@ -3162,7 +3160,7 @@ public class Interp extends EventuallyFreed {
 
     // Check that the command is really in global namespace
 
-    if (cmd.getNs() != globalNs) {
+    if (cmd.getNs() != getGlobalNs()) {
       throw new TclException(
           this, "can only hide global namespace commands" + " (use rename then hide)");
     }
@@ -3244,7 +3242,7 @@ public class Interp extends EventuallyFreed {
     // check. (If it was not, we would not really know how to
     // handle it).
 
-    if (cmd.getNs() != globalNs) {
+    if (cmd.getNs() != getGlobalNs()) {
 
       // This case is theoritically impossible,
       // we might rather panic() than 'nicely' erroring out ?
@@ -3324,13 +3322,13 @@ public class Interp extends EventuallyFreed {
    * @throws TclException
    */
   public int invokeGlobal(TclObject[] objv, int flags) throws TclException {
-    CallFrame savedVarFrame = varFrame;
+    CallFrame savedVarFrame = getVarFrame();
 
     try {
-      varFrame = null;
+      setVarFrame(null);
       return invoke(objv, flags);
     } finally {
-      varFrame = savedVarFrame;
+      setVarFrame(savedVarFrame);
     }
   }
 
@@ -3393,7 +3391,7 @@ public class Interp extends EventuallyFreed {
     // have gotten changed by earlier invocations.
 
     resetResult();
-    cmdCount++;
+    setCmdCount(getCmdCount() + 1);
 
     int result = TCL.OK;
     try {
@@ -3464,7 +3462,7 @@ public class Interp extends EventuallyFreed {
    * structure. See the reference documentation for more details.
    */
   public void allowExceptions() {
-    evalFlags |= Parser.TCL_ALLOW_EXCEPTIONS;
+    setEvalFlags(getEvalFlags() | Parser.TCL_ALLOW_EXCEPTIONS);
   }
 
   public HashMap<String, ReflectObject> getReflectObjTable() {
@@ -3751,6 +3749,131 @@ public class Interp extends EventuallyFreed {
 
   public void setErrorLine(int errorLine) {
     this.errorLine = errorLine;
+  }
+
+  /**
+   * Number of reflect objects created so far inside this Interp (including those that have be
+   * freed)
+   */
+  public long getReflectObjCount() {
+    return reflectObjCount;
+  }
+
+  /** Total number of times a command procedure has been called for this interpreter. */
+  public int getCmdCount() {
+    return cmdCount;
+  }
+
+  public void setCmdCount(int cmdCount) {
+    this.cmdCount = cmdCount;
+  }
+
+  /** Table of channels currently registered in this interp. */
+  public Map<String, Channel> getInterpChanTable() {
+    return interpChanTable;
+  }
+
+  public void setInterpChanTable(Map<String, Channel> interpChanTable) {
+    this.interpChanTable = interpChanTable;
+  }
+
+  /**
+   * Points to the call frame whose variables are currently in use (same as frame unless an
+   * "uplevel" command is being executed). null means no procedure is active or "uplevel 0" is being
+   * exec'ed.
+   */
+  public CallFrame getVarFrame() {
+    return varFrame;
+  }
+
+  public void setVarFrame(CallFrame varFrame) {
+    this.varFrame = varFrame;
+  }
+
+  /** The interpreter's global namespace. */
+  public Namespace getGlobalNs() {
+    return globalNs;
+  }
+
+  public void setGlobalNs(Namespace globalNs) {
+    this.globalNs = globalNs;
+  }
+
+  /** Information necessary for this interp to function as a slave. */
+  public InterpSlaveCmd getSlave() {
+    return slave;
+  }
+
+  public void setSlave(InterpSlaveCmd slave) {
+    this.slave = slave;
+  }
+
+  public void setScriptFile(String scriptFile) {
+    this.scriptFile = scriptFile;
+  }
+
+  /** Number of times the interp.eval() routine has been recursively invoked. */
+  public int getNestLevel() {
+    return nestLevel;
+  }
+
+  public void setNestLevel(int nestLevel) {
+    this.nestLevel = nestLevel;
+  }
+
+  /** Flags used when evaluating a command. */
+  public int getEvalFlags() {
+    return evalFlags;
+  }
+
+  public void setEvalFlags(int evalFlags) {
+    this.evalFlags = evalFlags;
+  }
+
+  /** Flags used when evaluating a command. */
+  public int getFlags() {
+    return flags;
+  }
+
+  public void setFlags(int flags) {
+    this.flags = flags;
+  }
+
+  public void setClassLoader(TclClassLoader classLoader) {
+    this.classLoader = classLoader;
+  }
+
+  /** List of WrappedCommands that currently have active execution step traces */
+  public ArrayList<WrappedCommand> getActiveExecutionStepTraces() {
+    return activeExecutionStepTraces;
+  }
+
+  public void setActiveExecutionStepTraces(ArrayList<WrappedCommand> activeExecutionStepTraces) {
+    this.activeExecutionStepTraces = activeExecutionStepTraces;
+  }
+
+  /** Set to true to enable step tracing, if any exist */
+  public boolean isStepTracingEnabled() {
+    return stepTracingEnabled;
+  }
+
+  public void setStepTracingEnabled(boolean stepTracingEnabled) {
+    this.stepTracingEnabled = stepTracingEnabled;
+  }
+
+  public String registerReflectObj(ReflectObject roRep) {
+    var newId = reflectObjCount + 1;
+    reflectObjCount = newId;
+    var out = ReflectObject.CMD_PREFIX + Long.toHexString(newId);
+    createCommand(out, roRep);
+
+    //      interp.setReflectObjCount(interp.getReflectObjCount() + 1); // incr id, the first id
+    // used will be 1
+    //      roRep.refID = CMD_PREFIX + Long.toHexString(interp.getReflectObjCount());
+    //
+    //      interp.createCommand(roRep.refID, roRep);
+
+    return out;
   }
 
   public record ResolverScheme(String name, Resolver resolver) {}
@@ -4101,7 +4224,7 @@ public class Interp extends EventuallyFreed {
    *
    * <p>Side effects: None.
    */
-  public ClassLoader getClassLoader() {
+  public TclClassLoader getClassLoader() {
     // Allocate a TclClassLoader that will delagate to the
     // context class loader and then search on the
     // env(TCL_CLASSPATH) for classes.
@@ -4128,7 +4251,7 @@ public class Interp extends EventuallyFreed {
    * @return InputStream
    */
   InputStream getResourceAsStream(String resName) {
-    if (classLoader == null) {
+    if (getClassLoader() == null) {
       getClassLoader();
     }
 
@@ -4138,7 +4261,7 @@ public class Interp extends EventuallyFreed {
       // context loader (if there is one), and then on
       // the env(TCL_CLASSPATH).
 
-      return classLoader.getResourceAsStream(resName);
+      return getClassLoader().getResourceAsStream(resName);
     } catch (PackageNameException e) {
       // Failed attempt to load resource with java or tcl prefix.
 

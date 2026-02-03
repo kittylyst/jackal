@@ -28,7 +28,7 @@ import tcl.lang.model.*;
  * of the methods in generic/tclVar.c and the structure Tcl_Var from the C version.
  */
 
-public class Var {
+public final class Var {
 
   /**
    * Flag bits for variables. The first three (SCALAR, ARRAY, and LINK) are mutually exclusive and
@@ -82,103 +82,131 @@ public class Var {
   // Flag used only with makeUpvar()
   public static final int EXPLICIT_LOCAL_NAME = 0x1000;
 
+  public static String getNoSuchVar() {
+    return noSuchVar;
+  }
+
+  public static String getIsArray() {
+    return isArray;
+  }
+
+  public static String getNeedArray() {
+    return needArray;
+  }
+
+  public static String getNoSuchElement() {
+    return noSuchElement;
+  }
+
+  public static String getDanglingElement() {
+    return danglingElement;
+  }
+
+  public static String getDanglingVar() {
+    return danglingVar;
+  }
+
+  public static String getBadNamespace() {
+    return badNamespace;
+  }
+
+  public static String getMissingName() {
+    return missingName;
+  }
+
   // Methods to read various flag bits of variables.
 
   public final boolean isVarScalar() {
-    return ((flags & SCALAR) != 0);
+    return ((getFlags() & SCALAR) != 0);
   }
 
   public final boolean isVarLink() {
-    return ((flags & LINK) != 0);
+    return ((getFlags() & LINK) != 0);
   }
 
   public final boolean isVarArray() {
-    return ((flags & ARRAY) != 0);
+    return ((getFlags() & ARRAY) != 0);
   }
 
   public final boolean isVarUndefined() {
-    return ((flags & UNDEFINED) != 0);
+    return ((getFlags() & UNDEFINED) != 0);
   }
 
   public final boolean isVarArrayElement() {
-    return ((flags & ARRAY_ELEMENT) != 0);
+    return ((getFlags() & ARRAY_ELEMENT) != 0);
   }
 
   public final boolean isVarNamespace() {
-    return ((flags & NAMESPACE_VAR) != 0);
+    return ((getFlags() & NAMESPACE_VAR) != 0);
   }
 
   public final boolean isVarInSymbolTable() {
-    return ((flags & IN_SYMBOL_TABLE) != 0);
+    return ((getFlags() & IN_SYMBOL_TABLE) != 0);
   }
 
   public final boolean isVarTraceExists() {
-    return ((flags & TRACE_EXISTS) != 0);
+    return ((getFlags() & TRACE_EXISTS) != 0);
   }
 
   public final boolean isVarNoCache() {
-    return ((flags & NO_CACHE) != 0);
+    return ((getFlags() & NO_CACHE) != 0);
   }
 
   // True when a compiled local variable should
   // not be a member of the var frame.
 
   final boolean isVarNonLocal() {
-    return ((flags & NON_LOCAL) != 0);
+    return ((getFlags() & NON_LOCAL) != 0);
   }
 
   // Methods to ensure that various flag bits are set properly for variables.
 
-  final void setVarScalar() {
-    flags = (flags & ~(ARRAY | LINK)) | SCALAR;
+  private void setVarScalar() {
+    setFlags((getFlags() & ~(ARRAY | LINK)) | SCALAR);
   }
 
-  final void setVarArray() {
-    flags = (flags & ~(SCALAR | LINK)) | ARRAY;
+  private void setVarArray() {
+    setFlags((getFlags() & ~(SCALAR | LINK)) | ARRAY);
   }
 
-  final void setVarLink() {
-    flags = (flags & ~(SCALAR | ARRAY)) | LINK;
+  private void setVarLink() {
+    setFlags((getFlags() & ~(SCALAR | ARRAY)) | LINK);
   }
 
-  final void setVarArrayElement() {
-    flags = (flags & ~ARRAY) | ARRAY_ELEMENT;
+  private void setVarArrayElement() {
+    setFlags((getFlags() & ~ARRAY) | ARRAY_ELEMENT);
   }
 
-  final void setVarUndefined() {
-    flags |= UNDEFINED;
+  private void setVarUndefined() {
+    setFlags(getFlags() | UNDEFINED);
   }
 
-  public final void setVarNamespace() {
-    flags |= NAMESPACE_VAR;
+  public void setVarNamespace() {
+    setFlags(getFlags() | NAMESPACE_VAR);
   }
 
-  final void setVarInSymbolTable() {
-    flags |= IN_SYMBOL_TABLE;
+  private void setVarNonLocal() {
+    setFlags(getFlags() | NON_LOCAL);
   }
 
-  final void setVarNonLocal() {
-    flags |= NON_LOCAL;
+  private void setVarNoCache() {
+    setFlags(getFlags() | NO_CACHE);
   }
 
-  final void setVarNoCache() {
-    flags |= NO_CACHE;
+  private void setVarTraceExists() {
+    setFlags(getFlags() | TRACE_EXISTS);
   }
 
-  final void setVarTraceExists() {
-    flags |= TRACE_EXISTS;
+  private void clearVarUndefined() {
+    setFlags(getFlags() & ~UNDEFINED);
   }
 
-  final void clearVarUndefined() {
-    flags &= ~UNDEFINED;
+  public void clearVarInSymbolTable() {
+    setFlags(getFlags() & ~IN_SYMBOL_TABLE);
   }
 
-  public final void clearVarInSymbolTable() {
-    flags &= ~IN_SYMBOL_TABLE;
-  }
-
-  final void clearVarTraceExists() {
-    flags &= ~TRACE_EXISTS;
+  private void clearVarTraceExists() {
+    setFlags(getFlags() & ~TRACE_EXISTS);
   }
 
   /** tobj is the object stored in the var if it is scalar. always use getValue() and setValue() */
@@ -187,52 +215,21 @@ public class Var {
   /** Key/value pairs in array, if this is an array variable. Always use getArrayMap() */
   private final Map<String, Var> arraymap = new ConcurrentHashMap<>();
 
-  /** Reference to a linkto variable associated by this upvar */
-  Var linkto;
+  private Var linkto;
 
-  /** List that holds the traces that were placed in this Var */
-  public ArrayList<TraceRecord> traces;
+  private ArrayList<TraceRecord> traces;
 
-  public ArrayList<SearchId> sidVec;
+  private ArrayList<SearchId> sidVec;
 
-  /**
-   * Miscellaneous bits of information about variable.
-   *
-   * @see Var#SCALAR
-   * @see Var#ARRAY
-   * @see Var#LINK
-   * @see Var#UNDEFINED
-   * @see Var#IN_SYMBOL_TABLE
-   * @see Var#TRACE_ACTIVE
-   * @see Var#ARRAY_ELEMENT
-   * @see Var#NAMESPACE_VAR
-   */
-  int flags;
+  private int flags;
 
-  /**
-   * If variable is in a symbol table, either the entry that refers to this variable or null if the
-   * variable has been detached from its table (e.g. an array is deleted, but some of its elements
-   * are still referred to in upvars). null if the variable is not in a symbol table. This is used
-   * to delete an variable from its symbol table if it is no longer needed.
-   */
-  public Map<String, Var> table;
+  private Map<String, Var> table;
 
-  /** The key under which this variable is stored in the hash table. */
-  public String hashKey;
+  private String hashKey;
 
-  /**
-   * Counts number of active uses of this variable, not including its entry in the call frame or the
-   * hash table: 1 for each additional variable whose link points here, 1 for each nested trace
-   * active on variable, and 1 if the variable is a namespace variable. This record can't be deleted
-   * until refCount becomes 0.
-   */
-  public int refCount;
+  private int refCount;
 
-  /**
-   * Reference to the namespace that contains this variable. This is set only for namespace
-   * variables. A local variable in a procedure will always have a null ns field.
-   */
-  public Namespace ns;
+  private Namespace ns;
 
   /**
    * NewVar -> Var
@@ -242,16 +239,16 @@ public class Var {
   public Var() {
     setValue(null);
     deleteArrayMap();
-    linkto = null;
+    setLinkto(null);
     // name = null; // Like hashKey in Jacl
-    ns = null;
-    hashKey = null; // Like hPtr in the C implementation
-    table = null; // Like hPtr in the C implementation
-    refCount = 0;
-    traces = null;
+    setNs(null);
+    setHashKey(null); // Like hPtr in the C implementation
+    setTable(null); // Like hPtr in the C implementation
+    setRefCount(0);
+    setTraces(null);
     // search = null;
-    sidVec = null; // Like search in the C implementation
-    flags = (SCALAR | UNDEFINED | IN_SYMBOL_TABLE);
+    setSidVec(null); // Like search in the C implementation
+    setFlags((SCALAR | UNDEFINED | IN_SYMBOL_TABLE));
   }
 
   /**
@@ -290,16 +287,16 @@ public class Var {
   /** Used to create a String that describes this variable. */
   public String toString() {
     StringBuffer sb = new StringBuffer();
-    if (ns != null) {
-      sb.append(ns.fullName);
-      if (ns.fullName.equals("::")) {
-        sb.append(hashKey);
+    if (getNs() != null) {
+      sb.append(getNs().fullName);
+      if (getNs().fullName.equals("::")) {
+        sb.append(getHashKey());
       } else {
         sb.append("::");
-        sb.append(hashKey);
+        sb.append(getHashKey());
       }
     } else {
-      sb.append(hashKey);
+      sb.append(getHashKey());
     }
 
     if (isVarScalar()) {
@@ -348,12 +345,12 @@ public class Var {
    * @return The int value for unique SearchId string.
    */
   public int getNextIndex() {
-    int size = sidVec.size();
+    int size = getSidVec().size();
     if (size == 0) {
       return 1;
     }
-    SearchId sid = sidVec.get(size - 1);
-    return (sid.getIndex() + 1);
+    SearchId sid = getSidVec().get(size - 1);
+    return (sid.index() + 1);
   }
 
   /**
@@ -363,12 +360,12 @@ public class Var {
    * @param s String that ia a unique identifier for a SearchId object
    * @return Iterator if a match is found else null.
    */
-  public Iterator getSearch(String s) {
+  public Iterator<Map.Entry<String, Var>> getSearch(String s) {
     SearchId sid;
-    for (int i = 0; i < sidVec.size(); i++) {
-      sid = sidVec.get(i);
+    for (int i = 0; i < getSidVec().size(); i++) {
+      sid = getSidVec().get(i);
       if (sid.equals(s)) {
-        return sid.getIterator();
+        return sid.iterator();
       }
     }
     return null;
@@ -382,10 +379,10 @@ public class Var {
   public boolean removeSearch(String sid) {
     SearchId curSid;
 
-    for (int i = 0; i < sidVec.size(); i++) {
-      curSid = sidVec.get(i);
+    for (int i = 0; i < getSidVec().size(); i++) {
+      curSid = getSidVec().get(i);
       if (curSid.equals(sid)) {
-        sidVec.remove(i);
+        getSidVec().remove(i);
         return true;
       }
     }
@@ -398,14 +395,14 @@ public class Var {
   // The strings below are used to indicate what went wrong when a
   // variable access is denied.
 
-  static final String noSuchVar = "no such variable";
-  static final String isArray = "variable is array";
-  static final String needArray = "variable isn't array";
-  static final String noSuchElement = "no such element in array";
-  static final String danglingElement = "upvar refers to element in deleted array";
-  static final String danglingVar = "upvar refers to variable in deleted namespace";
-  static final String badNamespace = "parent namespace doesn't exist";
-  static final String missingName = "missing variable name";
+  private static final String noSuchVar = "no such variable";
+  private static final String isArray = "variable is array";
+  private static final String needArray = "variable isn't array";
+  private static final String noSuchElement = "no such element in array";
+  private static final String danglingElement = "upvar refers to element in deleted array";
+  private static final String danglingVar = "upvar refers to variable in deleted namespace";
+  private static final String badNamespace = "parent namespace doesn't exist";
+  private static final String missingName = "missing variable name";
 
   // Return true if a variable name stored in a String
   // indicates an array element. For example, this
@@ -413,7 +410,7 @@ public class Var {
   // for "foo".
   // bug 4744 - must be x() at a minimum to look like array
 
-  public static final boolean isArrayVarname(String varName) {
+  public static boolean isArrayVarname(String varName) {
     final int lastInd = varName.length() - 1;
     if (lastInd > 1 && varName.charAt(lastInd) == ')') {
       if (varName.indexOf('(') > 0) {
@@ -457,7 +454,7 @@ public class Var {
       boolean createPart1,
       boolean createPart2)
       throws TclException {
-    CallFrame varFrame = interp.varFrame;
+    CallFrame varFrame = interp.getVarFrame();
     // Reference to the procedure call frame whose
     // variables are currently in use. Same as
     // the current procedure's frame, if any,
@@ -495,7 +492,7 @@ public class Var {
     if (openParen != -1) {
       if (part2 != null) {
         if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
-          throw new TclVarException(interp, part1, part2, msg, needArray);
+          throw new TclVarException(interp, part1, part2, msg, getNeedArray());
         }
         return null;
       }
@@ -509,10 +506,10 @@ public class Var {
     // value, it may signal to continue onward, or it may signal
     // an error.
 
-    if (((flags & TCL.GLOBAL_ONLY) != 0) || (interp.varFrame == null)) {
-      cxtNs = interp.globalNs;
+    if (((flags & TCL.GLOBAL_ONLY) != 0) || (interp.getVarFrame() == null)) {
+      cxtNs = interp.getGlobalNs();
     } else {
-      cxtNs = interp.varFrame.getNs();
+      cxtNs = interp.getVarFrame().getNs();
     }
 
     if (cxtNs.resolver != null || interp.getResolvers() != null) {
@@ -576,13 +573,13 @@ public class Var {
 
           if (varNs == null) {
             if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
-              throw new TclVarException(interp, part1, part2, msg, badNamespace);
+              throw new TclVarException(interp, part1, part2, msg, getBadNamespace());
             }
             return null;
           }
           if (tail == null) {
             if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
-              throw new TclVarException(interp, part1, part2, msg, missingName);
+              throw new TclVarException(interp, part1, part2, msg, getMissingName());
             }
             return null;
           }
@@ -592,13 +589,13 @@ public class Var {
           // There is no hPtr member in Jacl, The hPtr combines the
           // table
           // and the key used in a table lookup.
-          var.hashKey = tail;
-          var.table = varNs.getVarTable();
+          var.setHashKey(tail);
+          var.setTable(varNs.getVarTable());
 
-          var.ns = varNs;
+          var.setNs(varNs);
         } else { // var wasn't found and not to create it
           if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
-            throw new TclVarException(interp, part1, part2, msg, noSuchVar);
+            throw new TclVarException(interp, part1, part2, msg, getNoSuchVar());
           }
           return null;
         }
@@ -629,7 +626,7 @@ public class Var {
               // No compiled local with this name, init it.
               if (createPart1) {
                 var = new Var();
-                var.hashKey = part1;
+                var.setHashKey(part1);
                 var.clearVarInSymbolTable();
 
                 compiledLocals[i] = var;
@@ -653,26 +650,26 @@ public class Var {
         table = varFrame.getVarTable();
         if (createPart1) {
           if (table == null) {
-            table = new HashMap();
+            table = new HashMap<String, Var>();
             varFrame.setVarTable(table);
           }
-          var = (Var) table.get(part1);
+          var = table.get(part1);
           if (var == null) { // we are adding a new entry
             var = new Var();
             table.put(part1, var);
 
             // There is no hPtr member in Jacl, The hPtr combines
             // the table and the key used in a table lookup.
-            var.hashKey = part1;
-            var.table = table;
+            var.setHashKey(part1);
+            var.setTable(table);
           }
         } else {
           if (table != null) {
-            var = (Var) table.get(part1);
+            var = table.get(part1);
           }
           if (var == null) {
             if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
-              throw new TclVarException(interp, part1, part2, msg, noSuchVar);
+              throw new TclVarException(interp, part1, part2, msg, getNoSuchVar());
             }
             return null;
           }
@@ -685,7 +682,7 @@ public class Var {
     // through any links until we find the referenced variable.
 
     while (var.isVarLink()) {
-      var = var.linkto;
+      var = var.getLinkto();
     }
 
     // If we're not dealing with an array element, return var.
@@ -729,7 +726,7 @@ public class Var {
     if (var.isVarUndefined() && !var.isVarArrayElement()) {
       if (!createPart1) {
         if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
-          throw new TclVarException(interp, part1, part2, msg, noSuchVar);
+          throw new TclVarException(interp, part1, part2, msg, getNoSuchVar());
         }
         return null;
       }
@@ -737,9 +734,9 @@ public class Var {
       // Make sure we are not resurrecting a namespace variable from a
       // deleted namespace!
 
-      if (((var.flags & IN_SYMBOL_TABLE) != 0) && (var.table == null)) {
+      if (((var.getFlags() & IN_SYMBOL_TABLE) != 0) && (var.getTable() == null)) {
         if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
-          throw new TclVarException(interp, part1, part2, msg, danglingVar);
+          throw new TclVarException(interp, part1, part2, msg, getDanglingVar());
         }
         return null;
       }
@@ -749,7 +746,7 @@ public class Var {
       var.createArrayMap();
     } else if (!var.isVarArray()) {
       if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
-        throw new TclVarException(interp, part1, part2, msg, needArray);
+        throw new TclVarException(interp, part1, part2, msg, getNeedArray());
       }
       return null;
     }
@@ -760,7 +757,7 @@ public class Var {
       Var searchvar = (Var) arrayTable.get(part2);
 
       if (searchvar == null) { // new entry
-        if (var.sidVec != null) {
+        if (var.getSidVec() != null) {
           deleteSearches(var);
         }
 
@@ -769,10 +766,10 @@ public class Var {
 
         // There is no hPtr member in Jacl, The hPtr combines the table
         // and the key used in a table lookup.
-        var.hashKey = part2;
-        var.table = arrayTable;
+        var.setHashKey(part2);
+        var.setTable(arrayTable);
 
-        var.ns = arrayVar.ns; // Will be null for local vars
+        var.setNs(arrayVar.getNs()); // Will be null for local vars
         var.setVarArrayElement();
       } else {
         var = searchvar;
@@ -781,7 +778,7 @@ public class Var {
       var = (Var) arrayTable.get(part2);
       if (var == null) {
         if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
-          throw new TclVarException(interp, part1, part2, msg, noSuchElement);
+          throw new TclVarException(interp, part1, part2, msg, getNoSuchElement());
         }
         return null;
       }
@@ -854,7 +851,7 @@ public class Var {
     try {
       // Invoke any traces that have been set for the variable.
 
-      if ((var.traces != null) || ((array != null) && (array.traces != null))) {
+      if ((var.getTraces() != null) || ((array != null) && (array.getTraces() != null))) {
         String msg =
             callTraces(
                 interp,
@@ -878,11 +875,11 @@ public class Var {
       if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
         String msg;
         if (var.isVarUndefined() && (array != null) && !array.isVarUndefined()) {
-          msg = noSuchElement;
+          msg = getNoSuchElement();
         } else if (var.isVarArray()) {
-          msg = isArray;
+          msg = getIsArray();
         } else {
-          msg = noSuchVar;
+          msg = getNoSuchVar();
         }
         throw new TclVarException(interp, part1, part2, "read", msg);
       }
@@ -970,12 +967,12 @@ public class Var {
     // Generate an error (allowing the variable to be reset would screw up
     // our storage allocation and is meaningless anyway).
 
-    if (((var.flags & IN_SYMBOL_TABLE) != 0) && (var.table == null)) {
+    if (((var.getFlags() & IN_SYMBOL_TABLE) != 0) && (var.getTable() == null)) {
       if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
         if (var.isVarArrayElement()) {
-          throw new TclVarException(interp, part1, part2, "set", danglingElement);
+          throw new TclVarException(interp, part1, part2, "set", getDanglingElement());
         } else {
-          throw new TclVarException(interp, part1, part2, "set", danglingVar);
+          throw new TclVarException(interp, part1, part2, "set", getDanglingVar());
         }
       }
       return null;
@@ -985,7 +982,7 @@ public class Var {
 
     if (var.isVarArray() && !var.isVarUndefined()) {
       if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
-        throw new TclVarException(interp, part1, part2, "set", isArray);
+        throw new TclVarException(interp, part1, part2, "set", getIsArray());
       }
       return null;
     }
@@ -1077,7 +1074,7 @@ public class Var {
 
       // Invoke any write traces for the variable.
 
-      if ((var.traces != null) || ((array != null) && (array.traces != null))) {
+      if ((var.getTraces() != null) || ((array != null) && (array.getTraces() != null))) {
 
         String msg =
             callTraces(
@@ -1141,7 +1138,7 @@ public class Var {
     final boolean validate = false;
 
     if (validate) {
-      CallFrame varFrame = interp.varFrame;
+      CallFrame varFrame = interp.getVarFrame();
 
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
@@ -1197,7 +1194,7 @@ public class Var {
     Var var = new Var();
     if (validate) {
       // Double check Var init state assumptions.
-      if (var.flags != (SCALAR | UNDEFINED | IN_SYMBOL_TABLE)) {
+      if (var.getFlags() != (SCALAR | UNDEFINED | IN_SYMBOL_TABLE)) {
         throw new TclRuntimeError("invalid Var flags state");
       }
       if (var.getValue() != null) {
@@ -1206,10 +1203,10 @@ public class Var {
       if (var.getArrayMap() != null) {
         throw new TclRuntimeError("expected null Var arraymap value");
       }
-      if (var.linkto != null) {
+      if (var.getLinkto() != null) {
         throw new TclRuntimeError("expected null Var linkto value");
       }
-      if (var.table != null) {
+      if (var.getTable() != null) {
         throw new TclRuntimeError("expected null Var table");
       }
     }
@@ -1220,9 +1217,9 @@ public class Var {
     // var.setVarScalar();
     // var.clearVarInHashtable();
     // var.clearVarUndefined();
-    var.flags = SCALAR;
+    var.setFlags(SCALAR);
 
-    var.hashKey = varname;
+    var.setHashKey(varname);
 
     // Assign TclObject value for scalar and incr ref count
 
@@ -1260,7 +1257,7 @@ public class Var {
       // is only even invoked after a CallFrame with a compiled
       // local array has already been pushed onto the stack.
 
-      CallFrame varFrame = interp.varFrame;
+      CallFrame varFrame = interp.getVarFrame();
 
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
@@ -1319,7 +1316,7 @@ public class Var {
     final boolean validate = false;
 
     if (validate) {
-      CallFrame varFrame = interp.varFrame;
+      CallFrame varFrame = interp.getVarFrame();
 
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
@@ -1383,7 +1380,7 @@ public class Var {
       // is only even invoked after a CallFrame with a compiled
       // local array has already been pushed onto the stack.
 
-      CallFrame varFrame = interp.varFrame;
+      CallFrame varFrame = interp.getVarFrame();
 
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
@@ -1444,7 +1441,7 @@ public class Var {
 
     Var var = new Var();
     var.clearVarInSymbolTable();
-    var.hashKey = varname;
+    var.setHashKey(varname);
 
     // Add var to the compiled local array
     // so that it will be found and used
@@ -1484,7 +1481,7 @@ public class Var {
       // is only even invoked after a CallFrame with a compiled
       // local array has already been pushed onto the stack.
 
-      CallFrame varFrame = interp.varFrame;
+      CallFrame varFrame = interp.getVarFrame();
 
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
@@ -1566,7 +1563,7 @@ public class Var {
     final boolean validate = false;
 
     if (validate) {
-      CallFrame varFrame = interp.varFrame;
+      CallFrame varFrame = interp.getVarFrame();
 
       if (varFrame == null) {
         throw new TclRuntimeError("null interp.varFrame");
@@ -1780,7 +1777,7 @@ public class Var {
 
     result = (var.isVarUndefined() ? TCL.ERROR : TCL.OK);
 
-    if ((array != null) && (array.sidVec != null)) {
+    if ((array != null) && (array.getSidVec() != null)) {
       deleteSearches(array);
     }
 
@@ -1802,21 +1799,21 @@ public class Var {
       dummyVar.createArrayMap();
       dummyVar.getArrayMap().putAll(var.getArrayMap());
     }
-    dummyVar.linkto = var.linkto;
-    dummyVar.traces = var.traces;
-    dummyVar.flags = var.flags;
-    dummyVar.hashKey = var.hashKey;
-    dummyVar.table = var.table;
-    dummyVar.refCount = var.refCount;
-    dummyVar.ns = var.ns;
+    dummyVar.setLinkto(var.getLinkto());
+    dummyVar.setTraces(var.getTraces());
+    dummyVar.setFlags(var.getFlags());
+    dummyVar.setHashKey(var.getHashKey());
+    dummyVar.setTable(var.getTable());
+    dummyVar.setRefCount(var.getRefCount());
+    dummyVar.setNs(var.getNs());
 
     var.setVarUndefined();
     var.setVarScalar();
     var.setValue(null); // dummyVar points to any value object
     var.deleteArrayMap();
-    var.linkto = null;
-    var.traces = null;
-    var.sidVec = null;
+    var.setLinkto(null);
+    var.setTraces(null);
+    var.setSidVec(null);
 
     // Call trace procedures for the variable being deleted. Then delete
     // its traces. Be sure to abort any other traces for the variable
@@ -1826,9 +1823,9 @@ public class Var {
     // 2. Turn off the TRACE_ACTIVE flag in dummyVar: we want to
     // call unset traces even if other traces are pending.
 
-    if ((dummyVar.traces != null) || ((array != null) && (array.traces != null))) {
-      var.refCount++;
-      dummyVar.flags &= ~TRACE_ACTIVE;
+    if ((dummyVar.getTraces() != null) || ((array != null) && (array.getTraces() != null))) {
+      var.setRefCount(var.getRefCount() + 1);
+      dummyVar.setFlags(dummyVar.getFlags() & ~TRACE_ACTIVE);
       callTraces(
           interp,
           array,
@@ -1837,11 +1834,11 @@ public class Var {
           part2,
           (flags & (TCL.GLOBAL_ONLY | TCL.NAMESPACE_ONLY)) | TCL.TRACE_UNSETS);
 
-      dummyVar.traces = null;
+      dummyVar.setTraces(null);
 
       // Active trace stuff is not part of Jacl's interp
 
-      var.refCount--;
+      var.setRefCount(var.getRefCount() - 1);
     }
 
     // If the variable is an array, delete all of its elements. This must be
@@ -1865,9 +1862,9 @@ public class Var {
     // If the variable was a namespace variable, decrement its reference
     // count.
 
-    if ((var.flags & NAMESPACE_VAR) != 0) {
-      var.flags &= ~NAMESPACE_VAR;
-      var.refCount--;
+    if ((var.getFlags() & NAMESPACE_VAR) != 0) {
+      var.setFlags(var.getFlags() & ~NAMESPACE_VAR);
+      var.setRefCount(var.getRefCount() - 1);
     }
 
     // Finally, if the variable is truly not in use then free up its Var
@@ -1883,7 +1880,7 @@ public class Var {
     if (result != TCL.OK) {
       if ((flags & TCL.LEAVE_ERR_MSG) != 0) {
         throw new TclVarException(
-            interp, part1, part2, "unset", ((array == null) ? noSuchVar : noSuchElement));
+            interp, part1, part2, "unset", ((array == null) ? getNoSuchVar() : getNoSuchElement()));
       }
     }
   }
@@ -1918,16 +1915,16 @@ public class Var {
     // are set by checking only the Var flags filed. The rest of
     // the code in this module makes use of the var.traces field.
 
-    if (var.traces == null) {
+    if (var.getTraces() == null) {
       var.setVarTraceExists();
-      var.traces = new ArrayList<>();
+      var.setTraces(new ArrayList<>());
     }
 
     TraceRecord rec = new TraceRecord();
     rec.trace = proc;
     rec.flags = flags & (TCL.TRACE_READS | TCL.TRACE_WRITES | TCL.TRACE_UNSETS | TCL.TRACE_ARRAY);
 
-    var.traces.add(0, rec);
+    var.getTraces().add(0, rec);
   }
 
   /**
@@ -1984,12 +1981,12 @@ public class Var {
 
     var = result[0];
 
-    if (var.traces != null) {
-      int len = var.traces.size();
+    if (var.getTraces() != null) {
+      int len = var.getTraces().size();
       for (int i = 0; i < len; i++) {
-        TraceRecord rec = var.traces.get(i);
+        TraceRecord rec = var.getTraces().get(i);
         if (rec.trace == proc) {
-          var.traces.remove(i);
+          var.getTraces().remove(i);
           break;
         }
       }
@@ -1998,8 +1995,8 @@ public class Var {
       // the var.traces field since logic in this
       // module depends on a null traces field.
 
-      if (var.traces.size() == 0) {
-        var.traces = null;
+      if (var.getTraces().size() == 0) {
+        var.setTraces(null);
         var.clearVarTraceExists();
       }
     }
@@ -2047,7 +2044,7 @@ public class Var {
       return null;
     }
 
-    return result[0].traces;
+    return result[0].getTraces();
   }
 
   /**
@@ -2109,8 +2106,8 @@ public class Var {
 
     try {
       if ((otherFlags & TCL.NAMESPACE_ONLY) == 0) {
-        savedFrame = interp.varFrame;
-        interp.varFrame = frame;
+        savedFrame = interp.getVarFrame();
+        interp.setVarFrame(frame);
       }
 
       // If the special EXPLICIT_LOCAL_NAME flag is passed, then
@@ -2127,7 +2124,7 @@ public class Var {
       // Reset interp.varFrame
 
       if ((otherFlags & TCL.NAMESPACE_ONLY) == 0) {
-        interp.varFrame = savedFrame;
+        interp.setVarFrame(savedFrame);
       }
     }
 
@@ -2168,7 +2165,7 @@ public class Var {
     // symbol table for runtime-created local variables. Create that
     // procedure's local variable table if necessary.
 
-    varFrame = interp.varFrame;
+    varFrame = interp.getVarFrame();
     if (((myFlags & (TCL.GLOBAL_ONLY | TCL.NAMESPACE_ONLY)) != 0)
         || (varFrame == null)
         || !varFrame.isProcCallFrame()
@@ -2193,7 +2190,7 @@ public class Var {
       // variable in the shorter-lived procedure frame could go away
       // leaving the namespace tclVar's reference invalid.
 
-      if (((otherP2 != null) ? array.ns : other.ns) == null) {
+      if (((otherP2 != null) ? array.getNs() : other.getNs()) == null) {
         throw new TclException(
             interp,
             "bad variable name \""
@@ -2209,10 +2206,10 @@ public class Var {
 
         // There is no hPtr member in Jacl, The hPtr combines the table
         // and the key used in a table lookup.
-        tclVar.hashKey = tail;
-        tclVar.table = ns.getVarTable();
+        tclVar.setHashKey(tail);
+        tclVar.setTable(ns.getVarTable());
 
-        tclVar.ns = ns; // Namespace tclVar
+        tclVar.setNs(ns); // Namespace tclVar
       }
     } else {
       tclVar = null;
@@ -2268,8 +2265,8 @@ public class Var {
           tclVar = new Var();
           table.put(myName, tclVar);
 
-          tclVar.hashKey = myName;
-          tclVar.table = table;
+          tclVar.setHashKey(myName);
+          tclVar.setTable(table);
         }
         if (tclVar != null) {
           foundInLocalTable = true;
@@ -2285,7 +2282,7 @@ public class Var {
       if (foundInCompiledLocalsArray && (tclVar == null)) {
         newvar = true;
         tclVar = new Var();
-        tclVar.hashKey = myName;
+        tclVar.setHashKey(myName);
         tclVar.clearVarInSymbolTable();
       }
     }
@@ -2300,18 +2297,18 @@ public class Var {
         throw new TclException(interp, "can't upvar from variable to itself");
       }
       if (tclVar.isVarLink()) {
-        Var link = tclVar.linkto;
+        Var link = tclVar.getLinkto();
         if (link == other) {
           // Already linked to the variable, no-op
           return;
         }
-        link.refCount--;
+        link.setRefCount(link.getRefCount() - 1);
         if (link.isVarUndefined()) {
           cleanupVar(link, null);
         }
       } else if (!tclVar.isVarUndefined()) {
         throw new TclException(interp, "variable \"" + myName + "\" already exists");
-      } else if (tclVar.traces != null) {
+      } else if (tclVar.getTraces() != null) {
         throw new TclException(
             interp, "variable \"" + myName + "\" has traces: can't use for upvar");
       }
@@ -2324,8 +2321,8 @@ public class Var {
 
     tclVar.setVarLink();
     tclVar.clearVarUndefined();
-    tclVar.linkto = other;
-    other.refCount++;
+    tclVar.setLinkto(other);
+    other.setRefCount(other.getRefCount() + 1);
 
     // If the link tclVar should be stored in the compiledLocals
     // array then do that now. A variable with this same
@@ -2375,17 +2372,17 @@ public class Var {
 
     if (var != null) {
       if (!var.isVarArrayElement()) {
-        if (var.ns != null) {
-          buff.append(var.ns.fullName);
-          if (var.ns != interp.globalNs) {
+        if (var.getNs() != null) {
+          buff.append(var.getNs().fullName);
+          if (var.getNs() != interp.getGlobalNs()) {
             buff.append("::");
           }
         }
         // Jacl's Var class does not include the "name" member
         // We use the "hashKey" member which is equivalent
 
-        if (var.hashKey != null) {
-          buff.append(var.hashKey);
+        if (var.getHashKey() != null) {
+          buff.append(var.getHashKey());
         }
       }
     }
@@ -2421,11 +2418,11 @@ public class Var {
     // If there are already similar trace procedures active for the
     // variable, don't call them again.
 
-    if ((var.flags & Var.TRACE_ACTIVE) != 0) {
+    if ((var.getFlags() & Var.TRACE_ACTIVE) != 0) {
       return null;
     }
-    var.flags |= Var.TRACE_ACTIVE;
-    var.refCount++;
+    var.setFlags(var.getFlags() | Var.TRACE_ACTIVE);
+    var.setRefCount(var.getRefCount() + 1);
 
     // If the variable name hasn't been parsed into array name and
     // element, do it here. If there really is an array element,
@@ -2466,11 +2463,11 @@ public class Var {
       // Invoke traces on the array containing the variable, if relevant.
 
       if (array != null) {
-        array.refCount++;
+        array.setRefCount(array.getRefCount() + 1);
       }
-      if ((array != null) && (array.traces != null)) {
-        for (i = 0; (array.traces != null) && (i < array.traces.size()); i++) {
-          TraceRecord rec = array.traces.get(i);
+      if ((array != null) && (array.getTraces() != null)) {
+        for (i = 0; (array.getTraces() != null) && (i < array.getTraces().size()); i++) {
+          TraceRecord rec = array.getTraces().get(i);
           if ((rec.flags & flags) != 0) {
             try {
               rec.trace.traceProc(interp, part1, part2, flags);
@@ -2489,8 +2486,8 @@ public class Var {
         flags |= TCL.TRACE_DESTROYED;
       }
 
-      for (i = 0; (var.traces != null) && (i < var.traces.size()); i++) {
-        TraceRecord rec = var.traces.get(i);
+      for (i = 0; (var.getTraces() != null) && (i < var.getTraces().size()); i++) {
+        TraceRecord rec = var.getTraces().get(i);
         if ((rec.flags & flags) != 0) {
           try {
             rec.trace.traceProc(interp, part1, part2, flags);
@@ -2505,10 +2502,10 @@ public class Var {
       return null;
     } finally {
       if (array != null) {
-        array.refCount--;
+        array.setRefCount(array.getRefCount() - 1);
       }
-      var.flags &= ~TRACE_ACTIVE;
-      var.refCount--;
+      var.setFlags(var.getFlags() & ~TRACE_ACTIVE);
+      var.setRefCount(var.getRefCount() - 1);
 
       interp.setResult(oldResult);
       oldResult.release();
@@ -2526,7 +2523,7 @@ public class Var {
         // searches are to be
         // deleted.
       {
-    arrayVar.sidVec = null;
+    arrayVar.setSidVec(null);
   }
 
   /**
@@ -2546,7 +2543,7 @@ public class Var {
     // Determine what flags to pass to the trace callback procedures.
 
     flags = TCL.TRACE_UNSETS;
-    if (table == interp.globalNs.getVarTable()) {
+    if (table == interp.getGlobalNs().getVarTable()) {
       flags |= (TCL.INTERP_DESTROYED | TCL.GLOBAL_ONLY);
     } else if (table == currNs.getVarTable()) {
       flags |= TCL.NAMESPACE_ONLY;
@@ -2606,20 +2603,20 @@ public class Var {
     // fine since this method is invoked after the regular variables
     // are deleted.
 
-    if ((var.flags & LINK) != 0) {
+    if ((var.getFlags() & LINK) != 0) {
       // Follow link to either scalar or array variable
-      Var link = var.linkto;
-      link.refCount--;
-      if ((link.refCount == 0)
-          && (link.traces == null)
+      Var link = var.getLinkto();
+      link.setRefCount(link.getRefCount() - 1);
+      if ((link.getRefCount() == 0)
+          && (link.getTraces() == null)
           // (link.isVarUndefined() && link.isVarInHashtable())
-          && ((link.flags & (UNDEFINED | IN_SYMBOL_TABLE)) == (UNDEFINED | IN_SYMBOL_TABLE))) {
-        if (link.hashKey == null) {
-          var.linkto = null; // Drops reference to the link Var
-        } else if (link.table != var.table) {
-          link.table.remove(link.hashKey);
-          link.table = null; // Drops the link var's table reference
-          var.linkto = null; // Drops reference to the link Var
+          && ((link.getFlags() & (UNDEFINED | IN_SYMBOL_TABLE)) == (UNDEFINED | IN_SYMBOL_TABLE))) {
+        if (link.getHashKey() == null) {
+          var.setLinkto(null); // Drops reference to the link Var
+        } else if (link.getTable() != var.getTable()) {
+          link.getTable().remove(link.getHashKey());
+          link.setTable(null); // Drops the link var's table reference
+          var.setLinkto(null); // Drops reference to the link Var
         }
       }
     }
@@ -2635,7 +2632,7 @@ public class Var {
     // unset.
     var.setVarUndefined();
 
-    if (var.traces != null) {
+    if (var.getTraces() != null) {
       String fullname = getVariableFullName(interp, var);
 
       callTraces(interp, null, var, fullname, null, flags);
@@ -2644,18 +2641,18 @@ public class Var {
       // references to the traces which will free them up
     }
 
-    if ((var.flags & ARRAY) != 0) {
-      deleteArray(interp, var.hashKey, var, flags);
+    if ((var.getFlags() & ARRAY) != 0) {
+      deleteArray(interp, var.getHashKey(), var, flags);
       var.deleteArrayMap();
-    } else if (((var.flags & SCALAR) != 0) && (var.getValue() != null)) {
+    } else if (((var.getFlags() & SCALAR) != 0) && (var.getValue() != null)) {
       TclObject obj = var.getValue();
       obj.release();
       var.setValue(null);
     }
 
-    var.hashKey = null;
-    var.table = null;
-    var.traces = null;
+    var.setHashKey(null);
+    var.setTable(null);
+    var.setTraces(null);
     var.setVarUndefined();
     var.setVarScalar();
 
@@ -2664,9 +2661,9 @@ public class Var {
     // namespace so that namespace will no longer "refer" to the
     // variable.
 
-    if ((var.flags & NAMESPACE_VAR) != 0) {
-      var.flags &= ~NAMESPACE_VAR;
-      var.refCount--;
+    if ((var.getFlags() & NAMESPACE_VAR) != 0) {
+      var.setFlags(var.getFlags() & ~NAMESPACE_VAR);
+      var.setRefCount(var.getRefCount() - 1);
     }
 
     // Recycle the variable's memory space if there aren't any upvar's
@@ -2723,22 +2720,22 @@ public class Var {
         el.setValue(null);
       }
 
-      String tmpkey = (String) el.hashKey;
+      String tmpkey = (String) el.getHashKey();
       // There is no hPtr member in Jacl, The hPtr combines the table
       // and the key used in a table lookup.
-      el.hashKey = null;
-      el.table = null;
-      if (el.traces != null) {
-        el.flags &= ~TRACE_ACTIVE;
+      el.setHashKey(null);
+      el.setTable(null);
+      if (el.getTraces() != null) {
+        el.setFlags(el.getFlags() & ~TRACE_ACTIVE);
         // FIXME : Old Jacl impl passed a dummy var to callTraces,
         // should we?
         callTraces(interp, null, el, arrayName, tmpkey, flags);
-        el.traces = null;
+        el.setTraces(null);
         // Active trace stuff is not part of Jacl
       }
       el.setVarUndefined();
       el.setVarScalar();
-      if (el.refCount == 0) {
+      if (el.getRefCount() == 0) {
         // We are no longer using the element
         // element Vars are IN_SYMBOL_TABLE
       }
@@ -2759,24 +2756,24 @@ public class Var {
    */
   protected static void cleanupVar(Var var, Var array) {
     if (var.isVarUndefined()
-        && (var.refCount == 0)
-        && (var.traces == null)
-        && ((var.flags & IN_SYMBOL_TABLE) != 0)) {
-      if (var.table != null) {
-        var.table.remove(var.hashKey);
-        var.table = null;
-        var.hashKey = null;
+        && (var.getRefCount() == 0)
+        && (var.getTraces() == null)
+        && ((var.getFlags() & IN_SYMBOL_TABLE) != 0)) {
+      if (var.getTable() != null) {
+        var.getTable().remove(var.getHashKey());
+        var.setTable(null);
+        var.setHashKey(null);
       }
     }
     if (array != null) {
       if (array.isVarUndefined()
-          && (array.refCount == 0)
-          && (array.traces == null)
-          && ((array.flags & IN_SYMBOL_TABLE) != 0)) {
-        if (array.table != null) {
-          array.table.remove(array.hashKey);
-          array.table = null;
-          array.hashKey = null;
+          && (array.getRefCount() == 0)
+          && (array.getTraces() == null)
+          && ((array.getFlags() & IN_SYMBOL_TABLE) != 0)) {
+        if (array.getTable() != null) {
+          array.getTable().remove(array.getHashKey());
+          array.setTable(null);
+          array.setHashKey(null);
         }
       }
     }
@@ -2801,10 +2798,10 @@ public class Var {
   // When the variable can't be cached.
 
   public static Var resolveScalar(Var v) {
-    int flags = v.flags;
+    int flags = v.getFlags();
     if ((flags & LINK) != 0) {
-      v = v.linkto;
-      flags = v.flags;
+      v = v.getLinkto();
+      flags = v.getFlags();
     }
 
     // Can't resolve var if it is not a scalar, if it is
@@ -2835,10 +2832,10 @@ public class Var {
   // methods support invoking traces.
 
   public static Var resolveArray(Var v) {
-    int flags = v.flags;
+    int flags = v.getFlags();
     if ((flags & LINK) != 0) {
-      v = v.linkto;
-      flags = v.flags;
+      v = v.getLinkto();
+      flags = v.getFlags();
     }
 
     // Can't resolve var if it is not an array,
@@ -2862,7 +2859,7 @@ public class Var {
   // scope can be undefined, so ignore those.
 
   static void setUndefinedToNull(Interp interp, String part1, String part2) {
-    CallFrame varFrame = interp.varFrame;
+    CallFrame varFrame = interp.getVarFrame();
     if (varFrame == null) {
       return; // Invoked from global scope
     }
@@ -2873,12 +2870,12 @@ public class Var {
 
       for (int i = 0; i < MAX; i++) {
         Var clocal = compiledLocals[i];
-        if (clocal != null && !clocal.isVarNonLocal() && clocal.hashKey.equals(part1)) {
+        if (clocal != null && !clocal.isVarNonLocal() && clocal.getHashKey().equals(part1)) {
           if (!clocal.isVarLink() && clocal.isVarUndefined()) {
             // Set the compiled local slot to null
             // if there are no other vars linked to
             // this var.
-            if (clocal.refCount == 0) {
+            if (clocal.getRefCount() == 0) {
               compiledLocals[i] = null;
             }
           }
@@ -2911,7 +2908,7 @@ public class Var {
       throws TclException {
     Var var;
     String varName;
-    CallFrame frame = interp.varFrame;
+    CallFrame frame = interp.getVarFrame();
 
     HashMap<String, Var> localVarTable = frame.getVarTable();
     if (localVarTable != null) {
@@ -2934,7 +2931,7 @@ public class Var {
         Var clocal = compiledLocals[i];
         if (clocal != null && !clocal.isVarNonLocal()) {
           var = clocal;
-          varName = (String) var.hashKey;
+          varName = (String) var.getHashKey();
 
           if (!var.isVarUndefined() && (includeLinks || !var.isVarLink())) {
             if ((pattern == null) || Util.stringMatch(varName, pattern)) {
@@ -2944,5 +2941,100 @@ public class Var {
         }
       }
     }
+  }
+
+  /** Reference to a linkto variable associated by this upvar */
+  public Var getLinkto() {
+    return linkto;
+  }
+
+  public void setLinkto(Var linkto) {
+    this.linkto = linkto;
+  }
+
+  /** List that holds the traces that were placed in this Var */
+  public ArrayList<TraceRecord> getTraces() {
+    return traces;
+  }
+
+  public void setTraces(ArrayList<TraceRecord> traces) {
+    this.traces = traces;
+  }
+
+  public ArrayList<SearchId> getSidVec() {
+    return sidVec;
+  }
+
+  public void setSidVec(ArrayList<SearchId> sidVec) {
+    this.sidVec = sidVec;
+  }
+
+  /**
+   * Miscellaneous bits of information about variable.
+   *
+   * @see Var#SCALAR
+   * @see Var#ARRAY
+   * @see Var#LINK
+   * @see Var#UNDEFINED
+   * @see Var#IN_SYMBOL_TABLE
+   * @see Var#TRACE_ACTIVE
+   * @see Var#ARRAY_ELEMENT
+   * @see Var#NAMESPACE_VAR
+   */
+  public int getFlags() {
+    return flags;
+  }
+
+  public void setFlags(int flags) {
+    this.flags = flags;
+  }
+
+  /**
+   * If variable is in a symbol table, either the entry that refers to this variable or null if the
+   * variable has been detached from its table (e.g. an array is deleted, but some of its elements
+   * are still referred to in upvars). null if the variable is not in a symbol table. This is used
+   * to delete an variable from its symbol table if it is no longer needed.
+   */
+  public Map<String, Var> getTable() {
+    return table;
+  }
+
+  public void setTable(Map<String, Var> table) {
+    this.table = table;
+  }
+
+  /** The key under which this variable is stored in the hash table. */
+  public String getHashKey() {
+    return hashKey;
+  }
+
+  public void setHashKey(String hashKey) {
+    this.hashKey = hashKey;
+  }
+
+  /**
+   * Counts number of active uses of this variable, not including its entry in the call frame or the
+   * hash table: 1 for each additional variable whose link points here, 1 for each nested trace
+   * active on variable, and 1 if the variable is a namespace variable. This record can't be deleted
+   * until refCount becomes 0.
+   */
+  public int getRefCount() {
+    return refCount;
+  }
+
+  public void setRefCount(int refCount) {
+    this.refCount = refCount;
+  }
+
+  /**
+   * Reference to the namespace that contains this variable. This is set only for namespace
+   * variables. A local variable in a procedure will always have a null ns field.
+   */
+  public Namespace getNs() {
+    return ns;
+  }
+
+  public void setNs(Namespace ns) {
+    this.ns = ns;
   }
 } // End of Var class

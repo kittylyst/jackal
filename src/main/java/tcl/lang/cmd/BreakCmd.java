@@ -22,7 +22,7 @@ import tcl.lang.exception.TclNumArgsException;
 import tcl.lang.model.TclObject;
 
 /** This class implements the built-in "break" command in Tcl. */
-public final class BreakCmd implements Command {
+public record BreakCmd() implements Command {
   /**
    * This procedure is invoked to process the "break" Tcl command. See the user documentation for
    * details on what it does.

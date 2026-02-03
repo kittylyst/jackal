@@ -39,7 +39,7 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
   // The java.lang.Object wrapped by the ReflectObject representation.
 
   Object javaObj;
-  Class javaClass;
+  Class<?> javaClass;
 
   // The interpreter in which the java.lang.Object is registered in.
   // ReflectObject's are not shared among interpreters for safety
@@ -102,7 +102,7 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
 
   protected static final String NOCONVERT = "-noconvert";
 
-  protected static final String CMD_PREFIX = "java0x";
+  public static final String CMD_PREFIX = "java0x";
 
   // set to true to see extra output
 
@@ -151,12 +151,12 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
 
   private static void addToReflectTable(ReflectObject roRep) {
     Interp interp = roRep.ownerInterp;
-    Class cl = roRep.javaClass;
+    Class<?> cl = roRep.javaClass;
     Object obj = roRep.javaObj;
     String id = roRep.refID;
 
     String hash = getHashString(cl, obj);
-    ReflectObject found = (ReflectObject) interp.getReflectObjTable().get(hash);
+    ReflectObject found = interp.getReflectObjTable().get(hash);
 
     if (found == null) {
       // There was no mapping for this hash value, add one now.
@@ -358,7 +358,7 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
   public static void dump(Interp interp) {
     try {
       System.out.println("BEGIN DUMP -------------------------------");
-      System.out.println("interp.reflectObjCount = " + interp.reflectObjCount);
+      System.out.println("interp.reflectObjCount = " + interp.getReflectObjCount());
       System.out.println("interp.reflectObjTable.size() = " + interp.getReflectObjTable().size());
       System.out.println(
           "interp.reflectConflictTable.size() = " + interp.getReflectConflictTable().size());
@@ -547,11 +547,12 @@ public sealed class ReflectObject implements InternalRep, CommandWithDispose per
       }
 
       // Register the object in the interp.
-
-      interp.reflectObjCount++; // incr id, the first id used will be 1
-      roRep.refID = CMD_PREFIX + Long.toHexString(interp.reflectObjCount);
-
-      interp.createCommand(roRep.refID, roRep);
+      roRep.refID = interp.registerReflectObj(roRep);
+      //      interp.setReflectObjCount(interp.getReflectObjCount() + 1); // incr id, the first id
+      // used will be 1
+      //      roRep.refID = CMD_PREFIX + Long.toHexString(interp.getReflectObjCount());
+      //
+      //      interp.createCommand(roRep.refID, roRep);
       addToReflectTable(roRep);
 
       if (debug) {

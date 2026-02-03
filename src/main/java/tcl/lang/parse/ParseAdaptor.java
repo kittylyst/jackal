@@ -91,7 +91,7 @@ public class ParseAdaptor {
     script = new CharPointer(string);
     script.setIndex(index);
 
-    interp.evalFlags |= Parser.TCL_BRACKET_TERM;
+    interp.setEvalFlags(interp.getEvalFlags() | Parser.TCL_BRACKET_TERM);
     Parser.eval2(interp, script.getArray(), script.getIndex(), length - index, 0);
     obj = interp.getResult();
     obj.preserve();

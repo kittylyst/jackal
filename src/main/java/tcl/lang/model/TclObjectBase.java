@@ -37,7 +37,6 @@ abstract class TclObjectBase {
   protected int refCount;
 
   // String representation of the object.
-
   protected String stringRep;
 
   // Setting to true will enable a feature that keeps
@@ -325,6 +324,7 @@ abstract class TclObjectBase {
    *
    * @return the string representation of the object.
    */
+  @Override
   public final String toString() {
     if (stringRep == null) {
       // If this object has been deallocated, then
@@ -368,10 +368,8 @@ abstract class TclObjectBase {
 
   /** Returns true if the TclObject is shared, false otherwise. */
   public final boolean isShared() {
-    if (validate) {
-      if (internalRep == null) {
-        disposedError();
-      }
+    if (validate && internalRep == null) {
+      disposedError();
     }
 
     return (refCount > 1);
@@ -391,10 +389,8 @@ abstract class TclObjectBase {
    * @return an TclObject with a refCount of 0.
    */
   public final TclObject duplicate() {
-    if (validate) {
-      if (internalRep == null) {
-        disposedError();
-      }
+    if (validate && internalRep == null) {
+      disposedError();
     }
     if (isStringType() && (stringRep == null)) {
       stringRep = internalRep.toString();
