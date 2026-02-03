@@ -29,24 +29,7 @@ public final class TclDict implements InternalRep {
    * Map of key values to actual keys. The actual TclObject key must be released when removed from
    * the value map. (key -> key)
    */
-  private final Map keymap;
-
-  /** Create a new empty Tcl dict. */
-  private TclDict() {
-    map = new LinkedHashMap<>();
-    keymap = new LinkedHashMap();
-
-    if (TclObject.saveObjRecords) {
-      String key = "TclDict";
-      Integer num = TclObject.objRecordMap.get(key);
-      if (num == null) {
-        num = Integer.valueOf(1);
-      } else {
-        num = Integer.valueOf(num.intValue() + 1);
-      }
-      TclObject.objRecordMap.put(key, num);
-    }
-  }
+  private final Map<TclObject, TclObject> keymap;
 
   /**
    * Create a new empty Tcl dict, with the hashmap pre-allocated to the given size.
@@ -55,7 +38,7 @@ public final class TclDict implements InternalRep {
    */
   private TclDict(int size) {
     map = new LinkedHashMap<>(size);
-    keymap = new LinkedHashMap(size);
+    keymap = new LinkedHashMap<>(size);
 
     if (TclObject.saveObjRecords) {
       String key = "TclDict";
@@ -74,10 +57,8 @@ public final class TclDict implements InternalRep {
   public void dispose() {
     // Release the objects associated with each key/value pair.
     for (var entry : map.entrySet()) {
-      TclObject key = entry.getKey();
-      TclObject val = entry.getValue();
-      key.release();
-      val.release();
+      entry.getKey().release();
+      entry.getValue().release();
     }
   }
 
@@ -87,9 +68,9 @@ public final class TclDict implements InternalRep {
     final int size = map.size();
     TclDict newDict = new TclDict(size);
 
-    for (Map.Entry entry : map.entrySet()) {
-      TclObject key = (TclObject) entry.getKey();
-      TclObject value = (TclObject) entry.getValue();
+    for (var entry : map.entrySet()) {
+      TclObject key = entry.getKey();
+      TclObject value = entry.getValue();
       key.preserve();
       value.preserve();
       newDict.map.put(key, value);
@@ -125,9 +106,9 @@ public final class TclDict implements InternalRep {
 
     StringBuffer sbuf = new StringBuffer((est > 64) ? est : 64);
     try {
-      for (Map.Entry entry : map.entrySet()) {
-        Object key = entry.getKey();
-        Object val = entry.getValue();
+      for (var entry : map.entrySet()) {
+        TclObject key = entry.getKey();
+        TclObject val = entry.getValue();
         if (key != null) {
           Util.appendElement(null, sbuf, key.toString());
         } else {
@@ -152,7 +133,7 @@ public final class TclDict implements InternalRep {
    * @return the TclObject with the given list value.
    */
   public static TclObject newInstance() {
-    return new TclObject(new TclDict());
+    return new TclObject(new TclDict(16));
   }
 
   /**
@@ -163,7 +144,7 @@ public final class TclDict implements InternalRep {
    * @exception TclException if the object doesn't contain a valid dict.
    */
   private static void setDictFromAny(Interp interp, TclObject tobj) throws TclException {
-    TclDict tdict = new TclDict();
+    TclDict tdict = new TclDict(16);
     splitDict(interp, tdict.map, tdict.keymap, tobj.toString());
     tobj.setInternalRep(tdict);
 
@@ -243,8 +224,7 @@ public final class TclDict implements InternalRep {
     value.preserve();
     if (oldValue != null) {
       oldValue.release();
-      TclObject oldKey = (TclObject) ir.keymap.remove(key);
-      oldKey.release();
+      ir.keymap.remove(key).release();
     }
     ir.map.put(key, value);
     ir.keymap.put(key, key);
@@ -262,10 +242,10 @@ public final class TclDict implements InternalRep {
     dict.invalidateStringRep();
 
     TclDict ir = (TclDict) dict.getInternalRep();
-    TclObject val = (TclObject) ir.map.remove(key);
+    TclObject val = ir.map.remove(key);
     if (val != null) {
       val.release();
-      TclObject oldKey = (TclObject) ir.keymap.remove(key);
+      TclObject oldKey = ir.keymap.remove(key);
       oldKey.release();
     }
   }
@@ -285,10 +265,9 @@ public final class TclDict implements InternalRep {
    * </code> object and some arbitrary threaded state.
    */
   @FunctionalInterface
-  public static interface Visitor {
+  public interface Visitor {
     /** Called for each element in a TclDict. */
-    public Object visit(Interp interp, Object accum, TclObject key, TclObject value)
-        throws TclException;
+    Object visit(Interp interp, Object accum, TclObject key, TclObject value) throws TclException;
   }
 
   /**
@@ -324,18 +303,16 @@ public final class TclDict implements InternalRep {
     // aren't released before we have finished iterating. This can
     // happen e.g. if the dict is shimmered to a list (which would
     // release() all the elements).
-    for (Map.Entry entry : ir.map.entrySet()) {
-      TclObject key = (TclObject) entry.getKey();
-      TclObject val = (TclObject) entry.getValue();
-      key.preserve();
-      val.preserve();
+    for (var entry : ir.map.entrySet()) {
+      entry.getKey().preserve();
+      entry.getValue().preserve();
     }
     // Now, iterate through each element invoking the Visitor callback
     // for each one.
     try {
-      for (Map.Entry entry : ir.map.entrySet()) {
-        TclObject key = (TclObject) entry.getKey();
-        TclObject val = (TclObject) entry.getValue();
+      for (var entry : ir.map.entrySet()) {
+        TclObject key = entry.getKey();
+        TclObject val = entry.getValue();
         try {
           accum = body.visit(interp, accum, key, val);
         } catch (TclException e) {
@@ -351,11 +328,9 @@ public final class TclDict implements InternalRep {
       }
     } finally {
       // Release all elements again...
-      for (Map.Entry entry : ir.map.entrySet()) {
-        TclObject key = (TclObject) entry.getKey();
-        TclObject val = (TclObject) entry.getValue();
-        key.release();
-        val.release();
+      for (var entry : ir.map.entrySet()) {
+        entry.getKey().release();
+        entry.getValue().release();
       }
       dict.release();
     }
@@ -433,7 +408,7 @@ public final class TclDict implements InternalRep {
       }
       TclDict ir = (TclDict) current.getInternalRep();
       current.invalidateStringRep();
-      TclObject next = (TclObject) ir.map.get(keys[i]);
+      TclObject next = ir.map.get(keys[i]);
       if (next == null) {
         throw new TclException(
             interp, "key \"" + keys[i].toString() + "\" not known in dictionary");
@@ -458,7 +433,7 @@ public final class TclDict implements InternalRep {
       setDictFromAny(interp, current);
     }
     TclDict ir = (TclDict) current.getInternalRep();
-    TclObject oldValue = (TclObject) ir.map.remove(keys[end]);
+    TclObject oldValue = ir.map.remove(keys[end]);
     if (oldValue != null) {
       oldValue.release();
       TclObject oldKey = (TclObject) ir.keymap.remove(keys[end]);
