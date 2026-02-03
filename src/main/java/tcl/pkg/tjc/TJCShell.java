@@ -13,7 +13,6 @@
 
 package tcl.pkg.tjc;
 
-import tcl.lang.ConsoleThread;
 import tcl.lang.Interp;
 import tcl.lang.Notifier;
 import tcl.lang.TCL;
@@ -23,6 +22,7 @@ import tcl.lang.model.TclInteger;
 import tcl.lang.model.TclList;
 import tcl.lang.model.TclObject;
 import tcl.lang.model.TclString;
+import tcl.tools.ConsoleThread;
 
 public class TJCShell {
 

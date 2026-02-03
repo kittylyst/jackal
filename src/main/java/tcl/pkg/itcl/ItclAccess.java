@@ -101,8 +101,8 @@ public class ItclAccess {
   }
 
   public static int decrVarRefCount(Var var) {
-    var.refCount -= 1;
-    return var.refCount;
+    var.setRefCount(var.getRefCount() - 1);
+    return var.getRefCount();
   }
 
   public static Procedure newProcedure(
@@ -133,14 +133,14 @@ public class ItclAccess {
     Var var = new Var();
     var.clearVarInSymbolTable(); // Needed to avoid "dangling namespace var"
     // error
-    var.table = frame.getVarTable();
+    var.setTable(frame.getVarTable());
     frame.getVarTable().put(name, var);
     interp.setVar(name, null, val, 0);
   }
 
   public static void createObjVar(Var var, String key, Namespace ns, HashMap<String, Var> table) {
-    var.hashKey = key;
-    var.ns = ns;
+    var.setHashKey(key);
+    var.setNs(ns);
 
     // NOTE: Tcl reports a "dangling upvar" error for variables
     // with a null "hPtr" field. Put something non-zero
@@ -152,17 +152,17 @@ public class ItclAccess {
     // anyway. These variables are unset and removed in
     // ItclFreeObject().
 
-    var.table = table;
-    var.refCount = 1; // protect from being deleted
+    var.setTable(table);
+    var.setRefCount(1); // protect from being deleted
   }
 
   public static void createCommonVar(Var var, String key, Namespace ns, Map<String, Var> table) {
-    var.table = table;
-    var.hashKey = key;
-    var.ns = ns;
+    var.setTable(table);
+    var.setHashKey(key);
+    var.setNs(ns);
 
     var.setVarNamespace();
-    var.refCount++; // one use by namespace
-    var.refCount++; // another use by class
+    var.setRefCount(var.getRefCount() + 1); // one use by namespace
+    var.setRefCount(var.getRefCount() + 1); // another use by class
   }
 }

@@ -93,7 +93,7 @@ public record ArrayCmd() implements Command {
     // fire array traces
 
     if (tclVar != null
-        && tclVar.traces != null
+        && tclVar.getTraces() != null
         && (!tclVar.isVarScalar() || tclVar.isVarUndefined())) {
       msg =
           Var.callTraces(
@@ -127,11 +127,11 @@ public record ArrayCmd() implements Command {
             errorNotArray(interp, objv[2].toString());
           }
 
-          if (tclVar.sidVec == null) {
+          if (tclVar.getSidVec() == null) {
             errorIllegalSearchId(interp, objv[2].toString(), objv[3].toString());
           }
 
-          Iterator iter = tclVar.getSearch(objv[3].toString());
+          Iterator<Map.Entry<String, Var>> iter = tclVar.getSearch(objv[3].toString());
           if (iter == null) {
             errorIllegalSearchId(interp, objv[2].toString(), objv[3].toString());
           }
@@ -153,10 +153,10 @@ public record ArrayCmd() implements Command {
           }
 
           boolean rmOK = true;
-          if (tclVar.sidVec != null) {
+          if (tclVar.getSidVec() != null) {
             rmOK = (tclVar.removeSearch(objv[3].toString()));
           }
-          if ((tclVar.sidVec == null) || !rmOK) {
+          if ((tclVar.getSidVec() == null) || !rmOK) {
             errorIllegalSearchId(interp, objv[2].toString(), objv[3].toString());
           }
           break;
@@ -275,18 +275,18 @@ public record ArrayCmd() implements Command {
             errorNotArray(interp, objv[2].toString());
           }
 
-          if (tclVar.sidVec == null) {
+          if (tclVar.getSidVec() == null) {
             errorIllegalSearchId(interp, objv[2].toString(), objv[3].toString());
           }
 
-          Iterator iter = tclVar.getSearch(objv[3].toString());
+          Iterator<Map.Entry<String, Var>> iter = tclVar.getSearch(objv[3].toString());
           if (iter == null) {
             errorIllegalSearchId(interp, objv[2].toString(), objv[3].toString());
           }
           if (iter.hasNext()) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            String key = (String) entry.getKey();
-            Var elem = (Var) entry.getValue();
+            var entry = iter.next();
+            String key = entry.getKey();
+            Var elem = entry.getValue();
 
             if (!elem.isVarUndefined()) {
               interp.setResult(key);
@@ -365,8 +365,8 @@ public record ArrayCmd() implements Command {
             errorNotArray(interp, objv[2].toString());
           }
 
-          if (tclVar.sidVec == null) {
-            tclVar.sidVec = new ArrayList<>();
+          if (tclVar.getSidVec() == null) {
+            tclVar.setSidVec(new ArrayList<>());
           }
 
           // Create a SearchId Object:
@@ -390,7 +390,7 @@ public record ArrayCmd() implements Command {
           String s = "s-" + i + "-" + objv[2].toString();
           var table = tclVar.getArrayMap();
           var iter = table.entrySet().iterator();
-          tclVar.sidVec.add(new SearchId(iter, s, i));
+          tclVar.getSidVec().add(new SearchId(iter, s, i));
           interp.setResult(s);
           break;
         }

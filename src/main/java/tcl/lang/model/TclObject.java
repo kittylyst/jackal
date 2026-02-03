@@ -142,7 +142,7 @@ public final class TclObject extends TclObjectBase {
     if (o == null) {
       return false;
     }
-    return (o instanceof TclObject && ((TclObject) o).toString().equals(toString()));
+    return (o instanceof TclObject tcl && tcl.toString().equals(toString()));
   }
 
   public int hashCode() {

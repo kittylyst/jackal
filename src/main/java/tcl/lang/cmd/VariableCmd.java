@@ -99,7 +99,7 @@ public final class VariableCmd implements Command {
 
       if (!var.isVarNamespace()) {
         var.setVarNamespace();
-        var.refCount++;
+        var.setRefCount(var.getRefCount() + 1);
       }
 
       // If a value was specified, set the variable to that value.

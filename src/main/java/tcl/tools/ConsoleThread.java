@@ -1,6 +1,10 @@
-package tcl.lang;
+package tcl.tools;
 
 import java.io.IOException;
+import tcl.lang.Interp;
+import tcl.lang.TCL;
+import tcl.lang.TclEvent;
+import tcl.lang.TclIO;
 import tcl.lang.channel.Channel;
 import tcl.lang.channel.FileEvent;
 import tcl.lang.channel.StdChannel;
@@ -16,29 +20,29 @@ import tcl.lang.parse.Parser;
  * forever, reading from the standard input, executing the user input and writing the result to the
  * standard output.
  */
-public class ConsoleThread extends Thread {
+public final class ConsoleThread extends Thread {
 
   /** Interpreter associated with this console thread. */
-  private Interp interp;
+  private final Interp interp;
 
   /** Collect the user input in this buffer until it forms a complete Tcl command */
-  private StringBuffer sbuf;
+  private StringBuffer sbuf = new StringBuffer(100);
 
   /** Used to for interactive output */
-  private Channel out;
+  private final Channel out;
 
   /** Used to for interactive error output */
-  private Channel err;
+  private final Channel err;
 
   /** set to true to get extra debug output */
   private static final boolean debug = false;
 
-  /** Create a ConsoleThread. */
-  public ConsoleThread(Interp i) // Initial value for interp.
-      {
+  /**
+   * @param i Interpreter attached to this console
+   */
+  public ConsoleThread(Interp i) {
     setName("ConsoleThread");
     interp = i;
-    sbuf = new StringBuffer(100);
 
     out = TclIO.getStdChannel(StdChannel.STDOUT);
     err = TclIO.getStdChannel(StdChannel.STDERR);

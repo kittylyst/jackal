@@ -37,7 +37,6 @@ abstract class TclObjectBase {
   protected int refCount;
 
   // String representation of the object.
-
   protected String stringRep;
 
   // Setting to true will enable a feature that keeps

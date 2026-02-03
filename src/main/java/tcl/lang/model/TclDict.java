@@ -216,7 +216,7 @@ public final class TclDict implements InternalRep {
     }
 
     TclDict ir = (TclDict) dict.getInternalRep();
-    TclObject oldValue = (TclObject) ir.map.remove(key);
+    TclObject oldValue = ir.map.remove(key);
 
     // TODO: This can probably be optimised (e.g. if
     // oldValue.equals(value)).
@@ -291,7 +291,8 @@ public final class TclDict implements InternalRep {
    * @return The final accumulator value.
    * @throws TclException if the visitor object throws one.
    */
-  public static Object foreach(Interp interp, Object accum, TclObject dict, TclDict.Visitor body)
+  public static Object foreach(
+      final Interp interp, Object accum, final TclObject dict, final TclDict.Visitor body)
       throws TclException {
     if (!(dict.getInternalRep() instanceof TclDict)) {
       setDictFromAny(interp, dict);

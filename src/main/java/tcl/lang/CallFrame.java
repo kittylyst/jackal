@@ -208,7 +208,7 @@ public final class CallFrame {
     for (Map.Entry<String, Var> entry : getVarTable().entrySet()) {
       Var v = entry.getValue();
       if (!v.isVarUndefined()) {
-        alist.add(v.hashKey);
+        alist.add(v.getHashKey());
       }
     }
     return alist;
@@ -228,7 +228,7 @@ public final class CallFrame {
     for (Map.Entry<String, Var> entry : getVarTable().entrySet()) {
       Var v = entry.getValue();
       if (!v.isVarUndefined() && !v.isVarLink()) {
-        alist.add(v.hashKey);
+        alist.add(v.getHashKey());
       }
     }
     return alist;
